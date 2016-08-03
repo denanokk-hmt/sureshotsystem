@@ -1,0 +1,75 @@
+#!/bin/bash -vx
+#
+
+########################################
+#	EMPOLY EDIT INPUT.CGI
+#
+#	Written by hiramatsu
+
+
+########################################
+#Set basic
+SYSD=/home/sureshotsystem
+#exec 2> $SYSD/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
+tmp=/tmp/tmp_$1
+LANG=ja_JP.UTF-8
+PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
+CATEGORY=`cat $tmp-category`
+FUNC=`cat $tmp-func`
+
+########################################
+#Check error
+ERROR_CHECK(){
+	[ $(plus ${PIPESTATUS[@]}) -eq 0 ] && return
+cat <<- FIN
+	Context-type: text/html
+	NG input
+FIN
+	cat $tmp-result
+	exit 1
+}
+
+########################################
+#Set Own ID
+cat $tmp-get | sed -e "s/id\=//" > $tmp-id
+ID=$(cat $tmp-id)
+EMPLOYEE_ID=$(sha1 $RANDOM)
+echo $ID > ${SYSD}/DATA/${CATEGORY}/USERS/LV4/TMP/${EMPLOYEE_ID}
+
+########################################
+#Get Own users data
+ARR=( `cat ${SYSD}/DATA/${CATEGORY}/USERS/LV3/EMPLOYEES     |
+        awk -v id=$ID '$1==id{print}'                       |
+        tr -s ' ' ' '`)
+ID=${ARR[0]}
+FAMILY_NAME=${ARR[1]}
+GIVEN_NAME=${ARR[2]}
+EMAIL=${ARR[3]}
+TEL=${ARR[4]}
+CREATE_DATE=${ARR[5]}
+UPDATE_DATE=${ARR[6]}
+ADMIN_FLAG=${ARR[7]}
+DEL_FLAG=${ARR[8]}
+
+########################################
+#Making viweing body HTML filw path
+ACTION=`cat $tmp-action`
+cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML   |
+sed -e "s/###FAMILY_NAME_ERR###/hidden/"            |
+sed -e "s/###GIVEN_NAME_ERR###/hidden/"             |
+sed -e "s/###EMAIL_ERR###/hidden/"                  |
+sed -e "s/###PASSWORD_ERR###/hidden/"               |
+sed -e "s/###PASSWORD_CONFIRMATION_ERR###/hidden/"  |
+sed -e "s/###EMAIL_DUPLECATED###/hidden/"           |
+sed -e "s/###FAMILY_NAME_VALUE###/${FAMILY_NAME}/"  |
+sed -e "s/###GIVEN_NAME_VALUE###/${GIVEN_NAME}/"    |
+sed -e "s/###EMAIL_VALUE###/${EMAIL}/"              |
+sed -e "s/###PASSWORD_VALUE###/NOT_CHANGE/"         |
+sed -e "s/###EMPLOYEE_ID###/${EMPLOYEE_ID}/"    |
+sed -e "s/###PASSWORD_CONFIRMATION_VALUE###/NOT_CHANGE/"      > $tmp-html
+
+#########################################
+##ending
+echo "OK"
+exit 0
+

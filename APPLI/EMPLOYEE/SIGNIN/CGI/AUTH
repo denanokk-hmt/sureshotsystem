@@ -1,0 +1,75 @@
+#!/bin/bash -vx
+#
+
+########################################
+#	AUTH.CGI
+#
+#	Written by hiramatsu
+
+
+########################################
+#Set basic
+SYSD=/home/sureshotsystem
+#exec 2> ${SYSD}/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
+tmp=/tmp/tmp_$1
+LANG=ja_JP.UTF-8
+PATH=/home/:/home/UTL:/usr/local/bin:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
+CATEGORY=`cat $tmp-category`
+FUNC=`cat $tmp-func`
+LOGIND=${SYSD}/DATA/EMPLOYEE/LOGIN
+
+########################################
+#Check error
+ERROR_CHECK(){
+	[ $(plus ${PIPESTATUS[@]}) -eq 0 ] && return
+cat <<- FIN
+	Context-type: text/html
+	NG input
+FIN
+	cat $tmp-result
+	exit 1
+}
+
+######################################
+#Get Form Data
+VALUE1=$(nameread ID $tmp-post)
+VALUE2=$(nameread PASSWORD $tmp-post)
+
+
+#######################################
+#パスワードの暗号化
+echo $(sha1 $VALUE2) > $tmp-sha1
+PW=$(cat $tmp-sha1)
+
+########################################
+#AUTH
+cat ${LOGIND}/LV3/LOGINPASSES   | awk -v id=$VALUE1 -v pw=$PW '$2==id&&$3==pw&&$6==0{print}' > $tmp-auth
+#fff=$(cat $tmp-auth)
+
+########################################
+#SET SESSION
+EMP_SESS_ID='ss_employee_session_id'
+if [ -n "$(cat $tmp-auth)" ] ; then
+    COOK=`${SYSD}/CGI/SESSION/SESSION_SET ${EMP_SESS_ID} `
+    echo $COOK > $tmp-cook
+fi
+
+#######################################
+#HTMLの設定
+if [ -z "$(cat $tmp-auth)" ] ; then
+    ACTION=INPUT
+    cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML   |
+    sed -e "s/###AUTH_ERR###/show/"             |
+    sed -e "s/###ID_VALUE###/${VALUE1}/"        |
+    sed -e "s/###PASSWORD_VALUE###//"           > $tmp-html
+else
+    cat ${SYSD}/HTML/index.html > $tmp-html 
+fi
+
+###############################################################################
+#ending
+echo "OK"
+exit 0
+
+
+

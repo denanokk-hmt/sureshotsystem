@@ -1,0 +1,147 @@
+#!/bin/bash -evx
+#
+
+########################################
+#	ROOT.CGI
+#
+#	Written by hiramatsu
+
+
+########################################
+#Set basic
+SYSD=/home/sureshotsystem
+exec 2> ${SYSD}/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
+tmp=/tmp/tmp_$$
+LANG=ja_JP.UTF-8
+PATH=/home/:/home/UTL:/usr/local/bin:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
+#SESS_LIFE_MIN=5
+
+########################################
+#Check error
+ERROR_CHECK(){
+	[ $(plus ${PIPESTATUS[@]}) -eq 0 ] && return
+cat <<- FIN
+	Context-type: text/html
+	NG input
+FIN
+	cat $tmp-result
+	exit 1
+}
+
+########################################
+#Get Parameters
+#1.Requst Methodの取得
+METHOD=$REQUEST_METHOD
+echo $METHOD > $tmp-method
+
+#2.Request URL
+URI=$REQUEST_URI
+echo $URI > $tmp-uri
+
+#3 Get method parameter.
+case $METHOD in
+GET)
+    #show       :一覧情報を取得する 
+    #input      :入力画面の初期→ビジネスロジックはなし
+    #search     :検索
+    if [ ! -z $QUERY_STRING ]; then
+        echo $QUERY_STRING > $tmp-get
+    else
+        touch $tmp-get
+    fi
+    ;;
+POST)
+    #create     :データの登録
+    #input      :Validationエラー時にエラー文言と入力値を取得
+    #confirm    :validationを再度
+    #complete   :
+    if [ ! -z $CONTENT_LENGTH ]; then
+	    dd bs=$CONTENT_LENGTH |
+	    cgi-name -d_ -i_	> $tmp-post
+    else
+	    touch $tmp-post
+    fi
+    ;;
+PUT)
+    #update
+    ;;
+DELETE)
+    #destroy
+    ;;
+*)
+    #other
+    ;;
+esac
+
+#######################################
+#Set rooting
+ARR=( `echo $URI | tr -s '/' ' '`)
+APP=${ARR[0]} > $tmp-app
+CATEGORY=${ARR[1]}
+FUNC=${ARR[2]}
+ACTION=${ARR[3]}
+ARR_COUNT=${#ARR[*]}
+echo $APP > $tmp-uri_ap
+echo $CATEGORY > $tmp-category
+echo $FUNC > $tmp-func
+echo $ACTION > $tmp-action
+if [ $ARR_COUNT -gt 4 ] ; then
+    echo ${ARR[4]} > $tmp-qqq
+fi
+
+########################################
+#Session
+EMP_SESS_ID='ss_employee_session_id'    #社員用ログインセッションID
+case ${CATEGORY}/${FUNC} in
+"EMPLOYEE/NEW" | "EMPLOYEE/SIGNIN")     #社員の登録とログインは無視
+    ;;
+*)
+    SESS_STATUS=`${SYSD}/CGI/SESSION/SESSION_CHECK ${EMP_SESS_ID} ` #セッション確認
+    case $SESS_STATUS in
+    live)   #時間を延長
+        SESS=$(session_get ${EMP_SESS_ID})
+        COOK=`${SYSD}/CGI/SESSION/SESSION_SET ${EMP_SESS_ID} `
+        echo $COOK > $tmp-cook
+        ;;
+    *)      #ログインへ
+        CATEGORY='EMPLOYEE'
+        FUNC='SIGNIN'
+        ACTION='INPUT'
+        echo ${CATEGORY} > $tmp-category
+        echo $FUNC > $tmp-func
+        echo $ACTION > $tmp-action
+        ;;
+    esac
+    ;;
+esac
+
+#######################################
+#Do the business logic & return HTML Body
+if [ -n "${FUNC}${ACTION}" ] ; then
+    result=`../APPLI/${CATEGORY}/${FUNC}/CGI/${ACTION} $$`
+    echo $result > $tmp-result
+else
+    cat ${SYSD}/HTML/index.html > $tmp-html
+fi
+
+########################################
+#Session Cookie
+if [ -e $tmp-cook ]; then
+    COOK_SET=`cat $tmp-cook`
+fi
+
+########################################
+#View
+cat << FIN
+Content-type: text/html
+${COOK_SET}
+
+FIN
+
+echo ""
+cat $tmp-html
+
+#########################################
+##ending
+rm -f $tmp-*
+exit 0

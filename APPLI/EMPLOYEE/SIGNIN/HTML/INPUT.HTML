@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+	<head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Sureshot employee registry input</title>
+        <!-- BootstrapのCSS読み込み -->
+        <link href="/BOOTSTRAP/css/bootstrap.min.css" rel="stylesheet">
+        <!-- jQuery読み込み -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <!-- BootstrapのJS読み込み -->
+        <script src="/BOOTSTRAP/js/bootstrap.min.js"></script>
+	</head>
+    <body>
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                <h1>EMPLOYEE SIGN IN <span class="label label-default">AUTH</span></h1>
+		        <form action="/APP/EMPLOYEE/SIGNIN/AUTH" method="POST">
+                    <div class="form-group">
+                        <span class="label label-danger ###AUTH_ERR###">ID or Password was incomplete.</span>
+                    </div>
+                    <div class="form-group">
+			            <span class="glyphicon glyphicon-user"></span>
+                        <span class="label label-default">ID(EMAIL)</span>
+			            <input type="text" name="ID" value="###ID_VALUE###" class="form-control" />
+                    </div>
+			        <br />
+                    <div class="form-group">
+			            <span class="glyphicon glyphicon-user"></span>
+			            <span class="label label-default">PASSWORD</span>
+    			        <input type="password" name="PASSWORD" value="###PASSWORD_VALUE###" class="form-control"/>
+                    </div>
+	    		    <br />
+
+			        <input type="hidden" name="STATUS" value="SIGNIN" />
+
+                    <div class="form-group">
+			            <input type="submit" name="SUBMIT" class="btn btn-primary btn-lg" />
+                    </div>
+		        </form>
+            </div>
+        </div>
+	</body>
+</html>
+
