@@ -78,7 +78,7 @@ fi
 #バリデーション(EMAIL重複確認)
 #1.社員番号 2.姓 3.名 4.EMAIL 5.TEL 6.作成日時 7.更新日時 8.削除フラグ
 EMAIL=$(cat $tmp-value3)
-cat ${SYSD}/DATA/EMPLOYEE/LV1/*_employee | awk '$4=="'"${EMAIL}"'"{print $0}' > $tmp-attr-VALID3
+cat ${SYSD}/DATA/EMPLOYEE/LV3/EMPOLYEES | awk '$4=="'"${EMAIL}"'"{print $0}' > $tmp-attr-VALID3
 
 ########################################
 #バリデーションエラー項目の確定
@@ -121,7 +121,7 @@ fi
 
 ########################################
 #パスワードの暗号化
-if [ "${VALID4}"='NOT_CHANGE' ]; then
+if [ "${VALID4}" = 'NOT_CHANGE' ]; then
     echo 'NOT_CHANGE' > $tmp-sha1
 else
     echo $(sha1 $(cat $tmp-value4)) > $tmp-sha1

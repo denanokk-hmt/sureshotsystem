@@ -33,8 +33,8 @@ FIN
 #Set Own ID
 cat $tmp-get | sed -e "s/id\=//" > $tmp-id
 ID=$(cat $tmp-id)
-EMPLOYEE_ID=$(sha1 $RANDOM)
-echo $ID > ${SYSD}/DATA/${CATEGORY}/USERS/LV4/TMP/${EMPLOYEE_ID}
+EMPLOYEE_ID=$(sha1 $RANDOM$ID)
+echo $ID > ${SYSD}/DATA/${CATEGORY}/TMP/${EMPLOYEE_ID}
 
 ########################################
 #Get Own users data

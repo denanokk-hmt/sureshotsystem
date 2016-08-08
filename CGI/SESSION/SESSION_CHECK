@@ -24,6 +24,7 @@ LIFETIME_MIN=15
 
 #######################################
 #Set SESSION LIFE TIME
+S=$2
 SESS_LIFE=${2:-"$LIFETIME_MIN"}
 
 #######################################
@@ -33,7 +34,7 @@ SESS=$(session_get $1)
 #######################################
 #Check the session
 if [ -n "${SESS}" ] ; then
-    if find "${SESSION_FILED}" -mmin -"${SESS_LIFE}" -name "${SESS}" -type f > /dev/null ; then 
+    if [ $(find "${SESSION_FILED}" -mmin -"${SESS_LIFE}" -name "${SESS}" -type f) ]; then 
         SESS_STATUS='live'
     else
         SESS_STATUS='expire'

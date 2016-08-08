@@ -38,24 +38,31 @@ ID=$(nameread EMPLOYEE_ID $tmp-post)
 VALUE1=$(nameread FAMILY_NAME $tmp-post)
 VALUE2=$(nameread GIVEN_NAME $tmp-post)
 VALUE3=$(nameread EMAIL $tmp-post)
-VALUE4=$(nameread PASSWORD $tmp-post)
+PW=$(nameread PASSWORD $tmp-post)
 #VALUE5=$(nameread ADMIN_FLAG $tmp-post)
 VALUE5=0
 
-########################################
+######################################
 #Set employee number
-EMPLOYEE_NUM=$(cat ${SYSD}/DATA/EMPLOYEE/USERS/LV4/TMP/${ID})
+EMPLOYEE_NUM=$(cat ${SYSD}/DATA/EMPLOYEE/TMP/${ID})
+rm -f ${SYSD}/DATA/EMPLOYEE/TMP/${ID}
+
+########################################
+#PW
+if [ "${PW}" = 'NOT_CHANGE' ]; then
+    PW=$(cat ${LOGIND}/LV3/LOGINPASSES   | awk -v id=$EMPLOYEE_NUM '$1==id{print $3}')
+fi
 
 ########################################
 #Set DATE
-ls ${EMPLOYEE_NUM}_employee_* | cut -d'_' -f3 | sort -nk1,1 | head -n 1 > $tmp-create
+ls ${SYSD}/DATA/EMPLOYEE/USERS/LV1/${EMPLOYEE_NUM}_employee_* | cut -d'_' -f3 | sort -nk1,1 | head -n 1 > $tmp-create
 CREATE_DATE=$(cat $tmp-create)
 UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 
 ########################################
 #Write data to tempolary file
 #1.社員番号 3.EMAIL 2.PW 3.作成日時 4.更新日時 5.ADMINフラグ 6.削除フラグ
-echo ${EMPLOYEE_NUM}" "${VALUE3}" "${VALUE4}" "${CREATE_DATE}" "${UPDATE_DATE}" "${VALUE5}" "0 > $tmp-login
+echo ${EMPLOYEE_NUM}" "${VALUE3}" "${PW}" "${CREATE_DATE}" "${UPDATE_DATE}" "${VALUE5}" "0 > $tmp-login
 
 ########################################
 #Write data to tempolary file
@@ -67,33 +74,35 @@ echo ${EMPLOYEE_NUM}" "${VALUE1}" "${VALUE2}" "${VALUE3}" - "${CREATE_DATE}" "${
 #LV1
 $(mv $tmp-login ${LOGIND}/LV1/${EMPLOYEE_NUM}_loginpass_${UPDATE_DATE})
 #LV2
-cat ${LOGIND}/LV1/${EMPLOYEE_NUM}_loginpass_${UPDATE_DATE}  |
-LANG=C sort -k1,1 -k7,7                     >> ${LOGIND}/LV2/LOGINPASSES
+cat ${LOGIND}/LV1/${EMPLOYEE_NUM}_loginpass_${UPDATE_DATE}  >> ${LOGIND}/LV2/LOGINPASSES
 chmod 775 ${LOGIND}/LV2/LOGINPASSES
 #LV3
-cat ${LOGIND}/LV2/LOGINPASSES               |
-LANG=C sort -nk1,1 -nk7,7                   |
-uniq -w 1 | sort -nk1,1                     > ${LOGIND}/LV3/LOGINPASSES
+cat ${LOGIND}/LV2/LOGINPASSES   |
+LANG=C sort -nk1,1 -nrk5,5      |
+uniq -w 1 | sort -nk1,1         > ${LOGIND}/LV3/LOGINPASSES
 chmod 775 ${LOGIND}/LV3/LOGINPASSES
 
 ########################################
 #Data Saving for EMPLOYEE
-##LV1
-#$(mv $tmp-employee ${USERSD}/LV1/${EMPLOYEE_NUM}_employee_${CREATE_DATE})
-##LV2
-#cat ${USERSD}/LV1/NEW/${EMPLOYEE_NUM}_employee  |
-#LANG=C sort -nk1,1                              >> ${USERSD}/LV2/EMPLOYEES
-#chmod 775 ${USERSD}/LV2/EMPLOYEES
-###LV3
-#cat ${USERSD}/LV1/NEW/${EMPLOYEE_NUM}_employee   |
-#LANG=C sort -nk1,1                              |
-#awk '{print sprintf("%d %s %s %s %s %s %s %d %d /APP/EMPLOYEE/USERS/SHOW/?id=%d /APP/EMPLOYEE/EDIT/INPUT/?id=%d",$1,$2,$3,$4,$5,$6,$7,$8,$9,$1,$1)}' >> ${USERSD}/LV3/EMPLOYEES
-#chmod 775 ${USERSD}/LV3/EMPLOYEES
+#LV1
+$(mv $tmp-employee ${USERSD}/LV1/${EMPLOYEE_NUM}_employee_${UPDATE_DATE})
+#LV2
+cat ${USERSD}/LV1/${EMPLOYEE_NUM}_employee_${UPDATE_DATE}   >> ${USERSD}/LV2/EMPLOYEES
+chmod 775 ${USERSD}/LV2/EMPLOYEES
+#LV3
+cat ${USERSD}/LV1/${EMPLOYEE_NUM}_employee_${CREATE_DATE}   |
+awk '{print sprintf("%d %s %s %s %s %s %s %d %d /APP/EMPLOYEE/USERS/SHOW/?id=%d /APP/EMPLOYEE/EDIT/INPUT/?id=%d",$1,$2,$3,$4,$5,$6,$7,$8,$9,$1,$1)}'    >> ${USERSD}/LV3/EMPLOYEES
+#LV3
+cat ${USERSD}/LV2/EMPLOYEES     |
+LANG=C sort -nk1,1 -nrk7,7      |
+uniq -w 1 | sort -nk1,1         |
+awk '{print sprintf("%d %s %s %s %s %s %s %d %d /APP/EMPLOYEE/USERS/SHOW/?id=%d /APP/EMPLOYEE/EDIT/INPUT/?id=%d",$1,$2,$3,$4,$5,$6,$7,$8,$9,$1,$1)}'    > ${USERSD}/LV3/EMPLOYEES
+chmod 775 ${USERSD}/LV3/EMPLOYEES
 
 ########################################
 #SET SESSION
 COOK=`${SYSD}/CGI/SESSION/SESSION_SET ${EMP_SESS_ID} `
-eho $COOK > $tmp-cook
+echo $COOK > $tmp-cook
 
 ########################################
 #HTMLの設定
@@ -105,7 +114,7 @@ sed -e "s/###EMAIL_LABEL###/${VALUE3}/"         > $tmp-html
 
 ###############################################################################
 #ending
-echo "employee new user OK"
+echo "employee edit user OK"
 #echo $COOK_SET
 exit 0
 

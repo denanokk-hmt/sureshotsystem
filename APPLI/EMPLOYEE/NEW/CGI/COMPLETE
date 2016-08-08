@@ -43,7 +43,7 @@ VALUE5=0
 
 ########################################
 #Set employee number
-LATEST_NUM=$(ls ${USERSD}/LV1 | sort -n | awk 'END{print}' | awk '{gsub(/\_employee/,"",$1);print}')
+LATEST_NUM=$(ls ${USERSD}/LV1 | sort -r | head -n 1 | cut -d'_' -f1)
 EMPLOYEE_NUM=$((LATEST_NUM + 1))
 
 ########################################
@@ -66,12 +66,10 @@ echo ${EMPLOYEE_NUM}" "${VALUE1}" "${VALUE2}" "${VALUE3}" - "${CREATE_DATE}" "${
 #LV1
 $(mv $tmp-login ${LOGIND}/LV1/${EMPLOYEE_NUM}_loginpass_${CREATE_DATE})
 #LV2
-cat ${LOGIND}/LV1/${EMPLOYEE_NUM}_loginpass_${CREATE_DATE}  |
-LANG=C sort -k1,1                           >> ${LOGIND}/LV2/LOGINPASSES
+cat ${LOGIND}/LV1/${EMPLOYEE_NUM}_loginpass_${CREATE_DATE}  >> ${LOGIND}/LV2/LOGINPASSES
 chmod 775 ${LOGIND}/LV2/LOGINPASSES
 #LV3
-cat ${LOGIND}/LV2/LOGINPASSES               |
-LANG=C sort -k1,1                           >> ${LOGIND}/LV3/LOGINPASSES
+cat ${LOGIND}/LV1/${EMPLOYEE_NUM}_loginpass_${CREATE_DATE}  >> ${LOGIND}/LV3/LOGINPASSES
 chmod 775 ${LOGIND}/LV3/LOGINPASSES
 
 ########################################
@@ -79,12 +77,10 @@ chmod 775 ${LOGIND}/LV3/LOGINPASSES
 #LV1
 $(mv $tmp-employee ${USERSD}/LV1/${EMPLOYEE_NUM}_employee_${CREATE_DATE})
 #LV2
-cat ${USERSD}/LV1/${EMPLOYEE_NUM}_employee_${CREATE_DATE}   |
-LANG=C sort -nk1,1                                          >> ${USERSD}/LV2/EMPLOYEES
+cat ${USERSD}/LV1/${EMPLOYEE_NUM}_employee_${CREATE_DATE}   >> ${USERSD}/LV2/EMPLOYEES
 chmod 775 ${USERSD}/LV2/EMPLOYEES
 #LV3
 cat ${USERSD}/LV1/${EMPLOYEE_NUM}_employee_${CREATE_DATE}   |
-LANG=C sort -nk1,1                                          |
 awk '{print sprintf("%d %s %s %s %s %s %s %d %d /APP/EMPLOYEE/USERS/SHOW/?id=%d /APP/EMPLOYEE/EDIT/INPUT/?id=%d",$1,$2,$3,$4,$5,$6,$7,$8,$9,$1,$1)}'    >> ${USERSD}/LV3/EMPLOYEES
 chmod 775 ${USERSD}/LV3/EMPLOYEES
 
