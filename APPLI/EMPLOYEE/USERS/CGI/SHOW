@@ -58,7 +58,14 @@ awk -v s=$start -v e=$end 'NR>=s&&NR<=e' |
 juni                                        > $tmp-records
 # 1;社員番号 2;姓 3:名 4:email
 
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML $tmp-records > $tmp-html
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML $tmp-records > $tmp-template-html
+
+
+########################################
+#Set pager
+RECORDS=$( cat ${SYSD}/DATA/${CATEGORY}/USERS/LV3/EMPLOYEES | wc -l )
+RESULT=`${SYSD}/CGI/PAGER $1 /APP/EMPOLYEE/USERS/SHOW 1 ${RECORDS}`
+
 
 ########################################
 #Making viweing body HTML filw path

@@ -1,17 +1,20 @@
-#!/bin/bash -vx
+#!/bin/bash -evx
 #
 
 ########################################
-#	ROOT.CGI
+#	PAGER.CGI
+#
+#   Argument
+#       $$, Link url, show page, All records, View Rec, View pages
 #
 #	Written by hiramatsu
 
 
 ########################################
 #Set basic
-sysd=/home/sureshotsystem
-exec 2> ${sysd}/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
-tmp=/tmp/tmp_$$
+SYSD=/home/sureshotsystem
+exec 2> ${SYSD}/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
+tmp=/tmp/tmp_$1
 LANG=ja_JP.UTF-8
 PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
 
@@ -27,4 +30,88 @@ FIN
 	exit 1
 }
 
+########################################
+#Argument
+LINK_URL=$2
+SHOW_PAGE=$3    #show page
+RECORDS=$4      #All Records
+VIEW_REC=${5:-20}
+VIEW_PAGES=${6:-5}
 
+########################################
+#Get Pages
+SHOU=$(expr ${RECORDS} / ${VIEW_REC})
+JOUYO=$(expr ${RECORDS} % ${VIEW_REC}) 
+[ $JOUYO -gt 0 ] && PAGE_ALL=$(expr ${SHOU} + 1) || PAGE_ALL=${SHOU}
+
+
+########################################
+#Get Now SET
+SHOU2=$(expr ${SHOW_PAGE} / ${VIEW_PAGES})
+JOUYO2=$(expr ${SHOW_PAGE} % ${VIEW_PAGES})
+[ $JOUYO2 -eq 0 ] && SET_NOW=${SHOU2} || SET_NOW=$(expr ${SHOU2} + 1)
+
+########################################
+#Get Max SET
+SHOU3=$(expr ${PAGE_ALL} / ${VIEW_PAGES})
+JOUYO3=$(expr ${PAGE_ALL} % ${VIEW_PAGES})
+[ $JOUYO3 -eq 0 ] && SET_MAX=${SHOU3} || SET_MAX=$(expr ${SHOU3} + 1)
+
+########################################
+#Set < pagination >
+PREV_URL=${LINK_URL}/?page=$(expr ${SHOW_PAGE} - 1)
+NEXT_URL=${LINK_URL}/?page=$(expr ${SHOW_PAGE} + 1)
+case "${SET_NOW}" in
+    1)
+        PREV_DISP='false'
+        NEXT_DISP='ture'
+        START=1
+        END=${VIEW_PAGES}
+        echo "min"
+        ;;
+    "${SET_MAX}")
+        PREV_DISP='true'
+        NEXT_DISP='false'
+        START=$(expr \( ${SET_NOW} - 1 \) \* ${VIEW_PAGES} + 1)
+        END=${PAGE_ALL}
+        echo "max"
+        ;;
+    *)
+        PREV_DISP='true'
+        NEXT_DISP='true'
+        START=$(expr \( ${SET_NOW} - 1 \) \* ${VIEW_PAGES} + 1)
+        END=$(expr ${SET_NOW} \* ${VIEW_PAGES})
+        echo "middle"
+        ;;
+esac
+echo ${PREV_VIEW} > $tmp-pager-prev
+echo ${NEXT_VIEW} > $tmp-pager-next
+seq  ${START} ${END} > $tmp-pager-pages
+
+########################################
+#Set Pagination VALUE
+cat $tmp-pager-pages | 
+awk -v now=$SHOW_PAGE -v url=$LINK_URL \
+'{print $1==now?"active":"-",sprintf("%s/?page=%d",url,$1),$1}' > $tmp-pager-value
+
+
+########################################
+#Set Pages HTML
+# 1:active or not, 2:link url, 3:page num
+mojihame -lPAGES ${SYSD}/HTML/PAGER.HTML $tmp-pager-value > $tmp-pager-html
+
+########################################
+#Set Pagination HTML
+cat $tmp-pager-html |
+sed -e "s|###PREV_URL###|${PREV_URL}|"  |
+sed -e "s/###PREV_DISP###/${PREV_DISP}/"  |
+sed -e "s|###NEXT_URL###|${NEXT_URL}|"  |
+sed -e "s/###NEXT_DISP###/${NEXT_DISP}/"  > $tmp-html-pager
+
+# 改行文字を「\\n」という3文字の文字列に置換
+TEXT=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-html-pager`
+#sed -re "s|###PAGER###|${TEXT}|g" ${SYSD}/HTML/MAIN.HTML > $tmp-html
+sed -re "s|###PAGER###|${TEXT}|g" $tmp-template-html > $tmp-html
+
+
+exit 0
