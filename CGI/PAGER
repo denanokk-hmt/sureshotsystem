@@ -1,4 +1,4 @@
-#!/bin/bash -evx
+#!/bin/bash -vx
 #
 
 ########################################
@@ -44,7 +44,6 @@ SHOU=$(expr ${RECORDS} / ${VIEW_REC})
 JOUYO=$(expr ${RECORDS} % ${VIEW_REC}) 
 [ $JOUYO -gt 0 ] && PAGE_ALL=$(expr ${SHOU} + 1) || PAGE_ALL=${SHOU}
 
-
 ########################################
 #Get Now SET
 SHOU2=$(expr ${SHOW_PAGE} / ${VIEW_PAGES})
@@ -84,33 +83,33 @@ case "${SET_NOW}" in
         echo "middle"
         ;;
 esac
-echo ${PREV_VIEW} > $tmp-pager-prev
-echo ${NEXT_VIEW} > $tmp-pager-next
+echo ${PREV_URL} > $tmp-pager-prev
+echo ${NEXT_URL} > $tmp-pager-next
 seq  ${START} ${END} > $tmp-pager-pages
 
 ########################################
 #Set Pagination VALUE
-cat $tmp-pager-pages | 
-awk -v now=$SHOW_PAGE -v url=$LINK_URL \
-'{print $1==now?"active":"-",sprintf("%s/?page=%d",url,$1),$1}' > $tmp-pager-value
+[ ${RECORDS} -lt ${VIEW_REC} ] && NOT_OR_DIS='disable' || NOT_OR_DIS='-'
 
+cat $tmp-pager-pages | 
+awk -v now=$SHOW_PAGE -v notdis=$NOT_OR_DIS -v url=$LINK_URL \
+'{print $1==now?"active":notdis,sprintf("%s/?page=%d",url,$1),$1}' > $tmp-pager-value
 
 ########################################
 #Set Pages HTML
 # 1:active or not, 2:link url, 3:page num
-mojihame -lPAGES ${SYSD}/HTML/PAGER.HTML $tmp-pager-value > $tmp-pager-html
+mojihame -lPAGES ${SYSD}/HTML/PAGER.HTML $tmp-pager-value > $tmp-pager-mojihame
 
 ########################################
 #Set Pagination HTML
-cat $tmp-pager-html |
-sed -e "s|###PREV_URL###|${PREV_URL}|"  |
-sed -e "s/###PREV_DISP###/${PREV_DISP}/"  |
-sed -e "s|###NEXT_URL###|${NEXT_URL}|"  |
-sed -e "s/###NEXT_DISP###/${NEXT_DISP}/"  > $tmp-html-pager
+cat $tmp-pager-mojihame                     |
+sed -e "s|###PREV_URL###|${PREV_URL}|"      |
+sed -e "s/###PREV_DISP###/${PREV_DISP}/"    |
+sed -e "s|###NEXT_URL###|${NEXT_URL}|"      |
+sed -e "s/###NEXT_DISP###/${NEXT_DISP}/"    > $tmp-pager
 
 # 改行文字を「\\n」という3文字の文字列に置換
-TEXT=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-html-pager`
-#sed -re "s|###PAGER###|${TEXT}|g" ${SYSD}/HTML/MAIN.HTML > $tmp-html
+TEXT=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-pager`
 sed -re "s|###PAGER###|${TEXT}|g" $tmp-template-html > $tmp-html
 
 

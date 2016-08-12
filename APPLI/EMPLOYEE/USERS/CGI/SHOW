@@ -17,6 +17,8 @@ PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
 CATEGORY=`cat $tmp-category`
 FUNC=`cat $tmp-func`
 ACTION=`cat $tmp-action`
+PAGER_VIEW_REC=20
+PAGER_VIEW_PAGES=5
 
 ########################################
 #Check error
@@ -31,41 +33,35 @@ FIN
 }
 
 ########################################
-#Check Login Session
-#session=`${SYSD}/CGI/LOGIN_SESSION`
-#echo $session > $tmp-session
-
+#Get querystring
+QRY_PAGE=$( cat $tmp-get | sed -e 's/^.*\(page\=[0-9]*\).*$/\1/' | sed -e 's/page\=//')
+QRY_DISP=$( cat $tmp-get | sed -e 's/^.*\(disp\=[0-9]*\).*$/\1/' | sed -e 's/disp\=//')
 
 ########################################
-#Set start & end
-if [ -z $(cat $tmp-get) ]; then
-    start=1
-    end=20
+#Set record start & end
+if [ -z $(echo ${QRY_PAGE}) ]; then
+    SHOW_PAGE=1
+    START=1
+    END=20
 else
-    if [ -n $(cat $tmp-get | grep "id\=") ]; then
-        query_string=$(cat $tmp-get | sed -e "s/id\=//")
-        arr=( `echo $query_string | tr -s '-' ' '`)
-        start=${arr[0]}
-        end=${arr[0]}
-    fi
+    SHOW_PAGE=${QRY_PAGE}
+    END=$(expr ${QRY_PAGE} \* ${PAGER_VIEW_REC} )
+    START=$(expr ${END} - ${PAGER_VIEW_REC} + 1 )
 fi
 
 ########################################
 #Get employee records
-cat ${SYSD}/DATA/${CATEGORY}/USERS/LV3/EMPLOYEES     |
-LANG=C sort -nk1,1                           |
-awk -v s=$start -v e=$end 'NR>=s&&NR<=e' |
-juni                                        > $tmp-records
+cat ${SYSD}/DATA/${CATEGORY}/USERS/LV3/EMPLOYEES    |
+LANG=C sort -nk1,1                                  |
+awk -v s=${START} -v e=${END} 'NR>=s&&NR<=e'        |
+juni                                                > $tmp-records
 # 1;社員番号 2;姓 3:名 4:email
-
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML $tmp-records > $tmp-template-html
-
 
 ########################################
 #Set pager
 RECORDS=$( cat ${SYSD}/DATA/${CATEGORY}/USERS/LV3/EMPLOYEES | wc -l )
-RESULT=`${SYSD}/CGI/PAGER $1 /APP/EMPOLYEE/USERS/SHOW 1 ${RECORDS}`
-
+RESULT=`${SYSD}/CGI/PAGER $1 /APP/EMPLOYEE/USERS/SHOW ${SHOW_PAGE} ${RECORDS}`
 
 ########################################
 #Making viweing body HTML filw path

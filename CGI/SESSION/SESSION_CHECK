@@ -47,5 +47,6 @@ echo ${SESS_STATUS} > $tmp-sess-status
 #######################################
 #Return session status
 echo ${SESS_STATUS}
+rm -f $tmp-*
 exit 0
 
