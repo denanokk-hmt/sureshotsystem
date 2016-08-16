@@ -17,10 +17,8 @@ PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
 CATEGORY=`cat $tmp-category`
 FUNC=`cat $tmp-func`
 ACTION=`cat $tmp-action`
-PAGER_VIEW_REC=20
-PAGER_VIEW_PAGES=5
 
-########################################
+#######################################
 #Check error
 ERROR_CHECK(){
 	[ $(plus ${PIPESTATUS[@]}) -eq 0 ] && return
@@ -33,6 +31,18 @@ FIN
 }
 
 ########################################
+#最大表示レコード数
+cat ${SYSD}/SYS/${CATEGORY}/${FUNC}/VIEW_MAX_RECORDS | 
+awk '{print $2}' > $tmp-max-records
+VIEW_MAX_RECORDS=$( cat $tmp-max-records )
+
+########################################
+#最大表示ページ数
+cat ${SYSD}/SYS/${CATEGORY}/${FUNC}/VIEW_MAX_PAGES | 
+awk '{print $2}' > $tmp-max-pages
+VIEW_MAX_PAGES=$( cat $tmp-max-pages )
+
+########################################
 #Get querystring
 QRY_PAGE=$( cat $tmp-get | sed -e 's/^.*\(page\=[0-9]*\).*$/\1/' | sed -e 's/page\=//')
 QRY_DISP=$( cat $tmp-get | sed -e 's/^.*\(disp\=[0-9]*\).*$/\1/' | sed -e 's/disp\=//')
@@ -42,11 +52,11 @@ QRY_DISP=$( cat $tmp-get | sed -e 's/^.*\(disp\=[0-9]*\).*$/\1/' | sed -e 's/dis
 if [ -z $(echo ${QRY_PAGE}) ]; then
     SHOW_PAGE=1
     START=1
-    END=20
+    END=${VIEW_MAX_RECORDS}
 else
     SHOW_PAGE=${QRY_PAGE}
-    END=$(expr ${QRY_PAGE} \* ${PAGER_VIEW_REC} )
-    START=$(expr ${END} - ${PAGER_VIEW_REC} + 1 )
+    END=$(expr ${QRY_PAGE} \* ${VIEW_MAX_RECORDS} )
+    START=$(expr ${END} - ${VIEW_MAX_RECORDS} + 1 )
 fi
 
 ########################################
@@ -61,7 +71,7 @@ mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML $tmp-re
 ########################################
 #Set pager
 RECORDS=$( cat ${SYSD}/DATA/${CATEGORY}/USERS/LV3/EMPLOYEES | wc -l )
-RESULT=`${SYSD}/CGI/PAGER $1 /APP/EMPLOYEE/USERS/SHOW ${SHOW_PAGE} ${RECORDS}`
+RESULT=`${SYSD}/CGI/PAGER $1 /APP/EMPLOYEE/USERS/SHOW ${SHOW_PAGE} ${RECORDS} ${VIEW_MAX_RECORDS} ${VIEW_MAX_PAGES}`
 
 ########################################
 #Making viweing body HTML filw path

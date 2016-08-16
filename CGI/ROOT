@@ -41,9 +41,6 @@ echo $URI > $tmp-uri
 #3 Get method parameter.
 case $METHOD in
 GET)
-    #show       :一覧情報を取得する 
-    #input      :入力画面の初期→ビジネスロジックはなし
-    #search     :検索
     if [ ! -z $QUERY_STRING ]; then
         echo $QUERY_STRING > $tmp-get
     else
@@ -51,10 +48,6 @@ GET)
     fi
     ;;
 POST)
-    #create     :データの登録
-    #input      :Validationエラー時にエラー文言と入力値を取得
-    #confirm    :validationを再度
-    #complete   :
     if [ ! -z $CONTENT_LENGTH ]; then
 	    dd bs=$CONTENT_LENGTH |
 	    cgi-name -d_ -i_	> $tmp-post
@@ -63,10 +56,10 @@ POST)
     fi
     ;;
 PUT)
-    #update
+    #update 残念ながらSHELLでは、GET扱いらしい、、、 →POSTで対応するしかない、
     ;;
 DELETE)
-    #destroy
+    #destroy 残念ながらSHELLでは、GET扱いらしい、、、→POSTで対応するしかない
     ;;
 *)
     #other
@@ -75,8 +68,9 @@ esac
 
 #######################################
 #Set rooting
+#URLを分解し、カテゴリと処理とアクションを取得する
 ARR=( `echo $URI | tr -s '/' ' '`)
-APP=${ARR[0]} > $tmp-app
+APP=${ARR[0]}
 CATEGORY=${ARR[1]}
 FUNC=${ARR[2]}
 ACTION=${ARR[3]}
@@ -85,15 +79,14 @@ echo $APP > $tmp-uri_ap
 echo $CATEGORY > $tmp-category
 echo $FUNC > $tmp-func
 echo $ACTION > $tmp-action
-if [ $ARR_COUNT -gt 4 ] ; then
-    echo ${ARR[4]} > $tmp-qqq
-fi
 
 ########################################
-#Session
+#ログインセッションの確認と設定
 EMP_SESS_ID='ss_employee_session_id'    #社員用ログインセッションID
+
+#社員登録とログイン画面以外の場合、有効なログインセッションを要求
 case ${CATEGORY}/${FUNC} in
-"EMPLOYEE/NEW" | "EMPLOYEE/SIGNIN")     #社員の登録とログインは無視
+"EMPLOYEE/NEW" | "EMPLOYEE/SIGNIN")
     ;;
 *)
     SESS_STATUS=`${SYSD}/CGI/SESSION/SESSION_CHECK ${EMP_SESS_ID} ` #セッション確認
@@ -101,7 +94,7 @@ case ${CATEGORY}/${FUNC} in
     live)   #時間を延長
         SESS=$(session_get ${EMP_SESS_ID})
         COOK=`${SYSD}/CGI/SESSION/SESSION_SET ${EMP_SESS_ID} `
-        echo $COOK > $tmp-cook
+        echo $COOK > $tmp-cook-login
         ;;
     *)      #ログインへ
         CATEGORY='EMPLOYEE'
@@ -126,15 +119,16 @@ fi
 
 ########################################
 #Session Cookie
-if [ -e $tmp-cook ]; then
-    COOK_SET=`cat $tmp-cook`
+if [ -e $tmp-cook-login ]; then
+    COOK_SET_LOGIN=`cat $tmp-cook-login`
 fi
 
 ########################################
 #View
 cat << FIN
 Content-type: text/html
-${COOK_SET}
+${COOK_SET_LOGIN}
+${COOK_SET_ACCOUNT}
 
 FIN
 

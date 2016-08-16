@@ -32,18 +32,17 @@ FIN
 
 ######################################
 #Get Form Data
-VALUE1=$(nameread ID $tmp-post)
-VALUE2=$(nameread PASSWORD $tmp-post)
-
+VALUE_ID=$(nameread ID $tmp-post)
+VALUE_PW=$(nameread PASSWORD $tmp-post)
 
 #######################################
 #パスワードの暗号化
-echo $(sha1 $VALUE2) > $tmp-sha1
+echo $(sha1 $VALUE_PW) > $tmp-sha1
 PW=$(cat $tmp-sha1)
 
-########################################
+#######################################
 #AUTH
-cat ${LOGIND}/LV3/LOGINPASSES   | awk -v id=$VALUE1 -v pw=$PW '$2==id&&$3==pw&&$6==0{print}' > $tmp-auth
+cat ${LOGIND}/LV3/LOGINPASSES   | awk -v id=$VALUE_ID -v pw=$PW '$2==id&&$3==pw&&$6==0{print}' > $tmp-auth
 #fff=$(cat $tmp-auth)
 
 ########################################
@@ -60,7 +59,7 @@ if [ -z "$(cat $tmp-auth)" ] ; then
     ACTION=INPUT
     cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML   |
     sed -e "s/###AUTH_ERR###/show/"             |
-    sed -e "s/###ID_VALUE###/${VALUE1}/"        |
+    sed -e "s/###ID_VALUE###/${VALUE_ID}/"        |
     sed -e "s/###PASSWORD_VALUE###//"           > $tmp-html
 else
     cat ${SYSD}/HTML/index.html > $tmp-html 

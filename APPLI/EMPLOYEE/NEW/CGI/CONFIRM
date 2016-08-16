@@ -30,9 +30,6 @@ FIN
 }
 
 ########################################
-#Check Session
-
-########################################
 #フォーム値の設定
 nameread FAMILY_NAME $tmp-post              | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value1
 nameread GIVEN_NAME $tmp-post               | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value2
@@ -122,14 +119,14 @@ fi
 echo $(sha1 $(cat $tmp-value4)) > $tmp-sha1
 
 ########################################
+#バリデーションエラーの数をカウント
+echo ${VALID1_disp}${VALID2_disp}${VALID31_disp}${VALID32_disp}${VALID4_disp}${VALID5_disp} | 
+awk '{gsub(/hidden/,"",$1);print}' | 
+awk '{print length($1)}' > $tmp-VALID-result
+
+########################################
 #アクションの設定
-echo ${VALID1_disp}${VALID2_disp}${VALID31_disp}${VALID32_disp}${VALID4_disp}${VALID5_disp} | awk '{gsub(/hidden/,"",$1);print}' | awk '{print length($1)}' > $tmp-VALID-result
-num=$(cat $tmp-VALID-result)
-if [ $num -gt 0 ]; then
-    ACTION=INPUT
-else
-    ACTION=CONFIRM
-fi
+[ $( cat $tmp-VALID-result ) -gt 0 ] && ACTION=INPUT || ACTION=CONFIRM
 
 ########################################
 #HTMLの設定

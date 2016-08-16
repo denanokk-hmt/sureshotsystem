@@ -5,7 +5,7 @@
 #	PAGER.CGI
 #
 #   Argument
-#       $$, Link url, show page, All records, View Rec, View pages
+#       プロセス番号, ページリンクURL　表示するページ　レコード総数　最大表示レコード数　ページャーに表示する最大ページ数
 #
 #	Written by hiramatsu
 
@@ -13,7 +13,7 @@
 ########################################
 #Set basic
 SYSD=/home/sureshotsystem
-exec 2> ${SYSD}/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
+#exec 2> ${SYSD}/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
 tmp=/tmp/tmp_$1
 LANG=ja_JP.UTF-8
 PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
@@ -31,69 +31,88 @@ FIN
 }
 
 ########################################
-#Argument
+#引数　ページリンクURL　表示するページ　レコード総数　最大表示レコード数　ページャーに表示する最大ページ数
 LINK_URL=$2
 SHOW_PAGE=$3    #show page
 RECORDS=$4      #All Records
-VIEW_REC=${5:-20}
-VIEW_PAGES=${6:-5}
+PAGE_MAX_VIEW_RECORDS=${5:-20}
+PAGER_MAX_VIEW_PAGES=${6:-5}
 
 ########################################
-#Get Pages
-SHOU=$(expr ${RECORDS} / ${VIEW_REC})
-JOUYO=$(expr ${RECORDS} % ${VIEW_REC}) 
-[ $JOUYO -gt 0 ] && PAGE_ALL=$(expr ${SHOU} + 1) || PAGE_ALL=${SHOU}
+#ページ総数を計算
+SHOU=$(expr ${RECORDS} / ${PAGE_MAX_VIEW_RECORDS})
+JOUYO=$(expr ${RECORDS} % ${PAGE_MAX_VIEW_RECORDS}) 
+[ $JOUYO -gt 0 ] && LAST_PAGE=$(expr ${SHOU} + 1) || LAST_PAGE=${SHOU}
 
 ########################################
-#Get Now SET
-SHOU2=$(expr ${SHOW_PAGE} / ${VIEW_PAGES})
-JOUYO2=$(expr ${SHOW_PAGE} % ${VIEW_PAGES})
+#表示するページのセットの位置
+SHOU2=$(expr ${SHOW_PAGE} / ${PAGER_MAX_VIEW_PAGES})
+JOUYO2=$(expr ${SHOW_PAGE} % ${PAGER_MAX_VIEW_PAGES})
 [ $JOUYO2 -eq 0 ] && SET_NOW=${SHOU2} || SET_NOW=$(expr ${SHOU2} + 1)
 
 ########################################
-#Get Max SET
-SHOU3=$(expr ${PAGE_ALL} / ${VIEW_PAGES})
-JOUYO3=$(expr ${PAGE_ALL} % ${VIEW_PAGES})
-[ $JOUYO3 -eq 0 ] && SET_MAX=${SHOU3} || SET_MAX=$(expr ${SHOU3} + 1)
+#セットの最大値
+if [ ${LAST_PAGE} -lt ${PAGER_MAX_VIEW_PAGES} ]; then
+    SET_MAX=${LAST_PAGE}
+else
+    SHOU3=$(expr ${LAST_PAGE} / ${PAGER_MAX_VIEW_PAGES})
+    JOUYO3=$(expr ${LAST_PAGE} % ${PAGER_MAX_VIEW_PAGES})
+    [ $JOUYO3 -eq 0 ] && SET_MAX=${SHOU3} || SET_MAX=$(expr ${SHOU3} + 1)
+fi
 
 ########################################
-#Set < pagination >
-PREV_URL=${LINK_URL}/?page=$(expr ${SHOW_PAGE} - 1)
-NEXT_URL=${LINK_URL}/?page=$(expr ${SHOW_PAGE} + 1)
-case "${SET_NOW}" in
-    1)
-        PREV_DISP='false'
-        NEXT_DISP='ture'
-        START=1
-        END=${VIEW_PAGES}
+#ページャーの必要有無を確認(レコード総数が最大表示数以下→ページャー不必要)
+if [ ${RECORDS} -lt ${PAGE_MAX_VIEW_RECORDS} ]; then
+    sed -e "s/###PAGER###//" $tmp-template-html > $tmp-html
+    exit 0
+fi
+
+########################################
+#表示ページが
+case "${SHOW_PAGE}" in
+    #最初のセットの場合、PREVは無効、NEXTは有効、最大表示レコード数、PREVのURL=#、NEXTのURL=次のページ
+    1)  
+        PREV_ACTIVE='hidden'
+        NEXT_ACTIVE=''
+        PREV_URL='#'
+        NEXT_URL=${LINK_URL}/?page=$(expr ${SHOW_PAGE} + 1)
         echo "min"
         ;;
-    "${SET_MAX}")
-        PREV_DISP='true'
-        NEXT_DISP='false'
-        START=$(expr \( ${SET_NOW} - 1 \) \* ${VIEW_PAGES} + 1)
-        END=${PAGE_ALL}
+    #最後(最大)のセットの場合、PREVは有効、NEXTは有効、レコード総数、PREVのURL=前のページ、NEXTのURL=#
+    "${LAST_PAGE}")
+        PREV_ACTIVE=''
+        NEXT_ACTIVE='hidden'
+        PREV_URL=${LINK_URL}/?page=$(expr ${SHOW_PAGE} - 1)
+        NEXT_URL='#'
         echo "max"
         ;;
+    #上記以外(途中)のセットの場合、PREVは有効、NEXTは有効、PREVのURL=前のページ、NEXTのURL=次のページ
     *)
-        PREV_DISP='true'
-        NEXT_DISP='true'
-        START=$(expr \( ${SET_NOW} - 1 \) \* ${VIEW_PAGES} + 1)
-        END=$(expr ${SET_NOW} \* ${VIEW_PAGES})
+        PREV_ACTIVE=''
+        NEXT_ACTIVE=''
+        PREV_URL=${LINK_URL}/?page=$(expr ${SHOW_PAGE} - 1)
+        NEXT_URL=${LINK_URL}/?page=$(expr ${SHOW_PAGE} + 1)
         echo "middle"
         ;;
 esac
 echo ${PREV_URL} > $tmp-pager-prev
 echo ${NEXT_URL} > $tmp-pager-next
-seq  ${START} ${END} > $tmp-pager-pages
+
+########################################
+#ページャーの開始と終了
+CAL_END=$( expr ${SET_NOW} \* ${PAGER_MAX_VIEW_PAGES} )
+PAGER_START=$( expr ${CAL_END} - ${PAGER_MAX_VIEW_PAGES} + 1 )
+[ ${LAST_PAGE} -lt ${CAL_END} ] && PAGER_END=${LAST_PAGE} || PAGER_END=${CAL_END}
+
+########################################
+#ページャの開始と終了からシーケンスを作成
+seq  ${PAGER_START} ${PAGER_END} > $tmp-pager-seq
 
 ########################################
 #Set Pagination VALUE
-[ ${RECORDS} -lt ${VIEW_REC} ] && NOT_OR_DIS='disable' || NOT_OR_DIS='-'
-
-cat $tmp-pager-pages | 
-awk -v now=$SHOW_PAGE -v notdis=$NOT_OR_DIS -v url=$LINK_URL \
-'{print $1==now?"active":notdis,sprintf("%s/?page=%d",url,$1),$1}' > $tmp-pager-value
+cat $tmp-pager-seq | 
+awk -v now=$SHOW_PAGE -v url=$LINK_URL \
+'{print $1==now?"active":"-",sprintf("%s/?page=%d",url,$1),$1}' > $tmp-pager-value
 
 ########################################
 #Set Pages HTML
@@ -102,11 +121,14 @@ mojihame -lPAGES ${SYSD}/HTML/PAGER.HTML $tmp-pager-value > $tmp-pager-mojihame
 
 ########################################
 #Set Pagination HTML
-cat $tmp-pager-mojihame                     |
-sed -e "s|###PREV_URL###|${PREV_URL}|"      |
-sed -e "s/###PREV_DISP###/${PREV_DISP}/"    |
-sed -e "s|###NEXT_URL###|${NEXT_URL}|"      |
-sed -e "s/###NEXT_DISP###/${NEXT_DISP}/"    > $tmp-pager
+cat $tmp-pager-mojihame                         |
+sed -e "s/###PREV_ACTIVE###/${PREV_ACTIVE}/"    |
+sed -e "s/###PREV_DISP###/${PREV_DISP}/"        |
+sed -e "s|###PREV_URL###|${PREV_URL}|"          |
+sed -e "s|###NEXT_URL###|${NEXT_URL}|"          |
+sed -e "s/###NEXT_ACTIVE###/${NEXT_ACTIVE}/"    |
+sed -e "s/###NEXT_DISP###/${NEXT_DISP}/"        |
+sed -e "s|###NEXT_URL###|${NEXT_URL}|"          > $tmp-pager
 
 # 改行文字を「\\n」という3文字の文字列に置換
 TEXT=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-pager`
