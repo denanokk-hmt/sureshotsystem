@@ -4,8 +4,9 @@
 ########################################
 #	SESSION_SET.CGI
 #
-#       $1:session_id
-#       $2:session lifetime (default 15min)
+#       $1:必須 セッションID
+#       $2:必須 セッションの寿命-分数で指定  デフォルト:15フン
+#       $3:任意 セッションファイル内に書き込みたい値
 #
 #	Written by hiramatsu
 
@@ -26,6 +27,7 @@ LIFETIME_MIN=15
 SESS_ID=$1
 SESS_LIFE=${2:-"$LIFETIME_MIN"}
 COOK_LIFE=`expr $SESS_LIFE \* 60`
+SESSION_FILE_VALUE=$3
 
 #######################################
 #Check session
@@ -60,7 +62,7 @@ fi
 ########################################
 #Make cookie setting words
 COOK_SET=$(session_set ${COOK_LIFE} ${SESS_ID} ${TOKEN})
-echo $COOK_SET > /tmp/cook-set_before
+#echo $COOK_SET > /tmp/cook-set_before
 
 #######################################
 #Return cookie words

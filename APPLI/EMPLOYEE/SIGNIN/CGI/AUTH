@@ -58,11 +58,15 @@ fi
 if [ -z "$(cat $tmp-auth)" ] ; then
     ACTION=INPUT
     cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML   |
-    sed -e "s/###AUTH_ERR###/show/"             |
-    sed -e "s/###ID_VALUE###/${VALUE_ID}/"        |
-    sed -e "s/###PASSWORD_VALUE###//"           > $tmp-html
+    sed -e "s/###AUTH_ERR###/show/"                             |
+    sed -e "s/###ID_VALUE###/${VALUE_ID}/"                      |
+    sed -e "s/###PASSWORD_VALUE###//"                           > $tmp-html
 else
-    cat ${SYSD}/HTML/index.html > $tmp-html 
+    if [ -z  $( cat $tmp-return-url ) ] ; then
+        cat ${SYSD}/HTML/index.html > $tmp-html
+    else
+        echo ${SYSD}/$( cat $tmp-return-url ) > $tmp-html
+    fi
 fi
 
 ###############################################################################

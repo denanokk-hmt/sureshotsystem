@@ -55,16 +55,14 @@ POST)
 	    touch $tmp-post
     fi
     ;;
-PUT)
-    #update 残念ながらSHELLでは、GET扱いらしい、、、 →POSTで対応するしかない、
-    ;;
-DELETE)
-    #destroy 残念ながらSHELLでは、GET扱いらしい、、、→POSTで対応するしかない
-    ;;
-*)
-    #other
-    ;;
+#PUT)
+#    #update 残念ながらSHELLでは、GET扱いらしい、、、 →POSTで対応するしか,AJAX
+#    ;;
+#DELETE)
+#    #destroy 残念ながらSHELLでは、GET扱いらしい、、、→POSTで対応するしか,AJAX
+#    ;;
 esac
+
 
 #######################################
 #Set rooting
@@ -89,17 +87,26 @@ case ${CATEGORY}/${FUNC} in
 "EMPLOYEE/NEW" | "EMPLOYEE/SIGNIN")
     ;;
 *)
-    SESS_STATUS=`${SYSD}/CGI/SESSION/SESSION_CHECK ${EMP_SESS_ID} ` #セッション確認
+    #ログインセッションを確認
+    SESS_STATUS=`${SYSD}/CGI/SESSION/SESSION_CHECK ${EMP_SESS_ID} `
     case $SESS_STATUS in
-    live)   #時間を延長
+    live)
+        #ログインセッションが有効の場合、時間を延長
         SESS=$(session_get ${EMP_SESS_ID})
         COOK=`${SYSD}/CGI/SESSION/SESSION_SET ${EMP_SESS_ID} `
         echo $COOK > $tmp-cook-login
         ;;
-    *)      #ログインへ
+    *)      
+        #ログインセッションが無効の場合、ログイン画面へ
+        #GETの場合、リターンURLを設定
+        #POSTの場合、更新処理の途中にセッション切れを起こしている為、
+        #これを無効とするのでTOP画面に戻す→リターンURL設定なし
+        [ $METHOD = 'GET' ] && 
+        RETURN_URL=${CATEGORY}/${FUNC}/${ACTION}/$( cat $tmp-get ) || RETURN_URL=''
         CATEGORY='EMPLOYEE'
         FUNC='SIGNIN'
         ACTION='INPUT'
+        echo ${RETURN_URL} > $tmp-return-url
         echo ${CATEGORY} > $tmp-category
         echo $FUNC > $tmp-func
         echo $ACTION > $tmp-action
