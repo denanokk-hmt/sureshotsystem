@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+	<head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Sureshot employee registry input</title>
+        <!-- BootstrapのCSS読み込み -->
+        <link href="/BOOTSTRAP/css/bootstrap.min.css" rel="stylesheet">
+        <!-- jQuery読み込み -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <!-- BootstrapのJS読み込み -->
+        <script src="/BOOTSTRAP/js/bootstrap.min.js"></script>
+	</head>
+    <body>
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                <h1>EMPLOYEE EDIT <span class="label label-default">Update</span></h1>
+		        <form action="/APP/EMPLOYEE/EDIT/CONFIRM" method="POST">
+                    <div class="form-group">
+                        <span class="label label-danger ###FAMILY_NAME_ERR###">FAMILY NAME was Invalid.</span>
+                        <span class="label label-danger ###GIVEN_NAME_ERR###">GIVEN NAME was Invalid.</span>
+                        <span class="label label-danger ###EMAIL_ERR###">EMAIL was Invalid.</span>
+                        <span class="label label-danger ###EMAIL_DUPLECATED###">Duplicated EMAIL.</span>
+                        <span class="label label-danger ###PASSWORD_ERR###">PASSWORD was Invalid.</span>
+                        <span class="label label-danger ###PASSWORD_CONFIRMATION_ERR###">PASSWORD CONFIRMATION was Invalid.</span>
+                    </div>
+                    <div class="form-group">
+			            <span class="glyphicon glyphicon-user"></span>
+                        <span class="label label-default">FAMILY NAME</span>
+			            <input type="text" name="FAMILY_NAME" value="###FAMILY_NAME_VALUE###" class="form-control" />
+                    </div>
+			        <br />
+                    <div class="form-group">
+			            <span class="glyphicon glyphicon-user"></span>
+			            <span class="label label-default">GIVEN NAME</span>
+    			        <input type="text" name="GIVEN_NAME" value="###GIVEN_NAME_VALUE###" class="form-control"/>
+                    </div>
+	    		    <br />
+                    <div class="form-group">
+		    	        <span class="glyphicon glyphicon-envelope"></span>
+			            <span class="label label-default">E-MAIL(LOGIN ID)</span>
+                        <input type="email" name="EMAIL" id="EMAIL" value="###EMAIL_VALUE###" class="form-control" />
+                    </div>
+                    <div class="form-group">
+		    	        <span class="glyphicon glyphicon-envelope"></span>
+			            <span class="label label-default">PASSWORD</span>
+                        <input type="password" name="PASSWORD" id="PASSWORD" value="###PASSWORD_VALUE###" class="form-control" />
+                    </div>
+                    <div class="form-group">
+		    	        <span class="glyphicon glyphicon-envelope"></span>
+			            <span class="label label-default">PASSWORD CONFIRMATION</span>
+                        <input type="password" name="PASSWORD_CONFIRMATION" id="PASSWORD_CONFIRMATION" value="###PASSWORD_CONFIRMATION_VALUE###" class="form-control" />
+                    </div>
+
+			        <input type="hidden" name="STATUS" value="INPUT" />
+			        <input type="hidden" name="EMPLOYEE_ID" value="###EMPLOYEE_ID###" />
+
+                    <div class="form-group">
+			            <input type="submit" name="SUBMIT" class="btn btn-primary btn-lg" />
+                    </div>
+		        </form>
+            </div>
+        </div>
+	</body>
+</html>
+

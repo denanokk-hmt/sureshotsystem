@@ -125,10 +125,10 @@ else
 fi
 
 ########################################
-#Session Cookie
-if [ -e $tmp-cook-login ]; then
-    COOK_SET_LOGIN=`cat $tmp-cook-login`
-fi
+#セットするCookie文字列を取得する
+[ -e $tmp-cook-login ] && COOK_SET_LOGIN=`cat $tmp-cook-login` || :
+[ -e $tmp-cook-account ] && COOK_SET_ACCOUNT=`cat $tmp-cook-account` || :
+
 
 ########################################
 #View

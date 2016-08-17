@@ -54,7 +54,8 @@ esac
 #live->上書きしてタイムスタンプを更新
 #expire->古きを削除し、新しきを作る
 #none->新しきを作る
-touch ${SESSION_FILED}/${TOKEN}
+#touch ${SESSION_FILED}/${TOKEN}
+echo $SESSION_FILE_VALUE > ${SESSION_FILED}/${TOKEN}
 if [ "${SESS_STATUS}" = 'expire' ]; then
     rm -f "${SESSION_FILED}/${SESS}"
 fi

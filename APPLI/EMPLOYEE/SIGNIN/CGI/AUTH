@@ -36,21 +36,36 @@ VALUE_ID=$(nameread ID $tmp-post)
 VALUE_PW=$(nameread PASSWORD $tmp-post)
 
 #######################################
+#アカウントIDの暗号化
+echo $(sha1 $VALUE_ID) > $tmp-sha1-id
+ID=$(cat $tmp-sha1-id)
+
+#######################################
+#IDを保存(ローテート必要)
+echo $VALUE_ID > ${SYSD}/SYS/EMPLOYEE/LOGIN/ID
+
+#######################################
 #パスワードの暗号化
-echo $(sha1 $VALUE_PW) > $tmp-sha1
-PW=$(cat $tmp-sha1)
+echo $(sha1 $VALUE_PW) > $tmp-sha1-pw
+PW=$(cat $tmp-sha1-pw)
 
 #######################################
 #AUTH
 cat ${LOGIND}/LV3/LOGINPASSES   | awk -v id=$VALUE_ID -v pw=$PW '$2==id&&$3==pw&&$6==0{print}' > $tmp-auth
-#fff=$(cat $tmp-auth)
 
 ########################################
-#SET SESSION
-EMP_SESS_ID='ss_employee_session_id'
+#SET LOGIN SESSION
 if [ -n "$(cat $tmp-auth)" ] ; then
+    #ログインセッション用クッキー設定文字列
+    EMP_SESS_ID='ss_employee_session_id'
     COOK=`${SYSD}/CGI/SESSION/SESSION_SET ${EMP_SESS_ID} `
-    echo $COOK > $tmp-cook
+    echo $COOK > $tmp-cook-login
+
+    #ログインアカウント用クッキー設定文字列
+    EMP_SESS_AC='ss_employee_session_ac'
+    COOK=`${SYSD}/CGI/SESSION/SESSION_SET ${EMP_SESS_AC} 15 ${VALUE_ID}`
+    echo $COOK > $tmp-cook-account
+    
 fi
 
 #######################################
