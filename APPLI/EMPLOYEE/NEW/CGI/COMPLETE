@@ -47,9 +47,11 @@ VALUE5=0
 
 ########################################
 #新規の社員番号を確定する
-EMPLOYEE_NUM=$( ${SYSD}/CGI/NUMBERS 'EMPLOYEES' )
-#LATEST_NUM=$(ls ${EMPLOYEED}/NUMBERS/ORIGIN | sort -nr | head -n 1 | cut -d'_' -f1)
-#EMPLOYEE_NUM=$((LATEST_NUM + 1))
+EMPLOYEE_NUM=`${SYSD}/CGI/NUMBERS 'EMPLOYEES' `
+
+LOCK=`${SYSD}/CGI/LOCK/LOCK $$ 'EMPLOYEES' `
+
+exit
 
 ########################################
 #Set DATE
