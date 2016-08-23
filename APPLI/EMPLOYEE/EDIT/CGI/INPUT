@@ -33,7 +33,8 @@ FIN
 }
 
 ########################################
-#Set Own ID
+#同一社員番号確認用にIDを暗号化し、ファイル保存
+#また、この暗号化したIDをフォームのhiddenタグに適用
 cat $tmp-get | sed -e "s/id\=//" > $tmp-id
 ID=$(cat $tmp-id)
 EMPLOYEE_ID=$(sha1 $RANDOM$ID)
@@ -58,18 +59,18 @@ DEL_FLAG=${ARR[8]}
 #Making viweing body HTML filw path
 ACTION=`cat $tmp-action`
 cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML   |
-sed -e "s/###FAMILY_NAME_ERR###/hidden/"            |
-sed -e "s/###GIVEN_NAME_ERR###/hidden/"             |
-sed -e "s/###EMAIL_ERR###/hidden/"                  |
-sed -e "s/###PASSWORD_ERR###/hidden/"               |
-sed -e "s/###PASSWORD_CONFIRMATION_ERR###/hidden/"  |
-sed -e "s/###EMAIL_DUPLECATED###/hidden/"           |
-sed -e "s/###FAMILY_NAME_VALUE###/${FAMILY_NAME}/"  |
-sed -e "s/###GIVEN_NAME_VALUE###/${GIVEN_NAME}/"    |
-sed -e "s/###EMAIL_VALUE###/${EMAIL}/"              |
-sed -e "s/###PASSWORD_VALUE###/NOT_CHANGE/"         |
-sed -e "s/###EMPLOYEE_ID###/${EMPLOYEE_ID}/"    |
-sed -e "s/###PASSWORD_CONFIRMATION_VALUE###/NOT_CHANGE/"      > $tmp-html
+sed -e "s/###FAMILY_NAME_ERR###/hidden/"                    |
+sed -e "s/###GIVEN_NAME_ERR###/hidden/"                     |
+sed -e "s/###EMAIL_ERR###/hidden/"                          |
+sed -e "s/###PASSWORD_ERR###/hidden/"                       |
+sed -e "s/###PASSWORD_CONFIRMATION_ERR###/hidden/"          |
+sed -e "s/###EMAIL_DUPLECATED###/hidden/"                   |
+sed -e "s/###FAMILY_NAME_VALUE###/${FAMILY_NAME}/"          |
+sed -e "s/###GIVEN_NAME_VALUE###/${GIVEN_NAME}/"            |
+sed -e "s/###EMAIL_VALUE###/${EMAIL}/"                      |
+sed -e "s/###PASSWORD_VALUE###/NOT_CHANGE/"                 |
+sed -e "s/###EMPLOYEE_ID###/${EMPLOYEE_ID}/"                |
+sed -e "s/###PASSWORD_CONFIRMATION_VALUE###/NOT_CHANGE/"    > $tmp-html
 
 #########################################
 ##ending
