@@ -37,40 +37,48 @@ FIN
 
 #######################################
 #Get Form Data
-ID=$(nameread EMPLOYEE_ID $tmp-post)
+ID=$(nameread ID $tmp-post)
 VALUE1=$(nameread FAMILY_NAME $tmp-post)
 VALUE2=$(nameread GIVEN_NAME $tmp-post)
 VALUE3=$(nameread EMAIL $tmp-post)
-PW=$(nameread PASSWORD $tmp-post)
-#VALUE5=$(nameread ADMIN_FLAG $tmp-post)
-VALUE5=0
+#EMPLOYEE_ID=$(nameread EMPLOYEE_ID $tmp-post)
 
 ######################################
 #Set employee number
-EMPLOYEE_NUM=$(cat ${SYSD}/DATA/EMPLOYEE/TMP/${ID})
-rm -f ${SYSD}/DATA/EMPLOYEE/TMP/${ID}
+EMPLOYEE_ID=$(cat ${SYSD}/DATA/${CATEGORY}/TMP/${EMPLOYEE_ID})
+rm -f ${SYSD}/DATA/EMPLOYEE/TMP/${EMPLOYEE_ID}
 
 ########################################
-#PW
-if [ "${PW}" = 'NOT_CHANGE' ]; then
-    PW=$(cat ${LOGIND}/LV3/LOGINPASSES   | awk -v id=$EMPLOYEE_NUM '$1==id{print $3}')
+#社員番号一致確認
+[ -z ${ID} ] && ACTION=CONFIRM || ACTION=COMPLETE
+if [ "${ACTION}" = 'CONFIRM' ] ; then
+    cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML   |
+    sed -e "s/###DELETE_ERR###/hidden/"                         |
+    sed -e "s/###ID_VALUE###/${ID}/"                            |
+    sed -e "s/###FAMILY_NAME_VALUE###/${FAMILY_NAME}/"          |
+    sed -e "s/###GIVEN_NAME_VALUE###/${GIVEN_NAME}/"            |
+    sed -e "s/###EMAIL_VALUE###/${EMAIL}/"                      |
+    sed -e "s/###EMPLOYEE_ID###/${EMPLOYEE_ID}/"                > $tmp-html
+    exit 0
 fi
 
 ########################################
 #Set DATE
-ls ${SYSD}/DATA/EMPLOYEE/USERS/LV1/${EMPLOYEE_NUM}_employee_* | cut -d'_' -f3 | sort -nk1,1 | head -n 1 > $tmp-create
+ls ${SYSD}/DATA/EMPLOYEE/USERS/LV1/${EMPLOYEE_ID}_employee_* | cut -d'_' -f3 | sort -nk1,1 | head -n 1 > $tmp-create
 CREATE_DATE=$(cat $tmp-create)
 UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 
 ########################################
 #Write data to tempolary file
 #1.社員番号 3.EMAIL 2.PW 3.作成日時 4.更新日時 5.ADMINフラグ 6.削除フラグ
-echo ${EMPLOYEE_NUM}" "${VALUE3}" "${PW}" "${CREATE_DATE}" "${UPDATE_DATE}" "${VALUE5}" "0 > $tmp-login
+cat ${SYSD}/DATA/EMPLOYEE/LOGIN/LV1/${EMPLOYEE_ID}_loginpass_${CREATE_DATE} |
+awk -v update=${UPDATE_DATE}'{print $1,$2,$3,update,$5,1}' > $tmp-login
 
 ########################################
 #Write data to tempolary file
 #1.社員番号 2.姓 3.名 4.EMAIL 5.TEL 6.作成日時 7.更新日時 8.ADMINフラグ 9.削除フラグ
-echo ${EMPLOYEE_NUM}" "${VALUE1}" "${VALUE2}" "${VALUE3}" - "${CREATE_DATE}" "${UPDATE_DATE}" "${VALUE5}" "0 > $tmp-employee
+cat ${SYSD}/DATA/EMPLOYEE/USERS/LV1/${EMPLOYEE_ID}_employee_${CREATE_DATE} |
+awk -v update=${UPDATE_DATE}'{print $1,$2,$3,$4,$5,$6,update,$8,1}' > $tmp-employee
 
 ########################################
 #Data Saving for LOGIN
@@ -78,12 +86,10 @@ echo ${EMPLOYEE_NUM}" "${VALUE1}" "${VALUE2}" "${VALUE3}" - "${CREATE_DATE}" "${
 $(mv $tmp-login ${LOGIND}/LV1/${EMPLOYEE_NUM}_loginpass_${UPDATE_DATE})
 #LV2
 cat ${LOGIND}/LV1/${EMPLOYEE_NUM}_loginpass_${UPDATE_DATE}  >> ${LOGIND}/LV2/LOGINPASSES
-chmod 775 ${LOGIND}/LV2/LOGINPASSES
 #LV3
 cat ${LOGIND}/LV2/LOGINPASSES   |
 LANG=C sort -nk1,1 -nrk5,5      |
 uniq -w 1 | sort -nk1,1         > ${LOGIND}/LV3/LOGINPASSES
-chmod 775 ${LOGIND}/LV3/LOGINPASSES
 
 ########################################
 #Data Saving for EMPLOYEE
@@ -91,7 +97,6 @@ chmod 775 ${LOGIND}/LV3/LOGINPASSES
 $(mv $tmp-employee ${USERSD}/LV1/${EMPLOYEE_NUM}_employee_${UPDATE_DATE})
 #LV2
 cat ${USERSD}/LV1/${EMPLOYEE_NUM}_employee_${UPDATE_DATE}   >> ${USERSD}/LV2/EMPLOYEES
-chmod 775 ${USERSD}/LV2/EMPLOYEES
 #LV3
 cat ${USERSD}/LV1/${EMPLOYEE_NUM}_employee_${CREATE_DATE}   |
 awk '{print sprintf("%d %s %s %s %s %s %s %d %d /APP/EMPLOYEE/USERS/SHOW/?id=%d /APP/EMPLOYEE/EDIT/INPUT/?id=%d /APP/EMPLOYEE/DELETE/INPUT/?id=%d",$1,$2,$3,$4,$5,$6,$7,$8,$9,$1,$1,$1)}'    >> ${USERSD}/LV3/EMPLOYEES
