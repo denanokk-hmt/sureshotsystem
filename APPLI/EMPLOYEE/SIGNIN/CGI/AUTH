@@ -42,7 +42,7 @@ ID=$(cat $tmp-sha1-id)
 
 #######################################
 #IDを保存(ローテート必要)
-echo $VALUE_ID > ${SYSD}/SYS/EMPLOYEE/LOGIN/ID
+echo $VALUE_ID > ${SYSD}/SYS/EMPLOYEE/LOGIN/${ID}
 
 #######################################
 #パスワードの暗号化
