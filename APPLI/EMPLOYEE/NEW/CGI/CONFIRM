@@ -4,6 +4,9 @@
 ########################################
 #	EMPLOYEE NEW CONFIRM.CGI
 #
+#   Arg
+#       $1:$$
+#
 #	Written by hiramatsu
 
 

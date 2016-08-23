@@ -4,6 +4,9 @@
 ########################################
 #	EMPOLY NEW INPUT.CGI
 #
+#   Arg
+#       $1:$$
+#
 #	Written by hiramatsu
 
 
@@ -28,11 +31,6 @@ FIN
 	cat $tmp-result
 	exit 1
 }
-
-########################################
-#Session
-#session=`${SYSD}/CGI/LOGIN_SESSION`
-#echo $session > $tmp-session
 
 ########################################
 #Making viweing body HTML filw path

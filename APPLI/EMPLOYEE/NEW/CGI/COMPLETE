@@ -19,8 +19,9 @@ LANG=ja_JP.UTF-8
 PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
 CATEGORY=`cat $tmp-category`
 FUNC=`cat $tmp-func`
-LOGIND=${SYSD}/DATA/${CATEGORY}/LOGIN
-USERSD=${SYSD}/DATA/${CATEGORY}/USERS
+EMPLOYEED=${SYSD}/DATA/${CATEGORY}
+LOGIND=${EMPLOYEED}/LOGIN
+USERSD=${EMPLOYEED}/USERS
 EMP_SESS_ID='ss_employee_session_id'
 
 ########################################
@@ -45,9 +46,10 @@ VALUE4=$(nameread PASSWORD $tmp-post)
 VALUE5=0
 
 ########################################
-#Set employee number
-LATEST_NUM=$(ls ${USERSD}/LV1 | sort -nr | head -n 1 | cut -d'_' -f1)
-EMPLOYEE_NUM=$((LATEST_NUM + 1))
+#新規の社員番号を確定する
+EMPLOYEE_NUM=$( ${SYSD}/CGI/NUMBERS 'EMPLOYEES' )
+#LATEST_NUM=$(ls ${EMPLOYEED}/NUMBERS/ORIGIN | sort -nr | head -n 1 | cut -d'_' -f1)
+#EMPLOYEE_NUM=$((LATEST_NUM + 1))
 
 ########################################
 #Set DATE

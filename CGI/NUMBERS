@@ -1,0 +1,57 @@
+#!/bin/bash -vx
+#
+
+########################################
+#	NUMBERS.CGI
+#
+#   引数
+#       $1:カテゴリ名
+#
+#	Written by hiramatsu
+
+
+########################################
+#Set basic
+SYSD=/home/sureshotsystem
+#exec 2> ${SYSD}/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
+tmp=/tmp/tmp_$$
+LANG=ja_JP.UTF-8
+PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
+NUMBERSD=${SYSD}/DATA/NUMBERS/$1
+
+########################################
+#Check error
+ERROR_CHECK(){
+	[ $(plus ${PIPESTATUS[@]}) -eq 0 ] && return
+cat <<- FIN
+	Context-type: text/html
+	NG input
+FIN
+	cat $tmp-result
+	exit 1
+}
+
+########################################
+#新規採番番号を確定
+#指定されたカテゴリのNUMBERS/ORIGINの最小値ファイル名を/USEDへ移動
+$( ls ${NUMBERSD}/ORIGIN/ | sort -n | head -n 1                 |
+awk -v url=${NUMBERSD} '{print sprintf(url"/ORIGIN/%s",$1)}'    |
+xargs -i mv -v {} ${NUMBERSD}/USED > $tmp-numbers )
+ERROR_CHECK
+
+########################################
+#確定(USEDに移された番号)した番号を取得
+NUM=$( cat $tmp-numbers |
+cut -d' ' -f1           |
+cut -d'/' -f8           |
+sed -e 's/[^0-9]*//g'   )
+ERROR_CHECK
+
+########################################
+#戻り値
+echo ${NUM}
+
+########################################
+#正常終了
+rm -f $tmp-*
+exit 0
