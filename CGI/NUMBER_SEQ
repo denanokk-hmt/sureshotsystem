@@ -1,0 +1,58 @@
+#!/bin/bash -vx
+#
+
+########################################
+#	NUMBER_SEQ.CGI
+#
+#   引数
+#       $1:必須：開始番号
+#       $2:必須：終了番号
+#       $3:必須：カテゴリ名
+#
+#	Written by hiramatsu
+
+
+########################################
+#Set basic
+SYSD=/home/sureshotsystem
+exec 2> ${SYSD}/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
+tmp=/tmp/tmp_$$
+LANG=ja_JP.UTF-8
+PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
+
+########################################
+#Check error
+ERROR_CHECK(){
+	[ $(plus ${PIPESTATUS[@]}) -eq 0 ] && return
+    echo 'ERROR'
+	exit 1
+}
+
+########################################
+#DATA/NUMBERS/配下に指定したカテゴリ名のディレクトリが存在しない場合、
+#そのカテゴリ名のディレクトリとその配下にORIGIN/とUSED/ディレクトリを作成する
+if [ -e ${SYSD}/DATA/NUMBERS/$3  ]; then
+    :
+else
+    #ディレクトリ作成
+    mkdir ${SYSD}/DATA/NUMBERS/$3
+    mkdir ${SYSD}/DATA/NUMBERS/$3/ORIGIN
+    mkdir ${SYSD}/DATA/NUMBERS/$3/USED
+    #オーナーと権限を再帰的に設定
+    chmod -R 755 ${SYSD}/DATA/NUMBERS/$3
+    chown -R root:apache ${SYSD}/DATA/NUMBERS/$3
+fi
+
+########################################
+#採番ファイルを作成
+for i in `seq $1 $2`
+do
+    touch ${SYSD}/DATA/NUMBERS/$3/ORIGIN/$i
+    chmod 775 ${SYSD}/DATA/NUMBERS/$3/ORIGIN/$i
+    ERROR_CHECK
+done
+
+########################################
+#正常終了
+echo "SUCCESS"
+exit 0
