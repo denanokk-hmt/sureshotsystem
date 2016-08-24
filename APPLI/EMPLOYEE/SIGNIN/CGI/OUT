@@ -53,7 +53,7 @@ ERROR_CHECK
 
 #######################################
 #HTMLの設定
-cat ${SYSD}/HTML/index.html > $tmp-html 
+cat ${SYSD}/HTML/INDEX.HTML > $tmp-html 
 
 #######################################
 #ending

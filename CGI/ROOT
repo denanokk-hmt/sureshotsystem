@@ -84,7 +84,7 @@ EMP_SESS_ID='ss_employee_session_id'    #社員用ログインセッションID
 
 #社員登録とログイン画面以外の場合、有効なログインセッションを要求
 case ${CATEGORY}/${FUNC} in
-"EMPLOYEE/NEW" | "EMPLOYEE/SIGNIN")
+"EMPLOYEE/NEW" | "EMPLOYEE/SIGNIN" | "/")
     ;;
 *)
     #ログインセッションを確認
@@ -121,7 +121,7 @@ if [ -n "${FUNC}${ACTION}" ] ; then
     result=`../APPLI/${CATEGORY}/${FUNC}/CGI/${ACTION} $$`
     echo $result > $tmp-result
 else
-    cat ${SYSD}/HTML/index.html > $tmp-html
+    cat ${SYSD}/HTML/INDEX.HTML > $tmp-html
 fi
 
 ########################################

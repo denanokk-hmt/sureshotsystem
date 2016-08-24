@@ -113,8 +113,8 @@ chmod 775 ${USERSD}/LV3/EMPLOYEES
 
 ########################################
 #SET SESSION
-COOK=`${SYSD}/CGI/SESSION/SESSION_SET ${EMP_SESS_ID} `
-echo $COOK > $tmp-cook
+#COOK=`${SYSD}/CGI/SESSION/SESSION_SET ${EMP_SESS_ID} `
+#echo $COOK > $tmp-cook
 
 ########################################
 #HTMLの設定

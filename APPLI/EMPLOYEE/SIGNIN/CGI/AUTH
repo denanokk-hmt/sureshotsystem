@@ -78,7 +78,7 @@ if [ -z "$(cat $tmp-auth)" ] ; then
     sed -e "s/###PASSWORD_VALUE###//"                           > $tmp-html
 else
     if [ -z  $( cat $tmp-return-url ) ] ; then
-        cat ${SYSD}/HTML/index.html > $tmp-html
+        cat ${SYSD}/HTML/INDEX.HTML > $tmp-html
     else
         echo ${SYSD}/$( cat $tmp-return-url ) > $tmp-html
     fi
