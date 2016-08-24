@@ -39,7 +39,7 @@ else
     mkdir ${SYSD}/DATA/NUMBERS/$3/ORIGIN
     mkdir ${SYSD}/DATA/NUMBERS/$3/USED
     #オーナーと権限を再帰的に設定
-    chmod -R 755 ${SYSD}/DATA/NUMBERS/$3
+    chmod -R 775 ${SYSD}/DATA/NUMBERS/$3
     chown -R root:apache ${SYSD}/DATA/NUMBERS/$3
 fi
 
