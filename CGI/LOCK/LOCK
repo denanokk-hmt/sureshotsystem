@@ -5,8 +5,9 @@
 #	LOCK.CGI
 #
 #   引数
-#       $1:プロセスID($$)
-#       $2:カテゴリ名、またはロックファイルのパス(LOCK配下はデフォルト)
+#       $1:カテゴリ名、またはロックファイルのパス(LOCK配下はデフォルト)
+#   戻り値
+#       YYYYMMDD.HHMMSS.プロセスID.ステータス
 #
 #	Written by hiramatsu
 
@@ -14,60 +15,47 @@
 ########################################
 #Set basic
 SYSD=/home/sureshotsystem
-exec 2> ${SYSD}/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
-echo $1
-tmp=/tmp/tmp_$1
+PID=$$
+DATE_PID=$(date +%Y%m%d).$(date +%H%M%S).${PID}
+exec 2> ${SYSD}/LOG/LOG.$(basename $0).${DATE_PID}
 LANG=ja_JP.UTF-8
 PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
-LOCKD=${SYSD}/LOCK/$2
+LOCKD=${SYSD}/LOCK/$1
 
 ########################################
 #Check error
 ERROR_CHECK(){
 	[ $(plus ${PIPESTATUS[@]}) -eq 0 ] && return
-cat <<- FIN
-	Context-type: text/html
-	NG input
-FIN
-	cat $tmp-result
+    echo "LOCK_ERROR"
 	exit 1
 }
 
 ########################################
-#
+#指定カテゴリにロックファイルがなければロックファイルを作成し、
+#ロックファイルがある場合、最長〇〇秒までウェイティングする
 COUNT=1
 while :
 do
-    if [ -z $( cat ${LOCKD}/* ) ]; then
-        touch ${LOCKD}/locked_$1
-        STATUS='LOCKED'
-        PID=$$
-        break
-    else
+    if [ -e ${LOCKD}/*.lock ]; then
         sleep 1s
         STATUS='WAITING'
+    else
+        touch ${LOCKD}/${DATE_PID}.lock
+        ERROR_CHECK
+        STATUS='LOCKED'
+        break
     fi
     COUNT=$(( COUNT + 1 ))
-    if [ ${COUNT} -gt 3 ] ; then
-        STATUS='ERROR'
+    if [ ${COUNT} -gt 20 ] ; then
+        STATUS='WAITE_ERROR'
         break
     fi
 done
 
-if [ ${STATUS} = 'ERROR' ]; then
-cat <<- FIN
-	Context-type: text/html
-	NG input
-FIN
-	cat $tmp-result
-	exit 1
-fi
-
 ########################################
 #戻り値
-echo ${PID}
+echo ${DATE_PID}.${STATUS}
 
 ########################################
 #正常終了
-#rm -f $tmp-*
 exit 0

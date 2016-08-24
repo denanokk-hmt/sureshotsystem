@@ -2,11 +2,12 @@
 #
 
 ########################################
-#	WAIT.CGI
+#	UNLOCK.CGI
 #
 #   引数
-#       $1:プロセスID($$)
-#       $2:カテゴリ名、またはロックファイルのパス(LOCK配下はデフォルト)
+#       $1:カテゴリ名、またはロックファイルのパス(LOCK配下はデフォルト)
+#   戻り値
+#       ステータス
 #
 #	Written by hiramatsu
 
@@ -15,7 +16,6 @@
 #Set basic
 SYSD=/home/sureshotsystem
 #exec 2> ${SYSD}/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
-tmp=/tmp/tmp_$1
 LANG=ja_JP.UTF-8
 PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
 LOCKD=${SYSD}/LOCK/$1
@@ -24,44 +24,18 @@ LOCKD=${SYSD}/LOCK/$1
 #Check error
 ERROR_CHECK(){
 	[ $(plus ${PIPESTATUS[@]}) -eq 0 ] && return
-cat <<- FIN
-	Context-type: text/html
-	NG input
-FIN
-	cat $tmp-result
+    echo "UNLOCK_ERROR"
 	exit 1
 }
 
 ########################################
-#ロック状態を確認
-[ -n ${LOCKD}/* ] && STATUS='LOCKED' || STATUS='UNLOCK'
-
-########################################
-#ウェイティング
-COUNT=1
-while [ ${COUNT} -lt 100 ] ; do
-    if [ -n ${LOCKD}/*] then
-        sleep 2s
-    else
-        touch ${LOCKD}/locked_$1
-    fi
-    COUNT=$(( COUNT + 1 ))
-done
-
-if [ ${COUNT} -eq 10 ]; then
-cat <<- FIN
-	Context-type: text/html
-	NG input
-FIN
-	cat $tmp-result
-	exit 1
-fi
+#ロック解除
+rm -f ${LOCKD}/* 
 
 ########################################
 #戻り値
-echo "OK"
+echo "UNLOCK"
 
 ########################################
 #正常終了
-#rm -f $tmp-*
 exit 0
