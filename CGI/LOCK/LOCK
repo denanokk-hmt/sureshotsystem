@@ -6,9 +6,9 @@
 #
 #   引数
 #       $1:必須 カテゴリ名、またはロックファイルのパス(LOCK配下はデフォルト)
-#       $2:任意 固有キー(社員番号など)
+#       $2:任意 固有キー(社員番号など) デフォルト:KEY
 #   戻り値
-#       YYYYMMDD.HHMMSS.プロセスID.ステータス
+#       YYYYMMDD.HHMMSS.プロセスID.ステータス.固有キー
 #
 #	Written by hiramatsu
 
@@ -17,8 +17,8 @@
 #Set basic
 SYSD=/home/sureshotsystem
 PID=$$
-DATE_PID=$(date +%Y%m%d).$(date +%H%M%S).${PID}
-exec 2> ${SYSD}/LOG/LOG.$(basename $0).${DATE_PID}
+DATE_TIME_PID=$(date +%Y%m%d).$(date +%H%M%S).${PID}
+exec 2> ${SYSD}/LOG/LOG.$(basename $0).${DATE_TIME_PID}
 LANG=ja_JP.UTF-8
 PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
 LOCKD=${SYSD}/LOCK/$1
@@ -43,7 +43,7 @@ do
         sleep 1s
         STATUS='WAITING'
     else
-        touch ${LOCKD}/${DATE_PID}.${KEY}.lock
+        touch ${LOCKD}/${DATE_TIME_PID}.${KEY}.lock
         ERROR_CHECK
         STATUS='LOCKED'
         break
@@ -57,7 +57,7 @@ done
 
 ########################################
 #戻り値
-echo ${DATE_PID}.${STATUS}.${KEY}
+echo ${DATE_TIME_PID}.${STATUS}.${KEY}
 
 ########################################
 #正常終了
