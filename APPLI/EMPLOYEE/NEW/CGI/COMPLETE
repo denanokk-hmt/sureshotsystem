@@ -38,35 +38,31 @@ FIN
 
 ########################################
 #EMPOLYEEのデータ操作をロック
-LOCK=`${SYSD}/CGI/LOCK/LOCK 'EMPLOYEE'`
+LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'EMPLOYEE' `
 LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
+[ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
 
 ########################################
 #社員番号の次のロットを追加する
-if [ ${LOCK_STATUS} = 'LOCKED' ]; then
-    LATEST_NUM=$(ls ${SYSD}/DATA/NUMBERS/${CATEGORY}/ORIGIN | sort -nr | head -n 1)
-    START=$((LATEST_NUM + 1))
-    END=$((START + 3))
-    SEQ_STATUS=`${SYSD}/CGI/NUMBER_SEQ ${START} ${END} 'EMPLOYEE' `
-fi
-
-########################################
-#社員番号ロット追加の一連処理でのエラー処理
-if [ ${LOCK_STATUS} != 'LOCKED'] || [ ${SEQ_STATUS} = 'ERROR' ] || [ ${UNLOCK_STATUS} = 'ERROR']; then
-    cat ${SYSD}/HTML/ERROR/SYSTEM_ERROR.HTML                        |
-    sed -e "s/###ERROR1_LABEL###/新規社員登録処理中にエラー/"       |
-    sed -e "s/###ERROR2_LABEL###/処理ステータス:${STATUS}/"         |
-    sed -e "s/###ERROR3_LABEL###//"                                 > $tmp-html
-    exit 1
-fi
+LATEST_NUM=$(ls ${SYSD}/DATA/NUMBERS/${CATEGORY}/ORIGIN | sort -nr | head -n 1)
+START=$((LATEST_NUM + 1))
+END=$((START + 3))
+SEQ_STATUS=`${SYSD}/CGI/NUMBER_SEQ $1 'EMPLOYEE' ${START} ${END} `
 
 ########################################
 #EMPOLYEEのデータ操作ロックを解除
-UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK 'EMPLOYEE'`
+UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'EMPLOYEE'`
+
+########################################
+#社員番号ロット追加もしくは、ロック解除でのエラー処理
+if [ ${SEQ_STATUS} != 'SUCCESS' ] || [ ${UNLOCK_STATUS} != 'UNLOCK']; then
+    exit 0
+fi
 
 ########################################
 #新規の社員番号を確定する
-EMPLOYEE_NUM=`${SYSD}/CGI/NUMBERS 'EMPLOYEE' `
+EMPLOYEE_NUM=`${SYSD}/CGI/NUMBERS $1 'EMPLOYEE' `
+[ ${EMPLOYEE_NUM} = 'ERROR' ] && exit 0 || :
 
 #######################################
 #Get Form Data

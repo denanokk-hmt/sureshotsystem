@@ -5,7 +5,8 @@
 #	NUMBERS.CGI
 #
 #   引数
-#       $1:カテゴリ名
+#       $1:プロセスID
+#       $2:カテゴリ名
 #
 #	Written by hiramatsu
 
@@ -14,21 +15,24 @@
 #Set basic
 SYSD=/home/sureshotsystem
 #exec 2> ${SYSD}/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
-tmp=/tmp/tmp_$$
+tmp=/tmp/tmp_$1
 LANG=ja_JP.UTF-8
 PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
-NUMBERSD=${SYSD}/DATA/NUMBERS/$1
+NUMBERSD=${SYSD}/DATA/NUMBERS/$2
 
 ########################################
 #Check error
 ERROR_CHECK(){
 	[ $(plus ${PIPESTATUS[@]}) -eq 0 ] && return
-cat <<- FIN
-	Context-type: text/html
-	NG input
-FIN
-	cat $tmp-result
-	exit 1
+    [ -z ${STATUS} ] && STATUS='LOCK_ERROR'
+    cat ${SYSD}/HTML/ERROR/SYSTEM_ERROR.HTML                        |
+    sed -e "s/###ERROR1_LABEL###/採番処理中にエラー/"               |
+    sed -e "s/###ERROR2_LABEL###/${NUMBERSD}/"                      |
+    sed -e "s|###ERROR3_LABEL###||"                                 |
+    sed -e "s/###ERROR4_LABEL###//"                                 |
+    sed -e "s/###ERROR5_LABEL###//"                                 > $tmp-html
+    echo "ERROR"
+    exit 0
 }
 
 ########################################
@@ -53,5 +57,4 @@ echo ${NUM}
 
 ########################################
 #正常終了
-rm -f $tmp-*
 exit 0
