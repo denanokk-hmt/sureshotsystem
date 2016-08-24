@@ -135,27 +135,27 @@ awk '{print length($1)}' > $tmp-VALID-result
 #HTMLの設定
 if [ $ACTION = 'INPUT' ] ; then
     cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML           |
-    sed -e "s/###FAMILY_NAME_ERR###/${VALID1_disp}/"        |
-    sed -e "s/###GIVEN_NAME_ERR###/${VALID2_disp}/"         |
-    sed -e "s/###EMAIL_ERR###/${VALID31_disp}/"             |
-    sed -e "s/###EMAIL_DUPLECATED###/${VALID32_disp}/"      |
-    sed -e "s/###PASSWORD_ERR###/${VALID4_disp}/"           |
-    sed -e "s/###PASSWORD_CONFIRMATION_ERR###/${VALID4_disp}/"         |
-    sed -e "s/###FAMILY_NAME_VALUE###/$(cat $tmp-value1)/"  |
-    sed -e "s/###GIVEN_NAME_VALUE###/$(cat $tmp-value2)/"   |
-    sed -e "s/###EMAIL_VALUE###/$(cat $tmp-value3)/"        |
-    sed -e "s/###PASSWORD_VALUE###/$(cat $tmp-value4)/"     |
+    sed -e "s/###FAMILY_NAME_ERR###/${VALID1_disp}/"                    |
+    sed -e "s/###GIVEN_NAME_ERR###/${VALID2_disp}/"                     |
+    sed -e "s/###EMAIL_ERR###/${VALID31_disp}/"                         |
+    sed -e "s/###EMAIL_DUPLECATED###/${VALID32_disp}/"                  |
+    sed -e "s/###PASSWORD_ERR###/${VALID4_disp}/"                       |
+    sed -e "s/###PASSWORD_CONFIRMATION_ERR###/${VALID4_disp}/"          |
+    sed -e "s/###FAMILY_NAME_VALUE###/$(cat $tmp-value1)/"              |
+    sed -e "s/###GIVEN_NAME_VALUE###/$(cat $tmp-value2)/"               |
+    sed -e "s/###EMAIL_VALUE###/$(cat $tmp-value3)/"                    |
+    sed -e "s/###PASSWORD_VALUE###/$(cat $tmp-value4)/"                 |
     sed -e "s/###PASSWORD_CONFIRMATION_VALUE###/$(cat $tmp-value5)/"    > $tmp-html
 else
     cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML           |
-    sed -e "s/###FAMILY_NAME_LABEL###/$(cat $tmp-value1)/"  |
-    sed -e "s/###GIVEN_NAME_LABEL###/$(cat $tmp-value2)/"   |
-    sed -e "s/###EMAIL_LABEL###/$(cat $tmp-value3)/"        |
-    sed -e "s/###PASSWORD_LABEL###/********/"               |
-    sed -e "s/###FAMILY_NAME_VALUE###/$(cat $tmp-value1)/"  |
-    sed -e "s/###GIVEN_NAME_VALUE###/$(cat $tmp-value2)/"   |
-    sed -e "s/###EMAIL_VALUE###/$(cat $tmp-value3)/"        |
-    sed -e "s/###PASSWORD_VALUE###/$(cat $tmp-sha1)/"       > $tmp-html
+    sed -e "s/###FAMILY_NAME_LABEL###/$(cat $tmp-value1)/"              |
+    sed -e "s/###GIVEN_NAME_LABEL###/$(cat $tmp-value2)/"               |
+    sed -e "s/###EMAIL_LABEL###/$(cat $tmp-value3)/"                    |
+    sed -e "s/###PASSWORD_LABEL###/********/"                           |
+    sed -e "s/###FAMILY_NAME_VALUE###/$(cat $tmp-value1)/"              |
+    sed -e "s/###GIVEN_NAME_VALUE###/$(cat $tmp-value2)/"               |
+    sed -e "s/###EMAIL_VALUE###/$(cat $tmp-value3)/"                    |
+    sed -e "s/###PASSWORD_VALUE###/$(cat $tmp-sha1)/"                   > $tmp-html
 fi
 
 ###############################################################################
