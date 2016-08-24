@@ -5,7 +5,8 @@
 #	LOCK.CGI
 #
 #   引数
-#       $1:カテゴリ名、またはロックファイルのパス(LOCK配下はデフォルト)
+#       $1:必須 カテゴリ名、またはロックファイルのパス(LOCK配下はデフォルト)
+#       $2:任意 固有キー(社員番号など)
 #   戻り値
 #       YYYYMMDD.HHMMSS.プロセスID.ステータス
 #
@@ -21,6 +22,8 @@ exec 2> ${SYSD}/LOG/LOG.$(basename $0).${DATE_PID}
 LANG=ja_JP.UTF-8
 PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
 LOCKD=${SYSD}/LOCK/$1
+KEY=${2:-KEY}
+
 
 ########################################
 #Check error
@@ -36,11 +39,11 @@ ERROR_CHECK(){
 COUNT=1
 while :
 do
-    if [ -e ${LOCKD}/*.lock ]; then
+    if [ -e ${LOCKD}/*.${KEY}.lock ]; then
         sleep 1s
         STATUS='WAITING'
     else
-        touch ${LOCKD}/${DATE_PID}.lock
+        touch ${LOCKD}/${DATE_PID}.${KEY}.lock
         ERROR_CHECK
         STATUS='LOCKED'
         break
@@ -54,7 +57,7 @@ done
 
 ########################################
 #戻り値
-echo ${DATE_PID}.${STATUS}
+echo ${DATE_PID}.${STATUS}.${KEY}
 
 ########################################
 #正常終了

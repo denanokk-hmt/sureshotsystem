@@ -49,17 +49,6 @@ VALUE5=0
 #新規の社員番号を確定する
 EMPLOYEE_NUM=`${SYSD}/CGI/NUMBERS 'EMPLOYEES' `
 
-
-#########################################
-##EMPLOYEESのデータをロックする
-#LOCK=`${SYSD}/CGI/LOCK/LOCK 'EMPLOYEES' `
-#
-#########################################
-##EMPLOYEESのデータロックを解除
-#UNLOCK=`${SYSD}/CGI/LOCK/UNLOCK 'EMPLOYEES' `
-#
-#exit
-
 ########################################
 #Set DATE
 CREATE_DATE=$(date +%Y%m%d%H%M%S)

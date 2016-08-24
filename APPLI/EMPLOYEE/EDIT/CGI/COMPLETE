@@ -45,6 +45,19 @@ PW=$(nameread PASSWORD $tmp-post)
 #VALUE5=$(nameread ADMIN_FLAG $tmp-post)
 VALUE5=0
 
+
+
+
+#########################################
+##EMPLOYEESのデータをロックする
+#LOCK=`${SYSD}/CGI/LOCK/LOCK 'EMPLOYEES' `
+#
+#########################################
+##EMPLOYEESのデータロックを解除
+#UNLOCK=`${SYSD}/CGI/LOCK/UNLOCK 'EMPLOYEES' `
+
+
+
 ######################################
 #Set employee number
 EMPLOYEE_NUM=$(cat ${SYSD}/DATA/EMPLOYEE/TMP/${ID})
