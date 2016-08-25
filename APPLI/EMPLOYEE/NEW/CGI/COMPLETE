@@ -37,27 +37,12 @@ FIN
 }
 
 ########################################
-#EMPOLYEEのデータ操作をロック
-LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'EMPLOYEE' `
-LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
-[ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
-
-########################################
 #社員番号の次のロットを追加する
 LATEST_NUM=$(ls ${SYSD}/DATA/NUMBERS/${CATEGORY}/ORIGIN | sort -nr | head -n 1)
 START=$((LATEST_NUM + 1))
 END=$((START + 3))
 SEQ_STATUS=`${SYSD}/CGI/NUMBER_SEQ $1 'EMPLOYEE' ${START} ${END} `
-
-########################################
-#EMPOLYEEのデータ操作ロックを解除
-UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'EMPLOYEE'`
-
-########################################
-#社員番号ロット追加もしくは、ロック解除でのエラー処理
-if [ ${SEQ_STATUS} != 'SUCCESS' ] || [ ${UNLOCK_STATUS} != 'UNLOCK']; then
-    exit 0
-fi
+[[ ${SEQ_STATUS} != 'SUCCESS' ]] && exit 0
 
 ########################################
 #新規の社員番号を確定する

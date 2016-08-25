@@ -42,6 +42,12 @@ START=$3
 END=$4
 
 ########################################
+#EMPOLYEEのデータ操作をロック
+LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'EMPLOYEE' `
+LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
+[ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
+
+########################################
 #DATA/NUMBERS/配下に指定したカテゴリ名のディレクトリが存在しない場合、
 #そのカテゴリ名のディレクトリとその配下にORIGIN/とUSED/ディレクトリを作成する
 if [ -e ${SYSD}/DATA/NUMBERS/${CATEGORY}  ]; then
@@ -65,6 +71,11 @@ do
     chmod 775 ${SYSD}/DATA/NUMBERS/${CATEGORY}/ORIGIN/$i
     ERROR_CHECK
 done
+
+########################################
+#EMPOLYEEのデータ操作ロックを解除
+UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'EMPLOYEE'`
+[ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
 
 ########################################
 #正常終了
