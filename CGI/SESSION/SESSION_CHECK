@@ -12,7 +12,7 @@
 
 
 ########################################
-#Set basic
+#基本設定
 SYSD=/home/sureshotsystem
 #exec 2> ${SYSD}/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
 tmp=/tmp/tmp_$$

@@ -14,7 +14,7 @@
 
 
 ########################################
-#Set basic
+#基本設定
 SYSD=/home/sureshotsystem
 exec 2> ${SYSD}/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
 tmp=/tmp/tmp_$1
@@ -42,8 +42,8 @@ START=$3
 END=$4
 
 ########################################
-#EMPOLYEEのデータ操作をロック
-LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'EMPLOYEE' `
+#STUFFのデータ操作をロック
+LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'STUFF' `
 LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
 [ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
 
@@ -73,8 +73,8 @@ do
 done
 
 ########################################
-#EMPOLYEEのデータ操作ロックを解除
-UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'EMPLOYEE'`
+#STUFFのデータ操作ロックを解除
+UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'STUFF'`
 [ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
 
 ########################################

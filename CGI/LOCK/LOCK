@@ -15,7 +15,7 @@
 
 
 ########################################
-#Set basic
+#基本設定
 SYSD=/home/sureshotsystem
 PID=$1
 DATE_TIME_PID=$(date +%Y%m%d).$(date +%H%M%S).${PID}

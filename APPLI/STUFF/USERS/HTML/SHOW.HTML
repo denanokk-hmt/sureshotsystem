@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+	<head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Sureshot employee registry confirm</title>
+        <!-- BootstrapのCSS読み込み -->
+        <link href="/BOOTSTRAP/css/bootstrap.min.css" rel="stylesheet">
+        <!-- jQuery読み込み -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <!-- BootstrapのJS読み込み -->
+        <script src="/BOOTSTRAP/js/bootstrap.min.js"></script>
+	</head>
+    <body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                <h1>STUFF <span class="label label-success"></span></h1>
+		        <form action="/APP/STUFF/USERS/" method="GET">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>STUFF NO</th>
+                                <th>FIRST NAME</th>
+                                <th>LAST NAME</th>
+                                <th>EMAIL</th>
+                                <th>EDIT</th>
+                                <th>DELETE</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+<!--RECORDS-->
+                            <tr>
+                                <td>%1</td>
+                                <td>
+                                    <a class="btn btn-default" href="%11">%2</a>
+                                </td>
+                                <td>%3</td>
+                                <td>%4</td>
+                                <td>%5</td>
+                                <td>
+                                    <a class="btn btn-default" href="%12">EDIT</a>
+                                </td>
+                                <td>
+                                    <a class="btn btn-default" href="%13">DELETE</a>
+                                </td>
+                            </tr>
+<!--RECORDS-->
+                        </tbody>
+                    </table>
+
+###PAGER###
+		        </form>
+            </div>
+        </div>
+    </div>
+	</body>
+</html>
+

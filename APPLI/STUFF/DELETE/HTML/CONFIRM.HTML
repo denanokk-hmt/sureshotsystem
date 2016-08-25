@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+	<head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Sureshot employee registry input</title>
+        <!-- BootstrapのCSS読み込み -->
+        <link href="/BOOTSTRAP/css/bootstrap.min.css" rel="stylesheet">
+        <!-- jQuery読み込み -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <!-- BootstrapのJS読み込み -->
+        <script src="/BOOTSTRAP/js/bootstrap.min.js"></script>
+	</head>
+    <body>
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                <h1>STUFF <span class="label label-default">Delete</span></h1>
+		        <form action="/APP/STUFF/DELETE/COMPLETE" method="POST">
+                    <div class="form-group">
+                        <span class="label label-danger ">
+                            下記の社員情報を削除します。宜しいでしょうか？
+                        </span>
+                    </div>
+                    <div class="form-group">
+                        <span class="label label-danger ###DELETE_ERR###">
+                            不正が確認された為、削除を中断しました。
+                        </span>
+                    </div>
+                    <div class="form-group">
+			            <span class="glyphicon glyphicon-user"></span>
+                        <span class="label label-default">###STUFF_ID_VALUE###</span>
+                    <input type="hidden" name="ID" value="###ID_VALUE###" />
+                    </div>
+			        <br />
+                    <div class="form-group">
+			            <span class="glyphicon glyphicon-user"></span>
+                        <span class="label label-default">###FAMILY_NAME_VALUE###</span>
+                        <input type="hidden" name="FAMILY_NAME" value="###FAMILY_NAME_VALUE###" />
+                    </div>
+			        <br />
+                    <div class="form-group">
+			            <span class="glyphicon glyphicon-user"></span>
+			            <span class="label label-default">###GIVEN_NAME_VALUE###</span>
+                        <input type="hidden" name="GIVEN_NAME" value="###GIVEN_NAME_VALUE###" />
+                    </div>
+	    		    <br />
+                    <div class="form-group">
+		    	        <span class="glyphicon glyphicon-envelope"></span>
+			            <span class="label label-default">###EMAIL_VALUE###</span>
+                        <input type="hidden" name="EMAIL" value="###EMAIL_VALUE###" />
+                    </div>
+                    
+                    <input type="hidden" name="STATUS" value="INPUT" />
+                    <input type="hidden" name="METHOD" value="DELETE" />
+			        <input type="hidden" name="STUFF_ID" value="###STUFF_ID###" />
+
+                    <div class="form-group">
+			            <input type="submit" name="SUBMIT" class="btn btn-primary btn-lg" />
+                    </div>
+		        </form>
+            </div>
+        </div>
+	</body>
+</html>
+

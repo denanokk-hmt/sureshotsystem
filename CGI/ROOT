@@ -8,7 +8,7 @@
 
 
 ########################################
-#Set basic
+#基本設定
 SYSD=/home/sureshotsystem
 exec 2> ${SYSD}/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
 tmp=/tmp/tmp_$$
@@ -80,20 +80,20 @@ echo $ACTION > $tmp-action
 
 ########################################
 #ログインセッションの確認と設定
-EMP_SESS_ID='ss_employee_session_id'    #社員用ログインセッションID
+STUFF_SESS_ID='sureshot_stuff_session_id'    #社員用ログインセッションID
 
 #社員登録とログイン画面以外の場合、有効なログインセッションを要求
 case ${CATEGORY}/${FUNC} in
-"EMPLOYEE/NEW" | "EMPLOYEE/SIGNIN" | "/")
+"STUFF/NEW" | "STUFF/SIGNIN" | "/")
     ;;
 *)
     #ログインセッションを確認
-    SESS_STATUS=`${SYSD}/CGI/SESSION/SESSION_CHECK ${EMP_SESS_ID} `
+    SESS_STATUS=`${SYSD}/CGI/SESSION/SESSION_CHECK ${STUFF_SESS_ID} `
     case $SESS_STATUS in
     live)
         #ログインセッションが有効の場合、時間を延長
-        SESS=$(session_get ${EMP_SESS_ID})
-        COOK=`${SYSD}/CGI/SESSION/SESSION_SET ${EMP_SESS_ID} `
+        SESS=$(session_get ${STUFF_SESS_ID})
+        COOK=`${SYSD}/CGI/SESSION/SESSION_SET ${STUFF_SESS_ID} `
         echo $COOK > $tmp-cook-login
         ;;
     *)      
@@ -103,7 +103,7 @@ case ${CATEGORY}/${FUNC} in
         #これを無効とするのでTOP画面に戻す→リターンURL設定なし
         [ $METHOD = 'GET' ] && 
         RETURN_URL=${CATEGORY}/${FUNC}/${ACTION}/$( cat $tmp-get ) || RETURN_URL=''
-        CATEGORY='EMPLOYEE'
+        CATEGORY='STUFF'
         FUNC='SIGNIN'
         ACTION='INPUT'
         echo ${RETURN_URL} > $tmp-return-url
