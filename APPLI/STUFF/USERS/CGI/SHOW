@@ -62,8 +62,8 @@ else
 fi
 
 ########################################
-#Get employee records
-cat ${SYSD}/DATA/${CATEGORY}/USERS/LV3/STUFF    |
+#Get stuff records
+cat ${SYSD}/DATA/${CATEGORY}/USERS/LV3/*            |
 LANG=C sort -nk1,1                                  |
 awk -v s=${START} -v e=${END} 'NR>=s&&NR<=e'        |
 juni                                                > $tmp-records
@@ -72,7 +72,7 @@ mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML $tmp-re
 
 ########################################
 #Set pager
-RECORDS=$( cat ${SYSD}/DATA/${CATEGORY}/USERS/LV3/STUFF | wc -l )
+RECORDS=$( ls ${SYSD}/DATA/${CATEGORY}/USERS/LV3 | wc -l )
 RESULT=`${SYSD}/CGI/PAGER $1 /APP/STUFF/USERS/SHOW ${SHOW_PAGE} ${RECORDS} ${VIEW_MAX_RECORDS} ${VIEW_MAX_PAGES}`
 
 ########################################

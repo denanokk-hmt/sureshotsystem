@@ -42,7 +42,7 @@ echo $ID > ${SYSD}/DATA/${CATEGORY}/TMP/${STUFF_ID}
 
 ########################################
 #Get Own users data
-ARR=( `cat ${SYSD}/DATA/${CATEGORY}/USERS/LV3/STUFF     |
+ARR=( `cat ${SYSD}/DATA/${CATEGORY}/USERS/LV3/${ID}_STUFF*  |
         awk -v id=$ID '$1==id{print}'                       |
         tr -s ' ' ' '`)
 ID=${ARR[0]}

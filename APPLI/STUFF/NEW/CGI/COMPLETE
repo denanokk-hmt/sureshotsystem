@@ -71,30 +71,26 @@ echo ${STUFF_NUM}" "${VALUE3}" "${VALUE4}" "${CREATE_DATE}" "${UPDATE_DATE}" "${
 ########################################
 #Write data to tempolary file
 #1.社員番号 2.姓 3.名 4.EMAIL 5.TEL 6.作成日時 7.更新日時 8.ADMINフラグ 9.削除フラグ
-echo ${STUFF_NUM}" "${VALUE1}" "${VALUE2}" "${VALUE3}" - "${CREATE_DATE}" "${UPDATE_DATE}" "${VALUE5}" "0 > $tmp-employee
+echo ${STUFF_NUM}" "${VALUE1}" "${VALUE2}" "${VALUE3}" - "${CREATE_DATE}" "${UPDATE_DATE}" "${VALUE5}" "0 > $tmp-stuff
 
 ########################################
 #Data Saving for LOGIN
 #LV1
-$(mv $tmp-login ${LOGIND}/LV1/${STUFF_NUM}_loginpass_${CREATE_DATE})
+$(mv $tmp-login ${LOGIND}/LV1/${STUFF_NUM}_login_${CREATE_DATE})
 #LV2
-cat ${LOGIND}/LV1/${STUFF_NUM}_loginpass_${CREATE_DATE}  >> ${LOGIND}/LV2/LOGINPASSES
-chmod 775 ${LOGIND}/LV2/LOGINPASSES
-#LV3
-cat ${LOGIND}/LV1/${STUFF_NUM}_loginpass_${CREATE_DATE}  >> ${LOGIND}/LV3/LOGINPASSES
-chmod 775 ${LOGIND}/LV3/LOGINPASSES
+cat ${LOGIND}/LV1/${STUFF_NUM}_login_${CREATE_DATE}  > ${LOGIND}/LV2/${STUFF_NUM}_LOGIN_${CREATE_DATE}
+#LV3(LV2と同じ)
+cp -ip ${LOGIND}/LV2/${STUFF_NUM}_LOGIN_${CREATE_DATE} ${LOGIND}/LV3/${STUFF_NUM}_LOGIN_${CREATE_DATE}
 
 ########################################
 #Data Saving for STUFF
 #LV1
-$(mv $tmp-employee ${USERSD}/LV1/${STUFF_NUM}_employee_${CREATE_DATE})
+$(mv $tmp-stuff ${USERSD}/LV1/${STUFF_NUM}_stuff_${CREATE_DATE})
 #LV2
-cat ${USERSD}/LV1/${STUFF_NUM}_employee_${CREATE_DATE}   >> ${USERSD}/LV2/STUFF
-chmod 775 ${USERSD}/LV2/STUFF
+cat ${USERSD}/LV1/${STUFF_NUM}_stuff_${CREATE_DATE} > ${USERSD}/LV2/${STUFF_NUM}_STUFF_${CREATE_DATE}
 #LV3
-cat ${USERSD}/LV1/${STUFF_NUM}_employee_${CREATE_DATE}   |
-awk '{print sprintf("%d %s %s %s %s %s %s %d %d /APP/STUFF/USERS/SHOW/?id=%d /APP/STUFF/EDIT/INPUT/?id=%d /APP/STUFF/DELETE/CONFIRM/?id=%d",$1,$2,$3,$4,$5,$6,$7,$8,$9,$1,$1,$1)}'    >> ${USERSD}/LV3/STUFF
-chmod 775 ${USERSD}/LV3/STUFF
+cat ${USERSD}/LV2/${STUFF_NUM}_STUFF_${CREATE_DATE} |
+awk '{print sprintf("%d %s %s %s %s %s %s %d %d /APP/STUFF/USERS/SHOW/?id=%d /APP/STUFF/EDIT/INPUT/?id=%d /APP/STUFF/DELETE/CONFIRM/?id=%d",$1,$2,$3,$4,$5,$6,$7,$8,$9,$1,$1,$1)}'                                                  >   ${USERSD}/LV3/${STUFF_NUM}_STUFF_${CREATE_DATE}
 
 ########################################
 #SET SESSION
@@ -111,7 +107,7 @@ sed -e "s/###EMAIL_LABEL###/${VALUE3}/"                     > $tmp-html
 
 ###############################################################################
 #ending
-echo "employee new user OK"
+echo "stuff new user OK"
 #echo $COOK_SET
 exit 0
 

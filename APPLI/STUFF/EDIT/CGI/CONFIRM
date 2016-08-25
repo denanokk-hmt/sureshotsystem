@@ -34,8 +34,8 @@ FIN
 
 ########################################
 #Get STUFF ID
-nameread STUFF_ID $tmp-post              | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-employee
-STUFF_ID=$(cat $tmp-employee)
+nameread STUFF_ID $tmp-post              | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-stuff
+STUFF_ID=$(cat $tmp-stuff)
 
 ########################################
 #フォーム値の設定

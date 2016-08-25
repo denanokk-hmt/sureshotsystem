@@ -45,75 +45,65 @@ PW=$(nameread PASSWORD $tmp-post)
 #VALUE5=$(nameread ADMIN_FLAG $tmp-post)
 VALUE5=0
 
-
-
-
-#########################################
-##STUFFのデータをロックする
-#LOCK=`${SYSD}/CGI/LOCK/LOCK 'STUFF' `
-#
-#########################################
-##STUFFのデータロックを解除
-#UNLOCK=`${SYSD}/CGI/LOCK/UNLOCK 'STUFF' `
-
-
-
 ######################################
-#Set employee number
+#INPUT表示時点で作成した暗号化スタッフ番号を取得、
+#暗号化の一時ファイルは削除
 STUFF_NUM=$(cat ${SYSD}/DATA/STUFF/TMP/${ID})
 rm -f ${SYSD}/DATA/STUFF/TMP/${ID}
 
 ########################################
-#PW
-if [ "${PW}" = 'NOT_CHANGE' ]; then
-    PW=$(cat ${LOGIND}/LV3/LOGINPASSES   | awk -v id=$STUFF_NUM '$1==id{print $3}')
-fi
+#パスワードの値が"NOT_CHANGE"のままならば、変更が無いので、既存データを取得
+[[ "${PW}" = 'NOT_CHANGE' ]] && PW=$(cat ${LOGIND}/LV3/LOGIN   | awk -v id=$STUFF_NUM '$1==id{print $3}')
 
 ########################################
-#Set DATE
-ls ${SYSD}/DATA/STUFF/USERS/LV1/${STUFF_NUM}_employee_* | cut -d'_' -f3 | sort -nk1,1 | head -n 1 > $tmp-create
+#既存データから作成日時を取得、現在日時を更新日時とする
+ls ${SYSD}/DATA/STUFF/USERS/LV1/${STUFF_NUM}_stuff_* | cut -d'_' -f3 | sort -nk1,1 | head -n 1 > $tmp-create
 CREATE_DATE=$(cat $tmp-create)
 UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 
 ########################################
-#Write data to tempolary file
+#ログインデータ用に一時ファイルに書き出し
 #1.社員番号 3.EMAIL 2.PW 3.作成日時 4.更新日時 5.ADMINフラグ 6.削除フラグ
 echo ${STUFF_NUM}" "${VALUE3}" "${PW}" "${CREATE_DATE}" "${UPDATE_DATE}" "${VALUE5}" "0 > $tmp-login
 
 ########################################
-#Write data to tempolary file
+#ログイン用データの格納
+#LV1
+#原始データとして、ファイル追加のみを行う
+mv $tmp-login ${LOGIND}/LV1/${STUFF_NUM}_login_${UPDATE_DATE}
+
+#LV2
+#変更されたデータとファイルを入れ替える
+cp -ip ${LOGIND}/LV1/${STUFF_NUM}_login_${UPDATE_DATE} ${LOGIND}/LV2/${STUFF_NUM}_LOGIN_${UPDATE_DATE}
+ls ${LOGIND}/LV2/${STUFF_NUM}* | sort -nk1 | head -n 1 | xargs rm -f
+
+#LV3(LV2のコピー)
+cp -ip ${LOGIND}/LV2/${STUFF_NUM}_LOGIN_${UPDATE_DATE} ${LOGIND}/LV3/${STUFF_NUM}_LOGIN_${UPDATE_DATE}
+
+
+########################################
+#ユーザーデータ用に一時ファイルに書き出し
 #1.社員番号 2.姓 3.名 4.EMAIL 5.TEL 6.作成日時 7.更新日時 8.ADMINフラグ 9.削除フラグ
-echo ${STUFF_NUM}" "${VALUE1}" "${VALUE2}" "${VALUE3}" - "${CREATE_DATE}" "${UPDATE_DATE}" "${VALUE5}" "0 > $tmp-employee
+echo ${STUFF_NUM}" "${VALUE1}" "${VALUE2}" "${VALUE3}" - "${CREATE_DATE}" "${UPDATE_DATE}" "${VALUE5}" "0 > $tmp-stuff
 
 ########################################
-#Data Saving for LOGIN
-#LV1
-$(mv $tmp-login ${LOGIND}/LV1/${STUFF_NUM}_loginpass_${UPDATE_DATE})
-#LV2
-cat ${LOGIND}/LV1/${STUFF_NUM}_loginpass_${UPDATE_DATE}  >> ${LOGIND}/LV2/LOGINPASSES
-chmod 775 ${LOGIND}/LV2/LOGINPASSES
-#LV3
-cat ${LOGIND}/LV2/LOGINPASSES   |
-LANG=C sort -nk1,1 -nrk5,5      |
-uniq -w 1 | sort -nk1,1         > ${LOGIND}/LV3/LOGINPASSES
-chmod 775 ${LOGIND}/LV3/LOGINPASSES
+#スタッフ用データの格納
 
-########################################
-#Data Saving for STUFF
 #LV1
-$(mv $tmp-employee ${USERSD}/LV1/${STUFF_NUM}_employee_${UPDATE_DATE})
+#原始データとして、ファイル追加のみを行う
+$(mv $tmp-stuff ${USERSD}/LV1/${STUFF_NUM}_stuff_${UPDATE_DATE})
+
 #LV2
-cat ${USERSD}/LV1/${STUFF_NUM}_employee_${UPDATE_DATE}   >> ${USERSD}/LV2/STUFF
-chmod 775 ${USERSD}/LV2/STUFF
+#変更されたデータとファイルを入れ替える
+cp -ip ${USERSD}/LV1/${STUFF_NUM}_stuff_${UPDATE_DATE} ${LOGIND}/LV2/${STUFF_NUM}_STUFF_${UPDATE_DATE}
+ls ${USERSD}/LV2/${STUFF_NUM}* | sort -nk1 | head -n 1 | rm -f
+
 #LV3
-cat ${USERSD}/LV1/${STUFF_NUM}_employee_${CREATE_DATE}   |
-awk '{print sprintf("%d %s %s %s %s %s %s %d %d /APP/STUFF/USERS/SHOW/?id=%d /APP/STUFF/EDIT/INPUT/?id=%d /APP/STUFF/DELETE/CONFIRM/?id=%d",$1,$2,$3,$4,$5,$6,$7,$8,$9,$1,$1,$1)}'    >> ${USERSD}/LV3/STUFF
-#LV3
-cat ${USERSD}/LV2/STUFF     |
-LANG=C sort -nk1,1 -nrk7,7      |
-uniq -w 1 | sort -nk1,1         |
-awk '{print sprintf("%d %s %s %s %s %s %s %d %d /APP/STUFF/USERS/SHOW/?id=%d /APP/STUFF/EDIT/INPUT/?id=%d /APP/STUFF/DELETE/CONFIRM/?id=%d",$1,$2,$3,$4,$5,$6,$7,$8,$9,$1,$1,$1)}'    > ${USERSD}/LV3/STUFF
-chmod 775 ${USERSD}/LV3/STUFF
+#リンク用のURLを追加
+#変更されたデータとファイルを入れ替える
+cat ${USERSD}/LV1/${STUFF_NUM}_stuff_${UPDATE_DATE} |
+awk '{print sprintf("%d %s %s %s %s %s %s %d %d /APP/STUFF/USERS/SHOW/?id=%d /APP/STUFF/EDIT/INPUT/?id=%d /APP/STUFF/DELETE/CONFIRM/?id=%d",$1,$2,$3,$4,$5,$6,$7,$8,$9,$1,$1,$1)}'  > ${USERSD}/LV3/${STUFF_NUM}_STUFF_${UPDATE_DATE}
+ls ${USERSD}/LV3/${STUFF_NUM}* | sort -nk1 | head -n 1 | rm -f
 
 ########################################
 #SET SESSION
@@ -130,7 +120,7 @@ sed -e "s/###EMAIL_LABEL###/${VALUE3}/"         > $tmp-html
 
 ###############################################################################
 #ending
-echo "employee edit user OK"
+echo "stuff edit user OK"
 #echo $COOK_SET
 exit 0
 

@@ -4,6 +4,9 @@
 ########################################
 #	AUTH.CGI
 #
+#   引数
+#       $1:プロセスID
+#
 #	Written by hiramatsu
 
 
@@ -51,7 +54,7 @@ PW=$(cat $tmp-sha1-pw)
 
 #######################################
 #AUTH
-cat ${LOGIND}/LV3/LOGINPASSES   | awk -v id=$VALUE_ID -v pw=$PW '$2==id&&$3==pw&&$6==0{print}' > $tmp-auth
+cat ${LOGIND}/LV3/*   | awk -v id=$VALUE_ID -v pw=$PW '$2==id&&$3==pw&&$6==0{print}' > $tmp-auth
 
 ########################################
 #SET LOGIN SESSION
