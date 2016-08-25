@@ -46,6 +46,11 @@ nameread PASSWORD $tmp-post                 | awk '{gsub(/^\_$/,"",$1);print}' >
 nameread PASSWORD_CONFIRMATION $tmp-post    | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value5
 
 ########################################
+#バリデーション(整合性確認)
+ID=$(cat ${SYSD}/DATA/${CATEGORY}/TMP/${STUFF_ID})
+
+
+########################################
 #バリデーション(必須入力確認)
 #入力ありの場合、空ファイルが出力され、なしの場合、そのフィールド名が記載される
 cat $tmp-post | awk '$2=="_" && $1=="FAMILY_NAME"{print $1}' > $tmp-need-VALID1
@@ -154,10 +159,11 @@ if [ $ACTION = 'INPUT' ] ; then
     sed -e "s/###GIVEN_NAME_VALUE###/$(cat $tmp-value2)/"               |
     sed -e "s/###EMAIL_VALUE###/$(cat $tmp-value3)/"                    |
     sed -e "s/###PASSWORD_VALUE###/NOT_CHANGE/"                         |
-    sed -e "s/###STUFF_ID###/${STUFF_ID}/"                        |
+    sed -e "s/###STUFF_ID###/${STUFF_ID}/"                              |
     sed -e "s/###PASSWORD_CONFIRMATION_VALUE###/NOT_CHANGE/"            > $tmp-html
 else
     cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML           |
+    sed -e "s/###STUFF_ID_NOT_MATCH###//"                               |
     sed -e "s/###FAMILY_NAME_LABEL###/$(cat $tmp-value1)/"              |
     sed -e "s/###GIVEN_NAME_LABEL###/$(cat $tmp-value2)/"               |
     sed -e "s/###EMAIL_LABEL###/$(cat $tmp-value3)/"                    |
@@ -165,7 +171,7 @@ else
     sed -e "s/###FAMILY_NAME_VALUE###/$(cat $tmp-value1)/"              |
     sed -e "s/###GIVEN_NAME_VALUE###/$(cat $tmp-value2)/"               |
     sed -e "s/###EMAIL_VALUE###/$(cat $tmp-value3)/"                    |
-    sed -e "s/###STUFF_ID###/${STUFF_ID}/"                        |
+    sed -e "s/###STUFF_ID###/${STUFF_ID}/"                              |
     sed -e "s/###PASSWORD_VALUE###/$(cat $tmp-sha1)/"                   > $tmp-html
 fi
 

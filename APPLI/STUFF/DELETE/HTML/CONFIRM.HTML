@@ -19,39 +19,36 @@
 		        <form action="/APP/STUFF/DELETE/COMPLETE" method="POST">
                     <div class="form-group">
                         <span class="label label-danger ">
-                            下記の社員情報を削除します。宜しいでしょうか？
+                            下記のスタッフ情報を削除します。宜しいでしょうか？
                         </span>
                     </div>
                     <div class="form-group">
-                        <span class="label label-danger ###DELETE_ERR###">
-                            不正が確認された為、削除を中断しました。
-                        </span>
+                        <span class="label label-danger">###ERROR_MSG###</span>
                     </div>
                     <div class="form-group">
 			            <span class="glyphicon glyphicon-user"></span>
-                        <span class="label label-default">###STUFF_ID_VALUE###</span>
-                    <input type="hidden" name="ID" value="###ID_VALUE###" />
+                        <span class="label label-default">###ID_###</span>
+                        <input type="hidden" name="ID" value="###ID_###" />
                     </div>
 			        <br />
                     <div class="form-group">
 			            <span class="glyphicon glyphicon-user"></span>
-                        <span class="label label-default">###FAMILY_NAME_VALUE###</span>
-                        <input type="hidden" name="FAMILY_NAME" value="###FAMILY_NAME_VALUE###" />
+                        <span class="label label-default">###FAMILY_NAME_###</span>
+                        <input type="hidden" name="FAMILY_NAME" value="###FAMILY_NAME_###" />
                     </div>
 			        <br />
                     <div class="form-group">
 			            <span class="glyphicon glyphicon-user"></span>
-			            <span class="label label-default">###GIVEN_NAME_VALUE###</span>
-                        <input type="hidden" name="GIVEN_NAME" value="###GIVEN_NAME_VALUE###" />
+			            <span class="label label-default">###GIVEN_NAME_###</span>
+                        <input type="hidden" name="GIVEN_NAME" value="###GIVEN_NAME_###" />
                     </div>
 	    		    <br />
                     <div class="form-group">
 		    	        <span class="glyphicon glyphicon-envelope"></span>
-			            <span class="label label-default">###EMAIL_VALUE###</span>
-                        <input type="hidden" name="EMAIL" value="###EMAIL_VALUE###" />
+			            <span class="label label-default">###EMAIL_###</span>
+                        <input type="hidden" name="EMAIL" value="###EMAIL_###" />
                     </div>
                     
-                    <input type="hidden" name="STATUS" value="INPUT" />
                     <input type="hidden" name="METHOD" value="DELETE" />
 			        <input type="hidden" name="STUFF_ID" value="###STUFF_ID###" />
 
