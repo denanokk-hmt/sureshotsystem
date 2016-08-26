@@ -60,6 +60,12 @@ else
 fi
 
 ########################################
+#該当のSTUFFのデータ操作をロック
+LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'STUFF' ${STUFF_NUM}`
+LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
+[ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
+
+########################################
 #既存データから作成日時取得、現在日時を更新日時とする
 ls ${SYSD}/DATA/STUFF/USERS/LV1/${STUFF_NUM}_stuff_* | cut -d'_' -f3 | sort -nk1,1 | head -n 1 > $tmp-create
 CREATE_DATE=$(cat $tmp-create)
@@ -115,6 +121,11 @@ cat ${USERSD}/LV1/${STUFF_NUM}_stuff_${UPDATE_DATE} |
 awk '{print sprintf("%d %s %s %s %s %s %s %d %d /APP/STUFF/USERS/SHOW/?id=%d /APP/STUFF/EDIT/INPUT/?id=%d /APP/STUFF/DELETE/CONFIRM/?id=%d",$1,$2,$3,$4,$5,$6,$7,$8,$9,$1,$1,$1)}'  > ${USERSD}/LV3/${STUFF_NUM}_STUFF_${UPDATE_DATE}_d
 ls ${USERSD}/LV3/${STUFF_NUM}* | sort -nk1 | head -n 1 > $tmp-delete
 rm -f $(cat $tmp-delete)
+
+########################################
+#STUFFのデータ操作ロックを解除
+UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'STUFF' ${STUFF_NUM}`
+[ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
 
 ########################################
 #SET SESSION

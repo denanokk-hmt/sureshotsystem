@@ -62,6 +62,12 @@ if [ z ${STUFF_NUM} ]; then
 fi
 
 ########################################
+#該当のSTUFFのデータ操作をロック
+LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'STUFF' ${STUFF_NUM}`
+LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
+[ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
+
+########################################
 #パスワードの値が"NOT_CHANGE"のままならば、変更が無いので、既存データを取得
 [[ "${PW}" = 'NOT_CHANGE' ]] && PW=$(cat ${LOGIND}/LV3/LOGIN   | awk -v id=$STUFF_NUM '$1==id{print $3}')
 
@@ -78,21 +84,18 @@ echo ${STUFF_NUM}" "${VALUE3}" "${PW}" "${CREATE_DATE}" "${UPDATE_DATE}" "${VALU
 
 ########################################
 #ログイン用データの格納
-#LV1
-#原始データとして、ファイル追加のみを行う
+#LV1:原始データとして、ファイル追加のみを行う
 mv $tmp-login ${LOGIND}/LV1/${STUFF_NUM}_login_${UPDATE_DATE}
 
-#LV2
-#変更されたデータとファイルを入れ替える
+#LV2:変更されたデータとファイルを入れ替える
 cp -ip ${LOGIND}/LV1/${STUFF_NUM}_login_${UPDATE_DATE} ${LOGIND}/LV2/${STUFF_NUM}_LOGIN_${UPDATE_DATE}
 ls ${LOGIND}/LV2/${STUFF_NUM}* | sort -nk1 | head -n 1 > $tmp-delete
 rm -f $(cat $tmp-delete)
 
-#LV3(LV2のコピー)
+#LV3:LV2のコピー
 cp -ip ${LOGIND}/LV2/${STUFF_NUM}_LOGIN_${UPDATE_DATE} ${LOGIND}/LV3/${STUFF_NUM}_LOGIN_${UPDATE_DATE}
 ls ${LOGIND}/LV3/${STUFF_NUM}* | sort -nk1 | head -n 1 > $tmp-delete
 rm -f $(cat $tmp-delete)
-
 
 ########################################
 #ユーザーデータ用に一時ファイルに書き出し
@@ -101,24 +104,24 @@ echo ${STUFF_NUM}" "${VALUE1}" "${VALUE2}" "${VALUE3}" - "${CREATE_DATE}" "${UPD
 
 ########################################
 #スタッフ用データの格納
-
-#LV1
-#原始データとして、ファイル追加のみを行う
+#LV1:原始データとして、ファイル追加のみを行う
 $(mv $tmp-stuff ${USERSD}/LV1/${STUFF_NUM}_stuff_${UPDATE_DATE})
 
-#LV2
-#変更されたデータとファイルを入れ替える
+#LV2:変更されたデータとファイルを入れ替える
 cp -ip ${USERSD}/LV1/${STUFF_NUM}_stuff_${UPDATE_DATE} ${USERSD}/LV2/${STUFF_NUM}_STUFF_${UPDATE_DATE}
 ls ${USERSD}/LV2/${STUFF_NUM}* | sort -nk1 | head -n 1 > $tmp-delete
 rm -f $(cat $tmp-delete)
 
-#LV3
-#リンク用のURLを追加
-#変更されたデータとファイルを入れ替える
+#LV3:リンク用のURLを追加,変更されたデータとファイルを入れ替える
 cat ${USERSD}/LV1/${STUFF_NUM}_stuff_${UPDATE_DATE} |
 awk '{print sprintf("%d %s %s %s %s %s %s %d %d /APP/STUFF/USERS/SHOW/?id=%d /APP/STUFF/EDIT/INPUT/?id=%d /APP/STUFF/DELETE/CONFIRM/?id=%d",$1,$2,$3,$4,$5,$6,$7,$8,$9,$1,$1,$1)}'  > ${USERSD}/LV3/${STUFF_NUM}_STUFF_${UPDATE_DATE}
 ls ${USERSD}/LV3/${STUFF_NUM}* | sort -nk1 | head -n 1 > $tmp-delete
 rm -f $(cat $tmp-delete)
+
+########################################
+#STUFFのデータ操作ロックを解除
+UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'STUFF' ${STUFF_NUM}`
+[ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
 
 ########################################
 #SET SESSION
