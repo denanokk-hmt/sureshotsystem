@@ -1,34 +1,15 @@
-<html>
-<head>
-<script language="javascript">
-
-
-// clearCookie("Times");
-// clearCookie("Date");
-//setCookie("sureshot_stuff_session_id","kkkkk1dasd111");
-
-
-function setCookie(key, value) {
-    var expire = new Date();
-    expire.setTime( expire.getTime() + 1000 * 3600 * 24 );
-    alert(expire.toUTCString());
-    document.cookie = key + "=" + value + '; expires=' + expire.toUTCString() + '; path=/';
-    alert("set cookie");
-}
-function clearCookie(key) {
-    document.cookie = key + "=" + "xx; expires=Tue, 1-Jan-1980 00:00:00;";
-}
-<!--
-function doRootCGI(url)
-{
-    document.location.href = url;
-}
-//-->
-</script>
-</head>
-
-<!--
-<body onLoad="doRootCGI('CGI/ROOT.CGI')">
--->
-<body>
+	<head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Sureshot stuff registry confirm</title>
+        <!-- CSS読み込み -->
+        <link href="/LAYOUT/CSS/common.css" rel="stylesheet">
+        <!-- BootstrapのCSS読み込み -->
+        <link href="/BOOTSTRAP/css/bootstrap.min.css" rel="stylesheet">
+        <!-- jQuery読み込み -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <!-- BootstrapのJS読み込み -->
+        <script src="/BOOTSTRAP/js/bootstrap.min.js"></script>
+	</head>
 

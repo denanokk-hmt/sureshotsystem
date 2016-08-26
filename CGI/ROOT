@@ -130,6 +130,7 @@ fi
 [ -e $tmp-cook-login ] && COOK_SET_LOGIN=`cat $tmp-cook-login` || :
 [ -e $tmp-cook-account ] && COOK_SET_ACCOUNT=`cat $tmp-cook-account` || :
 
+cat ${SYSD}/HTML/HEAD.HTML > $tmp-head
 
 ########################################
 #View
@@ -140,8 +141,17 @@ ${COOK_SET_ACCOUNT}
 
 FIN
 
+cat << FIN
+<!DOCTYPE html>
+<html>
+
+FIN
+cat $tmp-head
+
 echo ""
 cat $tmp-html
+
+echo </html>
 
 #########################################
 ##ending
