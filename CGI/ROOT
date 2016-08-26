@@ -84,8 +84,8 @@ STUFF_SESS_ID='sureshot_stuff_session_id'    #社員用ログインセッショ�
 
 #社員登録とログイン画面以外の場合、有効なログインセッションを要求
 case ${CATEGORY}/${FUNC} in
-#"STUFF/NEW" | "STUFF/SIGNIN" | "/")
-"STUFF/NEW" | "STUFF/SIGNIN")
+#"STUFF/NEW" | "STUFF/SIGNIN")
+"STUFF/NEW" | "STUFF/SIGNIN" | "/")
     ;;
 *)
     #ログインセッションを確認
