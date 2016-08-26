@@ -67,7 +67,7 @@ fi
 
 ########################################
 #ページャーの必要有無を確認(レコード総数が最大表示数以下→ページャー不必要)
-if [ ${RECORDS} -lt ${PAGE_MAX_VIEW_RECORDS} ]; then
+if [ ${RECORDS} -le ${PAGE_MAX_VIEW_RECORDS} ]; then
     sed -e "s/###PAGER###//" $tmp-template-html > $tmp-html
     exit 0
 fi
