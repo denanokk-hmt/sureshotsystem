@@ -75,10 +75,11 @@ fi
 #HTMLの設定
 if [ -z "$(cat $tmp-auth)" ] ; then
     ACTION=INPUT
-    cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML   |
-    sed -e "s/###AUTH_ERR###/show/"                             |
-    sed -e "s/###ID_VALUE###/${VALUE_ID}/"                      |
-    sed -e "s/###PASSWORD_VALUE###//"                           > $tmp-html
+    cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML           |
+    sed -e "s/###INFO_LV###/danger/"                                    |
+    sed -e "s/###AUTH_MSG###/Account ID or Password was incomplete./"   |
+    sed -e "s/###ID_VALUE###/${VALUE_ID}/"                              |
+    sed -e "s/###PASSWORD_VALUE###//"                                   > $tmp-html
 else
     if [ -z  $( cat $tmp-return-url ) ] ; then
         cat ${SYSD}/HTML/INDEX.HTML > $tmp-html

@@ -33,9 +33,10 @@ FIN
 #Making viweing body HTML filw path
 ACTION=`cat $tmp-action`
 cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML   |
-sed -e "s/###AUTH_ERR###/hidden/"           |
-sed -e "s/###ID_VALUE###//"                 |
-sed -e "s/###PASSWORD_VALUE###//"           > $tmp-html
+sed -e "s/###INFO_LV###/primary/"                                    |
+sed -e "s/###AUTH_MSG###/Please input Your ID and PW./"       |
+sed -e "s/###ID_VALUE###//"                                 |
+sed -e "s/###PASSWORD_VALUE###//"                           > $tmp-html
 
 #########################################
 ##ending
