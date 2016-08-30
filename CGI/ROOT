@@ -133,6 +133,7 @@ fi
 cat ${SYSD}/HTML/HEAD.HTML > $tmp-head
 cat ${SYSD}/HTML/NAVBAR.HTML > $tmp-navbar
 cat ${SYSD}/HTML/SIDE.HTML > $tmp-side
+cat ${SYSD}/JS/common.js > $tmp-common-js
 
 ########################################
 #View
@@ -157,12 +158,13 @@ FIN
 cat $tmp-navbar
 cat $tmp-side
 
+echo ""
+cat $tmp-html
+cat $tmp-common-js
+
 cat << FIN
 </body>
 FIN
-
-echo ""
-cat $tmp-html
 
 echo </html>
 
