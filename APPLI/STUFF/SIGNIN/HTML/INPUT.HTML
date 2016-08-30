@@ -1,8 +1,7 @@
-<!--
+<!--STUFF SIGN IN Contents-->
 
-
---!>
-    <body>
+    <div class="col-md-9">
+        <!--Contents Header Title-->
         <div class="container" style="margin-bottom:15px;">
             <div class="row">
                 <h1 class="">
@@ -10,6 +9,8 @@
                 </h1>
             </div>
         </div>
+
+        <!--Contents Header Information-->
         <div class="container" style="margin-bottom:15px;">
             <div class="row">
                 <h4>
@@ -18,35 +19,50 @@
             </div>
         </div>
 
+        <!--Contents-->
         <div class="container" style="padding;20px;">
-		        <form class="form-horizontal" style="margin-bottom:15px;" action="/APP/STUFF/SIGNIN/AUTH" method="POST">
-                    <!--
-                    <div class="form-group"> 
-                        <div class="row">
-                            <div class="col-sm-2" style="background:pink">1</div>
-                            <div class="col-sm-4" style="background:red">2</div>
-                            <div class="col-sm-6" style="background:black">3</div>
-                        </div>
+	        <form class="form-horizontal" style="margin-bottom:15px;" action="/APP/STUFF/SIGNIN/AUTH" method="POST">
+              <!--
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-sm-2" style="background:pink">1</div>
+                        <div class="col-sm-4" style="background:red">2</div>
+                        <div class="col-sm-6" style="background:black">3</div>
                     </div>
-                    -->
-                    <div class="form-group">
-                        <h3><label class="control-label col-sm-1" for="ID" style="background:pink;"><i class="glyphicon glyphicon-envelope"></i></label></h3>
-                        <div class="col-sm-4">
-			                <input type="email" id="ID" name="ID" value="###ID_VALUE###" class="form-control" style="background:blue;" placeholder="ID(Email)" >
-                        </div>
-                    </div>
+                </div>
+              -->
+              <div class="form-group">
+                  <h3>
+                      <label class="control-label col-sm-1" for="ID" style="">
+                          <i class="glyphicon glyphicon-envelope"></i>
+                      </label>
+                  </h3>
+                  <div class="col-sm-4">
+	                <input type="email" id="ID" name="ID" value="###ID_VALUE###" class="form-control" style="" placeholder="ID(Email)" >
+                  </div>
+              </div>
 
-                    <div class="form-group">
-			            <h3><label class="control-label col-sm-1" for="PASSWORD"><i class="glyphicon glyphicon-pencil"></i></label></h3>
-                        <div class="col-sm-4">
-    			            <input type="password" id="PASSWORD" name="PASSWORD" value="###PASSWORD_VALUE###" class="form-control" placeholder="PASSWORD">
-                        </div>
-                        <div class="col-sm-4">
-			                <input type="submit" name="SUBMIT" value="AUTH" class="btn btn-primary btn-md" />
-                        </div>
-                    </div>
-			        <input type="hidden" name="STATUS" value="SIGNIN" />
-		        </form>
+              <div class="form-group">
+	                <h3>
+                      <label class="control-label col-sm-1" for="PASSWORD">
+                          <i class="glyphicon glyphicon-pencil"></i>
+                      </label>
+                  </h3>
+                  <div class="col-sm-4">
+		                   <input type="password" id="PASSWORD" name="PASSWORD" value="###PASSWORD_VALUE###" class="form-control" placeholder="PASSWORD">
+                  </div>
+                  <div class="col-sm-4">
+	                    <input type="submit" name="SUBMIT" value="AUTH" class="btn btn-primary btn-md" />
+                  </div>
+              </div>
+
+		          <input type="hidden" name="STATUS" value="SIGNIN" />
+	        </form>
         </div>
-	</body>
+    </div>
 
+    <div class="hidetest">
+      FUCK YOU!!
+    </div>
+    <input type="button" id="hidetest">
+<!--</body>-->
