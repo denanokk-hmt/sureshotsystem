@@ -1,44 +1,74 @@
 
-
-
+/****************/
+/* 共通         */
+/****************/
 { color: skyblue; }
 
+/* スクロールする場所：固定ナビゲーションの高さ＋余白をpadding-topに指定したりします。 */
+#content {
+  padding: 60px 0 0 0;
+}
+
+/****************/
+/* navbar       */
+/****************/
 .navbar-brand {
   background: url("/IMG/sureshot_logo.gif") no-repeat left center;
   background-size: contain;
   height: 50px;
   width: 250px;
 }
-
 .navbar .container .btn.btn-navbar {
         float: left !important;
 }
-
+.navbar-toggle {
+    display: none;
+}
+.collapse {
+    display: block;
+    border-color:transparent;
+}
+/* navbar-leftの場合はここをleftに変える */
+.navbar-right {
+    float: right;
+}
+.navbar-header {
+    float: left;
+}
+.navbar-nav {
+    margin:0 -15px 0 0;
+}
 /* 固定するのは「position: fixed;」です。 */
 #navi {
   height: 50px;
   position: fixed;
   z-index: 999;
 }
-/* スクロールする場所：固定ナビゲーションの高さ＋余白をpadding-topに指定したりします。 */
-#content {
-  padding: 60px 0 0 0;
-}
+
+/****************/
 /* slide in menu */
+/****************/
 .scrollable-menu {
                 height: auto;
                 max-height: 500px;
                 overflow-x: hidden;
 }
 
+/****************/
 /*HALF SLIDER*/
+/****************/
 .carousel-inner img {
     margin:0 auto;
     display:block;
 }
 
+
+/****************/
 /*背景画像フル*/
+/****************/
 body {
+  padding-top: 70px;
+
   /* 画像ファイルの指定 */
   background-image: url(/IMG/bike-custom-unbreakable-motorcycle.jpg);
 
@@ -57,3 +87,4 @@ body {
   /* 背景画像が読み込まれる前に表示される背景のカラー */
   background-color: #464646;
 }
+

@@ -166,7 +166,9 @@ cat << FIN
 </body>
 FIN
 
-echo </html>
+cat << FIN
+</html>
+FIN
 
 #########################################
 ##ending
