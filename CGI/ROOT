@@ -125,6 +125,19 @@ else
     cat ${SYSD}/HTML/INDEX.HTML > $tmp-html
 fi
 
+if [ "${ACTION}" = 'AJAX' ]; then
+cat << FIN
+Content-type: text/html
+FIN
+
+echo ""
+cat $tmp-ajax
+
+
+    rm -f $tmp-*
+    exit 0
+fi
+
 ########################################
 #セットするCookie文字列を取得する
 [ -e $tmp-cook-login ] && COOK_SET_LOGIN=`cat $tmp-cook-login` || :
