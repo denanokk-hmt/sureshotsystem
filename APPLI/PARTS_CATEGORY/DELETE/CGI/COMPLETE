@@ -1,0 +1,150 @@
+#!/bin/bash -evx
+#
+
+########################################
+#	STUFF EDIT COMPLETE.CGI
+#
+#   引数
+#       $1:プロセスID
+#
+#	Written by hiramatsu
+
+
+########################################
+#基本設定
+SYSD=/home/sureshotsystem
+#exec 2> ${SYSD}/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
+tmp=/tmp/tmp_$1
+LANG=ja_JP.UTF-8
+PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
+CATEGORY=`cat $tmp-category`
+FUNC=`cat $tmp-func`
+LOGIND=${SYSD}/DATA/${CATEGORY}/LOGIN
+USERSD=${SYSD}/DATA/${CATEGORY}/USERS
+STUFF_SESS_ID='sureshot_stuff_session_id'
+
+########################################
+#Check error
+ERROR_CHECK(){
+	[ $(plus ${PIPESTATUS[@]}) -eq 0 ] && return
+cat <<- FIN
+	Context-type: text/html
+	NG input
+FIN
+	cat $tmp-result
+	exit 1
+}
+
+#######################################
+#Get Form Data
+ID=$(nameread ID $tmp-post)
+VALUE1=$(nameread FAMILY_NAME $tmp-post)
+VALUE2=$(nameread GIVEN_NAME $tmp-post)
+VALUE3=$(nameread EMAIL $tmp-post)
+STUFF_ID=$(nameread STUFF_ID $tmp-post)
+
+########################################
+#社員番号一致確認
+if [ -e ${SYSD}/DATA/${CATEGORY}/TMP/${STUFF_ID} ]; then
+    STUFF_NUM=$(cat ${SYSD}/DATA/${CATEGORY}/TMP/${STUFF_ID})
+    rm -f ${SYSD}/DATA/STUFF/TMP/${STUFF_ID}
+else
+    cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/CONFIRM.HTML             |
+    sed -e "s/###ERROR_MSG###/データ不整合により処理を中止しました。/"  |
+    sed -e "s/###ID_VALUE###/${ID}/"                                    |
+    sed -e "s/###FAMILY_NAME_VALUE###/${VALUE1}/"                       |
+    sed -e "s/###GIVEN_NAME_VALUE###/${VALUE2}/"                        |
+    sed -e "s/###EMAIL_VALUE###/${VALUE3}/"                             |
+    sed -e "s/###STUFF_ID###/${STUFF_ID}/"                              > $tmp-html
+    exit 0
+fi
+
+########################################
+#該当のSTUFFのデータ操作をロック
+LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'STUFF' ${STUFF_NUM}`
+LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
+[ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
+
+########################################
+#既存データから作成日時取得、現在日時を更新日時とする
+ls ${SYSD}/DATA/STUFF/USERS/LV1/${STUFF_NUM}_stuff_* | cut -d'_' -f3 | sort -nk1,1 | head -n 1 > $tmp-create
+CREATE_DATE=$(cat $tmp-create)
+UPDATE_DATE=$(date +%Y%m%d%H%M%S)
+
+########################################
+#ログインデータ用に一時ファイルに書き出し
+#1.社員番号 3.EMAIL 2.PW 3.作成日時 4.更新日時 5.ADMINフラグ 6.削除フラグ
+cat ${SYSD}/DATA/STUFF/LOGIN/LV1/${STUFF_NUM}_login_${CREATE_DATE}  |
+awk -v update=${UPDATE_DATE} '{print $1,$2,$3,update,$5,1}'         > $tmp-login
+
+#######################################
+#ログイン用データの格納
+#LV1
+#原始データとlして、ファイル追加のみを行う
+mv $tmp-login ${LOGIND}/LV1/${STUFF_NUM}_login_${UPDATE_DATE}
+
+#LV2
+#変更されたデータとファイルを入れ替える
+cp -ip ${LOGIND}/LV1/${STUFF_NUM}_login_${UPDATE_DATE} ${LOGIND}/LV2/${STUFF_NUM}_LOGIN_${UPDATE_DATE}_d
+ls ${LOGIND}/LV2/${STUFF_NUM}* | sort -nk1 | head -n 1 > $tmp-delete
+rm -f $(cat $tmp-delete)
+
+#LV3(LV2のコピー)
+cp -ip ${LOGIND}/LV2/${STUFF_NUM}_LOGIN_${UPDATE_DATE}_d ${LOGIND}/LV3/${STUFF_NUM}_LOGIN_${UPDATE_DATE}_d
+ls ${LOGIND}/LV3/${STUFF_NUM}* | sort -nk1 | head -n 1 > $tmp-delete
+rm -f $(cat $tmp-delete)
+
+
+########################################
+#ユーザーデータ用に一時ファイルに書き出し
+#1.社員番号 2.姓 3.名 4.EMAIL 5.TEL 6.作成日時 7.更新日時 8.ADMINフラグ 9.削除フラグ
+cat ${SYSD}/DATA/STUFF/USERS/LV1/${STUFF_NUM}_stuff_${CREATE_DATE} |
+awk -v update=${UPDATE_DATE} '{print $1,$2,$3,$4,$5,$6,update,$8,1}' > $tmp-stuff
+
+########################################
+#スタッフ用データの格納
+
+#LV1
+#原始データとして、ファイル追加のみを行う
+mv $tmp-stuff ${USERSD}/LV1/${STUFF_NUM}_stuff_${UPDATE_DATE}
+
+#LV2
+#変更されたデータとファイルを入れ替える
+cp -ip ${USERSD}/LV1/${STUFF_NUM}_stuff_${UPDATE_DATE} ${USERSD}/LV2/${STUFF_NUM}_STUFF_${UPDATE_DATE}_d
+ls ${USERSD}/LV2/${STUFF_NUM}* | sort -nk1 | head -n 1 > $tmp-delete
+rm -f $(cat $tmp-delete)
+
+#LV3
+#リンク用のURLを追加
+#変更されたデータとファイルを入れ替える
+cat ${USERSD}/LV1/${STUFF_NUM}_stuff_${UPDATE_DATE} |
+awk '{print sprintf("%d %s %s %s %s %s %s %d %d /APP/STUFF/USERS/SHOW/?id=%d /APP/STUFF/EDIT/INPUT/?id=%d /APP/STUFF/DELETE/CONFIRM/?id=%d",$1,$2,$3,$4,$5,$6,$7,$8,$9,$1,$1,$1)}'  > ${USERSD}/LV3/${STUFF_NUM}_STUFF_${UPDATE_DATE}_d
+ls ${USERSD}/LV3/${STUFF_NUM}* | sort -nk1 | head -n 1 > $tmp-delete
+rm -f $(cat $tmp-delete)
+
+########################################
+#STUFFのデータ操作ロックを解除
+UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'STUFF' ${STUFF_NUM}`
+[ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
+
+########################################
+#SET SESSION
+COOK=`${SYSD}/CGI/SESSION/SESSION_SET ${STUFF_SESS_ID} `
+echo $COOK > $tmp-cook
+
+########################################
+#HTMLの設定
+ACTION=`cat $tmp-action`
+cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML   |
+sed -e "s/###ID_LABEL###/${ID}/"                |
+sed -e "s/###FAMILY_NAME_LABEL###/${VALUE1}/"   |
+sed -e "s/###GIVEN_NAME_LABEL###/${VALUE2}/"    |
+sed -e "s/###EMAIL_LABEL###/${VALUE3}/"         > $tmp-html
+
+###############################################################################
+#ending
+echo "stuff edit user OK"
+#echo $COOK_SET
+exit 0
+
+

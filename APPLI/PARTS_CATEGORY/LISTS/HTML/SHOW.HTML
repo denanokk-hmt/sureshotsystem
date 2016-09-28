@@ -1,0 +1,83 @@
+<!--PARTS CATEGORY Contents-->
+
+    <div class="col-md-9">
+
+         <!--Contents Header Title-->
+        <div class="container" style="margin-bottom:15px;">
+            <div class="row">
+                <h1 class="">
+                    <p>Parts Category</p>
+                </h1>
+            </div>
+        </div>
+
+        <!--Contents Header Information-->
+        <div class="container" style="margin-bottom:15px;">
+            <form class="form-horizontal header-info">
+                <div class="form-group">
+                    <h3>
+                        <label class="control-label col-sm-1" for="">
+                            <i class="glyphicon glyphicon-info-sign"></i>
+                        </label>
+                    </h3>
+                    <h4>
+                        <div class="col-sm-5" style="text-align:left;">
+                            <p><span class="label label-lg label-###INFO_LV###">###INFO_MSG###</span></p>
+                        </div>
+                    </h4>
+                </div>
+            </form>
+        </div>
+
+        <!--Contents-->
+        <div class="container" style="padding;20px;">
+            <form class="form-horizontal" style="margin-bottom:15px;" action="/APP/PARTS_CATEGORY/LISTS/" method="GET">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>CATEGORY NO</th>
+                                <th>CATEGORY NAME</th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+<!--RECORDS-->
+                            <tr>
+                                <td>%1</td>
+                                <td>
+                                    <span class="label label-default">%2</span>
+                                </td>
+                                <td>
+                                    <input type="text" name="PARTS_CATEGORY_NAME_%2" id="PARTS_CATEGORY_NAME_%2" value="%3" class="form-control" />
+		                            <input type="hidden" name="PATS_CATEGORY_HIDDEN_%2" value="false" />
+                                </td>
+                                <td>
+                                    <a class="btn btn-default" id="PARTS_CATEGORY_EDIT_%2" onClick="" >EDIT</a>
+                                </td>
+                                <td>
+                                    <a class="btn btn-default" id="PARTS_CATEGORY_DELETE_%2" onClick="" >DELETE</a>
+                                </td>
+                            </tr>
+<!--RECORDS-->
+                            <tr>
+                                <td>--</td>
+                                <td>
+                                    <span class="label label-default">NEW</span>
+                                </td>
+                                <td>
+	                                <input type="text" id="ID" name="ID" value="###ID_VALUE###" class="form-control" style="" placeholder="Parts category name" >
+                                </td>
+                                <td>
+                                    <a class="btn btn-default" id="PATES_CATEGORY_NEW" onClick="">NEW</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+		        </form>
+            </div>
+        </div>
+    </div>
+<!--</html>-->
+

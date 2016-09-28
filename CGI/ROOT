@@ -125,9 +125,11 @@ else
     cat ${SYSD}/HTML/INDEX.HTML > $tmp-html
 fi
 
+########################################
+#AJAX戻り値(その場合、ここで終了)
 if [ "${ACTION}" = 'AJAX' ]; then
 cat << FIN
-Content-type: text/html
+Content-type: application/javascript
 FIN
 
 echo ""
