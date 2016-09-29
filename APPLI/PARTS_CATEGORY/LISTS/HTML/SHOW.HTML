@@ -64,14 +64,14 @@
             type: 'POST',
             url: '/APP/PARTS_CATEGORY/EDIT/COMPLETE',
             data: {
-                id: 1,
-                mode: 'hoge',
-                name: 'hogehoge'
+                PARTS_CATEGORY_ID: id,
+                PARTS_CATEGORY_NAME: edit_category_name
             }
         });
         jqXHR.done(function(data) {
+            console.log(data);
             $('table').html(data);
-            $('#info-msg').html(new_category_name + "を追加しました。");
+            $('#info-msg').html(edit_category_name + "を変更しました。");
         });
  
     }

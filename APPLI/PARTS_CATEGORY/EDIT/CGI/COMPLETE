@@ -2,7 +2,7 @@
 #
 
 ########################################
-#	PARTS_CATEGORY NEW COMPLETE.CGI
+#	PARTS_CATEGORY EDIT COMPLETE.CGI
 #
 #   引数
 #       $1:プロセスID
@@ -33,41 +33,36 @@ FIN
 	exit 1
 }
 
-########################################
-#カテゴリ番号の次のロットを追加する
-LATEST_NUM=$(ls ${SYSD}/DATA/NUMBERS/${CATEGORY}/ORIGIN | sort -nr | head -n 1)
-START=$((LATEST_NUM + 1))
-END=$((START + 3))
-SEQ_STATUS=`${SYSD}/CGI/NUMBER_SEQ $1 ${CATEGORY} ${START} ${END} `
-[[ ${SEQ_STATUS} != 'SUCCESS' ]] && exit 0
-
-########################################
-#新規カテゴリ番号を確定する
-NEW_NUM=`${SYSD}/CGI/NUMBERS $1 'PARTS_CATEGORY' `
-[ ${NEW_NUM} = 'ERROR' ] && exit 0 || :
-
 #######################################
 #フォームの入力値を取得
-VALUE1=$(nameread NEW_PARTS_CATEGORY_NAME $tmp-post)
+NUM=$(nameread PARTS_CATEGORY_ID $tmp-post)
+NAME=$(nameread PARTS_CATEGORY_NAME $tmp-post)
 
 ########################################
-#日付を設定
-CREATE_DATE=$(date +%Y%m%d%H%M%S)
-UPDATE_DATE=$CREATE_DATE
+#既存データから作成日時取得、現在日時を更新日時とする
+ls ${SYSD}/DATA/PARTS_CATEGORY/LISTS/LV1/${NUM}_parts_category_* | cut -d'_' -f5 | sort -nk1,1 | head -n 1 > $tmp-create
+CREATE_DATE=$(cat $tmp-create)
+UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 
 ########################################
 #入力値を一時ファイル化
 #1.パーツカテゴリ番号 2.パーツカテゴリ名 3.作成日時 4.更新日時 5.削除フラグ
-echo ${NEW_NUM}" "${VALUE1}" "${CREATE_DATE}" "${UPDATE_DATE}" "0 > $tmp-parts-category
+echo ${NUM}" "${NAME}" "${CREATE_DATE}" "${UPDATE_DATE}" "0 > $tmp-parts-category
 
 ########################################
 #データ格納
-#LV1
-$(mv $tmp-parts-category ${DATAD}/LV1/${NEW_NUM}_parts_category_${CREATE_DATE})
-#LV2
-cat ${DATAD}/LV1/${NEW_NUM}_parts_category_${CREATE_DATE} > ${DATAD}/LV2/${NEW_NUM}_parts_category_${CREATE_DATE}
-#LV3
-cat ${DATAD}/LV2/${NEW_NUM}_parts_category_${CREATE_DATE} > ${DATAD}/LV3/${NEW_NUM}_parts_category_${CREATE_DATE}
+#LV1:原始データとして、ファイル追加のみを行う
+$(mv $tmp-parts-category ${DATAD}/LV1/${NUM}_parts_category_${UPDATE_DATE})
+
+#LV2:変更されたデータとファイルを入れ替える
+cp -ip ${DATAD}/LV1/${NUM}_parts_category_${UPDATE_DATE} ${DATAD}/LV2/${NUM}_parts_category_${UPDATE_DATE}
+ls ${DATAD}/LV2/${NUM}_* | sort -nk1 | head -n 1 > $tmp-delete
+rm -f $(cat $tmp-delete)
+
+#LV3:LV2のコピー
+cp -ip ${DATAD}/LV2/${NUM}_parts_category_${UPDATE_DATE} ${DATAD}/LV3/${NUM}_parts_category_${UPDATE_DATE}
+ls ${DATAD}/LV3/${NUM}_* | sort -nk1 | head -n 1 > $tmp-delete
+rm -f $(cat $tmp-delete)
 
 ########################################
 #Get records
@@ -86,15 +81,6 @@ TABLE_RECORDS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-records`
 cat ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/TABLE.HTML   > $tmp-table
 #sed -re "s|###TABLE_RECORDS###|${TABLE_RECORDS}|g" $tmp-table    > $tmp-table-html
 sed -re "s|###TABLE_RECORDS###|${TABLE_RECORDS}|g" $tmp-table    > $tmp-ajax-html
-
-########################################
-# 改行文字を「\\n」という3文字の文字列に置換
-#TABLE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-html`
-
-#########################################
-##tableをはめ込む
-#cat ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/SHOW.HTML   > $tmp-base
-#sed -re "s|###TABLE###|${TABLE}|g" $tmp-base    > $tmp-ajax-html
 
 ########################################
 echo "OK"
