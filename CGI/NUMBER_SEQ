@@ -42,8 +42,8 @@ START=$3
 END=$4
 
 ########################################
-#STUFFのデータ操作をロック
-LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'STUFF' `
+#データ操作をロック
+LOCK=`${SYSD}/CGI/LOCK/LOCK $1 ${CATEGORY} `
 LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
 [ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
 
@@ -59,7 +59,7 @@ else
     mkdir ${SYSD}/DATA/NUMBERS/${CATEGORY}/USED
     #オーナーと権限を再帰的に設定
     chmod -R 775 ${SYSD}/DATA/NUMBERS/${CATEGORY}
-    chown -R root:apache ${SYSD}/DATA/NUMBERS/${CATEGORY}
+    #chown -R root:apache ${SYSD}/DATA/NUMBERS/${CATEGORY}
     ERROR_CHECK
 fi
 
@@ -73,8 +73,8 @@ do
 done
 
 ########################################
-#STUFFのデータ操作ロックを解除
-UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'STUFF'`
+#該当NUMBERSのデータ操作ロックを解除
+UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 ${CATEGORY}`
 [ ${UNLOCK_STATUS} != 'UNLOCK' ] && exit 0 || :
 
 ########################################

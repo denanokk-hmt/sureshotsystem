@@ -1,5 +1,5 @@
 <!--PARTS CATEGORY Contents-->
-
+    
     <div class="col-md-9">
 
          <!--Contents Header Title-->
@@ -22,7 +22,7 @@
                     </h3>
                     <h4>
                         <div class="col-sm-5" style="text-align:left;">
-                            <p><span class="label label-lg label-###INFO_LV###">###INFO_MSG###</span></p>
+                            <p><span id="info-msg" class="label label-lg label-###INFO_LV###">###INFO_MSG###</span></p>
                         </div>
                     </h4>
                 </div>
@@ -32,52 +32,54 @@
         <!--Contents-->
         <div class="container" style="padding;20px;">
             <form class="form-horizontal" style="margin-bottom:15px;" action="/APP/PARTS_CATEGORY/LISTS/" method="GET">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>CATEGORY NO</th>
-                                <th>CATEGORY NAME</th>
-                                <th></th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-<!--RECORDS-->
-                            <tr>
-                                <td>%1</td>
-                                <td>
-                                    <span class="label label-default">%2</span>
-                                </td>
-                                <td>
-                                    <input type="text" name="PARTS_CATEGORY_NAME_%2" id="PARTS_CATEGORY_NAME_%2" value="%3" class="form-control" />
-		                            <input type="hidden" name="PATS_CATEGORY_HIDDEN_%2" value="false" />
-                                </td>
-                                <td>
-                                    <a class="btn btn-default" id="PARTS_CATEGORY_EDIT_%2" onClick="" >EDIT</a>
-                                </td>
-                                <td>
-                                    <a class="btn btn-default" id="PARTS_CATEGORY_DELETE_%2" onClick="" >DELETE</a>
-                                </td>
-                            </tr>
-<!--RECORDS-->
-                            <tr>
-                                <td>--</td>
-                                <td>
-                                    <span class="label label-default">NEW</span>
-                                </td>
-                                <td>
-	                                <input type="text" id="ID" name="ID" value="###ID_VALUE###" class="form-control" style="" placeholder="Parts category name" >
-                                </td>
-                                <td>
-                                    <a class="btn btn-default" id="PATES_CATEGORY_NEW" onClick="">NEW</a>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-		        </form>
-            </div>
+###TABLE###
+            </form>
         </div>
     </div>
 <!--</html>-->
 
+<script>
+
+    //
+    function newPartsCategory() {
+        var new_category_name = $('#NEW_PARTS_CATEGORY_NAME').val();
+        var params = $('form').serialize();
+        var jqXHR = $.ajax({
+            type: 'POST',
+            url: '/APP/PARTS_CATEGORY/NEW/COMPLETE',
+            data: params
+        });
+        jqXHR.done(function(data) {
+            $('table').html(data);
+            $('#info-msg').html(new_category_name + "を追加しました。");
+        });
+    }
+
+    //
+    function editPartsCategory(id) {
+        alert("EDIT" + id);
+        var edit_category_name = $('#PARTS_CATEGORY_NAME_' + id).val();
+        var params = $('form').serialize();
+        var jqXHR = $.ajax({
+            type: 'POST',
+            url: '/APP/PARTS_CATEGORY/EDIT/COMPLETE',
+            data: {
+                id: 1,
+                mode: 'hoge',
+                name: 'hogehoge'
+            }
+        });
+        jqXHR.done(function(data) {
+            $('table').html(data);
+            $('#info-msg').html(new_category_name + "を追加しました。");
+        });
+ 
+    }
+
+    //
+    function deletePartsCategory() {
+        alert("DELETE");
+
+    }
+
+</script>

@@ -126,15 +126,15 @@ else
 fi
 
 ########################################
-#AJAX戻り値(その場合、ここで終了)
-if [ "${ACTION}" = 'AJAX' ]; then
+#AJAX HTMLでの戻り(ここで終了)
+AJAX_HEAD=$(cat $tmp-ajax-html | head -n 1)
+if [ ! -z "${AJAX_HEAD}" ]; then
 cat << FIN
-Content-type: application/javascript
+Content-type: text/html
 FIN
 
 echo ""
-cat $tmp-ajax
-
+cat $tmp-ajax-html
 
     rm -f $tmp-*
     exit 0

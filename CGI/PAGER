@@ -135,8 +135,12 @@ sed -e "s/###NEXT_ACTIVE###/${NEXT_ACTIVE}/"    |
 sed -e "s/###NEXT_DISP###/${NEXT_DISP}/"        |
 sed -e "s|###NEXT_URL###|${NEXT_URL}|"          > $tmp-pager
 
+########################################
 # 改行文字を「\\n」という3文字の文字列に置換
 TEXT=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-pager`
+
+########################################
+#pagerをはめ込み
 sed -re "s|###PAGER###|${TEXT}|g" $tmp-template-html > $tmp-html
 
 
