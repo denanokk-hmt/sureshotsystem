@@ -39,10 +39,24 @@ NUM=$(nameread PARTS_CATEGORY_ID $tmp-post)
 NAME=$(nameread PARTS_CATEGORY_NAME $tmp-post)
 
 ########################################
+#重複確認
+cat ${DATAD}/LV3/* | awk -v nm=${NAME} '$2==nm{print $1}' > $tmp-valid1
+if [ -n "$(cat $tmp-valid1)" ] ; then
+    echo 2222 > $tmp-ajax-html
+    exit 0
+fi
+
+########################################
 #既存データから作成日時取得、現在日時を更新日時とする
-ls ${SYSD}/DATA/PARTS_CATEGORY/LISTS/LV1/${NUM}_parts_category_* | cut -d'_' -f5 | sort -nk1,1 | head -n 1 > $tmp-create
+ls ${DATAD}/LV1/${NUM}_parts_category_* | cut -d'_' -f5 | sort -nk1,1 | head -n 1 > $tmp-create
 CREATE_DATE=$(cat $tmp-create)
 UPDATE_DATE=$(date +%Y%m%d%H%M%S)
+
+########################################
+#該当のデータ操作をロック
+LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'PARTS_CATEGORY' ${NUM}`
+LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
+[ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
 
 ########################################
 #入力値を一時ファイル化
@@ -65,6 +79,11 @@ ls ${DATAD}/LV3/${NUM}_* | sort -nk1 | head -n 1 > $tmp-delete
 rm -f $(cat $tmp-delete)
 
 ########################################
+#STUFFのデータ操作ロックを解除
+UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'PARTS_CATEGORY' ${NUM}`
+[ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
+
+########################################
 #Get records
 cat ${SYSD}/DATA/${CATEGORY}/LISTS/LV3/*[^_d]       |
 LANG=C sort -nk1,1                                  |
@@ -83,5 +102,6 @@ cat ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/TABLE.HTML   > $tmp-table
 sed -re "s|###TABLE_RECORDS###|${TABLE_RECORDS}|g" $tmp-table    > $tmp-ajax-html
 
 ########################################
+#ending
 echo "OK"
 exit 0

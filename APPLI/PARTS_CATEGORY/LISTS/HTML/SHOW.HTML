@@ -40,7 +40,7 @@
 
 <script>
 
-    //
+    //カテゴリ名新規追加
     function newPartsCategory() {
         var new_category_name = $('#NEW_PARTS_CATEGORY_NAME').val();
         var params = $('form').serialize();
@@ -50,14 +50,20 @@
             data: params
         });
         jqXHR.done(function(data) {
-            $('table').html(data);
-            $('#info-msg').html(new_category_name + "を追加しました。");
+            if (data == 2222) {
+                alert(new_category_name + "は、既に使われています。");
+            } else {
+                $('table').html(data);
+                $('#info-msg').html(new_category_name + "を追加しました。");
+            }
+        });
+        jqXHR.fail(function(data) {
+            alert("新規登録処理に失敗しました。");
         });
     }
 
-    //
+    //カテゴリ名変更
     function editPartsCategory(id) {
-        alert("EDIT" + id);
         var edit_category_name = $('#PARTS_CATEGORY_NAME_' + id).val();
         var params = $('form').serialize();
         var jqXHR = $.ajax({
@@ -69,17 +75,38 @@
             }
         });
         jqXHR.done(function(data) {
-            console.log(data);
-            $('table').html(data);
-            $('#info-msg').html(edit_category_name + "を変更しました。");
+            if (data == 2222) {
+                alert(new_category_name + "は、既に使われています。");
+            } else {
+                $('table').html(data);
+                $('#info-msg').html(edit_category_name + "を変更しました。");
+            }
         });
- 
+        jqXHR.fail(function() {
+            alert("更新処理に失敗しました。");
+        });
     }
 
-    //
-    function deletePartsCategory() {
-        alert("DELETE");
-
+    //カテゴリ名削除
+    function deletePartsCategory(id) {
+        var delete_category_name = $('#PARTS_CATEGORY_NAME_' + id).val();
+        var params = $('form').serialize();
+        var jqXHR = $.ajax({
+            type: 'POST',
+            url: '/APP/PARTS_CATEGORY/DELETE/COMPLETE',
+            data: {
+                PARTS_CATEGORY_ID: id,
+                PARTS_CATEGORY_NAME: delete_category_name
+            }
+        });
+        jqXHR.done(function(data) {
+            $('table').html(data);
+            $('#info-msg').html(delete_category_name + "を削除しました。");
+        });
+        jqXHR.fail(function() {
+            alert("削除処理に失敗しました。");
+        });
+ 
     }
 
 </script>

@@ -55,8 +55,9 @@ TABLE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-html`
 
 ########################################
 #tableをはめ込む
-cat ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/SHOW.HTML   > $tmp-base
-sed -re "s|###TABLE###|${TABLE}|g" $tmp-base    > $tmp-html
+cat ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/SHOW.HTML  > $tmp-base
+sed -re "s|###TABLE###|${TABLE}|g" $tmp-base        |
+sed -e "s|###INFO_MSG###||g"                        > $tmp-html
 
 ########################################
 echo "OK"

@@ -51,6 +51,14 @@ NEW_NUM=`${SYSD}/CGI/NUMBERS $1 'PARTS_CATEGORY' `
 VALUE1=$(nameread NEW_PARTS_CATEGORY_NAME $tmp-post)
 
 ########################################
+#重複確認
+cat ${DATAD}/LV3/* | awk -v nm=${VALUE1} '$2==nm{print $1}' > $tmp-valid1
+if [ -n "$(cat $tmp-valid1)" ] ; then
+    echo 2222 > $tmp-ajax-html
+    exit 0
+fi
+
+########################################
 #日付を設定
 CREATE_DATE=$(date +%Y%m%d%H%M%S)
 UPDATE_DATE=$CREATE_DATE
@@ -88,14 +96,6 @@ cat ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/TABLE.HTML   > $tmp-table
 sed -re "s|###TABLE_RECORDS###|${TABLE_RECORDS}|g" $tmp-table    > $tmp-ajax-html
 
 ########################################
-# 改行文字を「\\n」という3文字の文字列に置換
-#TABLE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-html`
-
-#########################################
-##tableをはめ込む
-#cat ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/SHOW.HTML   > $tmp-base
-#sed -re "s|###TABLE###|${TABLE}|g" $tmp-base    > $tmp-ajax-html
-
-########################################
+#ending
 echo "OK"
 exit 0
