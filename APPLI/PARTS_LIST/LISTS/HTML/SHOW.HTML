@@ -107,7 +107,7 @@
         });
     }
 
-    //パーツ新規追加
+    //パーツ追加
     function newParts() {
         var new_parts_name = $('#NEW_PARTS_NAME').val();
         var params = $('form').serialize();
@@ -129,24 +129,29 @@
         });
     }
 
-    //カテゴリ名変更
-    function editPartsCategory(id) {
-        var edit_category_name = $('#PARTS_CATEGORY_NAME_' + id).val();
-        var params = $('form').serialize();
+    //パーツ変更
+    function editParts(id) {
+        var page_filter = $('#PARTS_CATEGORY_NAME_HIDDEN_PAGE').val();
+        var edit_category_name = $('#PARTS_CATEGORY_NAME_HIDDEN_' + id).val();
+        var edit_parts_name = $('#PARTS_NAME_' + id).val();
+        var edit_parts_price = $('#PARTS_PRICE_' + id).val();
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/PARTS_CATEGORY/EDIT/COMPLETE',
+            url: '/APP/PARTS_LIST/EDIT/COMPLETE',
             data: {
-                PARTS_CATEGORY_ID: id,
-                PARTS_CATEGORY_NAME: edit_category_name
+                PAGE_FILTER: page_filter,
+                EDIT_PARTS_NO: id,
+                EDIT_PARTS_CATEGORY_NAME: edit_category_name,
+                EDIT_PARTS_NAME: edit_parts_name,
+                EDIT_PARTS_PRICE: edit_parts_price
             }
         });
         jqXHR.done(function(data) {
             if (data == 2222) {
-                alert(new_category_name + "は、既に使われています。");
+                alert(edit_parts_name + "は、既に使われています。");
             } else {
                 $('table').html(data);
-                $('#info-msg').html(edit_category_name + "を変更しました。");
+                $('#info-msg').html(edit_parts_name + "を変更しました。");
             }
         });
         jqXHR.fail(function() {
@@ -154,21 +159,32 @@
         });
     }
 
-    //カテゴリ名削除
-    function deletePartsCategory(id) {
-        var delete_category_name = $('#PARTS_CATEGORY_NAME_' + id).val();
-        var params = $('form').serialize();
+    //パーツ削除
+    function deleteParts(id) {
+        var page_filter = $('#PARTS_CATEGORY_NAME_HIDDEN_PAGE').val();
+        var delete_category_name = $('#PARTS_CATEGORY_NAME_HIDDEN_' + id).val();
+        var delete_parts_name = $('#PARTS_NAME_' + id).val();
+        var delete_parts_price = $('#PARTS_PRICE_' + id).val();
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/PARTS_CATEGORY/DELETE/COMPLETE',
+            url: '/APP/PARTS_LIST/DELETE/COMPLETE',
             data: {
-                PARTS_CATEGORY_ID: id,
-                PARTS_CATEGORY_NAME: delete_category_name
+                PAGE_FILTER: page_filter,
+                DELETE_PARTS_NO: id,
+                DELETE_PARTS_CATEGORY_NAME: delete_category_name,
+                DELETE_PARTS_NAME: delete_parts_name,
+                DELETE_PARTS_PRICE: delete_parts_price
             }
-        });
+       });
         jqXHR.done(function(data) {
+            if (data == 2222) {
+                alert(edit_parts_name + "は、使用されていませんでした。");
+            } else {
+                $('table').html(data);
+                $('#info-msg').html(delete_parts_name + "を削除しました。");
+            }
+ 
             $('table').html(data);
-            $('#info-msg').html(delete_category_name + "を削除しました。");
         });
         jqXHR.fail(function() {
             alert("削除処理に失敗しました。");
