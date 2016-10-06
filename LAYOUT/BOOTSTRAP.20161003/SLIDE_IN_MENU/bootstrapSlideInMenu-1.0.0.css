@@ -1,0 +1,46 @@
+/* ------------------------------------
+// Bootstrap Slide-in-Menu (for Bootstrap 3.x)
+// Ver: 1.0.0
+//
+// Author: ENTEREAL LLP
+// URL: http://www.entereal.co.jp/
+//------------------------------------ */
+
+body {
+	position: relative;
+}
+body > div {
+	position: absolute;
+	width: 100%;
+}
+
+#bsSlideInMenu {
+	position: absolute;
+	 top: 0;
+	 left: -200px;
+	 background: #F8F8F8;
+	 border-style: solid;
+	 border-width: 0 1px 1px 0;
+	 border-color: #DDD;
+	 width: 200px;
+	 height: 100%;
+}
+#bsSlideInMenu > .menu-close-button {
+	background: #F8F8F8;
+	font-size: 24px;
+	margin: 10px;
+	padding: 5px;
+	border: solid 1px #DDD;
+	border-radius: 50%;
+	cursor: pointer;
+}
+#bsSlideInMenu > .menu-close-button:hover {
+	background: #DDD;
+}
+#bsSlideInMenu > ul {
+	margin-right: 0;
+	margin-left: 0;
+}
+#bsSlideInMenu > .menu-close-button + ul {
+	margin-top: 50px;
+}
