@@ -68,7 +68,7 @@ fi
 ########################################
 #ページャーの必要有無を確認(レコード総数が最大表示数以下→ページャー不必要)
 if [ ${RECORDS} -le ${PAGE_MAX_VIEW_RECORDS} ]; then
-    sed -e "s/###PAGER###//" $tmp-template-html > $tmp-html
+    echo ''> $tmp-pager-html
     exit 0
 fi
 
@@ -114,9 +114,14 @@ PAGER_START=$( expr ${CAL_END} - ${PAGER_MAX_VIEW_PAGES} + 1 )
 seq  ${PAGER_START} ${PAGER_END} > $tmp-pager-seq
 
 ########################################
+#LINK_URLのアンダースコアをエスケープ
+echo $LINK_URL | sed -e 's|_|\\\\_|g' > $tmp-link-url
+
+########################################
+#ページャの開始と終了からシーケンスを作成
 #Set Pagination VALUE
 cat $tmp-pager-seq | 
-awk -v now=$SHOW_PAGE -v url=$LINK_URL \
+awk -v now=$SHOW_PAGE -v url=$(cat $tmp-link-url) \
 '{print $1==now?"active":"-",sprintf("%s/?page=%d",url,$1),$1}' > $tmp-pager-value
 
 ########################################
@@ -127,21 +132,22 @@ mojihame -lPAGES ${SYSD}/HTML/PAGER.HTML $tmp-pager-value > $tmp-pager-mojihame
 ########################################
 #Set Pagination HTML
 cat $tmp-pager-mojihame                         |
-sed -e "s/###PREV_ACTIVE###/${PREV_ACTIVE}/"    |
-sed -e "s/###PREV_DISP###/${PREV_DISP}/"        |
+sed -e "s|###PREV_ACTIVE###|${PREV_ACTIVE}|"    |
+sed -e "s|###PREV_DISP###|${PREV_DISP}|"        |
 sed -e "s|###PREV_URL###|${PREV_URL}|"          |
 sed -e "s|###NEXT_URL###|${NEXT_URL}|"          |
-sed -e "s/###NEXT_ACTIVE###/${NEXT_ACTIVE}/"    |
-sed -e "s/###NEXT_DISP###/${NEXT_DISP}/"        |
+sed -e "s|###NEXT_ACTIVE###|${NEXT_ACTIVE}|"    |
+sed -e "s|###NEXT_DISP###|${NEXT_DISP}|"        |
 sed -e "s|###NEXT_URL###|${NEXT_URL}|"          > $tmp-pager
 
 ########################################
 # 改行文字を「\\n」という3文字の文字列に置換
 TEXT=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-pager`
+echo ${TEXT} > $tmp-pager-html
 
 ########################################
 #pagerをはめ込み
-sed -re "s|###PAGER###|${TEXT}|g" $tmp-template-html > $tmp-html
+#sed -re "s|###PAGER###|${TEXT}|g" $tmp-template-html > $tmp-html
 
 
 exit 0
