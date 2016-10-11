@@ -42,7 +42,7 @@ echo $ID > ${SYSD}/DATA/${CATEGORY}/TMP/${STUFF_ID}
 
 ########################################
 #スタッフ情報を取得
-ARR=( `cat ${SYSD}/DATA/${CATEGORY}/USERS/LV3/${ID}_STUFF*  |
+ARR=( `cat ${SYSD}/DATA/${CATEGORY}/USERS/LV3/${ID}_stuff_* |
         awk -v id=$ID '$1==id{print}'                       |
         tr -s ' ' ' '`)
 ID=${ARR[0]}
@@ -69,6 +69,3 @@ sed -e "s/###STUFF_ID###/${STUFF_ID}/"                      > $tmp-html
 #ending
 echo "OK"
 exit 0
-
-
-

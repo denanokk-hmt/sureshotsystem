@@ -2,7 +2,7 @@
 #
 
 ########################################
-#	STUFF EDIT INPUT.CGI
+#	CUSTOMER EDIT INPUT.CGI
 #
 #   引数
 #       $1:必須 $$
@@ -33,17 +33,17 @@ FIN
 }
 
 ########################################
-#同一社員番号確認用にIDを暗号化し、ファイル保存
+#同一顧客番号確認用にIDを暗号化し、ファイル保存
 #また、この暗号化したIDをフォームのhiddenタグに適用
 cat $tmp-get | sed -e "s/id\=//" > $tmp-id
 ID=$(cat $tmp-id)
-STUFF_ID=$(sha1 $RANDOM$ID)
-echo $ID > ${SYSD}/DATA/${CATEGORY}/TMP/${STUFF_ID}
+CUSTOMER_ID=$(sha1 $RANDOM$ID)
+echo $ID > ${SYSD}/DATA/${CATEGORY}/TMP/${CUSTOMER_ID}
 
 ########################################
 #Get Own users data
-ARR=( `cat ${SYSD}/DATA/${CATEGORY}/USERS/LV3/${ID}_STUFF*  |
-        awk -v id=$ID '$1==id{print}'                       |
+ARR=( `cat ${SYSD}/DATA/${CATEGORY}/LISTS/LV3/${ID}_customer*   |
+        awk -v id=$ID '$1==id{print}'                           |
         tr -s ' ' ' '`)
 ID=${ARR[0]}
 FAMILY_NAME=${ARR[1]}
@@ -69,11 +69,10 @@ sed -e "s/###FAMILY_NAME_VALUE###/${FAMILY_NAME}/"          |
 sed -e "s/###GIVEN_NAME_VALUE###/${GIVEN_NAME}/"            |
 sed -e "s/###EMAIL_VALUE###/${EMAIL}/"                      |
 sed -e "s/###PASSWORD_VALUE###/NOT_CHANGE/"                 |
-sed -e "s/###STUFF_ID###/${STUFF_ID}/"                |
+sed -e "s/###CUSTOMER_ID###/${CUSTOMER_ID}/"                |
 sed -e "s/###PASSWORD_CONFIRMATION_VALUE###/NOT_CHANGE/"    > $tmp-html
 
 #########################################
 ##ending
 echo "OK"
 exit 0
-

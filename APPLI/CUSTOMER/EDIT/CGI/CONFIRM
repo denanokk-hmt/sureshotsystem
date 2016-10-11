@@ -2,7 +2,7 @@
 #
 
 ########################################
-#	STUFF EDIT CONFIRM.CGI
+#	CUSTOMER EDIT CONFIRM.CGI
 #
 #   引数
 #       $1:必須 $$
@@ -34,8 +34,8 @@ FIN
 
 ########################################
 #Get STUFF ID
-nameread STUFF_ID $tmp-post              | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-stuff
-STUFF_ID=$(cat $tmp-stuff)
+nameread CUSTOMER_ID $tmp-post              | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-customer
+CUSTOMER_ID=$(cat $tmp-customer)
 
 ########################################
 #フォーム値の設定
@@ -47,17 +47,16 @@ nameread PASSWORD_CONFIRMATION $tmp-post    | awk '{gsub(/^\_$/,"",$1);print}' >
 
 ########################################
 #バリデーション(整合性確認)
-ID=$(cat ${SYSD}/DATA/${CATEGORY}/TMP/${STUFF_ID})
-
+ID=$(cat ${SYSD}/DATA/${CATEGORY}/TMP/${CUSTOMER_ID})
 
 ########################################
 #バリデーション(必須入力確認)
 #入力ありの場合、空ファイルが出力され、なしの場合、そのフィールド名が記載される
-cat $tmp-post | awk '$2=="_" && $1=="FAMILY_NAME"{print $1}' > $tmp-need-VALID1
-cat $tmp-post | awk '$2=="_" && $1=="GIVEN_NAME"{print $1}' > $tmp-need-VALID2
-cat $tmp-post | awk '$2=="_" && $1=="EMAIL"{print $1}' > $tmp-need-VALID3
-cat $tmp-post | awk '$2=="_" && $1=="PASSWORD"{print $1}' > $tmp-need-VALID4
-cat $tmp-post | awk '$2=="_" && $1=="PASSWORD_CONFIRMATION"{print $1}' > $tmp-need-VALID5
+cat $tmp-post | awk '$2=="_" && $1=="FAMILY_NAME"{print $1}'            > $tmp-need-VALID1
+cat $tmp-post | awk '$2=="_" && $1=="GIVEN_NAME"{print $1}'             > $tmp-need-VALID2
+cat $tmp-post | awk '$2=="_" && $1=="EMAIL"{print $1}'                  > $tmp-need-VALID3
+cat $tmp-post | awk '$2=="_" && $1=="PASSWORD"{print $1}'               > $tmp-need-VALID4
+cat $tmp-post | awk '$2=="_" && $1=="PASSWORD_CONFIRMATION"{print $1}'  > $tmp-need-VALID5
 
 ########################################
 #バリデーション(データ属性)
@@ -84,9 +83,9 @@ fi
 
 ########################################
 #バリデーション(EMAIL重複確認)
-#1.社員番号 2.姓 3.名 4.EMAIL 5.TEL 6.作成日時 7.更新日時 8.削除フラグ
+#1.顧客番号 2.姓 3.名 4.EMAIL 5.TEL 6.作成日時 7.更新日時 8.削除フラグ
 EMAIL=$(cat $tmp-value3)
-cat ${SYSD}/DATA/STUFF/LV3/STUFF | awk '$4=="'"${EMAIL}"'"{print $0}' > $tmp-attr-VALID3
+cat ${SYSD}/DATA/${CATEGORY}/LISTS/LV3/*_customer_* | awk '$4=="'"${EMAIL}"'"{print $0}' > $tmp-attr-VALID3
 
 ########################################
 #バリデーションエラー項目の確定
@@ -159,11 +158,11 @@ if [ $ACTION = 'INPUT' ] ; then
     sed -e "s/###GIVEN_NAME_VALUE###/$(cat $tmp-value2)/"               |
     sed -e "s/###EMAIL_VALUE###/$(cat $tmp-value3)/"                    |
     sed -e "s/###PASSWORD_VALUE###/NOT_CHANGE/"                         |
-    sed -e "s/###STUFF_ID###/${STUFF_ID}/"                              |
+    sed -e "s/###CUSTOMER_ID###/${CUSTOMER_ID}/"                        |
     sed -e "s/###PASSWORD_CONFIRMATION_VALUE###/NOT_CHANGE/"            > $tmp-html
 else
     cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML           |
-    sed -e "s/###STUFF_ID_NOT_MATCH###//"                               |
+    sed -e "s/###CUSTOMER_ID_NOT_MATCH###//"                            |
     sed -e "s/###FAMILY_NAME_LABEL###/$(cat $tmp-value1)/"              |
     sed -e "s/###GIVEN_NAME_LABEL###/$(cat $tmp-value2)/"               |
     sed -e "s/###EMAIL_LABEL###/$(cat $tmp-value3)/"                    |
@@ -171,7 +170,7 @@ else
     sed -e "s/###FAMILY_NAME_VALUE###/$(cat $tmp-value1)/"              |
     sed -e "s/###GIVEN_NAME_VALUE###/$(cat $tmp-value2)/"               |
     sed -e "s/###EMAIL_VALUE###/$(cat $tmp-value3)/"                    |
-    sed -e "s/###STUFF_ID###/${STUFF_ID}/"                              |
+    sed -e "s/###CUSTOMER_ID###/${CUSTOMER_ID}/"                        |
     sed -e "s/###PASSWORD_VALUE###/$(cat $tmp-sha1)/"                   > $tmp-html
 fi
 
@@ -179,6 +178,3 @@ fi
 #ending
 echo "OK"
 exit 0
-
-
-

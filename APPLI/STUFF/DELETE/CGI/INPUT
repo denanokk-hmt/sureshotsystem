@@ -44,7 +44,7 @@ echo $ID > ${SYSD}/DATA/${CATEGORY}/TMP/${STUFF_ID}
 
 ########################################
 #Get Own users data
-ARR=( `cat ${SYSD}/DATA/${CATEGORY}/USERS/LV3/STUFF     |
+ARR=( `cat ${SYSD}/DATA/${CATEGORY}/USERS/LV3/*_stuff_*     |
         awk -v id=$ID '$1==id{print}'                       |
         tr -s ' ' ' '`)
 ID=${ARR[0]}
@@ -65,10 +65,9 @@ sed -e "s/###ID_VALUE###/${ID}/"                            |
 sed -e "s/###FAMILY_NAME_VALUE###/${FAMILY_NAME}/"          |
 sed -e "s/###GIVEN_NAME_VALUE###/${GIVEN_NAME}/"            |
 sed -e "s/###EMAIL_VALUE###/${EMAIL}/"                      |
-sed -e "s/###STUFF_ID###/${STUFF_ID}/"                > $tmp-html
+sed -e "s/###STUFF_ID###/${STUFF_ID}/"                      > $tmp-html
 
 #########################################
 ##ending
 echo "OK"
 exit 0
-

@@ -2,7 +2,7 @@
 #
 
 ########################################
-#	STUFF EDIT COMPLETE.CGI
+#	CUSTOMER EDIT COMPLETE.CGI
 #
 #   引数
 #       $1:プロセスID
@@ -19,9 +19,7 @@ LANG=ja_JP.UTF-8
 PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
 CATEGORY=`cat $tmp-category`
 FUNC=`cat $tmp-func`
-LOGIND=${SYSD}/DATA/${CATEGORY}/LOGIN
-USERSD=${SYSD}/DATA/${CATEGORY}/USERS
-STUFF_SESS_ID='sureshot_stuff_session_id'
+DATAD=${SYSD}/DATA/${CATEGORY}/LISTS
 
 ########################################
 #Check error
@@ -37,7 +35,7 @@ FIN
 
 #######################################
 #Get Form Data
-ID=$(nameread STUFF_ID $tmp-post)
+ID=$(nameread CUSTOMER_ID $tmp-post)
 VALUE1=$(nameread FAMILY_NAME $tmp-post)
 VALUE2=$(nameread GIVEN_NAME $tmp-post)
 VALUE3=$(nameread EMAIL $tmp-post)
@@ -48,12 +46,12 @@ VALUE5=0
 ######################################
 #INPUT表示時点で作成した暗号化スタッフ番号を取得し、整合性の確認を行う
 #暗号化の一時ファイルは削除
-#スタッフIDの整合性が取れない場合、CONFIRM画面に戻すが、実質更新は出来ない
-STUFF_NUM=$(cat ${SYSD}/DATA/STUFF/TMP/${ID})
-rm -f ${SYSD}/DATA/STUFF/TMP/${ID}
-if [ z ${STUFF_NUM} ]; then
+#顧客番号の整合性が取れない場合、CONFIRM画面に戻すが、実質更新は出来ない
+CUSTOMER_NUM=$(cat ${SYSD}/DATA/CUSTOMER/TMP/${ID})
+rm -f ${SYSD}/DATA/CUSTOMER/TMP/${ID}
+if [ z ${CUSTOMER_NUM} ]; then
     cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/CONFIRM.HTML     |
-    sed -e "s/###STUFF_ID_NOT_MATCH###/データ不整合により更新出来ませんでした。/"   |
+    sed -e "s/###CUSTOMER_ID_NOT_MATCH###/データ不整合により更新出来ませんでした。/"   |
     sed -e "s/###FAMILY_NAME_LABEL###/${VALUE1}/"               |
     sed -e "s/###GIVEN_NAME_LABEL###/${VALUE2}/"                |
     sed -e "s/###EMAIL_LABEL###/${VALUE3}/"                     |
@@ -62,85 +60,57 @@ if [ z ${STUFF_NUM} ]; then
 fi
 
 ########################################
-#該当のSTUFFのデータ操作をロック
-LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'STUFF' ${STUFF_NUM}`
+#該当のCUSTOMERのデータ操作をロック
+LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'CUSTOMER' ${CUSTOMER_NUM}`
 LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
 [ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
 
 ########################################
 #パスワードの値が"NOT_CHANGE"のままならば、変更が無いので、既存データを取得
-[[ "${PW}" = 'NOT_CHANGE' ]] && PW=$(cat ${LOGIND}/LV3/LOGIN   | awk -v id=$STUFF_NUM '$1==id{print $3}')
+#[[ "${PW}" = 'NOT_CHANGE' ]] && PW=$(cat ${DATAD}/LV3/* | awk -v id=$CUSTOMER_NUM '$1==id{print $4}')
+[[ "${PW}" = 'NOT_CHANGE' ]] && PW=$(cat ${DATAD}/LV3/${CUSTOMER_NUM}_customer_* | awk '{print $4}')
 
 ########################################
 #既存データから作成日時取得、現在日時を更新日時とする
-ls ${SYSD}/DATA/STUFF/USERS/LV1/${STUFF_NUM}_stuff_* | cut -d'_' -f3 | sort -nk1,1 | head -n 1 > $tmp-create
+ls ${DATAD}/LV1/${CUSTOMER_NUM}_customer_* | cut -d'_' -f3 | sort -nk1,1 | head -n 1 > $tmp-create
 CREATE_DATE=$(cat $tmp-create)
 UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 
 ########################################
-#ログインデータ用に一時ファイルに書き出し
-#1.社員番号 3.EMAIL 2.PW 3.作成日時 4.更新日時 5.ADMINフラグ 6.削除フラグ
-echo ${STUFF_NUM}" "${VALUE3}" "${PW}" "${CREATE_DATE}" "${UPDATE_DATE}" "${VALUE5}" "0 > $tmp-login
-
-########################################
-#ログイン用データの格納
-#LV1:原始データとして、ファイル追加のみを行う
-mv $tmp-login ${LOGIND}/LV1/${STUFF_NUM}_login_${UPDATE_DATE}
-
-#LV2:変更されたデータとファイルを入れ替える
-cp -ip ${LOGIND}/LV1/${STUFF_NUM}_login_${UPDATE_DATE} ${LOGIND}/LV2/${STUFF_NUM}_LOGIN_${UPDATE_DATE}
-ls ${LOGIND}/LV2/${STUFF_NUM}* | sort -nk1 | head -n 1 > $tmp-delete
-rm -f $(cat $tmp-delete)
-
-#LV3:LV2のコピー
-cp -ip ${LOGIND}/LV2/${STUFF_NUM}_LOGIN_${UPDATE_DATE} ${LOGIND}/LV3/${STUFF_NUM}_LOGIN_${UPDATE_DATE}
-ls ${LOGIND}/LV3/${STUFF_NUM}* | sort -nk1 | head -n 1 > $tmp-delete
-rm -f $(cat $tmp-delete)
-
-########################################
 #ユーザーデータ用に一時ファイルに書き出し
-#1.社員番号 2.姓 3.名 4.EMAIL 5.TEL 6.作成日時 7.更新日時 8.ADMINフラグ 9.削除フラグ
-echo ${STUFF_NUM}" "${VALUE1}" "${VALUE2}" "${VALUE3}" - "${CREATE_DATE}" "${UPDATE_DATE}" "${VALUE5}" "0 > $tmp-stuff
+#1.顧客番号 2.姓 3.名 4.EMAIL 5.TEL 6.作成日時 7.更新日時 8.ADMINフラグ 9.削除フラグ
+echo ${CUSTOMER_NUM}" "${VALUE1}" "${VALUE2}" "${VALUE3}" - "${CREATE_DATE}" "${UPDATE_DATE}" "${VALUE5}" "0 > $tmp-customer
 
 ########################################
-#スタッフ用データの格納
+#データの格納
 #LV1:原始データとして、ファイル追加のみを行う
-$(mv $tmp-stuff ${USERSD}/LV1/${STUFF_NUM}_stuff_${UPDATE_DATE})
+$(mv $tmp-customer ${DATAD}/LV1/${CUSTOMER_NUM}_customer_${UPDATE_DATE})
 
 #LV2:変更されたデータとファイルを入れ替える
-cp -ip ${USERSD}/LV1/${STUFF_NUM}_stuff_${UPDATE_DATE} ${USERSD}/LV2/${STUFF_NUM}_STUFF_${UPDATE_DATE}
-ls ${USERSD}/LV2/${STUFF_NUM}* | sort -nk1 | head -n 1 > $tmp-delete
+cp -ip ${DATAD}/LV1/${CUSTOMER_NUM}_customer_${UPDATE_DATE} ${DATAD}/LV2/${CUSTOMER_NUM}_customer_${UPDATE_DATE}
+ls ${USERSD}/LV2/${CUSTOMER_NUM}* | sort -nk1 | head -n 1 > $tmp-delete
 rm -f $(cat $tmp-delete)
 
 #LV3:リンク用のURLを追加,変更されたデータとファイルを入れ替える
-cat ${USERSD}/LV1/${STUFF_NUM}_stuff_${UPDATE_DATE} |
-awk '{print sprintf("%d %s %s %s %s %s %s %d %d /APP/STUFF/USERS/SHOW/?id=%d /APP/STUFF/EDIT/INPUT/?id=%d /APP/STUFF/DELETE/CONFIRM/?id=%d",$1,$2,$3,$4,$5,$6,$7,$8,$9,$1,$1,$1)}'  > ${USERSD}/LV3/${STUFF_NUM}_STUFF_${UPDATE_DATE}
-ls ${USERSD}/LV3/${STUFF_NUM}* | sort -nk1 | head -n 1 > $tmp-delete
+cat ${DATAD}/LV1/${CUSTOMER_NUM}_customer_${UPDATE_DATE} |
+awk '{print sprintf("%d %s %s %s %s %s %s %d %d /APP/CUSTOMER/LISTS/SHOW/?id=%d /APP/CUSTOMER/EDIT/INPUT/?id=%d /APP/CUSTOMER/DELETE/CONFIRM/?id=%d",$1,$2,$3,$4,$5,$6,$7,$8,$9,$1,$1,$1)}'  > ${DATAD}/LV3/${CUSTOMER_NUM}_customer_${UPDATE_DATE}
+ls ${DATAD}/LV3/${CUSTOMER_NUM}* | sort -nk1 | head -n 1 > $tmp-delete
 rm -f $(cat $tmp-delete)
 
 ########################################
-#STUFFのデータ操作ロックを解除
-UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'STUFF' ${STUFF_NUM}`
+#CUSTOMERのデータ操作ロックを解除
+UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 ${CATEGORY} ${CUSTOMER_NUM}`
 [ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
-
-########################################
-#SET SESSION
-COOK=`${SYSD}/CGI/SESSION/SESSION_SET ${STUFF_SESS_ID} `
-echo $COOK > $tmp-cook
 
 ########################################
 #HTMLの設定
 ACTION=`cat $tmp-action`
 cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML   |
-sed -e "s/###FAMILY_NAME_LABEL###/${VALUE1}/"   |
-sed -e "s/###GIVEN_NAME_LABEL###/${VALUE2}/"    |
-sed -e "s/###EMAIL_LABEL###/${VALUE3}/"         > $tmp-html
+sed -e "s/###FAMILY_NAME_LABEL###/${VALUE1}/"               |
+sed -e "s/###GIVEN_NAME_LABEL###/${VALUE2}/"                |
+sed -e "s/###EMAIL_LABEL###/${VALUE3}/"                     > $tmp-html
 
 ###############################################################################
 #ending
-echo "stuff edit user OK"
-#echo $COOK_SET
+echo "OK"
 exit 0
-
-
-

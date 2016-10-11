@@ -2,7 +2,7 @@
 #
 
 ########################################
-#	SHOW.CGI
+#	CUSTOMER SHOW.CGI
 #
 #   $1:必須 $$
 #
@@ -63,17 +63,17 @@ fi
 
 ########################################
 #Get stuff records
-cat ${SYSD}/DATA/${CATEGORY}/USERS/LV3/*[^_d]       |
+cat ${SYSD}/DATA/${CATEGORY}/${FUNC}/LV3/*[^_d]       |
 LANG=C sort -nk1,1                                  |
 awk -v s=${START} -v e=${END} 'NR>=s&&NR<=e&&$9!=1' |
 juni                                                > $tmp-records
-# 1;社員番号 2;姓 3:名 4:email
+# 1;顧客番号 2;姓 3:名 4:email
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML $tmp-records > $tmp-template-html
 
 ########################################
 #Set pager
-RECORDS=$( ls ${SYSD}/DATA/${CATEGORY}/USERS/LV3/*[^_d] | wc -l )
-RESULT=`${SYSD}/CGI/PAGER $1 /APP/STUFF/USERS/SHOW ${SHOW_PAGE} ${RECORDS} ${VIEW_MAX_RECORDS} ${VIEW_MAX_PAGES}`
+RECORDS=$( ls ${SYSD}/DATA/${CATEGORY}/${FUNC}/LV3/*[^_d] | wc -l )
+RESULT=`${SYSD}/CGI/PAGER $1 /APP/${CATEGORY}/${FUNC}/${ACTION} ${SHOW_PAGE} ${RECORDS} ${VIEW_MAX_RECORDS} ${VIEW_MAX_PAGES}`
 
 ########################################
 #Making viweing body HTML filw path
@@ -83,4 +83,3 @@ sed -re "s|###PAGER###|$(cat $tmp-pager-html)|g" $tmp-template-html > $tmp-html
 ##ending
 echo "OK"
 exit 0
-
