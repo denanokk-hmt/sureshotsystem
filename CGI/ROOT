@@ -82,14 +82,25 @@ echo $ACTION > $tmp-action
 #ログインセッションの確認と設定
 STUFF_SESS_ID='sureshot_stuff_session_id'    #社員用ログインセッションID
 
+#ログインセッションを確認
+SESS_STATUS=`${SYSD}/CGI/SESSION/SESSION_CHECK ${STUFF_SESS_ID} `
+case $SESS_STATUS in
+    live)
+        SIDE_SIGNIN="hidden"
+        SIDE_SIGNOUT="show"
+        ;;
+    *)
+        SIDE_SIGNIN="show"
+        SIDE_SIGNOUT="hidden"
+        ;;
+esac
+
 #社員登録とログイン画面以外の場合、有効なログインセッションを要求
 case ${CATEGORY}/${FUNC} in
 #"STUFF/NEW" | "STUFF/SIGNIN")
 "STUFF/NEW" | "STUFF/SIGNIN" | "/")
     ;;
 *)
-    #ログインセッションを確認
-    SESS_STATUS=`${SYSD}/CGI/SESSION/SESSION_CHECK ${STUFF_SESS_ID} `
     case $SESS_STATUS in
     live)
         #ログインセッションが有効の場合、時間を延長
@@ -145,10 +156,14 @@ fi
 [ -e $tmp-cook-login ] && COOK_SET_LOGIN=`cat $tmp-cook-login` || :
 [ -e $tmp-cook-account ] && COOK_SET_ACCOUNT=`cat $tmp-cook-account` || :
 
-cat ${SYSD}/HTML/HEAD.HTML > $tmp-head
-cat ${SYSD}/HTML/NAVBAR.HTML > $tmp-navbar
-cat ${SYSD}/HTML/SIDE.HTML > $tmp-side
-cat ${SYSD}/JS/common.js > $tmp-common-js
+########################################
+#基本パーツの読み込み
+cat ${SYSD}/HTML/HEAD.HTML                          > $tmp-head         #ヘッダー
+cat ${SYSD}/HTML/NAVBAR.HTML                        > $tmp-navbar       #ナビゲーション
+cat ${SYSD}/JS/common.js                            > $tmp-common-js    #javascript
+cat ${SYSD}/HTML/SIDE.HTML                          |                   #サイドメニュー
+sed -e "s|###SIGNIN_HIDDEN###|${SIDE_SIGNIN}|g"     |
+sed -e "s|###SIGNOUT_HIDDEN###|${SIDE_SIGNOUT}|g"   > $tmp-side
 
 ########################################
 #View
