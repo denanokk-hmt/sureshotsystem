@@ -42,7 +42,7 @@ echo $ID > ${SYSD}/DATA/${CATEGORY}/TMP/${CUSTOMER_ID}
 
 ########################################
 #顧客情報を取得
-ARR=( `cat ${SYSD}/DATA/${CATEGORY}/USERS/LV3/${ID}_customer_*  |
+ARR=( `cat ${SYSD}/DATA/${CATEGORY}/LISTS/LV3/${ID}_customer_*  |
         awk -v id=$ID '$1==id{print}'                           |
         tr -s ' ' ' '`)
 ID=${ARR[0]}

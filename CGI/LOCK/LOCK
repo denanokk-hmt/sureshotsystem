@@ -49,7 +49,7 @@ if [ -e ${LOCKD} ] ; then
 else
     mkdir ${LOCKD}
     chmod -R 775 ${LOCKD}
-    chown -R root:apache ${LOCKD}
+    #chown -R root:apache ${LOCKD}
     ERROR_CHECK
 fi
 
