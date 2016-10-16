@@ -12,7 +12,11 @@
 				classie.toggle( menuLeft, 'cbp-spmenu-open' );
 				disableOther( 'showLeft' );
 			};
-			/*
+
+            $('.scrollable-menu .dropdown a').on('click', function() {
+                $('.scrollable-menu').css('height', '1000px');
+            });
+    		/*
 			showLeftPush.onclick = function() {
 				classie.toggle( this, 'active' );
 				classie.toggle( body, 'cbp-spmenu-push-toright' );

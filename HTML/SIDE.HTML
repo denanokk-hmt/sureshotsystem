@@ -8,17 +8,28 @@
                 <h3></h3>
                 <h3>Menu</h3>
   			    <a class="###SIGNIN_HIDDEN###" href="/APP/STUFF/SIGNIN/INPUT">
-                    <i class="glyphicon glyphicon-log-in"> Sign-in</i>
+                    <i class="glyphicon glyphicon-log-in"> サインイン</i>
                 </a>
     			<a class="###SIGNOUT_HIDDEN###" href="/APP/STUFF/SIGNIN/OUT">
-                    <i class="glyphicon glyphicon-log-out"> Sign-out</i>
+                    <i class="glyphicon glyphicon-log-out"> サインアウト</i>
                 </a>
-    			<a href="/APP/STUFF/NEW/INPUT">
-                    <i class="glyphicon glyphicon-edit"> Sign-up</i>
-                </a>
-    			<a href="/APP/STUFF/USERS/SHOW">
-                    <i class="glyphicon glyphicon-user"> Stuff</i>
-                </a>
+                <div class="dropdown" style="" >
+                    <a href="" class="dropdown-toggle" data-toggle="dropdown">
+                        <i class="glyphicon glyphicon-user"> スタッフ&nbsp</i><span class="caret"></span>
+                        <span style="font-color:blue;">
+                        &nbsp&nbsp&nbsp&nbsp
+                        &nbsp&nbsp&nbsp&nbsp
+                        </span>
+                    </a>
+                    <ul class="dropdown-menu">
+    			       <a href="/APP/STUFF/NEW/INPUT">
+                           <i class="glyphicon glyphicon-edit"> 新規登録</i>
+                       </a>
+    			       <a href="/APP/STUFF/USERS/SHOW">
+                           <i class="glyphicon glyphicon-edit"> 一覧</i>
+                       </a>
+                    </ul>
+                </div>
     			<a href="/APP/ASSESSMENT/LISTS/SHOW">
                     <i class="glyphicon glyphicon-eye-open"> 査定</i>
                 </a>
@@ -37,34 +48,31 @@
     			<a href="#">
                     <i class="glyphicon glyphicon-wrench"> JOB</i>
                 </a>
-                <!--
-                <div class="dropdown">
-                    <a href="#" data-toggle="collapse" aria-haspopup="true">
-                        <i class="glyphicon glyphicon-cog"> マスタ</i><span class="caret"></sapn>
+               <div class="dropdown" style="" >
+                    <a href="" class="dropdown-toggle" data-toggle="dropdown">
+                        <i class="glyphicon glyphicon-wrench"> マスタ&nbsp</i><span class="caret"></span>
+                        <span style="font-color:blue;">
+                        &nbsp&nbsp&nbsp&nbsp
+                        &nbsp&nbsp&nbsp&nbsp
+                        &nbsp&nbsp&nbsp&nbsp
+                        &nbsp&nbsp&nbsp&nbsp
+                        </span>
                     </a>
-                    <ul id="collapse-master" class="collapse">
-                        <li><a href="#">作業リスト</a></li>
-                        <li><a href="#">部品リスト</a></li>
-                        <li><a href="#">作業カテゴリー</a></li>
-                        <li><a href="#">部品カテゴリー</a></li>
+                    <ul class="dropdown-menu">
+                        <a href="">
+                            <i class="glyphicon glyphicon-wrench"> 作業カテゴリ</i>
+                        </a>
+    			        <a href="">
+                            <i class="glyphicon glyphicon-wrench"> 作業一覧</i>
+                        </a>
+    			        <a href="/APP/PARTS_CATEGORY/LISTS/SHOW">
+                            <i class="glyphicon glyphicon-wrench"> 部品カテゴリ</i>
+                        </a>
+    			        <a href="/APP/PARTS_LIST/LISTS/SHOW">
+                            <i class="glyphicon glyphicon-wrench"> 部品一覧</i>
+                        </a>
                     </ul>
                 </div>
-                -->
-    			<a href="#">
-                    <i class="glyphicon glyphicon-wrench"> master ope cate</i>
-                </a>
-    			<a href="#">
-                    <i class="glyphicon glyphicon-wrench"> master ope list</i>
-                </a>
-    			<a href="/APP/PARTS_CATEGORY/LISTS/SHOW">
-                    <i class="glyphicon glyphicon-wrench"> master parts cate</i>
-                </a>
-    			<a href="/APP/PARTS_LIST/LISTS/SHOW">
-                    <i class="glyphicon glyphicon-wrench"> master parts list</i>
-                </a>
-                <!--
-                <a href="#"></a>
-                -->
             </div>
 
   		</nav>

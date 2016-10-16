@@ -58,6 +58,18 @@ html,body {
                 /*max-height: 500px;*/
                 overflow-x: hidden;
 }
+/* サイドメニューの子メニュー*/
+.scrollable-menu .dropdown {
+    position:   relative;
+}
+.scrollable-menu .dropdown ul {
+    position:   absolute;
+    top:    60%;
+    left:   35%;
+    background-color:   #47b3e1; 
+}
+
+
 
 /****************/
 /*HALF SLIDER*/
