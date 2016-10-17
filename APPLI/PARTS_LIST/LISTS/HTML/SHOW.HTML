@@ -1,58 +1,75 @@
 <!--PARTS LISTS Contents-->
-    
-    <div class="col-md-9">
+<!--<!DOCTYPE html>-->
+<!--<html>-->
 
-         <!--Contents Header Title-->
-        <div class="container" style="margin-bottom:15px;">
-            <div class="row">
-                <h1 class="">
-                    <p>Parts Lists</p>
-                </h1>
+    <div class="container"">
+
+        <!--Header Title-->
+        <div class="row">
+            <h1 class="">
+                <p>Parts Lists</p>
+            </h1>
+        </div>
+
+        <!--Header Info-->
+        <div class="row">
+            <label class="control-label col-sm-1">
+                <h3><i class="glyphicon glyphicon-info-sign"></i></h3>
+            </label>
+            <div class="col-sm-6 lbl-header-info">
+                <span id="info-msg" class="label label-lg label-###INFO_LV###">
+                    ###INFO_MSG###
+                </span>
             </div>
         </div>
 
-        <!--Contents Header Information-->
-        <div class="container" style="margin-bottom:15px;">
+        <!--Filter-->
+        <form action="/APP/PARTS_LIST/LISTS/SHOW" method="GET">    
             <div class="row">
-                <form class="form-horizontal header-info">
+
+                <!--Parts Category Dropdown list-->
+                <div class="col-sm-2 pull-right">
                     <div class="form-group">
-                        <h3>
-                            <label class="control-label col-sm-1" for="">
-                                <i class="glyphicon glyphicon-info-sign"></i>
-                            </label>
-                        </h3>
-                        <h4>
-                            <div class="col-sm-5" style="text-align:left;">
-                                <p><span id="info-msg" class="label label-lg label-###INFO_LV###">###INFO_MSG###</span></p>
-                            </div>
-                        </h4>
                         <div class="btn-group">
-                             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" id="parts_category" aria-expended="false">
-                                 Part Category <span class="caret"></span>
-                             </button>
-                             <ul class="dropdown-menu" role="menu" name="PAGE">
-                                <li name="PARTS_CATEGORY_PAGE">
-                                    <a id="cat-list-0" onclick="categoryChoice(0,this); return false;" >ALL</a>
-                                </li>
-                             ###PARTS_CATEGORY###
-                             </ul>
-                            <input type="text" name="PARTS_CATEGORY_NAME_PAGE" id="PARTS_CATEGORY_NAME_PAGE" value="" class="form-control" disabled />
-                            <input type="hidden" name="PARTS_CATEGORY_NAME_HIDDEN_PAGE" id="PARTS_CATEGORY_NAME_HIDDEN_PAGE" value="" class="form-control" />
+                            <button type="submit" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" id="parts_category" aria-expended="false">
+                                Category <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu" name="PAGE">
+                               <li name="CATEGORY_PAGE">
+                                   <a id="cat-list-0" onclick="categoryChoice(0,this); return false;" >ALL</a>
+                               </li>
+                               ###CATEGORY###
+                            </ul>
                         </div>
                     </div>
-                </form>
-            </div>
-        </div>
+                </div>
 
-        <!--Contents-->
-        <div class="container" style="padding;20px;">
-            <form class="form-inline form-horizontal" style="margin-bottom:15px;" action="/APP/PARTS_CATEGORY/LISTS/SHOW" method="GET">
-###TABLE###
-###PAGER###
-            </form>
-        </div>
+                <!--Choiced Parts Category-->
+                <div class="col-sm-4 pull-right">
+                    <div class="form-group">
+                        <input type="text" name="CATEGORY_PAGE" id="CATEGORY_PAGE" value="###CATEGORY_PAGE_HIDDEN###" class="form-control" disabled />
+                        <input type="hidden" name="CATEGORY_PAGE_HIDDEN" id="CATEGORY_PAGE_HIDDEN" value="###CATEGORY_PAGE_HIDDEN###" class="form-control" />
+                        <input type="hidden" name="SEARCH" id="SEARCH" value="1" class="form-control" />
+                        <input type="hidden" name="page" id="page" value="1" class="form-control" />
+                    </div>
+                </div>
+
+                <!--Search Submit button-->
+                <div class="col-sm-2 pull-right">
+                    <button type="submit" class="btn btn-primary" />
+                        <span clss="glyphicon glyphicon-eye-open">Search</span>
+                    </button>
+                </div>
+                <div class="col-sm-4 hidden-xs"></div>
+            </div>
+        </form>
+
+        <!--Contents Records/Pagination-->
+        <form class="form-inline form-horizontal"  action="/APP/PARTS_CATEGORY/LISTS/SHOW" method="GET">
+            ###TABLE###
+            ###PAGER###
+        </form>
     </div>
-<!--</html>-->
 
 <script>
 
@@ -64,7 +81,7 @@
         jQuery(function () {
             $(".dropdown-menu li a").click(function() {
                 console.log($(this).html());
-                $(this).parents('.form-group').find('[name^="PARTS_CATEGORY_NAME_"]').val($(this).html());
+                $(this).parents('.form-group').find('[name^="CATEGORY_"]').val($(this).html());
             });
         });
     */
@@ -81,32 +98,66 @@
         var parts_no = nodes.name.nodeValue;
 
         //該当のtextとhiddenのinputに選択したカテゴリ名を設定
-        var input_text = document.getElementById('PARTS_CATEGORY_NAME_' + parts_no);
+        var input_text = document.getElementById('CATEGORY_' + parts_no);
         input_text.value = choice;
-        var input_hidden = document.getElementById('PARTS_CATEGORY_NAME_HIDDEN_' + parts_no);
+        var input_hidden = document.getElementById('CATEGORY_' + parts_no + '_HIDDEN');
         input_hidden.value = choice;
 
         //PageFilterのカテゴリを選択した場合
-        if (parts_no == 'PAGE') {
-            pageFilter();
-        }
+        //if (parts_no == 'PAGE') {
+        //    var input_hidden2 = document.getElementById('CATE_NAME');
+        //    input_hidden2.value = choice;
+        //    pageFilterSubmit(choice);
+        //}
     }
 
-    //絞り込み
+    /*
+    //レコードの絞り込み
+    function pageFilterSubmit(choice) {
+        var f = document.forms['category_page'];
+        f.method = 'GET';
+        //f.method = 'POST';
+        f.action = '/APP/PARTS_LIST/LISTS/SHOW';
+        f.submit();
+        return false;
+    }*/
+
+
     function pageFilter(choice) {
         var params = $('form').serialize();
         var jqXHR = $.ajax({
             type: 'POST',
             url: '/APP/PARTS_LIST/LISTS/SHOW',
-            data: params
+            data: params,
+            dataTYpe: 'json'
         });
         jqXHR.done(function(data) {
             $('table').html(data);
+            pagerFilter(choice);
         });
         jqXHR.fail(function(data) {
             alert("新規登録処理に失敗しました。");
         });
     }
+    //ページャーの絞り込み
+    function pagerFilter(choice) {
+        var jqXHR = $.ajax({
+            type: 'POST',
+            url: '/APP/PARTS_LIST/LISTS/PAGER_AJAX',
+            data: {
+                PAGER_FILTER:  choice,
+                PAGER_LINK_URL: '/APP/PARTS_LIST/LISTS/SHOW'
+            }
+        });
+        jqXHR.done(function(data) {
+            console.log(data);
+            $('.pagination').html(data);
+        });
+        jqXHR.fail(function(data) {
+            alert("ページャーの更新に失敗しました。");
+        });
+    }
+
 
     //パーツ追加
     function newParts() {
@@ -132,8 +183,8 @@
 
     //パーツ変更
     function editParts(id) {
-        var page_filter = $('#PARTS_CATEGORY_NAME_HIDDEN_PAGE').val();
-        var edit_category_name = $('#PARTS_CATEGORY_NAME_HIDDEN_' + id).val();
+        var page_filter = $('#CATEGORY_PAGE_HIDDEN').val();
+        var edit_category_name = $('#CATEGORY_' + id + '_HIDDEN').val();
         var edit_parts_name = $('#PARTS_NAME_' + id).val();
         var edit_parts_price = $('#PARTS_PRICE_' + id).val();
         var jqXHR = $.ajax({
@@ -162,8 +213,8 @@
 
     //パーツ削除
     function deleteParts(id) {
-        var page_filter = $('#PARTS_CATEGORY_NAME_HIDDEN_PAGE').val();
-        var delete_category_name = $('#PARTS_CATEGORY_NAME_HIDDEN_' + id).val();
+        var page_filter = $('#CATEGORY_PAGE_HIDDEN').val();
+        var delete_category_name = $('#CATEGORY_' + id + '_HIDDEN').val();
         var delete_parts_name = $('#PARTS_NAME_' + id).val();
         var delete_parts_price = $('#PARTS_PRICE_' + id).val();
         var jqXHR = $.ajax({
@@ -194,3 +245,4 @@
     }
 
 </script>
+<!--</html>-->

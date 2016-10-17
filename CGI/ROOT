@@ -65,13 +65,14 @@ esac
 
 
 #######################################
-#Set rooting
+#ルーティング要素の取得
 #URLを分解し、カテゴリと処理とアクションを取得する
 ARR=( `echo $URI | tr -s '/' ' '`)
 APP=${ARR[0]}
 CATEGORY=${ARR[1]}
 FUNC=${ARR[2]}
-ACTION=${ARR[3]}
+ACTION=$(echo ${ARR[3]} | cut -d'?' -f1)
+
 ARR_COUNT=${#ARR[*]}
 echo $APP > $tmp-uri_ap
 echo $CATEGORY > $tmp-category

@@ -12,6 +12,21 @@
 html,body {
     height: 100%;
 }
+.container {
+    margin-bottom:  15px;
+}
+.row {
+    postion:    relative;
+}
+
+.lbl-header-info {
+    text-align: left;
+    font-size:  18px;i
+    position:   absolute;
+    top:        50%;
+    margin-top: 17px;
+    
+}
 
 /****************/
 /* navbar       */
