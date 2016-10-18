@@ -88,6 +88,14 @@ else
     fi
 fi
 
+#######################################
+#ページ名
+if [ -z "$(cat $tmp-auth)" ] ; then
+    echo "Stuff sign in" > $tmp-pagename
+else
+    echo "Top" > $tmp-pagename
+fi
+
 ###############################################################################
 #ending
 echo "OK"

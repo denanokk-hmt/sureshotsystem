@@ -136,6 +136,10 @@ sed -e "s/###FAMILY_NAME_LABEL###/${VALUE1}/"   |
 sed -e "s/###GIVEN_NAME_LABEL###/${VALUE2}/"    |
 sed -e "s/###EMAIL_LABEL###/${VALUE3}/"         > $tmp-html
 
+#########################################
+#page name
+echo "Stuff info update complete" > $tmp-pagename
+
 ###############################################################################
 #ending
 echo "stuff edit user OK"

@@ -33,7 +33,7 @@ FIN
 }
 
 ########################################
-#Get STUFF ID
+#暗号化された社員IDを取得(暗号化されフォームに埋め込まれた社員ID)
 nameread STUFF_ID $tmp-post              | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-stuff
 STUFF_ID=$(cat $tmp-stuff)
 
@@ -46,7 +46,7 @@ nameread PASSWORD $tmp-post                 | awk '{gsub(/^\_$/,"",$1);print}' >
 nameread PASSWORD_CONFIRMATION $tmp-post    | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value5
 
 ########################################
-#バリデーション(整合性確認)
+#社員番号を復原
 ID=$(cat ${SYSD}/DATA/${CATEGORY}/TMP/${STUFF_ID})
 
 
@@ -85,8 +85,11 @@ fi
 ########################################
 #バリデーション(EMAIL重複確認)
 #1.社員番号 2.姓 3.名 4.EMAIL 5.TEL 6.作成日時 7.更新日時 8.削除フラグ
+NOW_EMAIL=$(cat ${SYSD}/DATA/STUFF/USERS/LV3/${ID}_* | awk '{print $4}')
 EMAIL=$(cat $tmp-value3)
-cat ${SYSD}/DATA/STUFF/USERS/LV3/*_stuff_* | awk '$4=="'"${EMAIL}"'"{print $0}' > $tmp-attr-VALID3
+if [ "${NOW_EMAIL}" != ${EMAIL} ]; then
+    cat ${SYSD}/DATA/STUFF/USERS/LV3/*_stuff_* | awk '$4=="'"${EMAIL}"'"{print $0}' > $tmp-attr-VALID3
+fi
 
 ########################################
 #バリデーションエラー項目の確定
@@ -173,6 +176,14 @@ else
     sed -e "s/###EMAIL_VALUE###/$(cat $tmp-value3)/"                    |
     sed -e "s/###STUFF_ID###/${STUFF_ID}/"                              |
     sed -e "s/###PASSWORD_VALUE###/$(cat $tmp-sha1)/"                   > $tmp-html
+fi
+
+#########################################
+#page name
+if [ $ACTION = 'INPUT' ] ; then
+    echo "Stuff info update update" > $tmp-pagename
+else
+    echo "Stuff info update confirm" > $tmp-pagename
 fi
 
 ###############################################################################

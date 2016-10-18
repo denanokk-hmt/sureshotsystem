@@ -160,7 +160,8 @@ fi
 ########################################
 #基本パーツの読み込み
 cat ${SYSD}/HTML/HEAD.HTML                          > $tmp-head         #ヘッダー
-cat ${SYSD}/HTML/NAVBAR.HTML                        > $tmp-navbar       #ナビゲーション
+cat ${SYSD}/HTML/NAVBAR.HTML                        |
+sed -e "s|###PAGE_NAME###|$(cat $tmp-pagename)|"    > $tmp-navbar       #ナビゲーション
 cat ${SYSD}/JS/common.js                            > $tmp-common-js    #javascript
 cat ${SYSD}/HTML/SIDE.HTML                          |                   #サイドメニュー
 sed -e "s|###SIGNIN_HIDDEN###|${SIDE_SIGNIN}|g"     |

@@ -39,6 +39,10 @@ sed -e "s/###ID_VALUE###//"                                 |
 sed -e "s/###PASSWORD_VALUE###//"                           > $tmp-html
 
 #########################################
+#ページ名
+echo "Stuff Sign in" > $tmp-pagename
+
+#########################################
 ##ending
 echo "OK"
 exit 0

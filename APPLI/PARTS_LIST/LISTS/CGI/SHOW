@@ -42,7 +42,6 @@ FIN
 #GETパラメーターを取得
 #ページを取得(初期はなし、絞込の場合は、page=1
 QRY_PAGE=$( cat $tmp-get | sed -e 's/^.*\(page\=[0-9]*\).*$/\1/' | sed -e 's/page\=//')
-cat $tmp-get > /tmp/pppppp
 
 ########################################
 #SEARCHで来た場合
@@ -133,7 +132,7 @@ fi
 # 1;カテゴリ番号 2;カテゴリ名
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/RECORDS.HTML $tmp-records     > $tmp-table-records
 cat $tmp-table-records                                                                  |
-sed -e "s|###CATEGORY###|${PARTS_CATEGORY_LIST}|g"                                      > $tmp-table-records2
+sed -e "s|###CATEGORY###|${CATEGORY_LIST}|g"                                            > $tmp-table-records2
 
 ########################################
 # 改行文字を「\\n」という3文字の文字列に置換
@@ -157,6 +156,10 @@ sed -e "s|###CATEGORY###|${CATEGORY_PAGE}|g"                |
 sed -e "s|###TABLE###|${TABLE}|g"                           |
 sed -e "s|###INFO_MSG###||g"                                |
 sed -e "s|###PAGER###|$(cat $tmp-pager-html)|g"             > $tmp-html
+
+########################################
+#page name
+echo "Parts lists" > $tmp-pagename
 
 ########################################
 echo "OK"

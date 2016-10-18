@@ -65,6 +65,10 @@ sed -e "s/###GIVEN_NAME_###/${GIVEN_NAME}/"                 |
 sed -e "s/###EMAIL_###/${EMAIL}/"                           |
 sed -e "s/###STUFF_ID###/${STUFF_ID}/"                      > $tmp-html
 
+#########################################
+#page name
+echo "Stuff info delete confirm" > $tmp-pagename
+
 ########################################
 #ending
 echo "OK"

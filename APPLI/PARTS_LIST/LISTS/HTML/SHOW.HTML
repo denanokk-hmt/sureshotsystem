@@ -2,14 +2,18 @@
 <!--<!DOCTYPE html>-->
 <!--<html>-->
 
-    <div class="container"">
+<div class="container"">
+    
+    <div class="fixed">
 
         <!--Header Title-->
+        <!--
         <div class="row">
             <h1 class="">
                 <p>Parts Lists</p>
             </h1>
         </div>
+        -->
 
         <!--Header Info-->
         <div class="row">
@@ -23,16 +27,17 @@
             </div>
         </div>
 
-        <!--Filter-->
+        <!--Search-->
         <form action="/APP/PARTS_LIST/LISTS/SHOW" method="GET">    
             <div class="row">
 
                 <!--Parts Category Dropdown list-->
-                <div class="col-sm-2 pull-right">
-                    <div class="form-group">
+                <div class="btn-group">
+                <div class="btn-group">
+                    <div class="col-sm-2">
                         <div class="btn-group">
                             <button type="submit" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" id="parts_category" aria-expended="false">
-                                Category <span class="caret"></span>
+                                &nbsp<span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" role="menu" name="PAGE">
                                <li name="CATEGORY_PAGE">
@@ -42,11 +47,7 @@
                             </ul>
                         </div>
                     </div>
-                </div>
-
-                <!--Choiced Parts Category-->
-                <div class="col-sm-4 pull-right">
-                    <div class="form-group">
+                    <div class="col-sm-10">
                         <input type="text" name="CATEGORY_PAGE" id="CATEGORY_PAGE" value="###CATEGORY_PAGE_HIDDEN###" class="form-control" disabled />
                         <input type="hidden" name="CATEGORY_PAGE_HIDDEN" id="CATEGORY_PAGE_HIDDEN" value="###CATEGORY_PAGE_HIDDEN###" class="form-control" />
                         <input type="hidden" name="SEARCH" id="SEARCH" value="1" class="form-control" />
@@ -55,21 +56,35 @@
                 </div>
 
                 <!--Search Submit button-->
-                <div class="col-sm-2 pull-right">
+                <div class="col-sm-3">
                     <button type="submit" class="btn btn-primary" />
                         <span clss="glyphicon glyphicon-eye-open">Search</span>
                     </button>
                 </div>
-                <div class="col-sm-4 hidden-xs"></div>
+                </div>
+
+                <!--Spacer-->
+                <div class="col-sm-1 hidden-xs"></div>
             </div>
         </form>
+    </div>
 
-        <!--Contents Records/Pagination-->
+    <!--Spacer-->
+    <div class="header-dummy" style="height:7.0em; background-color:piiiiink;"></div>
+
+    <!--Contents Records/Pagination-->
+    <div class="header-under-contents">
         <form class="form-inline form-horizontal"  action="/APP/PARTS_CATEGORY/LISTS/SHOW" method="GET">
-            ###TABLE###
-            ###PAGER###
+            <div class="contents-table">
+                ###TABLE###
+            </div>
+
+            <div id="pager" class="pagination-foot">
+                ###PAGER###
+            </div>
         </form>
     </div>
+</div>
 
 <script>
 
@@ -102,62 +117,12 @@
         input_text.value = choice;
         var input_hidden = document.getElementById('CATEGORY_' + parts_no + '_HIDDEN');
         input_hidden.value = choice;
-
-        //PageFilterのカテゴリを選択した場合
-        //if (parts_no == 'PAGE') {
-        //    var input_hidden2 = document.getElementById('CATE_NAME');
-        //    input_hidden2.value = choice;
-        //    pageFilterSubmit(choice);
-        //}
     }
 
-    /*
-    //レコードの絞り込み
-    function pageFilterSubmit(choice) {
-        var f = document.forms['category_page'];
-        f.method = 'GET';
-        //f.method = 'POST';
-        f.action = '/APP/PARTS_LIST/LISTS/SHOW';
-        f.submit();
-        return false;
-    }*/
-
-
-    function pageFilter(choice) {
-        var params = $('form').serialize();
-        var jqXHR = $.ajax({
-            type: 'POST',
-            url: '/APP/PARTS_LIST/LISTS/SHOW',
-            data: params,
-            dataTYpe: 'json'
-        });
-        jqXHR.done(function(data) {
-            $('table').html(data);
-            pagerFilter(choice);
-        });
-        jqXHR.fail(function(data) {
-            alert("新規登録処理に失敗しました。");
-        });
-    }
-    //ページャーの絞り込み
-    function pagerFilter(choice) {
-        var jqXHR = $.ajax({
-            type: 'POST',
-            url: '/APP/PARTS_LIST/LISTS/PAGER_AJAX',
-            data: {
-                PAGER_FILTER:  choice,
-                PAGER_LINK_URL: '/APP/PARTS_LIST/LISTS/SHOW'
-            }
-        });
-        jqXHR.done(function(data) {
-            console.log(data);
-            $('.pagination').html(data);
-        });
-        jqXHR.fail(function(data) {
-            alert("ページャーの更新に失敗しました。");
-        });
-    }
-
+    $(document).ready(function() {
+        
+        $("#pager").sticky({topSpacing:0});
+    });
 
     //パーツ追加
     function newParts() {

@@ -55,6 +55,10 @@ ERROR_CHECK
 #HTMLの設定
 cat ${SYSD}/HTML/INDEX.HTML > $tmp-html 
 
+#########################################
+#ページ名
+echo "Top" > $tmp-pagename
+
 #######################################
 #ending
 echo "OK"
