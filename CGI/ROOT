@@ -87,18 +87,18 @@ STUFF_SESS_ID='sureshot_stuff_session_id'    #社員用ログインセッショ�
 SESS_STATUS=`${SYSD}/CGI/SESSION/SESSION_CHECK ${STUFF_SESS_ID} `
 case $SESS_STATUS in
     live)
-        SIDE_SIGNIN="hidden"
-        SIDE_SIGNOUT="show"
+        echo "hidden" > $tmp-side-signin
+        echo "show" > $tmp-side-signout
         ;;
     *)
-        SIDE_SIGNIN="show"
-        SIDE_SIGNOUT="hidden"
+        echo "show" > $tmp-side-signin
+        echo "hidden" > $tmp-side-signout
         ;;
 esac
 
 #社員登録とログイン画面以外の場合、有効なログインセッションを要求
 case ${CATEGORY}/${FUNC} in
-#"STUFF/NEW" | "STUFF/SIGNIN")
+#"STUFF/NEW" | "STUFF/SIGNIN)
 "STUFF/NEW" | "STUFF/SIGNIN" | "/")
     ;;
 *)
@@ -135,6 +135,8 @@ if [ -n "${FUNC}${ACTION}" ] ; then
     echo $result > $tmp-result
 else
     cat ${SYSD}/HTML/INDEX.HTML > $tmp-html
+    #curl "surehsot2.ddo.jp" -X POST -d @-
+    #exit 0
 fi
 
 ########################################
@@ -164,8 +166,8 @@ cat ${SYSD}/HTML/NAVBAR.HTML                        |
 sed -e "s|###PAGE_NAME###|$(cat $tmp-pagename)|"    > $tmp-navbar       #ナビゲーション
 cat ${SYSD}/JS/common.js                            > $tmp-common-js    #javascript
 cat ${SYSD}/HTML/SIDE.HTML                          |                   #サイドメニュー
-sed -e "s|###SIGNIN_HIDDEN###|${SIDE_SIGNIN}|g"     |
-sed -e "s|###SIGNOUT_HIDDEN###|${SIDE_SIGNOUT}|g"   > $tmp-side
+sed -e "s|###SIGNIN_HIDDEN###|$(cat $tmp-side-signin)|g"     |
+sed -e "s|###SIGNOUT_HIDDEN###|$(cat $tmp-side-signout)|g"   > $tmp-side
 
 ########################################
 #View

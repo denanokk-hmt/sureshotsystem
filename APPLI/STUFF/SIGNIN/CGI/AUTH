@@ -68,6 +68,10 @@ if [ -n "$(cat $tmp-auth)" ] ; then
     STUFF_SESS_AC='sureshot_stuff_session_ac'
     COOK=`${SYSD}/CGI/SESSION/SESSION_SET ${STUFF_SESS_AC} 15 ${VALUE_ID}`
     echo $COOK > $tmp-cook-account
+
+    #サイドメニューのサインイン/アウトの表示非表示
+    echo "hidden" > $tmp-side-signin
+    echo "show" > $tmp-side-signout
     
 fi
 
