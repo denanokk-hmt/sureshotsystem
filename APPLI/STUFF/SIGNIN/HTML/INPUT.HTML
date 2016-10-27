@@ -1,73 +1,70 @@
-<!--STUFF SIGN IN Contents-->
 <!--<!DOCTYPE html>-->
 <!--<html>-->
 <!--<body>-->
+<div class="container">
+    <div class="col-md-6 col-md-offset-1">
 
-        <div class="container">
-
-            <!--Header Title
-            <div class="row">
-                <h1 class="col-sm-6">
-                    <p class="page-title">Stuff sign in</p>
-                </h1>
-            </div>
-            -->
-
-            <!--Header info-->
-            <div class="row">
-                <div class="col-sm-1 hidden-xs" >
-                    <label class="control-label col-sm-1">
-                        <h3><i class="glyphicon glyphicon-info-sign"></i></h3>
-                    </label>
-                </div>
-                <div class="col-sm-6 lbl-header-info">
-                    <span class="label label-lg label-###INFO_LV### lbl-header-info">
-                        ###AUTH_MSG###
-                    </span>
-                </div>
-            </div>
-
-            <!--Contents-->
-            <form action="/APP/STUFF/SIGNIN/AUTH" method="POST">
-                
-                <!--ID(EMail)-->
-                <div class="row">
-                    <div class="col-sm-1 hidden-xs">
-                        <label class="control-label col-sm-1">
-                            <h3><i class="glyphicon glyphicon-envelope"></i></h3>
-                        </label>
-                    </div>
-                    <div class="col-sm-6 col-xs-11">
-                        <div class="form-group" style="margin-top:10px;">
-	                        <input type="email" id="ID" name="ID" value="###ID_VALUE###" class="form-control" placeholder="ID(Email)" >
-                        </div>
-                    </div>
-                    <div class="col-sm-5 col-xs-1"></div>
-                </div>
-
-                <!--PW-->
-                <div class="row">
-                    <div class="col-xs-1 hidden-xs">
-                            <label class="control-label col-sm-1" for="PASSWORD">
-                                <h3><i class="glyphicon glyphicon-pencil"></i></h3>
-                            </label>
-                    </div>
-                    <div class="col-sm-6 col-xs-11">
-                        <div class="form-group" style="margin-top:10px;">
-                            <input type="password" id="PASSWORD" name="PASSWORD" value="###PASSWORD_VALUE###" class="form-control" placeholder="PASSWORD">
-                        </div>
-                    </div>
-                    <div class="col-sm-5 col-xs-1"></div>
-                </div>
-
-                <!--submit-->
-                <div class="row">
-                    <div class="col-sm-6" col-xs-11>
-	                    <input type="submit" name="SUBMIT" value="AUTH" class="btn btn-primary btn-md" />
-		                <input type="hidden" name="STATUS" value="SIGNIN" />
-                    </div>
-                </div>
-	        </form>
+    <!--Header info-->
+    <div class="row">
+        <div class="col-md-1 hidden-xs" >
+            <label class="control-label">
+                <i class="glyphicon glyphicon-info-sign"></i>
+            </label>
         </div>
+        <div class="col-md-10 lbl-header-info">
+            <span class="label label-lg label-###INFO_LV### lbl-header-info">
+                ###AUTH_MSG###
+            </span>
+        </div>
+    </div>
+    <br>
+
+    <!--Contents-->
+    <form action="/APP/STUFF/SIGNIN/AUTH" method="POST">
+        
+        <!--ID(EMail)-->
+        <div class="row">
+            <div class="col-md-1 hidden-xs">
+                <label class="control-label">
+                    <i class="glyphicon glyphicon-envelope"></i>
+                </label>
+            </div>
+            <div class="col-md-10 col-xs-11">
+                <div class="form-group">
+                    <input type="email" id="ID" name="ID" value="###ID_VALUE###" class="form-control" placeholder="ID(Email)" >
+                </div>
+            </div>
+            <div class="col-md-1 col-xs-1"></div>
+        </div>
+        <br> 
+
+        <!--PW-->
+        <div class="row">
+            <div class="col-md-1 hidden-xs">
+                    <label class="control-label" for="PASSWORD">
+                        <i class="glyphicon glyphicon-pencil"></i>
+                    </label>
+            </div>
+            <div class="col-md-10 col-xs-11">
+                <div class="form-group">
+                    <input type="password" id="PASSWORD" name="PASSWORD" value="###PASSWORD_VALUE###" class="form-control" placeholder="PASSWORD">
+                </div>
+            </div>
+            <div class="col-md-1 col-xs-1"></div>
+        </div>
+        <br> 
+
+        <!--submit-->
+        <div class="row">
+            <div class="col-md-1 hidden-xs">
+            </div>
+            <div class="col-md-10 col-xs-11">
+                <input type="submit" name="SUBMIT" value="AUTH" class="btn btn-primary btn-md" />
+                <input type="hidden" name="STATUS" value="SIGNIN" />
+            </div>
+        </div>
+    </form>
+    </div>
+</div>
 <!--</body>-->
 <!--</html>-->
