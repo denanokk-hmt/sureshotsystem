@@ -43,7 +43,11 @@ html,body {
 /* icon */
 /* */
 .glyphicon {
-    font-size:  24px;
+    font-size:  21px;
+}
+
+.scrollable-menu .glyphicon {
+    font-size:  17px;
 }
 
 /****************/

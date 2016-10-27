@@ -58,7 +58,7 @@ DEL_FLAG=${ARR[8]}
 ########################################
 #HTMLの設定
 cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/CONFIRM.HTML     |
-sed -e "s/###ERROR_MSG###//"                                |
+sed -e "s/###MSG###/このスタッフの情報を削除します。/"      |
 sed -e "s/###ID_###/${ID}/"                                 |
 sed -e "s/###FAMILY_NAME_###/${FAMILY_NAME}/"               |
 sed -e "s/###GIVEN_NAME_###/${GIVEN_NAME}/"                 |
