@@ -49,7 +49,6 @@ nameread PASSWORD_CONFIRMATION $tmp-post    | awk '{gsub(/^\_$/,"",$1);print}' >
 #社員番号を復原
 ID=$(cat ${SYSD}/DATA/${CATEGORY}/TMP/${STUFF_ID})
 
-
 ########################################
 #バリデーション(必須入力確認)
 #入力ありの場合、空ファイルが出力され、なしの場合、そのフィールド名が記載される
@@ -166,7 +165,6 @@ if [ $ACTION = 'INPUT' ] ; then
     sed -e "s/###PASSWORD_CONFIRMATION_VALUE###/NOT_CHANGE/"            > $tmp-html
 else
     cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML           |
-    sed -e "s/###STUFF_ID_NOT_MATCH###//"                               |
     sed -e "s/###FAMILY_NAME_LABEL###/$(cat $tmp-value1)/"              |
     sed -e "s/###GIVEN_NAME_LABEL###/$(cat $tmp-value2)/"               |
     sed -e "s/###EMAIL_LABEL###/$(cat $tmp-value3)/"                    |
