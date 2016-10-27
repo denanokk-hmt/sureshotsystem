@@ -49,13 +49,13 @@ if [ -e ${SYSD}/DATA/${CATEGORY}/TMP/${STUFF_ID} ]; then
     STUFF_NUM=$(cat ${SYSD}/DATA/${CATEGORY}/TMP/${STUFF_ID})
     rm -f ${SYSD}/DATA/STUFF/TMP/${STUFF_ID}
 else
-    cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/CONFIRM.HTML             |
-    sed -e "s/###ERROR_MSG###/データ不整合により処理を中止しました。/"  |
-    sed -e "s/###ID_VALUE###/${ID}/"                                    |
-    sed -e "s/###FAMILY_NAME_VALUE###/${VALUE1}/"                       |
-    sed -e "s/###GIVEN_NAME_VALUE###/${VALUE2}/"                        |
-    sed -e "s/###EMAIL_VALUE###/${VALUE3}/"                             |
-    sed -e "s/###STUFF_ID###/${STUFF_ID}/"                              > $tmp-html
+    cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/CONFIRM.HTML         |
+    sed -e "s/###MSG###/データ不整合により処理を中止しました。/"    |
+    sed -e "s/###ID_###/${ID}/"                                     |
+    sed -e "s/###FAMILY_NAME_###/${VALUE1}/"                        |
+    sed -e "s/###GIVEN_NAME_###/${VALUE2}/"                         |
+    sed -e "s/###EMAIL_###/${VALUE3}/"                              |
+    sed -e "s/###STUFF_ID###/${STUFF_ID}/"                          > $tmp-html
     exit 0
 fi
 
