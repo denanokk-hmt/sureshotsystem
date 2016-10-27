@@ -12,7 +12,7 @@
                 </label>
             </div>
             <div class="col-md-10 lbl-header-info">
-                <span class="label label-lg label-###INFO_LV### lbl-header-info">
+                <span class="text-primary h4 lbl-header-info">
                 この内容で登録しますか？
                 </span>
             </div>
@@ -30,48 +30,66 @@
                     </label>
                 </div>
                 <div class="col-md-10 col-xs-11">
-                    <div class="form-group">
-                        <span class="label label-default">###FAMILY_NAME_LABEL###</span>
-                    </div>
+                    <span class="text-info h3">###FAMILY_NAME_LABEL###</span>
                 </div>
                 <div class="col-md-1 col-xs-1"></div>
 	            <input type="hidden" name="FAMILY_NAME" value="###FAMILY_NAME_VALUE###" />
             </div>
 	        <br />
-            <div class="form-group">
-	            <h3>
-                    <span class="glyphicon glyphicon-user"></span>
-	                <span class="label label-default">###GIVEN_NAME_LABEL###</span>
-	            </h3>
+
+            <div class="row">
+                <div class="col-md-1 hidden-xs">
+                    <label class="control-label">
+                        <i class="glyphicon glyphicon-user"></i>
+                    </label>
+                </div>
+                <div class="col-md-10 col-xs-11">
+	                <span class="text-info h3">###GIVEN_NAME_LABEL###</span>
+                </div>
                 <input type="hidden" name="GIVEN_NAME" value="###GIVEN_NAME_VALUE###" />
             </div>
 	        <br />
-            <div class="form-group">
-	            <h3>
-                    <span class="glyphicon glyphicon-envelope"></span>
-	                <span class="label label-default">###EMAIL_LABEL###</span>
-	            </h3>
+
+            <div class="row">
+                <div class="col-md-1 hidden-xs">
+                    <label class="control-label">
+                        <i class="glyphicon glyphicon-envelope"></i>
+                    </label>
+                </div>
+                <div class="col-md-10 col-xs-11">
+	                <span class="text-info h3">###EMAIL_LABEL###</span>
+                </div>
                 <input type="hidden" name="EMAIL" value="###EMAIL_VALUE###" />
             </div>
 	        <br />
-            <div class="form-group">
-	            <h3>
-                    <span class="glyphicon glyphicon-envelope"></span>
-	                <span class="label label-default">###PASSWORD_LABEL###</span>
-	            </h3>
+
+            <div class="row">
+                <div class="col-md-1 hidden-xs">
+                    <label class="control-label">
+                        <i class="glyphicon glyphicon-edit"></i>
+                    </label>
+                </div>
+                <div class="col-md-10 col-xs-11">
+	                <span class="text-info h3">###PASSWORD_LABEL###</span>
+                </div>
                 <input type="hidden" name="PASSWORD" value="###PASSWORD_VALUE###" />
             </div>
+	        <br />
 
 	        <input type="hidden" name="STATUS" value="CONFIRM" />
 
-            <div class="form-group">
-	            <button type="submit" class="btn btn-primary btn-lg" />
-	                <span class="glyphicon glyphicon-plus">OK</span>
-                </button>
+            <div class="row">
+                <div class="col-md-1 hidden-xs">
+                </div>
+                <div class="col-md-10 col-xs-11">
+                    <div class="form-group">
+	                    <button type="submit" class="btn btn-primary btn-md" />
+	                        <span class="glyphicon glyphicon-plus">OK</span>
+                        </button>
+                    </div>
+                </div>
             </div>
 	    </form>
-            </div>
-        </div>
     </div>
 </div>
 <!--</body>-->
