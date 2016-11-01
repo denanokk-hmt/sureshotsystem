@@ -2,7 +2,7 @@
 #
 
 ########################################
-#	SIGNIN.CGI
+#	SIGNIN/CGI/INPUT
 #
 #	Written by hiramatsu
 
@@ -33,10 +33,11 @@ FIN
 #Making viweing body HTML filw path
 ACTION=`cat $tmp-action`
 cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML   |
-sed -e "s/###INFO_LV###/primary/"                                    |
-sed -e "s/###AUTH_MSG###/Please input Your ID and PW./"       |
+sed -e "s/###INFO_LV###/primary/"                           |
+sed -e "s/###AUTH_MSG###/Please input Your ID and PW./"     |
 sed -e "s/###ID_VALUE###//"                                 |
-sed -e "s/###PASSWORD_VALUE###//"                           > $tmp-html
+sed -e "s/###PASSWORD_VALUE###//"                           |
+sed -e "s|###RETURN_URL###|$(cat $tmp-return-url)|"         > $tmp-html
 
 #########################################
 #ページ名

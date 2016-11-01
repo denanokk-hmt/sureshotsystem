@@ -135,8 +135,6 @@ if [ -n "${FUNC}${ACTION}" ] ; then
     echo $result > $tmp-result
 else
     cat ${SYSD}/HTML/INDEX.HTML > $tmp-html
-    #curl "surehsot2.ddo.jp" -X POST -d @-
-    #exit 0
 fi
 
 ########################################

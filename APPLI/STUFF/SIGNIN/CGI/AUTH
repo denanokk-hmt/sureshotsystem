@@ -37,6 +37,7 @@ FIN
 #Get Form Data
 VALUE_ID=$(nameread ID $tmp-post)
 VALUE_PW=$(nameread PASSWORD $tmp-post)
+RETURN_URL=$(nameread RETURN_URL $tmp-post)
 
 #######################################
 #アカウントIDの暗号化
@@ -83,12 +84,13 @@ if [ -z "$(cat $tmp-auth)" ] ; then
     sed -e "s/###INFO_LV###/danger/"                                    |
     sed -e "s/###AUTH_MSG###/Account ID or Password was incomplete./"   |
     sed -e "s/###ID_VALUE###/${VALUE_ID}/"                              |
-    sed -e "s/###PASSWORD_VALUE###//"                                   > $tmp-html
+    sed -e "s/###PASSWORD_VALUE###//"                                   |
+    sed -e "s|###RETURN_URL###|${RETURN_URL}|"                          > $tmp-html
 else
-    if [ -z  $( cat $tmp-return-url ) ] ; then
+    if [ -z "${RETURN_URL}" ] ; then
         cat ${SYSD}/HTML/INDEX.HTML > $tmp-html
     else
-        echo ${SYSD}/$( cat $tmp-return-url ) > $tmp-html
+        echo ${SYSD}/${RETURN_URL} > $tmp-html
     fi
 fi
 
