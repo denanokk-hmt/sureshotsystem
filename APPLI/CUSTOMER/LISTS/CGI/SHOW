@@ -80,6 +80,10 @@ RESULT=`${SYSD}/CGI/PAGER $1 /APP/${CATEGORY}/${FUNC}/${ACTION} ${SHOW_PAGE} ${R
 sed -re "s|###PAGER###|$(cat $tmp-pager-html)|g" $tmp-template-html > $tmp-html
 
 #########################################
+#page name
+echo "Customer lists" > $tmp-pagename
+
+#########################################
 ##ending
 echo "OK"
 exit 0

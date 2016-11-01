@@ -65,6 +65,10 @@ sed -e "s/###GIVEN_NAME_###/${GIVEN_NAME}/"                 |
 sed -e "s/###EMAIL_###/${EMAIL}/"                           |
 sed -e "s/###CUSTOMER_ID###/${CUSTOMER_ID}/"                      > $tmp-html
 
+#########################################
+#page name
+echo "Customer delete" > $tmp-pagename
+
 ########################################
 #ending
 echo "OK"

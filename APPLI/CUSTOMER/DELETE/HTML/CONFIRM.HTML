@@ -1,52 +1,99 @@
 <!--<!DOCTYPE html>-->
 <!--<html>-->
-<body>
-    <div class="container">
-        <div class="row">
-            <div class="col-md-6 col-md-offset-3">
-                <h1>Customer delete <span class="label label-default">Confirm</span></h1>
-		        <form action="/APP/CUSTOMER/DELETE/COMPLETE" method="POST">
-                    <div class="form-group">
-                        <span class="label label-danger ">
-                            下記のスタッフ情報を削除します。宜しいでしょうか？
-                        </span>
-                    </div>
-                    <div class="form-group">
-                        <span class="label label-danger">###ERROR_MSG###</span>
-                    </div>
-                    <div class="form-group">
-			            <span class="glyphicon glyphicon-user"></span>
-                        <span class="label label-default">###ID_###</span>
-                        <input type="hidden" name="ID" value="###ID_###" />
-                    </div>
-			        <br />
-                    <div class="form-group">
-			            <span class="glyphicon glyphicon-user"></span>
-                        <span class="label label-default">###FAMILY_NAME_###</span>
-                        <input type="hidden" name="FAMILY_NAME" value="###FAMILY_NAME_###" />
-                    </div>
-			        <br />
-                    <div class="form-group">
-			            <span class="glyphicon glyphicon-user"></span>
-			            <span class="label label-default">###GIVEN_NAME_###</span>
-                        <input type="hidden" name="GIVEN_NAME" value="###GIVEN_NAME_###" />
-                    </div>
-	    		    <br />
-                    <div class="form-group">
-		    	        <span class="glyphicon glyphicon-envelope"></span>
-			            <span class="label label-default">###EMAIL_###</span>
-                        <input type="hidden" name="EMAIL" value="###EMAIL_###" />
-                    </div>
-                    
-                    <input type="hidden" name="METHOD" value="DELETE" />
-			        <input type="hidden" name="CUSTOMER_ID" value="###CUSTOMER_ID###" />
+<!--<body>-->
+<div class="container">
+    <div class="col-md-6 col-md-offset-1">
 
-                    <div class="form-group">
-			            <input type="submit" name="SUBMIT" class="btn btn-primary btn-lg" />
-                    </div>
-		        </form>
+        <!--Header Info-->
+        <div class="row">
+            <div class="col-md-1 hidden-xs" >
+                <label class="control-label">
+                    <i class="glyphicon glyphicon-info-sign"></i>
+                </label>
+            </div>
+            <div class="col-md-10 lbl-header-info">
+                <span class="text-danger h4 lbl-header-info">
+                このスタッフを削除します。
+                </span>
+                <span class="label label-danger">###ERROR_MSG###</span>
             </div>
         </div>
+        <br>
+
+        <!--Contents-->
+        <form action="/APP/CUSTOMER/DELETE/COMPLETE" method="POST">
+
+            <!---->
+	        <div class="row">
+                <div class="col-md-1 hidden-xs">
+                    <label class="control-label">
+                        <i class="glyphicon ">#</i>
+                    </label>
+                </div>
+                <div class="col-md-10 col-xs-11">
+                    <span class="text-info h3">###ID_###</span>
+                </div>
+                <div class="col-md-1 col-xs-1"></div>
+	            <input type="hidden" name="ID" value="###ID_###" />
+            </div>
+	        <br />
+
+	        <div class="row">
+                <div class="col-md-1 hidden-xs">
+                    <label class="control-label">
+                        <i class="glyphicon glyphicon-user"></i>
+                    </label>
+                </div>
+                <div class="col-md-10 col-xs-11">
+                    <span class="text-info h3">###FAMILY_NAME_###</span>
+                </div>
+                <div class="col-md-1 col-xs-1"></div>
+	            <input type="hidden" name="FAMILY_NAME" value="###FAMILY_NAME_###" />
+            </div>
+	        <br />
+ 
+            <div class="row">
+                <div class="col-md-1 hidden-xs">
+                    <label class="control-label">
+                        <i class="glyphicon glyphicon-user"></i>
+                    </label>
+                </div>
+                <div class="col-md-10 col-xs-11">
+	                <span class="text-info h3">###GIVEN_NAME_###</span>
+                </div>
+                <input type="hidden" name="GIVEN_NAME" value="###GIVEN_NAME_###" />
+            </div>
+	        <br />
+
+            <div class="row">
+                <div class="col-md-1 hidden-xs">
+                    <label class="control-label">
+                        <i class="glyphicon glyphicon-envelope"></i>
+                    </label>
+                </div>
+                <div class="col-md-10 col-xs-11">
+	                <span class="text-info h3">###EMAIL_###</span>
+                </div>
+                <input type="hidden" name="EMAIL" value="###EMAIL_###" />
+            </div>
+	        <br />
+ 
+            <input type="hidden" name="METHOD" value="DELETE" />
+			<input type="hidden" name="CUSTOMER_ID" value="###CUSTOMER_ID###" />
+
+            <div class="row">
+                <div class="col-md-1 hidden-xs">
+                </div>
+                <div class="col-md-10 col-xs-11">
+                    <div class="form-group">
+	                    <button type="submit" class="btn btn-primary btn-md" />
+	                        <span class="glyphicon glyphicon-">Delete</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+	    </form>
     </div>
-</body>
+</div>
+<!--</body>-->
 <!--</html>-->

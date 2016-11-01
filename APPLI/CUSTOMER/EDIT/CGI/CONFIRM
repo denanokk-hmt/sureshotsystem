@@ -177,6 +177,10 @@ else
     sed -e "s/###PASSWORD_VALUE###/$(cat $tmp-sha1)/"                   > $tmp-html
 fi
 
+#########################################
+#page name
+echo "Customer edit" > $tmp-pagename
+
 ###############################################################################
 #ending
 echo "OK"

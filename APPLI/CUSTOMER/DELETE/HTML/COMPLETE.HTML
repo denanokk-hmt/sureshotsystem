@@ -1,54 +1,74 @@
 <!--<!DOCTYPE html>-->
 <!--<html>-->
-   <body>
-    <div class="container">
+<!--<body>-->
+<div class="container">
+    <div class="col-md-6 col-md-offset-1">
+
+        <!--Header Info-->
         <div class="row">
-            <div class="col-md-6 col-md-offset-3">
-                <h1>Customer delete <span class="label label-success">Complete</span></h1>
-                <h2>Deleted below customer record.<h2>
-		        <form action="/APP/CUSTOMER/LISTS/" method="GET">
-                    <div class="form-group">
-                        <span class="label label-danger ">
-                            下記の社員情報を削除しました。
-                        </span>
-                    </div>
-                    <div class="form-group">
-			            <h3>
-                            <span class="glyphicon glyphicon-user"></span>
-                            <span class="label label-default">###ID_LABEL###</span>
-                        </h3>
-                    </div>
-			        <br />
-                    <div class="form-group">
-<h3>
-                            <span class="glyphicon glyphicon-user"></span>
-                            <span class="label label-default">###FAMILY_NAME_LABEL###</span>
-                        </h3>
-                    </div>
-			        <br />
-                    <div class="form-group">
-			            <h3>
-                            <span class="glyphicon glyphicon-user"></span>
-			                <span class="label label-default">###GIVEN_NAME_LABEL###</span>
-			            </h3>
-                    </div>
-	    		    <br />
-                    <div class="form-group">
-		    	        <h3>
-                            <span class="glyphicon glyphicon-envelope"></span>
-			                <span class="label label-default">###EMAIL_LABEL###</span>
-			            </h3>
-                    </div>
+            <div class="col-md-1 hidden-xs" >
+                <label class="control-label">
+                    <i class="glyphicon glyphicon-info-sign"></i>
+                </label>
+            </div>
+            <div class="col-md-10 lbl-header-info">
+                <span class="text-danger h4 lbl-header-info">
+                このスタッフを削除しました。
+                </span>
+            </div>
+        </div>
+        <br>
 
-			        <input type="hidden" name="STATUS" value="COMPLETE" />
+        <!--Contents-->
+	    <div class="row">
+            <div class="col-md-1 hidden-xs">
+                <label class="control-label">
+                    <i class="glyphicon ">#</i>
+                </label>
+            </div>
+            <div class="col-md-10 col-xs-11">
+                <span class="text-info h3">###ID_LABEL###</span>
+            </div>
+            <div class="col-md-1 col-xs-1"></div>
+        </div>
+	    <br />
 
-                    <div class="form-group">
-                        <a class="btn btn-default" href="/APP/CUSTOMER/LISTS/SHOW">一覧へ</a>
-                        <a class="btn btn-default" href="/">TOPへ</a>
-                    </div>
-		        </form>
+	    <div class="row">
+            <div class="col-md-1 hidden-xs">
+                <label class="control-label">
+                    <i class="glyphicon glyphicon-user"></i>
+                </label>
+            </div>
+            <div class="col-md-10 col-xs-11">
+                <span class="text-info h3">###FAMILY_NAME_LABEL###</span>
+            </div>
+            <div class="col-md-1 col-xs-1"></div>
+        </div>
+	    <br />
+ 
+        <div class="row">
+            <div class="col-md-1 hidden-xs">
+                <label class="control-label">
+                    <i class="glyphicon glyphicon-user"></i>
+                </label>
+            </div>
+            <div class="col-md-10 col-xs-11">
+	            <span class="text-info h3">###GIVEN_NAME_LABEL###</span>
+            </div>
+        </div>
+	    <br />
+
+        <div class="row">
+            <div class="col-md-1 hidden-xs">
+                <label class="control-label">
+                    <i class="glyphicon glyphicon-envelope"></i>
+                </label>
+            </div>
+            <div class="col-md-10 col-xs-11">
+	            <span class="text-info h3">###EMAIL_LABEL###</span>
             </div>
         </div>
     </div>
-	</body>
+</div>
+<!--</body>-->
 <!--</html>-->

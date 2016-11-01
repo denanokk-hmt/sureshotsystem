@@ -73,6 +73,10 @@ sed -e "s/###CUSTOMER_ID###/${CUSTOMER_ID}/"                |
 sed -e "s/###PASSWORD_CONFIRMATION_VALUE###/NOT_CHANGE/"    > $tmp-html
 
 #########################################
+#page name
+echo "Customer edit" > $tmp-pagename
+
+#########################################
 ##ending
 echo "OK"
 exit 0

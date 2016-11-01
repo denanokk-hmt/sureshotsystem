@@ -49,6 +49,10 @@ sed -e "s/###PASSWORD_VALUE###//"                   |
 sed -e "s/###PASSWORD_CONFIRMATION_VALUE###//"      > $tmp-html
 
 #########################################
+#page name
+echo "Customer entry" > $tmp-pagename
+
+#########################################
 ##ending
 echo "OK"
 exit 0
