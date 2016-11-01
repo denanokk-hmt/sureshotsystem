@@ -1,29 +1,48 @@
 <!--<!DOCTYPE html>-->
 <!--<html>-->
-    <body>
-    <div class="container">
+<!--<body>-->
+<div class="container">
+    <div class="col-md-12 col-md-offset-1">
+
+<!--
+        <div class="fixed">
+        </div>
+-->
+        <!--Header Info-->
         <div class="row">
-            <div class="col-md-6 col-md-offset-3">
-                <h1>Customer <span class="label label-success"></span></h1>
-		        <form action="/APP/CUSTOMER/LISTS/" method="GET">
+            <div class="col-md-1 hidden-xs" >
+                <label class="control-label">
+                    <i class="glyphicon glyphicon-info-sign"></i>
+                </label>
+            </div>
+             <div class="col-md-10 lbl-header-info">
+                <span class="text-primary h4">
+                ###INFO_MSG###
+                </span>
+            </div>
+        </div>
+        <br>
+
+        <!--Contents-->
+        <div class="row">
+            <div class="col-md-10">
+                <form action="/APP/CUSTOMER/LISTS/" method="GET">
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>#</th>
-                                <th>CUSTOMER NO</th>
-                                <th>FIRST NAME</th>
-                                <th>LAST NAME</th>
-                                <th>EMAIL</th>
-                                <th>EDIT</th>
-                                <th>DELETE</th>
+                                <th class="col-xs-1 col-ms-1 col-md-1 col-lg-1">NO</th>
+                                <th class="cpl-xs-2 col-md-3">FIRST NAME</th>
+                                <th class="cpl-xs-2 col-md-3">GIVEN NAME</th>
+                                <th class="cpl-xs-2 col-md-4">ID(e-mail)</th>
+                                <th class="col-xs-2 col-md-2">EDIT</th>
+                                <th class="col-xs-2 col-md-2">DELETE</th>
                             </tr>
                         </thead>
                         <tbody>
 <!--RECORDS-->
                             <tr>
-                                <td>%1</td>
                                 <td>
-                                    <a class="btn btn-default" href="%11">%2</a>
+                                    <a class="btn-link" href="%11">%2</a>
                                 </td>
                                 <td>%3</td>
                                 <td>%4</td>
@@ -44,5 +63,6 @@
             </div>
         </div>
     </div>
-	</body>
+</div>
+<!--</body>-->
 <!--</html>-->

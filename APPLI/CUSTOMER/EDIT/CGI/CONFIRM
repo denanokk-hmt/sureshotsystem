@@ -84,8 +84,11 @@ fi
 ########################################
 #バリデーション(EMAIL重複確認)
 #1.顧客番号 2.姓 3.名 4.EMAIL 5.TEL 6.作成日時 7.更新日時 8.削除フラグ
+NOW_EMAIL=$(cat ${SYSD}/DATA/STUFF/USERS/LV3/${ID}_* | awk '{print $4}')
 EMAIL=$(cat $tmp-value3)
-cat ${SYSD}/DATA/${CATEGORY}/LISTS/LV3/*_customer_* | awk '$4=="'"${EMAIL}"'"{print $0}' > $tmp-attr-VALID3
+if [ "${NOW_EMAIL}" != ${EMAIL} ]; then
+    cat ${SYSD}/DATA/STUFF/USERS/LV3/*_stuff_* | awk '$4=="'"${EMAIL}"'"{print $0}' > $tmp-attr-VALID3
+fi
 
 ########################################
 #バリデーションエラー項目の確定
