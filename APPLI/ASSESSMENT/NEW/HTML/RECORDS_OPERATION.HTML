@@ -1,0 +1,43 @@
+<!--PARTS LISTS Records-->
+
+<!--RECORDS-->
+<tr id="edit-row-%2">
+    <td>%1</td>
+    <td>
+        <span class="label label-default">%2</span>
+    </td>
+    <td>
+        <div class="edit">
+            <div class="form-group">
+                <div class="btn-group">
+                
+                <div class="btn-group">
+                    
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" id="category" aria-expended="false">
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu" name="%2">
+                        ###CATEGORY###
+                    </ul>
+                    <input type="text" name="CATEGORY_%2" id="CATEGORY_%2" value="%3" class="form-control" disabled />
+                    <input type="hidden" name="CATEGORY_%2_HIDDEN" id="CATEGORY_%2_HIDDEN" value="%3" class="form-control" />
+                </div>
+                </div>
+            </div>
+        </div>
+    </td>
+    <td>
+        <input type="text" name="PARTS_NAME_%2" id="PARTS_NAME_%2" value="%4" class="form-control" />
+    </td>
+    <td>
+        <input type="text" name="PARTS_PRICE_%2" id="PARTS_PRICE_%2" value="%5" class="form-control" />
+    </td>
+    <td>
+        <a href="" class="btn btn-default" id="PARTS_EDIT_%2" onclick="editParts(%2); return false;" >EDIT</a>
+    </td>
+    <td>
+        <a class="btn btn-default" id="PARTS_DELETE_%2" onclick="deleteParts(%2); return false;" >DELETE</a>
+    </td>
+</tr>
+<!--RECORDS-->
+

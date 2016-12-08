@@ -140,5 +140,13 @@ body {
 
   /* 背景画像が読み込まれる前に表示される背景のカラー */
   background-color: #464646;
+
+  z-index: -1
+}
+
+
+.gray-trans-over {
+  z-index: 1
+  background-color: rgba(76,88,83,0.5);
 }
 

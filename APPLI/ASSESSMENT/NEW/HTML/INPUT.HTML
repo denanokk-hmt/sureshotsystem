@@ -1,55 +1,98 @@
 <!--<!DOCTYPE html>-->
 <!--<html>-->
-   <body>
-        <div class="row">
-            <div class="col-md-6 col-md-offset-3">
-                <h1>STUFF REGISTRY <span class="label label-default">New</span></h1>
-		        <form action="/APP/STUFF/NEW/CONFIRM" method="POST">
-                    <div class="form-group">
-                        <span class="label label-danger ###FAMILY_NAME_ERR###">FAMILY NAME was Invalid.</span>
-                        <span class="label label-danger ###GIVEN_NAME_ERR###">GIVEN NAME was Invalid.</span>
-                        <span class="label label-danger ###EMAIL_ERR###">EMAIL was Invalid.</span>
-                        <span class="label label-danger ###EMAIL_DUPLECATED###">Duplicated EMAIL.</span>
-                        <span class="label label-danger ###PASSWORD_ERR###">PASSWORD was Invalid.</span>
-                        <span class="label label-danger ###PASSWORD_CONFIRMATION_ERR###">PASSWORD CONFIRMATION was Invalid.</span>
-                    </div>
-                    <div class="form-group">
-			            <span class="glyphicon glyphicon-user"></span>
-                        <span class="label label-default">FAMILY NAME</span>
-			            <input type="text" name="FAMILY_NAME" value="###FAMILY_NAME_VALUE###" class="form-control" />
-                    </div>
-			        <br />
-                    <div class="form-group">
-			            <span class="glyphicon glyphicon-user"></span>
-			            <span class="label label-default">GIVEN NAME</span>
-    			        <input type="text" name="GIVEN_NAME" value="###GIVEN_NAME_VALUE###" class="form-control"/>
-                    </div>
-	    		    <br />
-                    <div class="form-group">
-		    	        <span class="glyphicon glyphicon-envelope"></span>
-			            <span class="label label-default">E-MAIL(LOGIN ID)</span>
-                        <input type="email" name="EMAIL" id="EMAIL" value="###EMAIL_VALUE###" class="form-control" />
-                    </div>
-                    <div class="form-group">
-		    	        <span class="glyphicon glyphicon-edit"></span>
-			            <span class="label label-default">PASSWORD</span>
-                        <input type="password" name="PASSWORD" id="PASSWORD" value="###PASSWORD_VALUE###" class="form-control" />
-                    </div>
-                    <div class="form-group">
-		    	        <span class="glyphicon glyphicon-thumbs-up"></span>
-			            <span class="label label-default">PASSWORD CONFIRMATION</span>
-                        <input type="password" name="PASSWORD_CONFIRMATION" id="PASSWORD_CONFIRMATION" value="###PASSWORD_CONFIRMATION_VALUE###" class="form-control" />
-                    </div>
+<div class="container">
+    
+    <!--Header Info-->
+    <div class="row">
+        <label class="control-label col-sm-1">
+            <h3><i class="glyphicon glyphicon-info-sign"></i></h3>
+        </label>
+        <div class="col-sm-6 lbl-header-info">
+            <span id="info-msg" class="label label-lg label-###INFO_LV###">
+                ###INFO_MSG###
+            </span>
+        </div>
+    </div>
 
-			        <input type="hidden" name="STATUS" value="INPUT" />
-
-                    <div class="form-group">
-			            <button type="submit" class="btn btn-primary btn-lg" />
-		    	            <span class="glyphicon glyphicon-eye-open">Chek!!</span>
-                        </button>
-                    </div>
-		        </form>
+    <!--Search-->
+    <!--CUSTOMER Search-->
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="input-group">
+                <input type="text" name="CUSTOMER_NAME" id="CUSTOMER_NAME" value="" class="form-control" placeholder="Custome name"/>
+                <span class="input-group-btn">
+                    <button type="submit" id="customer_search" class="btn btn-primary col-smx-3" />Search</button>
+                </span>
             </div>
         </div>
-	</body>
+
+        <!--CUSTOMER Search result lsit-->
+        <div class="col-sm-4">
+            <SELECT class="form-control" size=5>
+                <option>Guest</option>
+                ###CUSTOMER_NAME###
+            </SELECT>
+        </div>
+
+        <!--Spacer-->
+        <div class="col-sm-1 hidden-xs"></div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div>
+                <h3>
+                    <span>Customer No:</span>
+                    <span>Assessment No:</span>
+                    <span>Name </span>
+                    <span>Phone number</span>
+                </h3>
+            </div>
+        </div>
+    </div>
+
+    <!--Spacer-->
+    <div class="header-dummy" style="height:7.0em; background-color:piiiiink;"></div>
+
+    <!--Contents-->
+    <div class="contents">
+        <form class="form-inline form-horizontal"  action="/APP/ASSESSMENT/NEW/CONFIRM" method="POST">
+            <div class="contents-table">
+                ###TABLE###
+            </div>
+
+ 			<input type="hidden" name="STATUS" value="INPUT" />
+
+            <div class="form-group">
+			    <button type="submit" class="btn btn-primary btn-lg" />
+		            <span class="glyphicon glyphicon-eye-open">Next</span>
+                </button>
+            </div>
+	           
+       </form>
+    </div>
+</div>
+
+<script>
+
+    //顧客検索
+    $("#customer_search").on('click', function() {
+        var words = $("#CUSTOMER_NAME").val();
+        alert(words);
+        var jqXHR = $.ajax({
+            type: 'POST',
+            url: '/APP/CUSTOMER/SEARCH/INPUT',
+            data: {
+                SEARCH_NAME: words
+            }
+
+        });
+        jqXHR.done(function(data) {
+            search_result = data;
+        });
+        jqXHR.fail(function() {
+            search_result = '一致する顧客名がありません。';
+        });
+    });
+
+</script>
 <!--</html>-->
