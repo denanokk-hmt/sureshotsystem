@@ -2,7 +2,7 @@
 <!--<html>-->
 <div class="container">
     
-    <div class="fixed gray-trans-over" style="padding:10px;">
+    <div class="fixed gray-trans-over z-index-3" style="padding:10px;">
 
         <!--Header Info-->
         <div class="row">
@@ -28,7 +28,7 @@
     </div>
 
     <!--Spacer-->
-    <div class="header-dummy" style="height:8.0em; background-color:pink;"></div>
+    <div class="header-dummy" style="height:9.0em; background-color:piiink;"></div>
 
     <!--Search-->
     <!--CUSTOMER Search-->
@@ -55,15 +55,29 @@
 
     <!--Csutomer Search Result choice-->
     <div class="container">
-        <div class="row">
-            <div class="gray-trans-over">
-                <h3>
-                    <span class="col-md-3 ">Customer No: <div id="customer-no"></div></span>
-                    <span class="col-md-3 " >Assessment No: <div id="assesment-no"></div></span>
-                    <span class="col-md-3 ">Name: <div id="customer-nm"></div></span>
-                    <span class="col-md-3 ">Phone: <div id="customer-ph"></div></span>
-                </h3>
-            </div>
+        <div class="gray-trans-over">
+            <h3>
+                <div class="col-md-3 ">
+                    <div class="alert alert-success green-trans-over">
+                        <strong>Customer No &nbsp&nbsp : </strong><span id="customer-no"></span>
+                    </div>
+                </div>
+                <div class="col-md-3 ">
+                    <div class="alert alert-success green-trans-over">
+                        <strong>Name &nbsp&nbsp : </strong><span id="customer-nm"></span>
+                    </div>
+                </div>
+                <div class="col-md-3 ">
+                    <div class="alert alert-success green-trans-over">
+                        <strong>Phone &nbsp&nbsp : </strong><span id="customer-phone"></span>
+                    </div>
+                </div>
+                <div class="col-md-3 ">
+                    <div class="alert alert-success blue-trans-over">
+                        <strong>Assessment No &nbsp&nbsp : </strong><span id="assessment-no"></span>
+                    </div>
+                </div>
+            </h3>
         </div>
     </div>
 
@@ -83,7 +97,7 @@
 
             <div class="form-group">
 			    <button type="submit" class="btn btn-primary btn-lg" />
-		            <span class="glyphicon glyphicon-eye-open">Next</span>
+		            <span class="glyphicon glyphicon-eye-open">OK</span>
                 </button>
             </div>
 	           
@@ -104,7 +118,6 @@
             }
         });
         jqXHR.done(function(data) {
-            alert(data);
             search_result = data;
             $('#customer-result').html(data);
         });
@@ -115,9 +128,9 @@
 
     //顧客検索結果選択
     $(document).on('click', '#customer-search-result', function() {
+        //選択値を取得
         var customer_no = $('#customer-search-result').val();
-        var customer_no = $('#customer-search-result').val();
-        $('CUSTOMER_NO').val(customer_no);
+        var customer_nm = $('#customer-search-result option:selected').text();
 
         //Guestを選択した場合
         if (customer_no == 'Guest') { 
@@ -126,18 +139,20 @@
                 url: '/APP/ASSESSMENT/NEW/GUEST_CUSTOMER_NO',
             });
             jqXHR.done(function(data) {
-                alert(data);
-                $('#CUSTOMER_NO').val(data);
+                customer_no = data;
             });
             jqXHR.fail(function() {
                 search_result = 'failer get guest customer number.';
             });
-        } else {
-            $('').val();
-            $('').val();
-            $('').val();
-
         }
+        //顧客番号をhiddenに設定
+        $('#CUSTOMER_NO').val(customer_no);
+        //表示
+        $('#customer-no').html(customer_no);
+        $('#customer-nm').html(customer_nm);
+        //$('#customer-phone').val(customer_phone);
+        alert(customer_no);
+        alert(customer_nm);
     });
 
 

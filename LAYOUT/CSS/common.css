@@ -141,10 +141,25 @@ body {
   /* 背景画像が読み込まれる前に表示される背景のカラー */
   background-color: #464646;
 
-  z-index: -1
+  z-index: -1;
+}
+
+.z-index-3 {
+    z-index: 3;
 }
 
 .gray-trans-over {
   background-color: rgba(76,88,83,0.5);
 }
 
+.green-trans-over {
+  background-color: rgba(10,157,23,0.2);
+  border-style: none;
+  color: silver;
+}
+
+.blue-trans-over {
+  background-color: rgba(42,173,210,0.2);
+  border-style: none;
+  color: silver;
+}
