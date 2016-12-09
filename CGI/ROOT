@@ -130,7 +130,8 @@ esac
 
 #######################################
 #Do the business logic & return HTML Body
-if [ -n "${FUNC}${ACTION}" ] ; then
+#if [ -n "${FUNC}${ACTION}" ] ; then
+if [ -n "${FUNC}" ] && [ -n "${ACTION}" ] ; then
     result=`../APPLI/${CATEGORY}/${FUNC}/CGI/${ACTION} $$`
     echo $result > $tmp-result
 else
