@@ -144,9 +144,7 @@ body {
   z-index: -1
 }
 
-
 .gray-trans-over {
-  z-index: 1
   background-color: rgba(76,88,83,0.5);
 }
 

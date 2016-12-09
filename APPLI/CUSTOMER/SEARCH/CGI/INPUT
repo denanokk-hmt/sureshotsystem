@@ -37,24 +37,20 @@ FIN
 #
 sed -e 's/　/_/g' $tmp-post         > $tmp-search
 nameread SEARCH_NAME $tmp-search    > $tmp-value1
-#cat $tmp-value1 | cut -d'_' -f1> $tmp-family
-#cat $tmp-value1 | cut -d'_' -f2 > $tmp-given
-cat $tmp-value1 | cut -d'_' -f1 > /tmp/rerere
-cat $tmp-value1 | cut -d'_' -f2 > /tmp/ererer
+cat $tmp-value1 | cut -d'_' -f1> $tmp-fname
+cat $tmp-value1 | cut -d'_' -f2 > $tmp-gname
 
 #######################################
 #顧客名を曖昧検索
 cat ${DATAD}/LV3/*[^_d]     |
-awk '{print $2, $3}'        |
-LANG=C sort -nk1,2          |
-awk -v f=${VALUE1} -v g=${VALUE1} '$1==f||$2==g'> /tmp/grgrgr
-#awk -v f=${VALUE1} -v g=${VALUE1} '$1==f||$2==g'> /tmp/grgrgr
+awk '{print $1, $2, $3}'    |
+LANG=C sort -nk1,1          |
+awk -v f=$(cat $tmp-fname) -v g=$(cat $tmp-gname) '$1==f||$2==g'> $tmp-result
 
-
-echo 11111 > $tmp-ajax-html
+#######################################
+#検索結果をリストボックス(HTML)に置く
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/LISTBOX.HTML $tmp-result > $tmp-ajax-html
 exit 0
-
-
 
 #########################################
 #page name

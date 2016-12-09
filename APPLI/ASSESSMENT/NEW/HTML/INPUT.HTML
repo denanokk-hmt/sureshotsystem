@@ -2,20 +2,37 @@
 <!--<html>-->
 <div class="container">
     
-    <!--Header Info-->
-    <div class="row">
-        <label class="control-label col-sm-1">
-            <h3><i class="glyphicon glyphicon-info-sign"></i></h3>
-        </label>
-        <div class="col-sm-6 lbl-header-info">
-            <span id="info-msg" class="label label-lg label-###INFO_LV###">
-                ###INFO_MSG###
-            </span>
+    <div class="fixed gray-trans-over" style="padding:10px;">
+
+        <!--Header Info-->
+        <div class="row">
+            <label class="control-label col-sm-1">
+                <h3><i class="glyphicon glyphicon-info-sign"></i></h3>
+            </label>
+            <div class="col-sm-6 lbl-header-info">
+                <span id="info-msg" class="label label-lg label-###INFO_LV###">
+                    ###INFO_MSG###
+                </span>
+            </div>
         </div>
+
+        <!--Goto Another Function-->
+        <div class="btn-toolbar">
+            <button class="btn btn-info col-smx-3 disabled" />customer</button>
+            <button class="btn btn-default col-smx-3" />parts</button>
+            <button class="btn btn-default col-smx-3" />operation</button>
+            <button class="btn btn-default col-smx-3" />work</button>
+            <button class="btn btn-default col-smx-3" />check</button>
+        </div>
+
     </div>
+
+    <!--Spacer-->
+    <div class="header-dummy" style="height:8.0em; background-color:pink;"></div>
 
     <!--Search-->
     <!--CUSTOMER Search-->
+    <div class="container">
     <div class="row">
         <div class="col-sm-4">
             <div class="input-group">
@@ -26,25 +43,25 @@
             </div>
         </div>
 
-        <!--CUSTOMER Search result lsit-->
-        <div class="col-sm-4">
-            <SELECT class="form-control" size=5>
-                <option>Guest</option>
-                ###CUSTOMER_NAME###
-            </SELECT>
+        <!--CUSTOMER Search result lsitbox-->
+        <div id="customer-result" class="col-sm-4">
+            <select id="customer-search-result" class="form-control" size=5>
+            </select
         </div>
-
         <!--Spacer-->
         <div class="col-sm-1 hidden-xs"></div>
     </div>
+    </div>
+
+    <!--Csutomer Search Result choice-->
     <div class="container">
         <div class="row">
-            <div>
+            <div class="gray-trans-over">
                 <h3>
-                    <span>Customer No:</span>
-                    <span>Assessment No:</span>
-                    <span>Name </span>
-                    <span>Phone number</span>
+                    <span class="col-md-3 ">Customer No: <div id="customer-no"></div></span>
+                    <span class="col-md-3 " >Assessment No: <div id="assesment-no"></div></span>
+                    <span class="col-md-3 ">Name: <div id="customer-nm"></div></span>
+                    <span class="col-md-3 ">Phone: <div id="customer-ph"></div></span>
                 </h3>
             </div>
         </div>
@@ -61,6 +78,8 @@
             </div>
 
  			<input type="hidden" name="STATUS" value="INPUT" />
+ 			<input type="hidden" id="CUSTOMER_NO" name="CUSTOMER_NO" value="0" />
+ 			<input type="hidden" id="ASSESSMENT_NO" name="ASSESSMENT_NO" value="0" />
 
             <div class="form-group">
 			    <button type="submit" class="btn btn-primary btn-lg" />
@@ -77,22 +96,51 @@
     //顧客検索
     $("#customer_search").on('click', function() {
         var words = $("#CUSTOMER_NAME").val();
-        alert(words);
         var jqXHR = $.ajax({
             type: 'POST',
             url: '/APP/CUSTOMER/SEARCH/INPUT',
             data: {
                 SEARCH_NAME: words
             }
-
         });
         jqXHR.done(function(data) {
+            alert(data);
             search_result = data;
+            $('#customer-result').html(data);
         });
         jqXHR.fail(function() {
             search_result = '一致する顧客名がありません。';
         });
     });
+
+    //顧客検索結果選択
+    $(document).on('click', '#customer-search-result', function() {
+        var customer_no = $('#customer-search-result').val();
+        var customer_no = $('#customer-search-result').val();
+        $('CUSTOMER_NO').val(customer_no);
+
+        //Guestを選択した場合
+        if (customer_no == 'Guest') { 
+            var jqXHR = $.ajax({
+                type: 'POST',
+                url: '/APP/ASSESSMENT/NEW/GUEST_CUSTOMER_NO',
+            });
+            jqXHR.done(function(data) {
+                alert(data);
+                $('#CUSTOMER_NO').val(data);
+            });
+            jqXHR.fail(function() {
+                search_result = 'failer get guest customer number.';
+            });
+        } else {
+            $('').val();
+            $('').val();
+            $('').val();
+
+        }
+    });
+
+
 
 </script>
 <!--</html>-->
