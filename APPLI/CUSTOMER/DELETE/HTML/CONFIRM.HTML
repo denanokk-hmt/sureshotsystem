@@ -13,7 +13,7 @@
             </div>
             <div class="col-md-10 lbl-header-info">
                 <span class="text-danger h4 lbl-header-info">
-                このスタッフを削除します。
+                    このお客様情報を削除します。
                 </span>
                 <span class="label label-danger">###ERROR_MSG###</span>
             </div>
@@ -45,10 +45,10 @@
                     </label>
                 </div>
                 <div class="col-md-10 col-xs-11">
-                    <span class="text-info h3">###FAMILY_NAME_###</span>
+                    <span class="text-info h3">###FIRST_NAME_###</span>
                 </div>
                 <div class="col-md-1 col-xs-1"></div>
-	            <input type="hidden" name="FAMILY_NAME" value="###FAMILY_NAME_###" />
+	            <input type="hidden" name="FIRST_NAME" value="###FIRST_NAME_###" />
             </div>
 	        <br />
  
@@ -78,16 +78,32 @@
             </div>
 	        <br />
  
+            <div class="row">
+                <div class="col-md-1 hidden-xs">
+                    <label class="control-label">
+                        <i class="glyphicon glyphicon-phone-alt"></i>
+                    </label>
+                </div>
+                <div class="col-md-10 col-xs-11">
+	                <span class="text-info h3">###PHONE_###</span>
+                </div>
+                <input type="hidden" name="PHONE" value="###PHONE_###" />
+            </div>
+	        <br />
+
             <input type="hidden" name="METHOD" value="DELETE" />
 			<input type="hidden" name="CUSTOMER_ID" value="###CUSTOMER_ID###" />
 
             <div class="row">
                 <div class="col-md-1 hidden-xs">
+                    <label class="control-label">
+                        <i class="glyphicon glyphicon-trash"></i>
+                    </label>
                 </div>
                 <div class="col-md-10 col-xs-11">
                     <div class="form-group">
 	                    <button type="submit" class="btn btn-primary btn-md" />
-	                        <span class="glyphicon glyphicon-">Delete</span>
+                            Delete
                         </button>
                     </div>
                 </div>

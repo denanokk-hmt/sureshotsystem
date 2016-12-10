@@ -63,11 +63,11 @@ fi
 
 ########################################
 #Get stuff records
-cat ${SYSD}/DATA/${CATEGORY}/${FUNC}/LV3/*[^_d]       |
+cat ${SYSD}/DATA/${CATEGORY}/${FUNC}/LV3/*[^_d]     |
 LANG=C sort -nk1,1                                  |
 awk -v s=${START} -v e=${END} 'NR>=s&&NR<=e&&$9!=1' |
 juni                                                > $tmp-records
-# 1;顧客番号 2;姓 3:名 4:email
+# 1;顧客番号 2;姓 3:名 4:email, 5:Phone
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML $tmp-records > $tmp-template-html
 
 ########################################

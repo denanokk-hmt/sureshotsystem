@@ -36,12 +36,13 @@ FIN
 #######################################
 #Get Form Data
 ID=$(nameread CUSTOMER_ID $tmp-post)
-VALUE1=$(nameread FAMILY_NAME $tmp-post)
+VALUE1=$(nameread FIRST_NAME $tmp-post)
 VALUE2=$(nameread GIVEN_NAME $tmp-post)
 VALUE3=$(nameread EMAIL $tmp-post)
 PW=$(nameread PASSWORD $tmp-post)
 #VALUE5=$(nameread ADMIN_FLAG $tmp-post)
 VALUE5=0
+VALUE6=$(nameread PHONE $tmp-post)
 
 ######################################
 #INPUT表示時点で作成した暗号化スタッフ番号を取得し、整合性の確認を行う
@@ -52,9 +53,10 @@ rm -f ${SYSD}/DATA/CUSTOMER/TMP/${ID}
 if [ z ${CUSTOMER_NUM} ]; then
     cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/CONFIRM.HTML     |
     sed -e "s/###CUSTOMER_ID_NOT_MATCH###/データ不整合により更新出来ませんでした。/"   |
-    sed -e "s/###FAMILY_NAME_LABEL###/${VALUE1}/"               |
+    sed -e "s/###FIRST_NAME_LABEL###/${VALUE1}/"                |
     sed -e "s/###GIVEN_NAME_LABEL###/${VALUE2}/"                |
     sed -e "s/###EMAIL_LABEL###/${VALUE3}/"                     |
+    sed -e "s/###PHONE_LABEL###/${VALUE6}/"                     |
     sed -e "s/###PASSWORD_LABEL###/********/"                   > $tmp-html
     exit 0
 fi
@@ -78,8 +80,8 @@ UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 
 ########################################
 #ユーザーデータ用に一時ファイルに書き出し
-#1.顧客番号 2.姓 3.名 4.EMAIL 5.TEL 6.作成日時 7.更新日時 8.ADMINフラグ 9.削除フラグ
-echo ${CUSTOMER_NUM}" "${VALUE1}" "${VALUE2}" "${VALUE3}" - "${CREATE_DATE}" "${UPDATE_DATE}" "${VALUE5}" "0 > $tmp-customer
+#1.顧客番号 2.姓 3.名 4.EMAIL 5.Phone 6.作成日時 7.更新日時 8.ADMINフラグ 9.削除フラグ
+echo ${CUSTOMER_NUM}" "${VALUE1}" "${VALUE2}" "${VALUE3}" "${VALUE6}" "${CREATE_DATE}" "${UPDATE_DATE}" "${VALUE5}" "0 > $tmp-customer
 
 ########################################
 #データの格納
@@ -106,8 +108,9 @@ UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 ${CATEGORY} ${CUSTOMER_NUM}`
 #HTMLの設定
 ACTION=`cat $tmp-action`
 cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML   |
-sed -e "s/###FAMILY_NAME_LABEL###/${VALUE1}/"               |
+sed -e "s/###FIRST_NAME_LABEL###/${VALUE1}/"                |
 sed -e "s/###GIVEN_NAME_LABEL###/${VALUE2}/"                |
+sed -e "s/###PHONE_LABEL###/${VALUE6}/"                     |
 sed -e "s/###EMAIL_LABEL###/${VALUE3}/"                     > $tmp-html
 
 #########################################

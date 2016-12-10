@@ -36,9 +36,10 @@ FIN
 #######################################
 #Get Form Data
 ID=$(nameread ID $tmp-post)
-VALUE1=$(nameread FAMILY_NAME $tmp-post)
+VALUE1=$(nameread FIRST_NAME $tmp-post)
 VALUE2=$(nameread GIVEN_NAME $tmp-post)
 VALUE3=$(nameread EMAIL $tmp-post)
+VALUE4=$(nameread PHONE $tmp-post)
 CUSTOMER_ID=$(nameread CUSTOMER_ID $tmp-post)
 
 ########################################
@@ -49,11 +50,12 @@ if [ -e ${SYSD}/DATA/${CATEGORY}/TMP/${CUSTOMER_ID} ]; then
 else
     cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/CONFIRM.HTML             |
     sed -e "s/###ERROR_MSG###/データ不整合により処理を中止しました。/"  |
-    sed -e "s/###ID_VALUE###/${ID}/"                                    |
-    sed -e "s/###FAMILY_NAME_VALUE###/${VALUE1}/"                       |
-    sed -e "s/###GIVEN_NAME_VALUE###/${VALUE2}/"                        |
-    sed -e "s/###EMAIL_VALUE###/${VALUE3}/"                             |
-    sed -e "s/###CUSTOMER_ID###/${CUSTOMER_ID}/"                              > $tmp-html
+    sed -e "s/###ID_###/${ID}/"                                         |
+    sed -e "s/###FIRST_NAME_###/${VALUE1}/"                             |
+    sed -e "s/###GIVEN_NAME_###/${VALUE2}/"                             |
+    sed -e "s/###EMAIL_###/${VALUE3}/"                                  |
+    sed -e "s/###PHONE_###/${VALUE4}/"                                  |
+    sed -e "s/###CUSTOMER_ID###/${CUSTOMER_ID}/"                        > $tmp-html
     exit 0
 fi
 
@@ -105,9 +107,10 @@ UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 ${CATEGORY} ${CUSTOMER_NUM}`
 ACTION=`cat $tmp-action`
 cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML   |
 sed -e "s/###ID_LABEL###/${ID}/"                            |
-sed -e "s/###FAMILY_NAME_LABEL###/${VALUE1}/"               |
+sed -e "s/###FIRST_NAME_LABEL###/${VALUE1}/"                |
 sed -e "s/###GIVEN_NAME_LABEL###/${VALUE2}/"                |
-sed -e "s/###EMAIL_LABEL###/${VALUE3}/"                     > $tmp-html
+sed -e "s/###EMAIL_LABEL###/${VALUE3}/"                     |
+sed -e "s/###PHONE_LABEL###/${VALUE4}/"                     > $tmp-html
 
 #########################################
 #page name
