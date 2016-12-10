@@ -36,15 +36,17 @@ FIN
 #Making viweing body HTML filw path
 ACTION=`cat $tmp-action`
 cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML   |
-sed -e "s/###FAMILY_NAME_ERR###/hidden/"            |
+sed -e "s/###FIRST_NAME_ERR###/hidden/"             |
 sed -e "s/###GIVEN_NAME_ERR###/hidden/"             |
 sed -e "s/###EMAIL_ERR###/hidden/"                  |
+sed -e "s/###PHONE_ERR###/hidden/"                  |
 sed -e "s/###PASSWORD_ERR###/hidden/"               |
 sed -e "s/###PASSWORD_CONFIRMATION_ERR###/hidden/"  |
 sed -e "s/###EMAIL_DUPLECATED###/hidden/"           |
-sed -e "s/###FAMILY_NAME_VALUE###//"                |
+sed -e "s/###FIRST_NAME_VALUE###//"                 |
 sed -e "s/###GIVEN_NAME_VALUE###//"                 |
 sed -e "s/###EMAIL_VALUE###//"                      |
+sed -e "s/###PHONE_VALUE###//"                      |
 sed -e "s/###PASSWORD_VALUE###//"                   |
 sed -e "s/###PASSWORD_CONFIRMATION_VALUE###//"      > $tmp-html
 

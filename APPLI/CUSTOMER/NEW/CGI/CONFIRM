@@ -34,24 +34,26 @@ FIN
 
 ########################################
 #フォーム値の設定
-nameread FAMILY_NAME $tmp-post              | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value1
+nameread FIRST_NAME $tmp-post               | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value1
 nameread GIVEN_NAME $tmp-post               | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value2
 nameread EMAIL $tmp-post                    | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value3
 nameread PASSWORD $tmp-post                 | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value4
 nameread PASSWORD_CONFIRMATION $tmp-post    | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value5
+nameread PHONE $tmp-post                    | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value6
 
 ########################################
 #バリデーション(必須入力確認)
 #入力ありの場合、空ファイルが出力され、なしの場合、そのフィールド名が記載される
-cat $tmp-post | awk '$2=="_" && $1=="FAMILY_NAME"{print $1}' > $tmp-need-VALID1
+cat $tmp-post | awk '$2=="_" && $1=="FIRST_NAME"{print $1}' > $tmp-need-VALID1
 cat $tmp-post | awk '$2=="_" && $1=="GIVEN_NAME"{print $1}' > $tmp-need-VALID2
 cat $tmp-post | awk '$2=="_" && $1=="EMAIL"{print $1}' > $tmp-need-VALID3
 cat $tmp-post | awk '$2=="_" && $1=="PASSWORD"{print $1}' > $tmp-need-VALID4
 cat $tmp-post | awk '$2=="_" && $1=="PASSWORD_CONFIRMATION"{print $1}' > $tmp-need-VALID5
+cat $tmp-post | awk '$2=="_" && $1=="PHONE"{print $1}' > $tmp-need-VALID6
 
 ########################################
 #バリデーション(データ属性)
-#FAMILY NAME length <=2 =>20
+#FIRST NAME length <=2 =>20
 VALID1=$(cat $tmp-value1)
 if [ "${#VALID1}" -lt 2 ] || [ "${#VALID1}" -gt 20 ] ; then
     echo "legth NG" > $tmp-attr-VALID1
@@ -71,6 +73,11 @@ VALID5=$(cat $tmp-value5)
 if [ "${VALID5}" != "${VALID4}" ] ; then
     echo "CONFIRMATION NG" > $tmp-attr-VALID5
 fi
+#PHONE numeric only
+VALID6=$(cat $tmp-value6 | awk '/[^0-9]/{print}')
+if [ -n "${VALID6}" ] ; then
+    echo "not only numeric" > $tmp-attr-VALID6
+fi
 
 ########################################
 #バリデーション(EMAIL重複確認)
@@ -80,7 +87,7 @@ cat ${SYSD}/DATA/STUFF/LV3/STUFF | awk '$4=="'"${EMAIL}"'"{print $0}' > $tmp-att
 
 ########################################
 #バリデーションエラー項目の確定
-#FAMILY_NAME
+#FIRST_NAME
 if [ -n "$(cat $tmp-need-VALID1)$(cat $tmp-attr-VALID1)" ] ; then 
     VALID1_disp='show'
 else
@@ -116,6 +123,12 @@ if [ -n "$(cat $tmp-need-VALID5)$(cat $tmp-attr-VALID5)" ] ; then
 else
     VALID5_disp='hidden'
 fi
+#PHONE
+if [ -n "$(cat $tmp-need-VALID6)$(cat $tmp-attr-VALID6)" ] ; then
+    VALID6_disp='show'
+else
+    VALID6_disp='hidden'
+fi
 
 ########################################
 #パスワードの暗号化
@@ -123,7 +136,7 @@ echo $(sha1 $(cat $tmp-value4)) > $tmp-sha1
 
 ########################################
 #バリデーションエラーの数をカウント
-echo ${VALID1_disp}${VALID2_disp}${VALID31_disp}${VALID32_disp}${VALID4_disp}${VALID5_disp} | 
+echo ${VALID1_disp}${VALID2_disp}${VALID31_disp}${VALID32_disp}${VALID4_disp}${VALID5_disp}${VALID6_disp} | 
 awk '{gsub(/hidden/,"",$1);print}' | 
 awk '{print length($1)}' > $tmp-VALID-result
 
@@ -135,26 +148,30 @@ awk '{print length($1)}' > $tmp-VALID-result
 #HTMLの設定
 if [ $ACTION = 'INPUT' ] ; then
     cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML           |
-    sed -e "s/###FAMILY_NAME_ERR###/${VALID1_disp}/"                    |
+    sed -e "s/###FIRST_NAME_ERR###/${VALID1_disp}/"                     |
     sed -e "s/###GIVEN_NAME_ERR###/${VALID2_disp}/"                     |
     sed -e "s/###EMAIL_ERR###/${VALID31_disp}/"                         |
     sed -e "s/###EMAIL_DUPLECATED###/${VALID32_disp}/"                  |
     sed -e "s/###PASSWORD_ERR###/${VALID4_disp}/"                       |
     sed -e "s/###PASSWORD_CONFIRMATION_ERR###/${VALID4_disp}/"          |
-    sed -e "s/###FAMILY_NAME_VALUE###/$(cat $tmp-value1)/"              |
+    sed -e "s/###PHONE_ERR###/${VALID6_disp}/"                          |
+    sed -e "s/###FIRST_NAME_VALUE###/$(cat $tmp-value1)/"               |
     sed -e "s/###GIVEN_NAME_VALUE###/$(cat $tmp-value2)/"               |
     sed -e "s/###EMAIL_VALUE###/$(cat $tmp-value3)/"                    |
     sed -e "s/###PASSWORD_VALUE###/$(cat $tmp-value4)/"                 |
-    sed -e "s/###PASSWORD_CONFIRMATION_VALUE###/$(cat $tmp-value5)/"    > $tmp-html
+    sed -e "s/###PASSWORD_CONFIRMATION_VALUE###/$(cat $tmp-value5)/"    |
+    sed -e "s/###PHONE_VALUE###/$(cat $tmp-value6)/"                    > $tmp-html
 else
     cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML           |
-    sed -e "s/###FAMILY_NAME_LABEL###/$(cat $tmp-value1)/"              |
+    sed -e "s/###FIRST_NAME_LABEL###/$(cat $tmp-value1)/"               |
     sed -e "s/###GIVEN_NAME_LABEL###/$(cat $tmp-value2)/"               |
     sed -e "s/###EMAIL_LABEL###/$(cat $tmp-value3)/"                    |
+    sed -e "s/###PHONE_LABEL###/$(cat $tmp-value6)/"                    |
     sed -e "s/###PASSWORD_LABEL###/********/"                           |
-    sed -e "s/###FAMILY_NAME_VALUE###/$(cat $tmp-value1)/"              |
+    sed -e "s/###FIRST_NAME_VALUE###/$(cat $tmp-value1)/"               |
     sed -e "s/###GIVEN_NAME_VALUE###/$(cat $tmp-value2)/"               |
     sed -e "s/###EMAIL_VALUE###/$(cat $tmp-value3)/"                    |
+    sed -e "s/###PHONE_VALUE###/$(cat $tmp-value6)/"                    |
     sed -e "s/###PASSWORD_VALUE###/$(cat $tmp-sha1)/"                   > $tmp-html
 fi
 

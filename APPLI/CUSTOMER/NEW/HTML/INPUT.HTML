@@ -2,6 +2,7 @@
 <!--<html>-->
 <!--<body>-->
 <div class="container">
+
     <div class="col-md-6 col-md-offset-1">
 
     <!--Header Info-->
@@ -12,10 +13,11 @@
             </label>
         </div>
         <div class="col-md-10 lbl-header-info">
-            <span class="label label-danger ###FAMILY_NAME_ERR###">FAMILY NAME was Invalid.</span>
+            <span class="label label-danger ###FIRST_NAME_ERR###">FIRST NAME was Invalid.</span>
             <span class="label label-danger ###GIVEN_NAME_ERR###">GIVEN NAME was Invalid.</span>
             <span class="label label-danger ###EMAIL_ERR###">EMAIL was Invalid.</span>
             <span class="label label-danger ###EMAIL_DUPLECATED###">Duplicated EMAIL.</span>
+            <span class="label label-danger ###PHONE_ERR###">Phone Number was Invalid.</span>
             <span class="label label-danger ###PASSWORD_ERR###">PASSWORD was Invalid.</span>
             <span class="label label-danger ###PASSWORD_CONFIRMATION_ERR###">PASSWORD CONFIRMATION was Invalid.</span>
         </div>
@@ -24,6 +26,8 @@
 
     <!--INPUT-->
     <form action="/APP/CUSTOMER/NEW/CONFIRM" method="POST">
+
+        <!--First Name-->
         <div class="row">
             <div class="col-md-1 hidden-xs">
                 <label class="control-label">
@@ -32,13 +36,13 @@
             </div>
             <div class="col-md-10 col-xs-11">
                 <div class="form-group">
-	                <input type="text" name="FAMILY_NAME" value="###FAMILY_NAME_VALUE###" class="form-control" placeholder="Family Name" />
+	                <input type="text" name="FIRST_NAME" value="###FIRST_NAME_VALUE###" class="form-control" placeholder="First Name" />
                 </div>
             </div>
             <div class="col-md-1 col-xs-1"></div>
         </div>
-        <br> 
 
+        <!--Given Name-->
         <div class="row">
             <div class="col-md-1 hidden-xs">
                 <label class="control-label">
@@ -52,8 +56,8 @@
             </div>
             <div class="col-md-1 col-xs-1"></div>
         </div>
-        <br> 
 
+        <!--ID(e-mail)-->
         <div class="row">
             <div class="col-md-1 hidden-xs">
                 <label class="control-label">
@@ -67,12 +71,27 @@
             </div>
             <div class="col-md-1 col-xs-1"></div>
         </div>
-        <br>
 
+        <!--Phone Number-->
+        <div class="row">
+            <div class="col-md-1 hidden-xs">
+                <label class="control-label">
+                    <i class="glyphicon glyphicon-phone-alt"></i>
+                </label>
+            </div>
+            <div class="col-md-10 col-xs-11">
+                <div class="form-group">
+                    <input type="tel" name="PHONE" id="PHONE" value="###PHONE_VALUE###" class="form-control" placeholder="Phone Number" />
+                </div>
+            </div>
+            <div class="col-md-1 col-xs-1"></div>
+        </div>
+ 
+        <!--Password-->
         <div class="row">
             <div class="col-md-1 hidden-xs ">
                 <label class="control-label">
-                    <i class="glyphicon glyphicon-edit"></i>
+                    <i class="glyphicon glyphicon-lock"></i>
                 </label>
             </div>
             <div class="col-md-10 col-xs-11 ">
@@ -82,12 +101,12 @@
             </div>
             <div class="col-md-1 col-xs-1"></div>
         </div>
-        <br>
 
+        <!--Password Confirmation-->
         <div class="row">
             <div class="col-md-1 hidden-xs">
                 <label class="control-label">
-                    <i class="glyphicon glyphicon-thumbs-up"></i>
+                    <i class="glyphicon glyphicon-check"></i>
                 </label>
             </div>
             <div class="col-md-10 col-xs-11">
@@ -97,15 +116,18 @@
             </div>
             <div class="col-md-1 col-xs-1"></div>
         </div>
-        <br> 
 
+        <!--Submit Button-->
         <div class="row">
             <div class="col-md-1 hidden-xs">
+                <label class="control-label">
+                    <i class="glyphicon glyphicon-thumbs-up"></i>
+                </label>
             </div>
             <div class="col-md-10 col-xs-11">
                 <div class="form-group">
 	                <button type="submit" class="btn btn-primary btn-md" />
-                        <span class="glyphicon glyphicon-eye-open"> Chek!!</span>
+                        Confirm
                     </button>
                 </div>
             </div>

@@ -48,12 +48,13 @@ NEW_NUM=`${SYSD}/CGI/NUMBERS $1 ${CATEGORY} `
 
 #######################################
 #フォーム入力値を取得
-VALUE1=$(nameread FAMILY_NAME $tmp-post)
+VALUE1=$(nameread FIRST_NAME $tmp-post)
 VALUE2=$(nameread GIVEN_NAME $tmp-post)
 VALUE3=$(nameread EMAIL $tmp-post)
 VALUE4=$(nameread PASSWORD $tmp-post)
 #VALUE5=$(nameread ADMIN_FLAG $tmp-post)
 VALUE5=0
+VALUE6=$(nameread PHONE $tmp-post)
 
 ########################################
 #日付を設定
@@ -62,8 +63,8 @@ UPDATE_DATE=$CREATE_DATE
 
 ########################################
 #入力値を一時ファイル
-#1.顧客番号 2.姓 3.名 4.EMAIL 5.TEL 6.作成日時 7.更新日時 8.ADMINフラグ 9.削除フラグ
-echo ${NEW_NUM}" "${VALUE1}" "${VALUE2}" "${VALUE3}" - "${CREATE_DATE}" "${UPDATE_DATE}" "${VALUE5}" "0 > $tmp-customer
+# 顧客番号 姓 名 4.EMAIL 5.電話番号 6.作成日時 7.更新日時 8.ADMINフラグ 9.削除フラグ
+echo ${NEW_NUM}" "${VALUE1}" "${VALUE2}" "${VALUE3}" "${VALUE6}" "${CREATE_DATE}" "${UPDATE_DATE}" "${VALUE5}" "0 > $tmp-customer
 
 ########################################
 #データ格納
@@ -79,8 +80,9 @@ awk '{print sprintf("%d %s %s %s %s %s %s %d %d /APP/STUFF/USERS/SHOW/?id=%d /AP
 #HTMLの設定
 ACTION=`cat $tmp-action`
 cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML   |
-sed -e "s/###FAMILY_NAME_LABEL###/${VALUE1}/"               |
+sed -e "s/###FIRST_NAME_LABEL###/${VALUE1}/"                |
 sed -e "s/###GIVEN_NAME_LABEL###/${VALUE2}/"                |
+sed -e "s/###PHONE_LABEL###/${VALUE6}/"                     |
 sed -e "s/###EMAIL_LABEL###/${VALUE3}/"                     > $tmp-html
 
 #########################################
