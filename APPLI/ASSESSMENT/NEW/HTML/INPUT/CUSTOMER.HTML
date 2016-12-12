@@ -1,0 +1,209 @@
+<!--<!DOCTYPE html>-->
+<!--<html>-->
+<div class="container">
+    
+    <div class="fixed gray-trans-over z-index-3" style="padding:10px;">
+
+        <!--Header Info-->
+        <div class="row">
+            <label class="control-label col-sm-1">
+                <h3><i class="glyphicon glyphicon-info-sign"></i></h3>
+            </label>
+            <div class="col-sm-6 lbl-header-info">
+                <span id="info-msg" class="label label-lg label-###INFO_LV###">
+                    ###INFO_MSG###
+                </span>
+            </div>
+        </div>
+
+        <!--Goto Another Function-->
+        <div class="btn-toolbar">
+            <button class="btn btn-info col-smx-3 disabled" />customer</button>
+            <button class="btn btn-default col-smx-3" />parts</button>
+            <button class="btn btn-default col-smx-3" />operation</button>
+            <button class="btn btn-default col-smx-3" />work</button>
+            <button class="btn btn-default col-smx-3" />check</button>
+        </div>
+
+    </div>
+</div>
+
+    <!--Spacer-->
+    <div class="header-dummy" style="height:9.0em; background-color:piiink;"></div>
+
+    <!--Search-->
+    <!--CUSTOMER Search-->
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="input-group">
+                    <input type="text" name="CUSTOMER_NAME" id="CUSTOMER_NAME" value="" class="form-control" placeholder="Custome name"/>
+                    <span class="input-group-btn">
+                        <button type="submit" id="customer_search" class="btn btn-primary col-smx-3" />Search</button>
+                    </span>
+                </div>
+            </div>
+    
+            <!--CUSTOMER Search result dropdown-->
+            <div id="customer-result" class="col-sm-4">
+                <div id="dropdown-customer-search" class="dropdown">
+                    <button type="button" id="customer-search-result-dropdown" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                        Result
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" id="customer-search-result-list">
+                        <li class="list-customer" value="Guest"><a>Guest</a></li>
+                </ul>
+                </div>
+            </div>
+            <!--Spacer-->
+            <div class="col-sm-1 hidden-xs"></div>
+        </div>
+    </div>
+
+    <!--Csutomer Search Result choice-->
+    <div class="container">
+        <div class="gray-trans-over">
+        <h3>
+
+            <div class="row">
+                <div class="col-md-8 ">
+                    <div class="alert alert-success green-trans-over">
+                        <strong>Customer No &nbsp&nbsp : </strong><span id="customer-no"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8 ">
+                    <div class="alert alert-success green-trans-over">
+                        <strong>Name &nbsp&nbsp : </strong><span id="customer-nm"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8 ">
+                    <div class="alert alert-success green-trans-over">
+                        <strong>Phone &nbsp&nbsp : </strong><span id="customer-ph"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8 ">
+                    <div class="alert alert-success blue-trans-over">
+                        <strong>Assessment No &nbsp&nbsp : </strong><span id="assessment-no"></span>
+                    </div>
+                </div>
+            </div>
+        </h3>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+    <!--Contents-->
+    <div class="col-md-4">
+    <div class="contents">
+        <form name="assessment-customer" action="" method="POST">
+            <div class="form-group">
+    		    <input type="hidden" name="STATUS" value="INPUT" />
+    		    <input type="hidden" id="CUSTOMER_NO" name="CUSTOMER_NO" value="0" />
+    		    <input type="hidden" id="ASSESSMENT_NO" name="ASSESSMENT_NO" value="0" />
+    		    <button type="submit" id="Start" class="btn btn-primary btn-lg ###DISABLED_START###" />
+                    Start
+                </button>
+    		    <button type="submit" id="Delete" class="btn btn-warning btn-lg ###DISABLED_DELETE###" />
+                    Delete
+                </button>
+            </div>
+       </form>
+    </div>
+    </div>
+
+    </div>
+    </div>
+
+<div class="container">
+</div>
+
+<script>
+
+    //顧客検索
+    $("#customer_search").on('click', function() {
+        var words = $("#CUSTOMER_NAME").val();
+        var jqXHR = $.ajax({
+            type: 'POST',
+            url: '/APP/CUSTOMER/SEARCH/INPUT',
+            data: {
+                SEARCH_NAME: words
+            }
+        });
+        jqXHR.done(function(data) {
+            search_result = data;
+            $('#dropdown-customer-search').addClass('open');
+            $('#customer-search-result-list').html(data);
+        });
+        jqXHR.fail(function() {
+            search_result = '一致する顧客名がありません。';
+        });
+    });
+
+    //顧客検索結果選択
+    $(document).on('click', 'li.list-customer', function() {
+        //選択値を取得
+        var index = $('li.list-customer').index(this);
+        var customer_no;
+        var customer_nm;
+        var customer_ph;
+        //Guestを選択した場合
+        if (index == 0) { 
+            var jqXHR = $.ajax({
+                type: 'POST',
+                url: '/APP/ASSESSMENT/NEW/GUEST_CUSTOMER_NO',
+            });
+            jqXHR.done(function(data) {
+                //顧客番号をhiddenに設定
+                $('#CUSTOMER_NO').val(data);
+                //表示
+                $('#customer-no').html(data);
+                $('#customer-nm').html('Guest' + data);
+                $('#customer-ph').html('nothing');
+            });
+            jqXHR.fail(function() {
+                search_result = 'failer get guest customer number.';
+            });
+        } else {
+            //顧客番号をhiddenに設定
+            $('#CUSTOMER_NO').val($(this).val());
+            //表示
+            var arraySelected=$(this).text().split(" ");
+            console.log(arraySelected);
+            $('#customer-no').html($(this).val());
+            $('#customer-nm').html(arraySelected[0] + ' ' + arraySelected[1]);
+            $('#customer-ph').html(arraySelected[2]);
+        }
+       //Start able
+        $('#Start').removeClass('disabled');
+    });
+
+
+    //Start
+    $(document).on('click', '#Start', function() {
+        var frm = document.forms['assessment-customer'];
+        frm.metho = 'POST';
+        frm.action = '/APP/ASSESSMENT/NEW/INPUT/PARTS';
+        frm.submit();
+    });
+
+    //Delete
+    $(document).on('click', '#Delete', function() {
+        var frm = document.forms['assessment-customer'];
+        frm.metho = 'POST';
+        frm.action = '/APP/ASSESSMENT/NEW/DELETE';
+        frm.submit();
+    });
+
+</script>
+<!--</html>-->

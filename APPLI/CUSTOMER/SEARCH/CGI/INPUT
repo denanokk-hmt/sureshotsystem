@@ -42,14 +42,14 @@ cat $tmp-value1 | cut -d'_' -f2 > $tmp-gname
 
 #######################################
 #顧客名を曖昧検索
-cat ${DATAD}/LV3/*[^_d]     |
-awk '{print $1, $2, $3}'    |
-LANG=C sort -nk1,1          |
+cat ${DATAD}/LV3/*[^_d]         |
+awk '{print $1, $2, $3, $5}'    |
+LANG=C sort -nk1,1              |
 awk -v f=$(cat $tmp-fname) -v g=$(cat $tmp-gname) '$1==f||$2==g'> $tmp-result
 
 #######################################
 #検索結果をリストボックス(HTML)に置く
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/LISTBOX.HTML $tmp-result > $tmp-ajax-html
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/DROPDOWN_LIST.HTML $tmp-result > $tmp-ajax-html
 exit 0
 
 #########################################

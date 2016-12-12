@@ -72,12 +72,14 @@ APP=${ARR[0]}
 CATEGORY=${ARR[1]}
 FUNC=${ARR[2]}
 ACTION=$(echo ${ARR[3]} | cut -d'?' -f1)
+SUB_ACTION=$(echo ${ARR[4]} | cut -d'?' -f1)
 
 ARR_COUNT=${#ARR[*]}
 echo $APP > $tmp-uri_ap
 echo $CATEGORY > $tmp-category
 echo $FUNC > $tmp-func
 echo $ACTION > $tmp-action
+echo $SUB_ACTION > $tmp-sub-action
 
 ########################################
 #ログインセッションの確認と設定
@@ -119,6 +121,7 @@ case ${CATEGORY}/${FUNC} in
         CATEGORY='STUFF'
         FUNC='SIGNIN'
         ACTION='INPUT'
+        SUB_ACTION=''
         echo ${RETURN_URL} > $tmp-return-url
         echo ${CATEGORY} > $tmp-category
         echo $FUNC > $tmp-func
@@ -131,7 +134,10 @@ esac
 #######################################
 #Do the business logic & return HTML Body
 #if [ -n "${FUNC}${ACTION}" ] ; then
-if [ -n "${FUNC}" ] && [ -n "${ACTION}" ] ; then
+if [ -n "${FUNC}" ] && [ -n "${ACTION}" ] && [ -n "${SUB_ACTION}" ]; then
+    result=`../APPLI/${CATEGORY}/${FUNC}/CGI/${ACTION}/${SUB_ACTION} $$`
+    echo $result > $tmp-result
+elif [ -n "${FUNC}" ] && [ -n "${ACTION}" ] ; then
     result=`../APPLI/${CATEGORY}/${FUNC}/CGI/${ACTION} $$`
     echo $result > $tmp-result
 else
