@@ -50,13 +50,19 @@ NEW_NUM=`${SYSD}/CGI/NUMBERS $1 'PARTS_LIST' `
 #フォームの入力値を取得
 cat $tmp-post
 PAGE_FILTER=$(nameread CATEGORY_PAGE_HIDDEN $tmp-post)
-VALUE1=$(nameread CATEGORY_NEW_HIDDEN $tmp-post)
-VALUE2=$(nameread NEW_PARTS_NAME $tmp-post)
-VALUE3=$(nameread NEW_PARTS_PRICE $tmp-post)
+PAGE_CATEGORY_NO=$(nameread CATEGORY_NO_PAGE_HIDDEN $tmp-post)
+VALUE1=$(nameread CATEGORY_NEW_HIDDEN $tmp-post)        #パーツカテゴリ名
+VALUE2=$(nameread NEW_PARTS_NAME $tmp-post)             #パーツ名(EN)
+VALUE3=$(nameread NEW_PARTS_PRICE $tmp-post)            #プライス
+
+#新規追加
+VALUE4=$(nameread CATEGORY_NO_NEW_HIDDEN $tmp-post)     #パーツカテゴリ番号
+VALUE5=$(nameread NEW_PARTS_NAME_JP $tmp-post)          #パーツ名(JP)
+VALUE6=$(nameread NEW_PARTS_REMARKS $tmp-post)          #備考
 
 ########################################
 #重複確認
-cat ${DATAD}/LV3/* | awk -v cat=${VALUE1} -v nm=${VALUE2} '$2==cat&&$3==nm{print $1}' > $tmp-valid1
+cat ${DATAD}/${VALUE4}/LV3/* | awk -v cat=${VALUE4} -v nm=${VALUE2} '$2==cat&&$4==nm{print $1}' > $tmp-valid1
 if [ -n "$(cat $tmp-valid1)" ] ; then
     echo 2222 > $tmp-ajax-html
     exit 0
@@ -69,17 +75,17 @@ UPDATE_DATE=$CREATE_DATE
 
 ########################################
 #入力値を一時ファイル化
-#1.パーツ番号 2.パーツカテゴリ名 3.パーツ名 4.価格 5.作成日時 6.更新日時 7.削除フラグ
-echo ${NEW_NUM}" "${VALUE1}" "${VALUE2}" "${VALUE3}" "${CREATE_DATE}" "${UPDATE_DATE}" "0 > $tmp-parts
+#1.パーツ番号 2.パーツカテゴリ番号 3.パーツカテゴリ名 4.パーツ名(EN) 5.パーツ名(JP) 6.価格 7.備考 8.作成日時 9.更新日時 10.削除フラグ
+echo ${NEW_NUM}" "${VALUE4}" "${VALUE1}" "${VALUE2}" "${VALUE5}" "${VALUE3}" "${VALUE6}" "${CREATE_DATE}" "${UPDATE_DATE}" "0 > $tmp-parts
 
 ########################################
 #データ格納
 #LV1
-$(mv $tmp-parts ${DATAD}/LV1/${NEW_NUM}_parts_${CREATE_DATE})
+$(mv $tmp-parts ${DATAD}/${VALUE4}/LV1/${NEW_NUM}_parts_${CREATE_DATE})
 #LV2
-cat ${DATAD}/LV1/${NEW_NUM}_parts_${CREATE_DATE} > ${DATAD}/LV2/${NEW_NUM}_parts_${CREATE_DATE}
+cat ${DATAD}/${VALUE4}/LV1/${NEW_NUM}_parts_${CREATE_DATE} > ${DATAD}/LV2/${NEW_NUM}_parts_${CREATE_DATE}
 #LV3
-cat ${DATAD}/LV2/${NEW_NUM}_parts_${CREATE_DATE} > ${DATAD}/LV3/${NEW_NUM}_parts_${CREATE_DATE}
+cat ${DATAD}/${VALUE4}/LV2/${NEW_NUM}_parts_${CREATE_DATE} > ${DATAD}/LV3/${NEW_NUM}_parts_${CREATE_DATE}
 
 ########################################
 #パーツカテゴリを取得
@@ -109,17 +115,26 @@ CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-new`
 
 ########################################
 #パーツリストを取得
-if [ -n "${PAGE_FILTER}" -a "${PAGE_FILTER}" != 'ALL' ] ; then
-    cat ${DATAD}/LV3/*[^_d]                 |
-    LANG=C sort -nk1,1                      |
-    awk -v c=${PAGE_FILTER} '$2==c{print}'  |
-    juni                                    > $tmp-records
+#if [ -n "${PAGE_FILTER}" -a "${PAGE_FILTER}" != 'ALL' ] ; then
+#    cat ${DATAD}/*/LV3/*[^_d]               |
+#    LANG=C sort -nk1,1                      |
+#    awk -v c=${PAGE_FILTER} '$3==c{print}'  |
+#    juni                                    > $tmp-records
+#else
+#    cat ${DATAD}/*/LV3/*[^_d]               |
+#    LANG=C sort -nk1,1                      |
+#    juni                                    > $tmp-records
+#fi
+if [ "${PAGE_CATEGORY_NO}" > 0 ] ; then
+    cat ${DATAD}/${PAGE_CATEGORY_NO}/LV3/*[^_d] |
+    LANG=C sort -nk1,1                          |
+    juni                                        > $tmp-records
 else
-    cat ${DATAD}/LV3/*[^_d]                 |
-    LANG=C sort -nk1,1                      |
-    juni                                    > $tmp-records
+    cat ${DATAD}/*/LV3/*[^_d]                   |
+    LANG=C sort -nk1,1                          |
+    juni                                        > $tmp-records
 fi
-# 1;カテゴリ番号 2;カテゴリ名
+#
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/RECORDS.HTML $tmp-records > $tmp-table-records
 
 ########################################

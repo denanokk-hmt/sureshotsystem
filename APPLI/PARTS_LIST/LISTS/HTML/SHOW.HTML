@@ -3,7 +3,8 @@
 
 <div class="container">
     
-    <div class="fixed gray-trans-over" style="padding:10px;">
+    <div class="container">
+    <div class="fixed gray-trans-over">
 
         <!--Header Info-->
         <div class="row">
@@ -17,50 +18,52 @@
             </div>
         </div>
 
-        <!--Search-->
-        <form action="/APP/PARTS_LIST/LISTS/SHOW" method="GET">    
-            <div class="row">
+        <!--Parts Category Filter-->
+        <div class="row">
+            <form action="/APP/PARTS_LIST/LISTS/SHOW" method="GET">    
 
-                <!--Parts Category Dropdown list-->
-                <div class="btn-group">
+                <div class="form-group">
                     <div class="btn-group">
-                        <div class="col-sm-2">
-                            <div class="btn-group">
-                                <button type="submit" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" id="parts_category" aria-expended="false">
-                                    &nbsp<span class="caret"></span>
-                                </button>
-                                <ul class="dropdown-menu" role="menu" name="PAGE">
-                                   <li name="CATEGORY_PAGE">
-                                       <a id="cat-list-0" onclick="categoryChoice(0,this); return false;" >ALL</a>
-                                   </li>
-                                   ###CATEGORY###
-                                </ul>
-                            </div>
+                        
+                        <!--Parts Category Dropdown list-->
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-info dropdown-toggle" data-toggle="dropdown" id="parts_category" aria-expended="false">
+                                &nbsp<span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu" name="PAGE">
+                               <li name="CATEGORY_PAGE">
+                                   <a id="cat-list-0" onclick="categoryChoice(0,this); return false;" >ALL</a>
+                               </li>
+                               ###CATEGORY###
+                            </ul>
                         </div>
-                        <div class="col-sm-10">
+                        <div class="btn-group">
                             <input type="text" name="CATEGORY_PAGE" id="CATEGORY_PAGE" value="###CATEGORY_PAGE_HIDDEN###" class="form-control" disabled />
-                            <input type="hidden" name="CATEGORY_PAGE_HIDDEN" id="CATEGORY_PAGE_HIDDEN" value="###CATEGORY_PAGE_HIDDEN###" class="form-control" />
-                            <input type="hidden" name="SEARCH" id="SEARCH" value="1" class="form-control" />
-                            <input type="hidden" name="page" id="page" value="1" class="form-control" />
+                        </div>
+
+                        <!--Search Submit button-->
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-info" />
+                                <span clss="glyphicon glyphicon-eye-open">Search</span>
+                            </button>
                         </div>
                     </div>
 
-                    <!--Search Submit button-->
-                    <div class="col-sm-3">
-                        <button type="submit" class="btn btn-primary" />
-                            <span clss="glyphicon glyphicon-eye-open">Search</span>
-                        </button>
-                    </div>
+                    <input type="hidden" name="CATEGORY_PAGE_HIDDEN" id="CATEGORY_PAGE_HIDDEN" value="###CATEGORY_PAGE_HIDDEN###" class="form-control" />
+                    <input type="hidden" name="CATEGORY_NO_PAGE_HIDDEN" id="CATEGORY_NO_PAGE_HIDDEN" value="" class="form-control" />
+                    <input type="hidden" name="SEARCH" id="SEARCH" value="1" class="form-control" />
+                    <input type="hidden" name="page" id="page" value="1" class="form-control" />
                 </div>
 
                 <!--Spacer-->
                 <div class="col-sm-1 hidden-xs"></div>
-            </div>
-        </form>
+            </form>
+        </div>
+        </div>
     </div>
 
     <!--Spacer-->
-    <div class="header-dummy" style="height:8.0em; background-color:pink;"></div>
+    <div class="header-dummy" style="height:9.0em; background-color:piink;"></div>
 
     <!--Contents Records/Pagination-->
     <div class="header-under-contents">
@@ -102,15 +105,18 @@
         var nodes = ppe.attributes;
         var parts_no = nodes.name.nodeValue;
 
-        //該当のtextとhiddenのinputに選択したカテゴリ名を設定
+        //該当のレコードに選択したカテゴリ名を設定
         var input_text = document.getElementById('CATEGORY_' + parts_no);
         input_text.value = choice;
         var input_hidden = document.getElementById('CATEGORY_' + parts_no + '_HIDDEN');
         input_hidden.value = choice;
+
+        //該当のレコードに選択したカテゴリ番号を設定
+        var input_hidden = document.getElementById('CATEGORY_NO_' + parts_no + '_HIDDEN');
+        input_hidden.value = id;
     }
 
     $(document).ready(function() {
-        
         $("#pager").sticky({topSpacing:0});
     });
 
@@ -139,18 +145,24 @@
     //パーツ変更
     function editParts(id) {
         var page_filter = $('#CATEGORY_PAGE_HIDDEN').val();
+        var edit_category_no = $('#CATEGORY_NO_' + id + '_HIDDEN').val();
         var edit_category_name = $('#CATEGORY_' + id + '_HIDDEN').val();
         var edit_parts_name = $('#PARTS_NAME_' + id).val();
+        var edit_parts_name_jp = $('#PARTS_NAME_JP' + id).val();
         var edit_parts_price = $('#PARTS_PRICE_' + id).val();
+        var edit_parts_remarks = $('#PARTS_REMARKS_' + id).val();
         var jqXHR = $.ajax({
             type: 'POST',
             url: '/APP/PARTS_LIST/EDIT/COMPLETE',
             data: {
                 PAGE_FILTER: page_filter,
                 EDIT_PARTS_NO: id,
+                EDIT_PARTS_CATEGORY_NO: edit_category_no,
                 EDIT_PARTS_CATEGORY_NAME: edit_category_name,
                 EDIT_PARTS_NAME: edit_parts_name,
-                EDIT_PARTS_PRICE: edit_parts_price
+                EDIT_PARTS_NAME_JP: edit_parts_name_jp,
+                EDIT_PARTS_PRICE: edit_parts_price,
+                EDIT_PARTS_REMARKS: edit_parts_remarks
             }
         });
         jqXHR.done(function(data) {

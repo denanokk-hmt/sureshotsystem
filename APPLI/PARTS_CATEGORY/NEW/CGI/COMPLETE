@@ -52,7 +52,7 @@ VALUE1=$(nameread NEW_PARTS_CATEGORY_NAME $tmp-post)
 
 ########################################
 #重複確認
-cat ${DATAD}/LV3/* | awk -v nm=${VALUE1} '$2==nm{print $1}' > $tmp-valid1
+cat ${DATAD}/LV3/*[^_d] | awk -v nm=${VALUE1} '$2==nm{print $1}' > $tmp-valid1
 if [ -n "$(cat $tmp-valid1)" ] ; then
     echo 2222 > $tmp-ajax-html
     exit 0
@@ -76,6 +76,10 @@ $(mv $tmp-parts-category ${DATAD}/LV1/${NEW_NUM}_parts_category_${CREATE_DATE})
 cat ${DATAD}/LV1/${NEW_NUM}_parts_category_${CREATE_DATE} > ${DATAD}/LV2/${NEW_NUM}_parts_category_${CREATE_DATE}
 #LV3
 cat ${DATAD}/LV2/${NEW_NUM}_parts_category_${CREATE_DATE} > ${DATAD}/LV3/${NEW_NUM}_parts_category_${CREATE_DATE}
+
+########################################
+#パーツ格納用カテゴリDirを作成
+cp -irp ${SYSD}/DATA/PARTS_LIST/LISTS/ORG/ ${SYSD}/DATA/PARTS_LIST/LISTS/${NEW_NUM}
 
 ########################################
 #Get records

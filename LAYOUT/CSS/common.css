@@ -43,7 +43,9 @@ html,body {
 /* icon */
 /* */
 .glyphicon {
-    font-size:  21px;
+    /*
+    font-size:  19px;
+    */ 
 }
 
 .scrollable-menu .glyphicon {

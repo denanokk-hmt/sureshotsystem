@@ -63,6 +63,12 @@
 
     //カテゴリ名変更
     function editPartsCategory(id) {
+
+        if (id == 999) {
+            alert("更新対象です。");
+            return false;
+        }
+
         var edit_category_name = $('#PARTS_CATEGORY_NAME_' + id).val();
         var params = $('form').serialize();
         var jqXHR = $.ajax({
@@ -88,6 +94,12 @@
 
     //カテゴリ名削除
     function deletePartsCategory(id) {
+
+        if (id == 999) {
+            alert("削除対象外です。");
+            return false;
+        }
+
         var delete_category_name = $('#PARTS_CATEGORY_NAME_' + id).val();
         var params = $('form').serialize();
         var jqXHR = $.ajax({

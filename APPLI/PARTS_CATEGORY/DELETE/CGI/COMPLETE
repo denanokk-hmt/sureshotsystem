@@ -1,4 +1,4 @@
-#!/bin/bash -evx
+#/bin/bash -evx
 #
 
 ########################################
@@ -44,6 +44,12 @@ ls ${SYSD}/DATA/STUFF/USERS/LV1/${STUFF_NUM}_stuff_* | cut -d'_' -f3 | sort -nk1
 CREATE_DATE=$(cat $tmp-create)
 UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 
+
+########################################
+#　　パーツカテゴリのデータ操作
+########################################
+
+
 ########################################
 #該当のデータ操作をロック
 LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'PARTS_CATEGORY' ${NUM}`
@@ -71,9 +77,33 @@ ls ${DATAD}/LV3/${NUM}_* | sort -nk1 | head -n 1 > $tmp-delete
 rm -f $(cat $tmp-delete)
 
 ########################################
-#STUFFのデータ操作ロックを解除
+#データ操作ロックを解除
 UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'PARTS_CATEGORY' ${NUM}`
 [ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
+
+
+########################################
+#　　パーツのデータ操作
+########################################
+
+#削除するカテゴリーで登録されているパーツに対して、
+# 1.カテゴリを999 未選択、更新日を現在にして999ディレクトリにコピー
+# 2.ディレクトリ名の末尾に_dをつける
+for file in `find ${SYSD}/DATA/PARTS_LIST/LISTS/${NUM}/LV1 -maxdepth 1 -type f`; do
+    #パーツ番号
+    num=$(echo $file | cut -d'/' -f8 | cut -d'_' -f1) 
+    ARR+=($num)
+    #該当のデータ操作をロック
+    LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'PARTS_LIST' ${NUM}`
+    LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
+    [ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
+    #ファイル移動と更新
+    destiny=${SYSD}/DATA/PARTS_LIST/LISTS/999/LV1/$num_parts_${UPDATE_DATE}
+    cat $file | awk '{$1, "999", "未選択", $4, $5, $6, $7, $8}' > $destiny
+    #データ操作ロックを解除
+    UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'PARTS_CATEGORY' ${NUM}`
+    [ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
+done
 
 ########################################
 #Get records

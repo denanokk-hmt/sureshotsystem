@@ -53,7 +53,7 @@
                     </button>
                     <ul class="dropdown-menu" id="customer-search-result-list">
                         <li class="list-customer" value="Guest"><a>Guest</a></li>
-                </ul>
+                    </ul>
                 </div>
             </div>
             <!--Spacer-->
@@ -110,7 +110,7 @@
             <div class="form-group">
     		    <input type="hidden" name="STATUS" value="INPUT" />
     		    <input type="hidden" id="CUSTOMER_NO" name="CUSTOMER_NO" value="0" />
-    		    <input type="hidden" id="ASSESSMENT_NO" name="ASSESSMENT_NO" value="0" />
+    		    <input type="hidden" id="CUSTOMER_NM" name="CUSTOMER_NM" value="0" />
     		    <button type="submit" id="Start" class="btn btn-primary btn-lg ###DISABLED_START###" />
                     Start
                 </button>
@@ -164,25 +164,27 @@
                 url: '/APP/ASSESSMENT/NEW/GUEST_CUSTOMER_NO',
             });
             jqXHR.done(function(data) {
-                //顧客番号をhiddenに設定
+                //顧客をhiddenに設定
                 $('#CUSTOMER_NO').val(data);
+                $('#CUSTOMER_NM').val('Guest');
                 //表示
-                $('#customer-no').html(data);
-                $('#customer-nm').html('Guest' + data);
+                $('#customer-no').html('Guest-' + data);
+                $('#customer-nm').html('Guest');
                 $('#customer-ph').html('nothing');
             });
             jqXHR.fail(function() {
                 search_result = 'failer get guest customer number.';
             });
         } else {
-            //顧客番号をhiddenに設定
-            $('#CUSTOMER_NO').val($(this).val());
             //表示
             var arraySelected=$(this).text().split(" ");
             console.log(arraySelected);
             $('#customer-no').html($(this).val());
             $('#customer-nm').html(arraySelected[0] + ' ' + arraySelected[1]);
             $('#customer-ph').html(arraySelected[2]);
+            //顧客をhiddenに設定
+            $('#CUSTOMER_NO').val($(this).val());
+            $('#CUSTOMER_NM').val(arraySelected[0]);
         }
        //Start able
         $('#Start').removeClass('disabled');

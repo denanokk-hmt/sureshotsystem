@@ -36,10 +36,14 @@ FIN
 #######################################
 #フォームの入力値を取得
 PAGE_FILTER=$(nameread CATEGORY_PAGE_HIDDEN $tmp-post)
-NUM=$(nameread EDIT_PARTS_NO $tmp-post)
-VALUE1=$(nameread EDIT_PARTS_CATEGORY_NAME $tmp-post)
-VALUE2=$(nameread EDIT_PARTS_NAME $tmp-post)
-VALUE3=$(nameread EDIT_PARTS_PRICE $tmp-post)
+NUM=$(nameread EDIT_PARTS_NO $tmp-post)                 #パーツ番号
+VALUE1=$(nameread EDIT_PARTS_CATEGORY_NAME $tmp-post)   #パーツカテゴリ名
+VALUE2=$(nameread EDIT_PARTS_NAME $tmp-post)            #パーツ名(EN)
+VALUE3=$(nameread EDIT_PARTS_PRICE $tmp-post)           # プライス
+
+VALUE4=$(nameread EDIT_PARTS_CATEGORY_NO $tmp-post)     #パーツカテゴリ番号
+VALUE5=$(nameread EDIT_PARTS_NAME_JP $tmp-post)         #パーツ名(JP)
+VALUE6=$(nameread EDIT_PARTS_REMARKS $tmp-post)         #備考
 
 ########################################
 #重複確認
@@ -63,17 +67,17 @@ LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
 
 ########################################
 #入力値を一時ファイル化
-#1.パーツ番号 2.パーツカテゴリ名 3.パーツ名 4.価格 5.作成日時 6.更新日時 7.削除フラグ
-echo ${NUM}" "${VALUE1}" "${VALUE2}" "${VALUE3}" "${CREATE_DATE}" "${UPDATE_DATE}" "0 > $tmp-parts
+#1.パーツ番号 2.パーツカテゴリ番号 3.パーツカテゴリ名 4.パーツ名(EN) 5.パーツ名(JP) 6.価格 7.備考 8.作成日時 9.更新日時 10.削除フラグ
+echo ${NUM}" "${VALUE4}" "${VALUE1}" "${VALUE2}" "${VALUE5}" "${VALUE3}" "${VALUE6}" "${CREATE_DATE}" "${UPDATE_DATE}" "0 > $tmp-parts
 
 ########################################
 #データ格納
 #LV1:原始データとして、ファイル追加のみを行う
-$(mv $tmp-parts ${DATAD}/LV1/${NUM}_parts_${UPDATE_DATE})
+$(mv $tmp-parts ${DATAD}/LV1/${VALUE4}_${NUM}_parts_${UPDATE_DATE})
 
 #LV2:変更されたデータとファイルを入れ替える
-cp -ip ${DATAD}/LV1/${NUM}_parts_${UPDATE_DATE} ${DATAD}/LV2/${NUM}_parts_${UPDATE_DATE}
-ls ${DATAD}/LV2/${NUM}_* | sort -nk1 | head -n 1 > $tmp-delete
+cp -ip ${DATAD}/LV1/${NUM}_parts_${UPDATE_DATE} ${DATAD}/LV2/${VALUE4}_${NUM}_parts_${UPDATE_DATE}
+ls ${DATAD}/LV2/${}_${NUM}_* | sort -nk1 | head -n 1 > $tmp-delete
 rm -f $(cat $tmp-delete)
 
 #LV3:LV2のコピー
