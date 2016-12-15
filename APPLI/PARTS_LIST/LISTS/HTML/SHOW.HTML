@@ -50,7 +50,7 @@
                     </div>
 
                     <input type="hidden" name="CATEGORY_PAGE_HIDDEN" id="CATEGORY_PAGE_HIDDEN" value="###CATEGORY_PAGE_HIDDEN###" class="form-control" />
-                    <input type="hidden" name="CATEGORY_NO_PAGE_HIDDEN" id="CATEGORY_NO_PAGE_HIDDEN" value="" class="form-control" />
+                    <input type="hidden" name="CATEGORY_NO_PAGE_HIDDEN" id="CATEGORY_NO_PAGE_HIDDEN" value="###CATEGORY_NO_PAGE_HIDDEN###" class="form-control" />
                     <input type="hidden" name="SEARCH" id="SEARCH" value="1" class="form-control" />
                     <input type="hidden" name="page" id="page" value="1" class="form-control" />
                 </div>
@@ -145,10 +145,12 @@
     //パーツ変更
     function editParts(id) {
         var page_filter = $('#CATEGORY_PAGE_HIDDEN').val();
+        var page_category_no = $('#CATEGORY_NO_PAGE_HIDDEN').val();
         var edit_category_no = $('#CATEGORY_NO_' + id + '_HIDDEN').val();
+        var edit_category_nx = $('#CATEGORY_NO_' + id + '_HIDDEN_EX').val();
         var edit_category_name = $('#CATEGORY_' + id + '_HIDDEN').val();
         var edit_parts_name = $('#PARTS_NAME_' + id).val();
-        var edit_parts_name_jp = $('#PARTS_NAME_JP' + id).val();
+        var edit_parts_name_jp = $('#PARTS_NAME_JP_' + id).val();
         var edit_parts_price = $('#PARTS_PRICE_' + id).val();
         var edit_parts_remarks = $('#PARTS_REMARKS_' + id).val();
         var jqXHR = $.ajax({
@@ -156,8 +158,10 @@
             url: '/APP/PARTS_LIST/EDIT/COMPLETE',
             data: {
                 PAGE_FILTER: page_filter,
+                CATEGORY_NO_PAGE_HIDDEN: page_category_no,
                 EDIT_PARTS_NO: id,
                 EDIT_PARTS_CATEGORY_NO: edit_category_no,
+                EDIT_PARTS_CATEGORY_NX: edit_category_nx,
                 EDIT_PARTS_CATEGORY_NAME: edit_category_name,
                 EDIT_PARTS_NAME: edit_parts_name,
                 EDIT_PARTS_NAME_JP: edit_parts_name_jp,
@@ -168,9 +172,10 @@
         jqXHR.done(function(data) {
             if (data == 2222) {
                 alert(edit_parts_name + "は、既に使われています。");
-            } else {
-                $('table').html(data);
+            } else if (data == 111) {
                 $('#info-msg').html(edit_parts_name + "を変更しました。");
+            } else {
+                $('#info-msg').html(edit_parts_name + "を変更出来ませんでした。");
             }
         });
         jqXHR.fail(function() {
@@ -180,30 +185,27 @@
 
     //パーツ削除
     function deleteParts(id) {
-        var page_filter = $('#CATEGORY_PAGE_HIDDEN').val();
-        var delete_category_name = $('#CATEGORY_' + id + '_HIDDEN').val();
+        var delete_category_nx = $('#CATEGORY_NO_' + id + '_HIDDEN_EX').val();
         var delete_parts_name = $('#PARTS_NAME_' + id).val();
-        var delete_parts_price = $('#PARTS_PRICE_' + id).val();
         var jqXHR = $.ajax({
             type: 'POST',
             url: '/APP/PARTS_LIST/DELETE/COMPLETE',
             data: {
-                PAGE_FILTER: page_filter,
                 DELETE_PARTS_NO: id,
-                DELETE_PARTS_CATEGORY_NAME: delete_category_name,
-                DELETE_PARTS_NAME: delete_parts_name,
-                DELETE_PARTS_PRICE: delete_parts_price
+                DELETE_CATEGORY_NX: delete_category_nx,
             }
        });
         jqXHR.done(function(data) {
             if (data == 2222) {
-                alert(edit_parts_name + "は、使用されていませんでした。");
-            } else {
-                $('table').html(data);
+                alert(delete_parts_name + "は、使用されていませんでした。");
+            } else if (data == 111) {
+                var sel = '#edit-row-' + id;
+                $(sel).remove();
+                //$(sel).addClass('hidden');
                 $('#info-msg').html(delete_parts_name + "を削除しました。");
+            } else {
+                $('#info-msg').html(delete_parts_name + "を削除出来ませんでした。");
             }
- 
-            $('table').html(data);
         });
         jqXHR.fail(function() {
             alert("削除処理に失敗しました。");

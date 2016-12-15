@@ -34,10 +34,6 @@ FIN
 	exit 1
 }
 
-#######################################
-#フォームの入力値を取得
-#CATEGORY_NM=$(nameread CATE_NAME $tmp-post)
-
 ########################################
 #GETパラメーターを取得
 #ページを取得(初期はなし、絞込の場合は、page=1
@@ -51,10 +47,11 @@ cat $tmp-get | grep 'SEARCH' > $tmp-search
 if [ -n "$(cat $tmp-get | grep 'SEARCH=1')" ] ; then
     #絞込のカテゴリを取得(urldecode)
     PAGE_CATEGORY=$( cat $tmp-get | cut -d'&' -f1 | sed -e 's/CATEGORY_PAGE_HIDDEN\=//' | ruby -r uri -ne 'print URI.unescape $_')
+    PAGE_CATEGORY_NO=$( cat $tmp-get | cut -d'&' -f2 | sed -e 's/CATEGORY_NO_PAGE_HIDDEN\=//' | ruby -r uri -ne 'print URI.unescape $_')
 else
     PAGE_CATEGORY=$( cat $tmp-get | cut -d'&' -f2 | sed -e 's/category\=//' | ruby -r uri -ne 'print URI.unescape $_')
+    PAGE_CATEGORY_NO=$( cat $tmp-get | cut -d'&' -f3 | sed -e 's/category-no\=//' | ruby -r uri -ne 'print URI.unescape $_')
 fi
-echo $PAGE_CATEGORY > $tmp-page-category
 
 #######################################
 #最大表示レコード数
@@ -81,12 +78,12 @@ fi
 
 ########################################
 #ページャーを設定
-if [ -z "${PAGE_CATEGORY}" ] ; then
-    RECORDS=$( ls ${DATAD}/LV3/*[^_d] | wc -l )
+if [ "${PAGE_CATEGORY_NO}" -gt 0 ] ; then
+    RECORDS=$(cat ${DATAD}/${PAGE_CATEGORY_NO}/LV3/*[^_d] | wc -l)
 else
-    RECORDS=$(cat ${DATAD}/LV3/*[^_d] | awk -v c=${PAGE_CATEGORY} '$2==c {print}' | wc -l)
+    RECORDS=$( ls ${DATAD}/*/LV3/*[^_d] | wc -l )
 fi
-RESULT=`${SYSD}/CGI/PAGER $1 "/APP/PARTS_LIST/LISTS/SHOW" ${SHOW_PAGE} ${RECORDS} ${VIEW_MAX_RECORDS} ${VIEW_MAX_PAGES} "&category=${PAGE_CATEGORY}"`
+RESULT=`${SYSD}/CGI/PAGER $1 "/APP/PARTS_LIST/LISTS/SHOW" ${SHOW_PAGE} ${RECORDS} ${VIEW_MAX_RECORDS} ${VIEW_MAX_PAGES} "&category=${PAGE_CATEGORY}" "&category-no=${PAGE_CATEGORY_NO}"`
 
 ########################################
 #パーツカテゴリを取得
@@ -116,15 +113,14 @@ CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-new`
 
 ########################################
 #パーツリストを取得
-if [ -n "${PAGE_CATEGORY}" -a "${PAGE_CATEGORY}" != 'ALL' ] ; then
+if [ "${PAGE_CATEGORY_NO}" -gt 0 ] ; then
     #ページフィルターにALL以外(空欄を除く)が選択された場合
-    cat ${DATAD}/*/LV3/*[^_d]                               |
+    cat ${DATAD}/${PAGE_CATEGORY_NO}/LV3/*[^_d]             |
     LANG=C sort -nk1,1                                      |
-    awk -v c=${PAGE_CATEGORY} '$3==c {print}'               |
     awk -v s=${START} -v e=${END} 'NR>=s&&NR<=e&&$9!=1'     |
     juni                                                    > $tmp-records
 else
-    cat ${DATAD}/*/LV3/*[^_d]                                 |
+    cat ${DATAD}/*/LV3/*[^_d]                               |
     LANG=C sort -nk1,1                                      |
     awk -v s=${START} -v e=${END} 'NR>=s&&NR<=e&&$9!=1'     |
     juni                                                    > $tmp-records
@@ -149,12 +145,13 @@ TABLE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-html`
 
 ########################################
 #tableをはめ込む、ページャーを差し込む
-cat ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/SHOW.HTML          |
-sed -e "s|###CATEGORY_PAGE_HIDDEN###|${PAGE_CATEGORY}|g"    |
-sed -e "s|###CATEGORY###|${CATEGORY_PAGE}|g"                |
-sed -e "s|###TABLE###|${TABLE}|g"                           |
-sed -e "s|###INFO_MSG###||g"                                |
-sed -e "s|###PAGER###|$(cat $tmp-pager-html)|g"             > $tmp-html
+cat ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/SHOW.HTML              |
+sed -e "s|###CATEGORY_PAGE_HIDDEN###|${PAGE_CATEGORY}|g"        |
+sed -e "s|###CATEGORY_NO_PAGE_HIDDEN###|${PAGE_CATEGORY_NO}|g"  |
+sed -e "s|###CATEGORY###|${CATEGORY_PAGE}|g"                    |
+sed -e "s|###TABLE###|${TABLE}|g"                               |
+sed -e "s|###INFO_MSG###||g"                                    |
+sed -e "s|###PAGER###|$(cat $tmp-pager-html)|g"                 > $tmp-html
 
 ########################################
 #page name

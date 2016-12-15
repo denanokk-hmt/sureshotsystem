@@ -101,7 +101,7 @@ for file in `find ${SYSD}/DATA/PARTS_LIST/LISTS/${NUM}/LV1 -maxdepth 1 -type f`;
     destiny=${SYSD}/DATA/PARTS_LIST/LISTS/999/LV1/$num_parts_${UPDATE_DATE}
     cat $file | awk '{$1, "999", "未選択", $4, $5, $6, $7, $8}' > $destiny
     #データ操作ロックを解除
-    UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'PARTS_CATEGORY' ${NUM}`
+    UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'PARTS_LIST' ${NUM}`
     [ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
 done
 

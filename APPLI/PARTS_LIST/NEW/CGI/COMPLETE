@@ -83,9 +83,9 @@ echo ${NEW_NUM}" "${VALUE4}" "${VALUE1}" "${VALUE2}" "${VALUE5}" "${VALUE3}" "${
 #LV1
 $(mv $tmp-parts ${DATAD}/${VALUE4}/LV1/${NEW_NUM}_parts_${CREATE_DATE})
 #LV2
-cat ${DATAD}/${VALUE4}/LV1/${NEW_NUM}_parts_${CREATE_DATE} > ${DATAD}/LV2/${NEW_NUM}_parts_${CREATE_DATE}
+cat ${DATAD}/${VALUE4}/LV1/${NEW_NUM}_parts_${CREATE_DATE} > ${DATAD}/${VALUE4}/LV2/${NEW_NUM}_parts_${CREATE_DATE}
 #LV3
-cat ${DATAD}/${VALUE4}/LV2/${NEW_NUM}_parts_${CREATE_DATE} > ${DATAD}/LV3/${NEW_NUM}_parts_${CREATE_DATE}
+cat ${DATAD}/${VALUE4}/LV2/${NEW_NUM}_parts_${CREATE_DATE} > ${DATAD}/${VALUE4}/LV3/${NEW_NUM}_parts_${CREATE_DATE}
 
 ########################################
 #パーツカテゴリを取得
@@ -115,17 +115,7 @@ CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-new`
 
 ########################################
 #パーツリストを取得
-#if [ -n "${PAGE_FILTER}" -a "${PAGE_FILTER}" != 'ALL' ] ; then
-#    cat ${DATAD}/*/LV3/*[^_d]               |
-#    LANG=C sort -nk1,1                      |
-#    awk -v c=${PAGE_FILTER} '$3==c{print}'  |
-#    juni                                    > $tmp-records
-#else
-#    cat ${DATAD}/*/LV3/*[^_d]               |
-#    LANG=C sort -nk1,1                      |
-#    juni                                    > $tmp-records
-#fi
-if [ "${PAGE_CATEGORY_NO}" > 0 ] ; then
+if [ "${PAGE_CATEGORY_NO}" -gt 0 ] ; then
     cat ${DATAD}/${PAGE_CATEGORY_NO}/LV3/*[^_d] |
     LANG=C sort -nk1,1                          |
     juni                                        > $tmp-records
