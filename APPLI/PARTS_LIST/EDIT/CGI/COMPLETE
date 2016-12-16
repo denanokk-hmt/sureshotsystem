@@ -2,7 +2,7 @@
 #
 
 ########################################
-#	PARTS_LIST EDIT COMPLETE.CGI
+#	PARTS_LIST/EDIT COMPLETE.CGI
 #
 #   引数
 #       $1:プロセスID
@@ -32,6 +32,14 @@ FIN
 	cat $tmp-result
 	exit 1
 }
+
+########################################
+#パーツカテゴリ更新中は、処理をさせない
+#ls ${SYSD}/LOCK/PARTS_CATEGORY/* > $tmp-checker
+#if [ -n cat $tmp-checker ] ; then
+#    echo "333" > $tmp-ajax-html
+#    exit 0
+#fi
 
 #######################################
 #フォームの入力値を取得

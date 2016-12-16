@@ -83,7 +83,7 @@
             if (data == 2222) {
                 alert(new_category_name + "は、既に使われています。");
             } else {
-                $('table').html(data);
+                alert(edit_category_name + "を変更しました。");
                 $('#info-msg').html(edit_category_name + "を変更しました。");
             }
         });
@@ -111,8 +111,13 @@
             }
         });
         jqXHR.done(function(data) {
-            $('table').html(data);
-            $('#info-msg').html(delete_category_name + "を削除しました。");
+            if (data == 111) {
+                var sel = '#edit-row-' + id;
+                $(sel).remove();
+                $('#info-msg').html(delete_category_name + "を削除しました。");
+            } else {
+                $('#info-msg').html(delete_category_name + "を削除出来ませんでした。");
+            }
         });
         jqXHR.fail(function() {
             alert("削除処理に失敗しました。");

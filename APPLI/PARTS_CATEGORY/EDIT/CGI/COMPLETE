@@ -52,6 +52,12 @@ ls ${DATAD}/LV1/${NUM}_parts_category_* | cut -d'_' -f5 | sort -nk1,1 | head -n 
 CREATE_DATE=$(cat $tmp-create)
 UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 
+
+########################################
+#　　パーツカテゴリのデータ操作
+########################################
+
+
 ########################################
 #該当のデータ操作をロック
 LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'PARTS_CATEGORY' ${NUM}`
@@ -79,27 +85,54 @@ ls ${DATAD}/LV3/${NUM}_* | sort -nk1 | head -n 1 > $tmp-delete
 rm -f $(cat $tmp-delete)
 
 ########################################
-#STUFFのデータ操作ロックを解除
+#データ操作ロックを解除
 UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'PARTS_CATEGORY' ${NUM}`
 [ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
 
-########################################
-#Get records
-cat ${SYSD}/DATA/${CATEGORY}/LISTS/LV3/*[^_d]       |
-LANG=C sort -nk1,1                                  |
-juni                                                > $tmp-records
-# 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/RECORDS.HTML $tmp-records > $tmp-table-records
 
 ########################################
-# 改行文字を「\\n」という3文字の文字列に置換
-TABLE_RECORDS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-records`
+#　　パーツのデータ操作
+########################################
+
+#該当カテゴリで登録されているパーツに対して、
+# 1.カテゴリ名を修正するための更新処理を行う
+PARTSD=${SYSD}/DATA/PARTS_LIST/LISTS/${NUM}
+for file in `find ${PARTSD}/LV3/*[^_d] -maxdepth 1 -type f`; do
+
+    #パーツ番号を取得
+    num=$(echo $file | cut -d'/' -f9 | cut -d'_' -f1) 
+    update=$(echo $file | cut -d'/' -f9 | cut -d'_' -f3) 
+    ARR+=($num)
+
+    #該当のデータ操作をロック
+    LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'PARTS_LIST' ${num}`
+    LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
+    [ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
+
+    #LV1:原始データとして、ファイル追加のみを行う
+    destiny=${PARTSD}/LV1/${num}_parts_${UPDATE_DATE}
+    cat ${PARTSD}/LV1/${num}_parts_${update} | 
+    awk -v nm=${NAME} -v ud=${UPDATE_DATE} '{print $1, $2, nm, $4, $5, $6, $7, $8, ud, $10}' > $destiny
+
+    #LV2:変更されたデータとファイルを入れ替える
+    cp -fp ${PARTSD}/LV1/${num}_parts_${UPDATE_DATE} ${PARTSD}/LV2/${num}_parts_${UPDATE_DATE}
+    ls ${PARTSD}/LV2/${num}_* | sort -nk1 | head -n 1 > $tmp-delete
+    rm -f $(cat $tmp-delete)
+
+    #LV3:LV2のコピー
+    cp -fp ${PARTSD}/LV2/${num}_parts_${UPDATE_DATE} ${PARTSD}/LV3/${num}_parts_${UPDATE_DATE}
+    ls ${PARTSD}/LV3/${num}_* | sort -nk1 | head -n 1 > $tmp-delete
+    rm -f $(cat $tmp-delete)
+    
+    #データ操作ロックを解除
+    UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'PARTS_LIST' ${num}`
+    [ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
+done
+
 
 ########################################
-#tableにrecordsを嵌め込む
-cat ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/TABLE.HTML   > $tmp-table
-#sed -re "s|###TABLE_RECORDS###|${TABLE_RECORDS}|g" $tmp-table    > $tmp-table-html
-sed -re "s|###TABLE_RECORDS###|${TABLE_RECORDS}|g" $tmp-table    > $tmp-ajax-html
+#
+echo "111"> $tmp-ajax-html
 
 ########################################
 #ending

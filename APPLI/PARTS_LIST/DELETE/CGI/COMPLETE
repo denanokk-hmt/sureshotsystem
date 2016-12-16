@@ -32,6 +32,15 @@ FIN
 	cat $tmp-result
 	exit 1
 }
+
+########################################
+#パーツカテゴリ更新中は、処理をさせない
+#ls ${SYSD}/LOCK/PARTS_CATEGORY/* > $tmp-checker
+#if [ -n cat $tmp-checker ] ; then
+#    echo "333" > $tmp-ajax-html
+#    exit 0
+#fi
+
 #######################################
 #フォームの入力値を取得
 NUM=$(nameread DELETE_PARTS_NO $tmp-post)
@@ -77,10 +86,10 @@ cp -ip ${DATAD}/${VALUE4}/LV2/${NUM}_parts_${UPDATE_DATE}_d ${DATAD}/${VALUE4}/L
 ls ${DATAD}/${VALUE4}/LV3/${NUM}_* | sort -nk1 | head -n 1 > $tmp-delete
 rm -f $(cat $tmp-delete)
 
-#########################################
-##データ操作ロックを解除
-#UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'PARTS_LIST' ${NUM}`
-#[ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
+########################################
+#データ操作ロックを解除
+UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'PARTS_LIST' ${NUM}`
+[ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
 
 ########################################
 #

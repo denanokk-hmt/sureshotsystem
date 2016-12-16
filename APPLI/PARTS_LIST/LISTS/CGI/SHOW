@@ -2,7 +2,7 @@
 #
 
 ########################################
-#	SHOW.CGI
+#	PARTS_LIST/LIST SHOW.CGI
 #
 #   $1:必須 $$
 #
@@ -115,12 +115,12 @@ CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-new`
 #パーツリストを取得
 if [ "${PAGE_CATEGORY_NO}" -gt 0 ] ; then
     #ページフィルターにALL以外(空欄を除く)が選択された場合
-    cat ${DATAD}/${PAGE_CATEGORY_NO}/LV3/*[^_d]             |
+    cat ${DATAD}/${PAGE_CATEGORY_NO}*[^_d]/LV3/*[^_d]       |
     LANG=C sort -nk1,1                                      |
     awk -v s=${START} -v e=${END} 'NR>=s&&NR<=e&&$9!=1'     |
     juni                                                    > $tmp-records
 else
-    cat ${DATAD}/*/LV3/*[^_d]                               |
+    cat ${DATAD}/*[^_d]/LV3/*[^_d]                          |
     LANG=C sort -nk1,1                                      |
     awk -v s=${START} -v e=${END} 'NR>=s&&NR<=e&&$9!=1'     |
     juni                                                    > $tmp-records

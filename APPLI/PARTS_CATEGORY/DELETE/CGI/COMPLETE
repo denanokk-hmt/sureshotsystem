@@ -1,4 +1,4 @@
-#/bin/bash -evx
+#!/bin/bash -evx
 #
 
 ########################################
@@ -32,15 +32,15 @@ FIN
 	cat $tmp-result
 	exit 1
 }
-
-#######################################
+#
+########################################
 #フォームの入力値を取得
 NUM=$(nameread PARTS_CATEGORY_ID $tmp-post)
 NAME=$(nameread PARTS_CATEGORY_NAME $tmp-post)
-
+#
 ########################################
 #既存データから作成日時取得、現在日時を更新日時とする
-ls ${SYSD}/DATA/STUFF/USERS/LV1/${STUFF_NUM}_stuff_* | cut -d'_' -f3 | sort -nk1,1 | head -n 1 > $tmp-create
+ls ${DATAD}/LV1/${NUM}_parts_category_* | sort -nk1,1 | tail -n 1 | cut -d'/' -f8 | cut -d'_' -f4 > $tmp-create
 CREATE_DATE=$(cat $tmp-create)
 UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 
@@ -48,7 +48,6 @@ UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 ########################################
 #　　パーツカテゴリのデータ操作
 ########################################
-
 
 ########################################
 #該当のデータ操作をロック
@@ -85,47 +84,43 @@ UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'PARTS_CATEGORY' ${NUM}`
 ########################################
 #　　パーツのデータ操作
 ########################################
-
+PARTSD=${SYSD}/DATA/PARTS_LIST/LISTS
 #削除するカテゴリーで登録されているパーツに対して、
 # 1.カテゴリを999 未選択、更新日を現在にして999ディレクトリにコピー
-# 2.ディレクトリ名の末尾に_dをつける
-for file in `find ${SYSD}/DATA/PARTS_LIST/LISTS/${NUM}/LV1 -maxdepth 1 -type f`; do
-    #パーツ番号
-    num=$(echo $file | cut -d'/' -f8 | cut -d'_' -f1) 
+for file in `find ${PARTSD}/${NUM}/LV3/*[^_d] -maxdepth 1 -type f`; do
+
+    #パーツ番号取得
+    num=$(echo $file | cut -d'/' -f9 | cut -d'_' -f1) 
+    update=$(echo $file | cut -d'/' -f9 | cut -d'_' -f3) 
     ARR+=($num)
+
     #該当のデータ操作をロック
-    LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'PARTS_LIST' ${NUM}`
+    LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'PARTS_LIST' ${num}`
     LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
     [ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
-    #ファイル移動と更新
-    destiny=${SYSD}/DATA/PARTS_LIST/LISTS/999/LV1/$num_parts_${UPDATE_DATE}
-    cat $file | awk '{$1, "999", "未選択", $4, $5, $6, $7, $8}' > $destiny
+    
+    #LV1:原始データとして、ファイル追加のみを行う
+    destiny=${PARTSD}/999/LV1/${num}_parts_${UPDATE_DATE}
+    cat ${PARTSD}/${NUM}/LV1/${num}_parts_${update} | awk -v ud=${UPDATE_DATE} '{print $1, "999", "未選択", $4, $5, $6, $7, $8, ud, "0"}' > $destiny
+
+    #LV2:変更されたデータとファイルを入れ替える
+    cp -fp ${PARTSD}/999/LV1/${num}_parts_${UPDATE_DATE} ${PARTSD}/999/LV2/${num}_parts_${UPDATE_DATE}
+
+    #LV3:LV2のコピー
+    cp -fp ${PARTSD}/999/LV2/${num}_parts_${UPDATE_DATE} ${PARTSD}/999/LV3/${num}_parts_${UPDATE_DATE}
+
     #データ操作ロックを解除
-    UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'PARTS_LIST' ${NUM}`
+    UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'PARTS_LIST' ${num}`
     [ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
 done
+# 2.ディレクトリ名の末尾に_dをつける
+mv ${PARTSD}/${NUM} ${PARTSD}/${NUM}_${UPDATE_DATE}_d
 
 ########################################
-#Get records
-cat ${SYSD}/DATA/${CATEGORY}/LISTS/LV3/*[^_d]       |
-LANG=C sort -nk1,1                                  |
-juni                                     -           > $tmp-records
-# 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/RECORDS.HTML $tmp-records > $tmp-table-records
-
-########################################
-# 改行文字を「\\n」という3文字の文字列に置換
-TABLE_RECORDS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-records`
-
-########################################
-#tableにrecordsを嵌め込む
-cat ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/TABLE.HTML   > $tmp-table
-#sed -re "s|###TABLE_RECORDS###|${TABLE_RECORDS}|g" $tmp-table    > $tmp-table-html
-sed -re "s|###TABLE_RECORDS###|${TABLE_RECORDS}|g" $tmp-table    > $tmp-ajax-html
+#
+echo "111" > $tmp-ajax-html
 
 ########################################
 #ending
 echo "OK"
 exit 0
-
-

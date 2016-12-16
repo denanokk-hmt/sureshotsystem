@@ -2,7 +2,7 @@
 #
 
 ########################################
-#	PARTS_LIST NEW COMPLETE.CGI
+#	PARTS_LIST/NEW COMPLETE.CGI
 #
 #   引数
 #       $1:プロセスID
@@ -34,6 +34,14 @@ FIN
 }
 
 ########################################
+#パーツカテゴリ更新中は、処理をさせない
+#ls ${SYSD}/LOCK/PARTS_CATEGORY/* > $tmp-checker 2> /dev/null
+#if [ -n cat $tmp-checker ] ; then
+#    echo "333" > $tmp-ajax-html
+#    exit 0
+#fi
+
+########################################
 #パーツ番号の次のロットを追加する
 LATEST_NUM=$(ls ${SYSD}/DATA/NUMBERS/${CATEGORY}/ORIGIN | sort -nr | head -n 1)
 START=$((LATEST_NUM + 1))
@@ -62,7 +70,7 @@ VALUE6=$(nameread NEW_PARTS_REMARKS $tmp-post)          #備考
 
 ########################################
 #重複確認
-cat ${DATAD}/${VALUE4}/LV3/* | awk -v cat=${VALUE4} -v nm=${VALUE2} '$2==cat&&$4==nm{print $1}' > $tmp-valid1
+cat ${DATAD}/${VALUE4}*[^_d]/LV3/* | awk -v cat=${VALUE4} -v nm=${VALUE2} '$2==cat&&$4==nm{print $1}' > $tmp-valid1
 if [ -n "$(cat $tmp-valid1)" ] ; then
     echo 2222 > $tmp-ajax-html
     exit 0
@@ -116,13 +124,13 @@ CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-new`
 ########################################
 #パーツリストを取得
 if [ "${PAGE_CATEGORY_NO}" -gt 0 ] ; then
-    cat ${DATAD}/${PAGE_CATEGORY_NO}/LV3/*[^_d] |
-    LANG=C sort -nk1,1                          |
-    juni                                        > $tmp-records
+    cat ${DATAD}/${PAGE_CATEGORY_NO}*[^_d]/LV3/*[^_d]   |
+    LANG=C sort -nk1,1                                  |
+    juni                                                > $tmp-records
 else
-    cat ${DATAD}/*/LV3/*[^_d]                   |
-    LANG=C sort -nk1,1                          |
-    juni                                        > $tmp-records
+    cat ${DATAD}/*[^_d]/LV3/*[^_d]                      |
+    LANG=C sort -nk1,1                                  |
+    juni                                                > $tmp-records
 fi
 #
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/RECORDS.HTML $tmp-records > $tmp-table-records
