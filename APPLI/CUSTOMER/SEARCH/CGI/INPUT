@@ -41,23 +41,25 @@ cat $tmp-value1 | cut -d'_' -f1> $tmp-fname
 cat $tmp-value1 | cut -d'_' -f2 > $tmp-gname
 
 #######################################
+#フォーム入力値を取得
+nameread SEARCH_NAME $tmp-post    > $tmp-search-words
+
+#######################################
 #顧客名を曖昧検索
-cat ${DATAD}/LV3/*[^_d]         |
-awk '{print $1, $2, $3, $5}'    |
-LANG=C sort -nk1,1              |
-awk -v f=$(cat $tmp-fname) -v g=$(cat $tmp-gname) '$1==f||$2==g'> $tmp-result
+cat $tmp-search-words | sed "s/　/\\_/i" > $tmp-search-words2
+WORDS=(` cat $tmp-search-words2 | tr '_' ' '`)
+cat ${DATAD}/LV3/*[^_d] | LANG=C sort -nk1,1 | awk '{print}' > $tmp-base
+for item in ${WORDS[@]}; do
+    cat $tmp-base | awk '$2$3 ~ /'$item'/ {print}'  > $tmp-base2
+    cat $tmp-base2 > $tmp-base
+done
+cat $tmp-base > $tmp-result
 
 #######################################
 #検索結果をリストボックス(HTML)に置く
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/DROPDOWN_LIST.HTML $tmp-result > $tmp-ajax-html
-exit 0
-
-#########################################
-#page name
-echo "Customer entry" > $tmp-pagename
 
 ###############################################################################
 #ending
 echo "OK"
-#echo $COOK_SET
 exit 0
