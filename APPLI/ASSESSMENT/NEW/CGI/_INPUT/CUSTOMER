@@ -1,0 +1,90 @@
+#!/bin/bash -vx
+#
+
+########################################
+#	ASSESSMENT NEW INPUT CUSTOMER.CGI
+#
+#   Arg
+#       $1:$$
+#
+#	Written by hiramatsu
+
+
+########################################
+#基本設定
+SYSD=/home/sureshotsystem
+#exec 2> $SYSD/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
+tmp=/tmp/tmp_$1
+LANG=ja_JP.UTF-8
+PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
+CATEGORY=`cat $tmp-category`
+FUNC=`cat $tmp-func`
+
+########################################
+#Check error
+ERROR_CHECK(){
+	[ $(plus ${PIPESTATUS[@]}) -eq 0 ] && return
+cat <<- FIN
+	Context-type: text/html
+	NG input
+FIN
+	cat $tmp-result
+	exit 1
+}
+
+#######################################
+#フォーム入力値を取得
+TEMP_NO=$(nameread TEMP_NO $tmp-post)
+
+#######################################
+#TEMP_NOが取得出来なかった場合、
+# 1.TEMP_NOを設定
+# 2./LOG/ASSESSMENT/配下にTEMP_NO/を作成
+# 3.customer,parts,operationの空ファイルを作成
+if [ -z ${TEMP_NO} ]; then
+    TEMP_NO=$(date +%Y%m%d)_$(date +%H%M%S)_$RANDOM
+    mkdir ${SYSD}/TMP/ASSESSMENT/${TEMP_NO}
+    chmod 775 ${SYSD}/TMP/ASSESSMENT/${TEMP_NO}
+    echo "" > ${SYSD}/TMP/ASSESSMENT/${TEMP_NO}/customer
+    echo "" > ${SYSD}/TMP/ASSESSMENT/${TEMP_NO}/parts
+    echo "" > ${SYSD}/TMP/ASSESSMENT/${TEMP_NO}/operation
+fi
+
+########################################
+#仮番号ディレクトリ
+TEMPD=${SYSD}/TMP/ASSESSMENT/${TEMP}
+
+########################################
+#顧客情報取得
+CUSTOMER_NO=$(cat ${TEMPD}/customer | cut -d' ' -f1)
+FAMILY_NAME=$(cat ${TEMPD}/customer | cut -d' ' -f2)
+GIVEN_NAME=$(cat ${TEMPD}/customer | cut -d' ' -f3)
+PHONE=$(cat ${TEMPD}/customer | cut -d' ' -f4)
+
+########################################
+#画面情報設定
+[ -z "${CUSTOMER_NO}" ] && DISABLED_SET="" || DISABLED_SET='disabled'
+[ -z "${CUSTOMER_NO}" ] && DISABLED_DEL="" || DISABLED_DEL='disabled'
+
+########################################
+#Making viweing body HTML file path
+ACTION=`cat $tmp-action`
+SUB_ACTION=`cat $tmp-sub-action`
+cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/${SUB_ACTION}.HTML |
+sed -e "s/###DISABLED_SET###/${DISABLED_SET}/"                          |
+sed -e "s/###DISABLED_DEL###/${DISABLED_DEL}/"                          |
+sed -e "s/###CUSTOMER_NO###/${CUSTOMER_NO}/"                            |
+sed -e "s/###CUSTOMER_NM###/${FAMILI_NAME} ${GIVEN_NAME}/"              |
+sed -e "s/###CUSTOMER_PH###/${CUSTOMER_PH}/"                            |
+sed -e "s/###TEMP_NO###/${TEMP_NO}/"                                    |
+sed -e "s/###DUMMY###//"                                                > $tmp-html
+
+#########################################
+#page name
+echo "Assessment entry" > $tmp-pagename
+
+#########################################
+##ending
+echo "OK"
+exit 0
+

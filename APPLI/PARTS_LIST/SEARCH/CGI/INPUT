@@ -39,29 +39,18 @@ VALUE1=$(nameread PARTS_CATEGORY_NO $tmp-post)
 
 ########################################
 #パーツカテゴリを取得
-cat ${SYSD}/DATA/PARTS_CATEGORY/LISTS/LV3/*[^_d]    |
-LANG=C sort -nk1,1                                  > $tmp-category
+cat ${SYSD}/DATA/PARTS_LIST/LISTS/${VALUE1}/LV3/*[^_d]  |
+LANG=C sort -nk1,1                                      > $tmp-parts
 
 ########################################
-#Parts絞り込み用のパーツカテゴリ
+#Parts
 # 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/INPUT/PARTS_CATEGORY.HTML $tmp-category > $tmp-parts-category
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/DROPDOWN_LIST.HTML $tmp-parts > $tmp-ajax-html
 
 ########################################
 # 改行文字を「\\n」という3文字の文字に置換
-PARTS_CATEGORY=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category`
+#PARTS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-html`
 
-########################################
-#Making viweing body HTML filw path
-ACTION=`cat $tmp-action`
-SUB_ACTION=`cat $tmp-sub-action`
-cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/${SUB_ACTION}.HTML |
-sed -e "s|###ASSESSMENT_NO###|${ASS}|"                                  |
-sed -e "s|###CUSTOMER_NO###|${VALUE1}|"                                 |
-sed -e "s|###CUSTOMER_NM###|${VALUE2}|"                                 |
-sed -e "s|###PARTS_CATEGORY###|${PARTS_CATEGORY}|"                      > $tmp-html
-
-#
 ########################################
 #ending
 echo "OK"

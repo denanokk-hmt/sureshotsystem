@@ -21,6 +21,7 @@ PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
 CATEGORY=`cat $tmp-category`
 FUNC=`cat $tmp-func`
 ACTION=`cat $tmp-action`
+SUB_ACTION=`cat $tmp-sub-action`
 
 ########################################
 #Check error
@@ -64,15 +65,35 @@ cat ${SYSD}/DATA/PARTS_CATEGORY/LISTS/LV3/*[^_d]    |
 LANG=C sort -nk1,1                                  > $tmp-category
 
 ########################################
-#Parts絞り込み用のパーツカテゴリ
+#入力済みパーツリストのパーツカテゴリ
 # 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/PARTS_CATEGORY.HTML $tmp-category > $tmp-parts-category
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/${SUB_ACTION}_CATEGORY_LIST.HTML $tmp-category > $tmp-parts-category-list
 
 ########################################
-# 改行文字を「\\n」という3文字の文字に置換
-PARTS_CATEGORY=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category`
+#新規登録パーツ用のパーツカテゴリ
+# 1;カテゴリ番号 2;カテゴリ名
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/${SUB_ACTION}_CATEGORY_NEW.HTML $tmp-category > $tmp-parts-category-new
+
+########################################
+# 改行文字を「\\n」という3文字の文字列に置換
+CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-list`
+CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-new`
+
+########################################
+#入力済みパーツリストを取得
 
 
+
+
+########################################
+#tableにrecordsを嵌め込む
+cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/${SUB_ACTION}_TABLE.HTML   |
+sed -e "s|###TABLE_RECORDS###|${TABLE_RECORDS}|g"                               |
+sed -e "s|###CATEGORY###|${CATEGORY_NEW}|g"                                     > $tmp-table-html
+
+########################################
+# 改行文字を「\\n」という3文字の文字列に置換
+TABLE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-html`
 
 ########################################
 #Making viweing body HTML filw path
@@ -82,7 +103,8 @@ cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/${SUB_ACTION}.HTML |
 sed -e "s|###ASSESSMENT_NO###|${ASS}|"                                  |
 sed -e "s|###CUSTOMER_NO###|${VALUE1}|"                                 |
 sed -e "s|###CUSTOMER_NM###|${VALUE2}|"                                 |
-sed -e "s|###PARTS_CATEGORY###|${PARTS_CATEGORY}|"                      > $tmp-html
+sed -e "s|###PARTS_CATEGORY###|${PARTS_CATEGORY}|"                      |
+sed -e "s|###TABLE###|${TABLE}|g"                                       > $tmp-html|
 
 ########################################
 ##ending

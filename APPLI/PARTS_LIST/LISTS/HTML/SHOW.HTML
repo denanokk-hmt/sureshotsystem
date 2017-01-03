@@ -103,16 +103,16 @@
         var pe = obj.parentNode;
         var ppe = pe.parentNode;
         var nodes = ppe.attributes;
-        var parts_no = nodes.name.nodeValue;
+        var cat_no = nodes.name.nodeValue;
 
         //該当のレコードに選択したカテゴリ名を設定
-        var input_text = document.getElementById('CATEGORY_' + parts_no);
+        var input_text = document.getElementById('CATEGORY_' + cat_no);
         input_text.value = choice;
-        var input_hidden = document.getElementById('CATEGORY_' + parts_no + '_HIDDEN');
+        var input_hidden = document.getElementById('CATEGORY_' + cat_no + '_HIDDEN');
         input_hidden.value = choice;
 
         //該当のレコードに選択したカテゴリ番号を設定
-        var input_hidden = document.getElementById('CATEGORY_NO_' + parts_no + '_HIDDEN');
+        var input_hidden = document.getElementById('CATEGORY_NO_' + cat_no + '_HIDDEN');
         input_hidden.value = id;
     }
 

@@ -10,7 +10,7 @@
                 <h3><i class="glyphicon glyphicon-info-sign"></i></h3>
             </label>
             <div class="col-sm-6 lbl-header-info">
-                <span id="info-msg" class="label label-lg label-###INFO_LV###">
+                <span id="info-msg" class="label label-lg ">
                     ###INFO_MSG###
                 </span>
             </div>
@@ -19,10 +19,10 @@
         <!--Goto Another Function-->
         <div class="btn-toolbar">
             <button class="btn btn-info col-smx-3 disabled" />customer</button>
-            <button class="btn btn-default col-smx-3" />parts</button>
-            <button class="btn btn-default col-smx-3" />operation</button>
-            <button class="btn btn-default col-smx-3" />work</button>
-            <button class="btn btn-default col-smx-3" />check</button>
+            <button class="btn btn-default col-smx-3 " />parts</button>
+            <button class="btn btn-default col-smx-3 " />operation</button>
+            <button class="btn btn-default col-smx-3 " />work</button>
+            <button class="btn btn-default col-smx-3 " />check</button>
         </div>
 
     </div>
@@ -69,7 +69,7 @@
             <div class="row">
                 <div class="col-md-8 ">
                     <div class="alert alert-success green-trans-over">
-                        <strong>Customer No &nbsp&nbsp : </strong><span id="customer-no"></span>
+                        <strong>Customer No &nbsp&nbsp : </strong><span id="customer-no">###CUSTOMER_NO###</span>
                     </div>
                 </div>
             </div>
@@ -77,7 +77,7 @@
             <div class="row">
                 <div class="col-md-8 ">
                     <div class="alert alert-success green-trans-over">
-                        <strong>Name &nbsp&nbsp : </strong><span id="customer-nm"></span>
+                        <strong>Name &nbsp&nbsp : </strong><span id="customer-nm">###CUSTOMER_NM###</span>
                     </div>
                 </div>
             </div>
@@ -85,7 +85,7 @@
             <div class="row">
                 <div class="col-md-8 ">
                     <div class="alert alert-success green-trans-over">
-                        <strong>Phone &nbsp&nbsp : </strong><span id="customer-ph"></span>
+                        <strong>Phone &nbsp&nbsp : </strong><span id="customer-ph">###CUSTOMER_PH###</span>
                     </div>
                 </div>
             </div>
@@ -93,7 +93,7 @@
             <div class="row">
                 <div class="col-md-8 ">
                     <div class="alert alert-success blue-trans-over">
-                        <strong>Assessment No &nbsp&nbsp : </strong><span id="assessment-no"></span>
+                        <strong>Assessment TempNo &nbsp&nbsp : </strong><span id="assessment-temp-no">###TEMP_NO###</span>
                     </div>
                 </div>
             </div>
@@ -103,32 +103,41 @@
 
     <div class="container">
         <div class="row">
-    <!--Contents-->
-    <div class="col-md-4">
-    <div class="contents">
-        <form name="assessment-customer" action="" method="POST">
-            <div class="form-group">
-    		    <input type="hidden" name="STATUS" value="INPUT" />
-    		    <input type="hidden" id="CUSTOMER_NO" name="CUSTOMER_NO" value="0" />
-    		    <input type="hidden" id="CUSTOMER_NM" name="CUSTOMER_NM" value="0" />
-    		    <button type="submit" id="Start" class="btn btn-primary btn-lg ###DISABLED_START###" />
-                    Start
-                </button>
-    		    <button type="submit" id="Delete" class="btn btn-warning btn-lg ###DISABLED_DELETE###" />
-                    Delete
-                </button>
+            <!--Contents-->
+            <div class="col-md-4">
+                <div class="contents">
+                    <form name="assessment-customer" action="" method="POST">
+                        <div class="form-group">
+                		    <input type="hidden" name="STATUS" value="INPUT" />
+                		    <input type="hidden" id="CUSTOMER_NO" name="CUSTOMER_NO" value="###CUSTOMER_NO###" />
+                		    <input type="hidden" id="CUSTOMER_NM" name="CUSTOMER_NM" value="###CUSTOMER_NM###" />
+                		    <input type="hidden" id="CUSTOMER_PH" name="CUSTOMER_PH" value="###CUSTOMER_PH###" />
+                		    <input type="hidden" id="TEMP_NO" name="TEMP_NO" value="###TEMP_NO###" />
+                        </div>
+                    </form>
+                    <button type="submit" id="Set" class="btn btn-primary btn-lg ###DISABLED_SET###" />
+                        Set
+                    </button>
+                	<button type="submit" id="Delete" class="btn btn-warning btn-lg ###DISABLED_DEL###" />
+                        Delete
+                    </button>
+                </div>
             </div>
-       </form>
-    </div>
-    </div>
-
-    </div>
+        </div>
     </div>
 
 <div class="container">
 </div>
 
 <script>
+    //ページ移動
+    $(".btn-toolbar .btn").on('click', function() {
+        var func = $(this).html().toUpperCase();
+        var frm = document.forms['assessment-customer'];
+        frm.metho = 'POST';
+        frm.action = '/APP/ASSESSMENT/NEW/' + func + '/INPUT';
+        frm.submit();
+    });
 
     //顧客検索
     $("#customer_search").on('click', function() {
@@ -164,39 +173,67 @@
                 url: '/APP/ASSESSMENT/NEW/GUEST_CUSTOMER_NO',
             });
             jqXHR.done(function(data) {
-                //顧客をhiddenに設定
-                $('#CUSTOMER_NO').val(data);
-                $('#CUSTOMER_NM').val('Guest');
-                //表示
-                $('#customer-no').html('Guest-' + data);
-                $('#customer-nm').html('Guest');
-                $('#customer-ph').html('nothing');
-            });
+                customer_no = 'guest_' + data;
+                customer_nm = 'Guest';
+                customer_ph = 'nothing'
+           });
             jqXHR.fail(function() {
                 search_result = 'failer get guest customer number.';
             });
         } else {
-            //表示
             var arraySelected=$(this).text().split(" ");
-            console.log(arraySelected);
-            $('#customer-no').html($(this).val());
-            $('#customer-nm').html(arraySelected[0] + ' ' + arraySelected[1]);
-            $('#customer-ph').html(arraySelected[2]);
-            //顧客をhiddenに設定
-            $('#CUSTOMER_NO').val($(this).val());
-            $('#CUSTOMER_NM').val(arraySelected[0]);
+            customer_no = $(this).val();
+            customer_nm = arraySelected[0] + ' ' + arraySelected[1];
+            customer_ph = arraySelected[2];
         }
-       //Start able
-        $('#Start').removeClass('disabled');
+
+        //顧客をhiddenに設定
+        $('#CUSTOMER_NO').val(customer_no);
+        $('#CUSTOMER_NM').val(customer_nm);
+        $('#CUSTOMER_PH').val(customer_ph);
+
+        //表示
+        $('#customer-no').html(customer_no);
+        $('#customer-nm').html(customer_nm);
+        $('#customer-ph').html(customer_ph);
+ 
+        //Set able
+        $('#Set').removeClass('disabled');
     });
 
 
-    //Start
-    $(document).on('click', '#Start', function() {
-        var frm = document.forms['assessment-customer'];
-        frm.metho = 'POST';
-        frm.action = '/APP/ASSESSMENT/NEW/INPUT/PARTS';
-        frm.submit();
+    //SET
+    $("#Set").on('click', function() {
+        var cust_no = $('#CUSTOMER_NO').val();
+        var cust_nm = $('#CUSTOMER_NM').val();
+        var cust_ph = $('#CUSTOMER_PH').val();
+        var temp_no = $('#TEMP_NO').val();
+        var jqXHR = $.ajax({
+            type: 'POST',
+            url: '/APP/ASSESSMENT/NEW/CUSTOMER/CONFIRM',
+            data: {
+                CUSTOMER_NO: cust_no,
+                CUSTOMER_NM: cust_nm,
+                CUSTOMER_PH: cust_ph,
+                TEMP_NO: temp_no
+            }
+        });
+        jqXHR.done(function(data) {
+            //バリデーションがOK；111
+            //バリデーションがNG；222
+            if (data == 111) {
+                $('#info-msg').removeClass('label-danger');
+                $('#info-msg').addClass('label-success');
+                $('#info-msg').html('顧客を設定しました。');
+            } else {
+                $('#info-msg').removeClass('label-success');
+                $('#info-msg').addClass('label-danger');
+                $('#info-msg').html('顧客が設定されていません。');
+            }
+        });
+        jqXHR.fail(function() {
+            search_result = '一致する顧客名がありません。';
+        });
     });
 
     //Delete

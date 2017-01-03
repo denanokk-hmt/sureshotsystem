@@ -107,8 +107,14 @@ html,body {
     left:   35%;
     background-color:   #47b3e1; 
 }
-
-
+/*
+.scrollable-menu .dropdown ul a{
+    z-index: 1
+}
+.scrollable-menu .dropdown.dropdown-menu {
+    z-index:2
+}
+*/
 
 /****************/
 /*HALF SLIDER*/
