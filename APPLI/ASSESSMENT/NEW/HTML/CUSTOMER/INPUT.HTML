@@ -130,11 +130,12 @@
 </div>
 
 <script>
+
     //ページ移動
     $(".btn-toolbar .btn").on('click', function() {
         var func = $(this).html().toUpperCase();
         var frm = document.forms['assessment-customer'];
-        frm.metho = 'POST';
+        frm.method = 'POST';
         frm.action = '/APP/ASSESSMENT/NEW/' + func + '/INPUT';
         frm.submit();
     });

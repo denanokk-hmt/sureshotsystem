@@ -5,14 +5,12 @@
 <table class="table" style="font-size:12px;">
     <thead>
         <tr>
-            <th>#</th>
-            <th>NO</th>
-            <th>PARTS CATEGORY</th>
-            <th>PARTS NAME (EN)</th>
-            <th>PARTS NAME (JP)</th>
-            <th>PRICE</th>
-            <th>REMARKS</th>
-            <th></th>
+            <th class="col-sm-1">#</th>
+            <th class="col-sm-1">NO</th>
+            <th class="col-sm-3">CATEGORY</th>
+            <th class="col-sm-3">NAME (EN)</th>
+            <th class="col-sm-2">PRICE</th>
+            <th class="col-sm-2">QTY</th>
             <th></th>
         </tr>
     </thead>
@@ -26,6 +24,7 @@
             <td>
                 <span class="label label-default">NEW</span>
             </td>
+            <!--Category-->
             <td>
                 <div class="form-group">
                     <div class="btn-group">
@@ -45,6 +44,7 @@
                     <input type="hidden" name="CATEGORY_NO_NEW_HIDDEN" id="CATEGORY_NO_NEW_HIDDEN" value="" class="form-control" />
                 </div>
             </td>
+            <!--パーツ-->
             <td>
                 <div class="form-group">
                     <div class="btn-group">
@@ -57,17 +57,32 @@
                                 </ul>
                             </div>
                             <div class="btn-group">
-                                <input type="text" name="PARTS_NEW" id="PARTS_NEW" value="" class="form-control input-sm" disabled placeholder="パーツ"/>
+                                <input type="text" name="PARTS_NM_NEW" id="PARTS_NM_NEW" value="" class="form-control input-sm" disabled placeholder="パーツ"/>
                             </div>
-                        </div>
+                       </div>
                     </div>
-                    <input type="hidden" name="PARTS_NEW_HIDDEN" id="PARTS_NEW_HIDDEN" value="" class="form-control" />
                     <input type="hidden" name="PARTS_NO_NEW_HIDDEN" id="PARTS_NO_NEW_HIDDEN" value="" class="form-control" />
                 </div>
             </td>
+            <!--PRICE-->
             <td>
-                <input type="number" id="PARTS_NEW_PRICE" name="PARTS_NEW_PRICE" value="" class="form-control input-sm" style="" placeholder="税抜価格" >
+                <input type="text" id="PARTS_NEW_PRICE" name="PARTS_NEW_PRICE" value="" class="form-control input-sm" style="" placeholder="税抜価格" disabled >
             </td>
+            <!--QTY-->
+            <td>
+                <div class="btn-group">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-md input-sm" id="qty_new_plus">+</button>
+                    </div>
+                    <div class="btn-group">
+                        <input type="text" name="PARTS_NEW_QTY" id="PARTS_NEW_QTY" value="0" class="form-control input-sm" disabled placeholder="数量" style="width:3em"/>
+                    </div>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-md input-sm" id="qty_new_minus">-</button>
+                    </div>
+                </div>
+            </td>
+            <!--button-->
             <td>
                 <a href="" class="btn btn-primary btn-sm" onclick="newParts(); return false;">NEW</a>
             </td>

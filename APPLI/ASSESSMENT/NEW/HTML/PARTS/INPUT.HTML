@@ -47,10 +47,9 @@
     <!--CATEGORY Search-->
     <div class="container">
         <div class="row">
-
-            <!--PARTS CATEGORY dropdown-->
-            <div class="col-sm-5">
+            <div class="col-sm-12">
                 <div class="btn-group">
+                    <!--PARTS CATEGORY dropdown-->
                     <div class="btn-group">
                         <div class="btn-group">
                             <div class="dropdown">
@@ -62,36 +61,37 @@
                                     ###PARTS_CATEGORY###
                                 </ul>
                             </div>
-                         </div>
+                        </div>
                         <div class="btn-group">
                             <input type="text" name="CATEGORY" id="CATEGORY" value="" class="form-control" disabled />
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <!--PARTS dropdown-->
-            <div class="col-sm-5">
-                <div class="btn-group">
+                    <!--PARTS dropdown-->
                     <div class="btn-group">
-                        <div id="dropdown-parts2" class="dropdown">
-                            <button type="button" id="dropdown-parts-btn" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                Parts
-                                <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu" id="2dropdown-parts-list">
-                                ###PARTS###
-                            </ul>
+                        <div class="btn-group">
+                            <div id="dropdown-parts2" class="dropdown">
+                                <button type="button" id="dropdown-parts-btn" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                    Parts
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" id="2dropdown-parts-list">
+                                    ###PARTS###
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="btn-group">
+                            <input type="text" name="PARTS" id="PARTS" value="" class="form-control" disabled />
                         </div>
                     </div>
+            
                     <div class="btn-group">
-                        <input type="text" name="PARTS" id="PARTS" value="" class="form-control" disabled />
+                        <button type="submit" id="Set" class="btn btn-primary btn-md ###DISABLED_SET###" />
+                            Set
+                        </button>
                     </div>
                 </div>
             </div>
-            
-            <!--Spacer-->
-            <div class="col-sm-1 hidden-xs"></div>
         </div>
     </div>
 
@@ -117,13 +117,7 @@
                 		    <input type="hidden" name="STATUS" value="INPUT" />
                 		    <input type="hidden" id="CUSTOMER_NO" name="CUSTOMER_NO" value="0" />
                 		    <input type="hidden" id="ASSESSMENT_NO" name="ASSESSMENT_NO" value="0" />
-                		    <button type="submit" id="Start" class="btn btn-primary btn-lg ###DISABLED_START###" />
-                                Start
-                            </button>
-                		    <button type="submit" id="Delete" class="btn btn-warning btn-lg ###DISABLED_DELETE###" />
-                                Delete
-                            </button>
-                        </div>
+                       </div>
                    </form>
                 </div>
             </div>
@@ -133,6 +127,15 @@
 </div>
 
 <script>
+
+    //ページ移動
+    $(".btn-toolbar .btn").on('click', function() {
+        var func = $(this).html().toUpperCase();
+        var frm = document.forms['assessment-customer'];
+        frm.method = 'POST';
+        frm.action = '/APP/ASSESSMENT/NEW/' + func + '/INPUT';
+        frm.submit();
+    });
 
     //カテゴリを選択
     /* 
@@ -147,7 +150,6 @@
         });
     */
     function categoryChoice(id,obj) {
-
         //選択したカテゴリ名
         var e = document.getElementById("cat-list-" + id);
         var choice = e.innerHTML;
@@ -180,6 +182,12 @@
             search_result = data;
             $('#dropdown-parts').addClass('open');
             $('#dropdown-parts-list').html(data);
+            //パーツをクリア
+            $('#PARTS_NM_NEW').val('');
+            $('#PARTS_NEW_PRICE').val('');
+            $('#PARTS_NEW_PRICE').val('');
+            $('#PARTS_NEW_QTY').val('0');
+            $('#PARTS_NO_NEW_HIDDEN').val('');
         });
         jqXHR.fail(function() {
             search_result = '一致するパーツがありません。';
@@ -187,35 +195,28 @@
 
     }
 
-
-    //パーツカテゴリー選択
-    $(document).on('click', 'li.new-category', function() {
-        alert();
-        var text = $(this).text();
-        var value = $(this).val();
-        $('#CATEGORY').val(text);
-        var jqXHR = $.ajax({
-            type: 'POST',
-            url: '/APP/PARTS_LIST/SEARCH/INPUT',
-            data: {
-                PARTS_CATEGORY_NO: value
-            }
-        });
-        jqXHR.done(function(data) {
-            search_result = data;
-            $('#dropdown-parts').addClass('open');
-            $('#dropdown-parts-list').html(data);
-        });
-        jqXHR.fail(function() {
-            search_result = '一致するパーツがありません。';
-        });
+    //パーツ選択
+    $(document).on('click', 'li.list-parts', function() {
+        var partsNo = $(this).val();
+        var partsNm = $(this).text();
+        var partsPrice = $('#PARTS_NEW_PRICE_' + partsNo).val();
+        $('#PARTS_NM_NEW').val(partsNm);
+        $('#PARTS_NEW_PRICE').val(partsPrice);
+        $('#PARTS_NEW_QTY').val('1');
+        $('#PARTS_NO_NEW_HIDDEN').val(partsNo);
     });
 
-    //パーツ選択
-    $(document).on('click', 'li.parts-category', function() {
-        var text = $(this).text();
-        var value = $(this).val();
-        $('#PARTS').val(text);
+    //数量PLUS
+    $(document).on('click', '#qty_new_plus', function() {
+        var qty = $('#PARTS_NEW_QTY').val();
+        $('#PARTS_NEW_QTY').val(parseInt(qty) + parseInt(1));
+    });
+    //数量MINUS
+    $(document).on('click', '#qty_new_minus', function() {
+        var qty = $('#PARTS_NEW_QTY').val();
+        if (parseInt(qty) > 0) {
+            $('#PARTS_NEW_QTY').val(parseInt(qty) - parseInt(1));
+        }
     });
 
 </script>
