@@ -115,10 +115,15 @@
                     <form action="/APP/ASSESSMENT/NEW/CONFIRM" method="POST">
                         <div class="form-group">
                 		    <input type="hidden" name="STATUS" value="INPUT" />
-                		    <input type="hidden" id="CUSTOMER_NO" name="CUSTOMER_NO" value="0" />
-                		    <input type="hidden" id="ASSESSMENT_NO" name="ASSESSMENT_NO" value="0" />
+                		    <input type="hidden" id="TEMP_NO" name="TEMP_NO" value="###TEMP_NO###" />
                        </div>
-                   </form>
+                    </form>
+                    <button type="submit" id="Set" class="btn btn-primary btn-lg ###DISABLED_SET###" />
+                        Set
+                    </button>
+                	<button type="submit" id="Delete" class="btn btn-warning btn-lg ###DISABLED_DEL###" />
+                        Delete
+                    </button>
                 </div>
             </div>
         </div>
@@ -128,7 +133,7 @@
 
 <script>
 
-    //ページ移動
+    //HEADページ移動
     $(".btn-toolbar .btn").on('click', function() {
         var func = $(this).html().toUpperCase();
         var frm = document.forms['assessment-customer'];

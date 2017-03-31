@@ -177,7 +177,17 @@
                 customer_no = 'guest_' + data;
                 customer_nm = 'Guest';
                 customer_ph = 'nothing'
-           });
+                //顧客をhiddenに設定
+                $('#CUSTOMER_NO').val(customer_no);
+                $('#CUSTOMER_NM').val(customer_nm);
+                $('#CUSTOMER_PH').val(customer_ph);
+                //表示
+                $('#customer-no').html(customer_no);
+                $('#customer-nm').html(customer_nm);
+                $('#customer-ph').html(customer_ph);
+                //Set able
+                $('#Set').removeClass('disabled');
+            });
             jqXHR.fail(function() {
                 search_result = 'failer get guest customer number.';
             });
@@ -186,20 +196,18 @@
             customer_no = $(this).val();
             customer_nm = arraySelected[0] + ' ' + arraySelected[1];
             customer_ph = arraySelected[2];
+            //顧客をhiddenに設定
+            $('#CUSTOMER_NO').val(customer_no);
+            $('#CUSTOMER_NM').val(customer_nm);
+            $('#CUSTOMER_PH').val(customer_ph);
+            //表示
+            $('#customer-no').html(customer_no);
+            $('#customer-nm').html(customer_nm);
+            $('#customer-ph').html(customer_ph);
+            //Set able
+            $('#Set').removeClass('disabled');
         }
 
-        //顧客をhiddenに設定
-        $('#CUSTOMER_NO').val(customer_no);
-        $('#CUSTOMER_NM').val(customer_nm);
-        $('#CUSTOMER_PH').val(customer_ph);
-
-        //表示
-        $('#customer-no').html(customer_no);
-        $('#customer-nm').html(customer_nm);
-        $('#customer-ph').html(customer_ph);
- 
-        //Set able
-        $('#Set').removeClass('disabled');
     });
 
 
