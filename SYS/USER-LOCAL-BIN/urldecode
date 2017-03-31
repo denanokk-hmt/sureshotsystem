@@ -1,0 +1,43 @@
+#! /bin/sh
+
+case $# in
+  0) cat -                   ;;
+  *) for file in "$@"; do
+       case "$file" in
+         -)  :             ;;
+         /*) :             ;;
+         *)  file="./$file";;
+       esac
+       cat "$file"
+     done                    ;;
+esac |
+exec env - awk '
+BEGIN {
+  # --- prepare
+  LF  = sprintf("\n");
+  OFS = "";
+  ORS = "";
+  # --- prepare decoding
+  for (i=0; i<256; i++) {
+    l  = sprintf("%c",i);
+    k1 = sprintf("%02x",i);
+    k2 = substr(k1,1,1) toupper(substr(k1,2,1));
+    k3 = toupper(substr(k1,1,1)) substr(k1,2,1);
+    k4 = toupper(k1);
+    p2c[k1]=l;p2c[k2]=l;p2c[k3]=l;p2c[k4]=l;
+  }
+  # --- decode
+  while (getline line) {
+    gsub(/\+/, " ", line);
+    while (length(line)) {
+      if (match(line,/%[0-9A-Fa-f][0-9A-Fa-f]/)) {
+        print substr(line,1,RSTART-1), p2c[substr(line,RSTART+1,2)];
+        line = substr(line,RSTART+RLENGTH);
+      } else {
+        print line;
+        break;
+      }
+    }
+    print LF;
+  }
+}'
