@@ -1,0 +1,32 @@
+tmp=/tmp/tmp_$$
++ tmp=/tmp/tmp_8400
+LANG=ja_JP.UTF-8
++ LANG=ja_JP.UTF-8
+PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
++ PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/opt/aws/bin:/root/bin
+
+
+print "OK" > $tmp-html
++ print OK
+./TOROKU.CGI: 行 18: print: コマンドが見つかりません
+
+########################################
+#画面表示
+cat << FIN
+Content-type: text/html
+
+FIN
++ cat
+
+echo ""
++ echo ''
+cat $tmp-html
++ cat /tmp/tmp_8400-html
+
+
+########################################
+#終了処理
+rm -f $tmp-*
++ rm -f /tmp/tmp_8400-html
+exit 0
++ exit 0

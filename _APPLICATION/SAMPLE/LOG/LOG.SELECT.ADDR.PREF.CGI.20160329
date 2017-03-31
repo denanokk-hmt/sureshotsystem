@@ -1,0 +1,34 @@
+tmp=/tmp/tmp_$$
++ tmp=/tmp/tmp_20614
+LANG=ja_JP.UTF-8
++ LANG=ja_JP.UTF-8
+PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
++ PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:/sbin:/usr/sbin:/bin:/usr/bin
+
+
+########################################
+#画面表示
+cat << FIN > $tmp-html
+<select id="PREF">
+    <option value="選択">--選択してください--</option>
+RECORDS
+    <option value="%1">%1</option>
+RECORDS
+</select>
+FIN
++ cat
+
+echo "Content-Type: text/plain"
++ echo 'Content-Type: text/plain'
+echo ""
++ echo ''
+mojihame -lRECORDS $tmp-html /home/sureshotsystem/DATA/PREF
++ mojihame -lRECORDS /tmp/tmp_20614-html /home/sureshotsystem/DATA/PREF
+
+
+########################################
+#終了処理
+rm -f $tmp-*
++ rm -f /tmp/tmp_20614-html
+exit 0
++ exit 0

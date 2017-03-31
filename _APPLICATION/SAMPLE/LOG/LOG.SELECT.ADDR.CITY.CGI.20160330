@@ -1,0 +1,88 @@
+tmp=/tmp/tmp_$$
++ tmp=/tmp/tmp_24360
+LANG=ja_JP.UTF-8
++ LANG=ja_JP.UTF-8
+PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
++ PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:/sbin:/usr/sbin:/bin:/usr/bin
+
+
+########################################
+#エラーチェック
+ERROR_CHECK(){
+	[ $(plus ${PIPESTATUS[@]}) -eq 0 ] && return
+cat <<- FIN
+	Context-type: text/html
+	NG input
+FIN
+	cat $tmp-result
+	exit 1
+}
+
+
+########################################
+#POSTパラメーターの取得
+if [ ! -z $CONTENT_LENGTH ]; then
+	dd bs=$CONTENT_LENGTH |
+	cgi-name -d_ -i_	> $tmp-name
+else
+	touch $tmp-name
+fi
++ '[' '!' -z 14 ']'
++ cgi-name -d_ -i_
++ dd bs=14
+1+0 records in
+1+0 records out
+14 bytes (14 B) copied, 2.2865e-05 s, 612 kB/s
+
+
+########################################
+#バリデーション
+cat << FIN > $tmp-check
+PREF x8
+FIN
++ cat
+
+check_attr_name $tmp-check $tmp-name > /dev/null
++ check_attr_name /tmp/tmp_24360-check /tmp/tmp_24360-name
+ERROR_CHECK
++ ERROR_CHECK
+++ plus 0
++ '[' 0 -eq 0 ']'
++ return
+
+
+########################################
+#PREFを取得
+pref=$(nameread PREF $tmp-name)
+++ nameread PREF /tmp/tmp_24360-name
++ pref=$'\345\214\227\346\265\267\351\201\223'
+
+
+########################################
+#画面表示
+cat << FIN > $tmp-html
+<select id="CITY" onchange="getAddrSelect(this.value)">
+    <option value="選択">--選択してください--</option>
+RECORDS
+    <option value="%1">%1</option>
+RECORDS
+</select>
+FIN
++ cat
+
+echo "Content-Type: text/plain"
++ echo 'Content-Type: text/plain'
+echo ""
++ echo ''
+awk '$1=="'$pref'"{print $2}' /home/sureshotsystem/DATA/CITY    |
+mojihame -d -lRECORDS $tmp-html -
++ mojihame -d -lRECORDS /tmp/tmp_24360-html -
++ awk '$1=="北海道"{print $2}' /home/sureshotsystem/DATA/CITY
+
+
+########################################
+#終了処理
+rm -f $tmp-*
++ rm -f /tmp/tmp_24360-check /tmp/tmp_24360-html /tmp/tmp_24360-name
+exit 0
++ exit 0
