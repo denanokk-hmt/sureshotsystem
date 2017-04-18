@@ -31,14 +31,6 @@ FIN
 
 ########################################
 #Get Parameters
-#1.Requst Methodの取得
-#METHOD=$REQUEST_METHOD
-#echo $METHOD > $tmp-method
-
-#2.Request URL
-#URI=$REQUEST_URI
-#echo $URI > $tmp-uri
-
 case $REQUEST_METHOD in
 GET)
     if [ ! -z $QUERY_STRING ]; then
@@ -62,7 +54,6 @@ POST)
 	nameread REST $tmp-post	|	awk '{gsub(/^\_$/,"",$1);print}' > $tmp-rest
     ;;
 esac
-
 
 #######################################
 #ルーティング要素の取得
