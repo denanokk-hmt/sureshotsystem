@@ -76,43 +76,50 @@ fi
 #バリデーション(EMAIL重複確認)
 #1.社員番号 2.姓 3.名 4.EMAIL 5.TEL 6.作成日時 7.更新日時 8.削除フラグ
 EMAIL=$(cat $tmp-value3)
-cat ${SYSD}/DATA/STUFF/USERS/LV3/*_stuff_* | awk '$4=="'"${EMAIL}"'"{print $0}' > $tmp-attr-VALID3
+cat ${SYSD}/DATA/STUFF/USERS/LV3/*_stuff_*[^_d]  | awk '$4=="'"${EMAIL}"'"{print $0}' > $tmp-attr-VALID3
 
 ########################################
 #バリデーションエラー項目の確定
+#NGのラベルは表示(show),項目の背景を赤に(label-danger)
 #FAMILY_NAME
 if [ -n "$(cat $tmp-need-VALID1)$(cat $tmp-attr-VALID1)" ] ; then 
     VALID1_disp='show'
+    VALID1_lbl_color='label-danger'
 else
     VALID1_disp='hidden'
 fi
 #GIVEN_NAME
 if [ -n "$(cat $tmp-need-VALID2)$(cat $tmp-attr-VALID2)" ] ; then
     VALID2_disp='show'
+    VALID2_lbl_color='label-danger'
 else
     VALID2_disp='hidden'
 fi
 #EMAIL
 if [ -n "$(cat $tmp-need-VALID3)" ] ; then
     VALID31_disp='show'
+    VALID31_lbl_color='label-danger'
 else
     VALID31_disp='hidden'
 fi
 #EMAIL Duplicate
 if [ -n "$(cat $tmp-attr-VALID3)" ] ; then
     VALID32_disp='show'
+    VALID32_lbl_color='label-danger'
 else
     VALID32_disp='hidden'
 fi
 #PASSWORD
 if [ -n "$(cat $tmp-need-VALID4)$(cat $tmp-attr-VALID4)" ] ; then
     VALID4_disp='show'
+    VALID4_lbl_color='label-danger'
 else
     VALID4_disp='hidden'
 fi
 #PASSWORD CONFIRMATION
 if [ -n "$(cat $tmp-need-VALID5)$(cat $tmp-attr-VALID5)" ] ; then
     VALID5_disp='show'
+    VALID5_lbl_color='label-danger'
 else
     VALID5_disp='hidden'
 fi
@@ -134,19 +141,28 @@ awk '{print length($1)}' > $tmp-VALID-result
 ########################################
 #HTMLの設定
 if [ $ACTION = 'INPUT' ] ; then
+	#validation NG
     cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML           |
+    sed -e "s/###INFO_TOP_MSG###/hidden/"                    			|
     sed -e "s/###FAMILY_NAME_ERR###/${VALID1_disp}/"                    |
+    sed -e "s/###FAMILY_NAME_LBL_COLOR###/${VALID1_lbl_color}/"         |
     sed -e "s/###GIVEN_NAME_ERR###/${VALID2_disp}/"                     |
+    sed -e "s/###GIVEN_NAME_LBL_COLOR###/${VALID2_lbl_color}/"         	|
     sed -e "s/###EMAIL_ERR###/${VALID31_disp}/"                         |
+    sed -e "s/###EMAIL_LBL_COLOR###/${VALID31_lbl_color}/"         		|
     sed -e "s/###EMAIL_DUPLECATED###/${VALID32_disp}/"                  |
+    sed -e "s/###EMAIL_LBL_COLOR###/${VALID32_lbl_color}/"         		|
     sed -e "s/###PASSWORD_ERR###/${VALID4_disp}/"                       |
+    sed -e "s/###PW_LBL_COLOR###/${VALID4_lbl_color}/"         			|
     sed -e "s/###PASSWORD_CONFIRMATION_ERR###/${VALID4_disp}/"          |
+    sed -e "s/###PW_CONF_LBL_COLOR###/${VALID5_lbl_color}/"         	|
     sed -e "s/###FAMILY_NAME_VALUE###/$(cat $tmp-value1)/"              |
     sed -e "s/###GIVEN_NAME_VALUE###/$(cat $tmp-value2)/"               |
     sed -e "s/###EMAIL_VALUE###/$(cat $tmp-value3)/"                    |
     sed -e "s/###PASSWORD_VALUE###/$(cat $tmp-value4)/"                 |
     sed -e "s/###PASSWORD_CONFIRMATION_VALUE###/$(cat $tmp-value5)/"    > $tmp-html
 else
+	#validation OK
     cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML           |
     sed -e "s/###FAMILY_NAME_LABEL###/$(cat $tmp-value1)/"              |
     sed -e "s/###GIVEN_NAME_LABEL###/$(cat $tmp-value2)/"               |
