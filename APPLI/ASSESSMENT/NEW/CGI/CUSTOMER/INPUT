@@ -39,7 +39,7 @@ TEMP_NO=$(nameread TEMP_NO $tmp-post)
 #######################################
 #TEMP_NOが取得出来なかった場合、
 # 1.TEMP_NOを設定
-# 2./LOG/ASSESSMENT/配下にTEMP_NO/を作成
+# 2./TMP/ASSESSMENT/配下にTEMP_NO/を作成
 # 3.customer,parts,operationの空ファイルを作成
 if [ -z ${TEMP_NO} ]; then
     TEMP_NO=$(date +%Y%m%d)_$(date +%H%M%S)_$RANDOM
