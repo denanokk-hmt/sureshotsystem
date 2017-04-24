@@ -16,7 +16,7 @@ SYSD=/home/sureshotsystem
 #exec 2> $SYSD/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
 tmp=/tmp/tmp_$1
 LANG=ja_JP.UTF-8
-PATH=/home/:/home/UTL:/usr/local/bin:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
+#PATH=/home/:/home/UTL:/usr/local/bin:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
 CATEGORY=`cat $tmp-category`
 FUNC=`cat $tmp-func`
 
@@ -46,7 +46,7 @@ nameread PASSWORD $tmp-post                 | awk '{gsub(/^\_$/,"",$1);print}' >
 nameread PASSWORD_CONFIRMATION $tmp-post    | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value5
 
 ########################################
-#社員番号を復原
+#社員番号を復元
 ID=$(cat ${SYSD}/DATA/${CATEGORY}/TMP/${STUFF_ID})
 
 ########################################
