@@ -2,7 +2,7 @@
 #
 
 ########################################
-#	PARTS_LIST/EDIT COMPLETE.CGI
+#	OPERATION_LIST/EDIT COMPLETE.CGI
 #
 #   引数
 #       $1:プロセスID
@@ -34,8 +34,8 @@ FIN
 }
 
 ########################################
-#パーツカテゴリ更新中は、処理をさせない
-#ls ${SYSD}/LOCK/PARTS_CATEGORY/* > $tmp-checker
+#作業カテゴリ更新中は、処理をさせない
+#ls ${SYSD}/LOCK/OPERATION_CATEGORY/* > $tmp-checker
 #if [ -n cat $tmp-checker ] ; then
 #    echo "333" > $tmp-ajax-html
 #    exit 0
@@ -45,15 +45,15 @@ FIN
 #フォームの入力値を取得
 PAGE_FILTER=$(nameread CATEGORY_PAGE_HIDDEN $tmp-post)              #フィルター:カテゴリ名
 PAGE_CATEGORY_NO=$(nameread CATEGORY_NO_PAGE_HIDDEN $tmp-post)     #フィルター:カテゴリNO
-NUM=$(nameread EDIT_PARTS_NO $tmp-post)                             #パーツ番号
-VALUE1=$(nameread EDIT_PARTS_CATEGORY_NAME $tmp-post)               #パーツカテゴリ名
-VALUE2=$(nameread EDIT_PARTS_NAME $tmp-post)                        #パーツ名(EN)
-VALUE3=$(nameread EDIT_PARTS_PRICE $tmp-post)                       # プライス
+NUM=$(nameread EDIT_OPERATION_NO $tmp-post)                             #作業番号
+VALUE1=$(nameread EDIT_OPERATION_CATEGORY_NAME $tmp-post)               #作業カテゴリ名
+VALUE2=$(nameread EDIT_OPERATION_NAME $tmp-post)                        #作業名(EN)
+VALUE3=$(nameread EDIT_OPERATION_PRICE $tmp-post)                       # プライス
 
-VALUE4=$(nameread EDIT_PARTS_CATEGORY_NO $tmp-post)                 #パーツカテゴリ番号
-VALUE5=$(nameread EDIT_PARTS_NAME_JP $tmp-post)                     #パーツ名(JP)
-VALUE6=$(nameread EDIT_PARTS_REMARKS $tmp-post)                     #備考
-VALUE7=$(nameread EDIT_PARTS_CATEGORY_NX $tmp-post)                 #パーツカテゴリ番号(変更前)
+VALUE4=$(nameread EDIT_OPERATION_CATEGORY_NO $tmp-post)                 #作業カテゴリ番号
+VALUE5=$(nameread EDIT_OPERATION_NAME_JP $tmp-post)                     #作業名(JP)
+VALUE6=$(nameread EDIT_OPERATION_REMARKS $tmp-post)                     #備考
+VALUE7=$(nameread EDIT_OPERATION_CATEGORY_NX $tmp-post)                 #作業カテゴリ番号(変更前)
 
 ########################################
 #重複確認
@@ -65,55 +65,55 @@ VALUE7=$(nameread EDIT_PARTS_CATEGORY_NX $tmp-post)                 #パーツ�
 
 ########################################
 #既存データから作成日時取得、現在日時を更新日時とする
-ls ${DATAD}/${VALUE7}/LV1/${NUM}_parts_* | cut -d'_' -f4 | sort -nk1,1 | head -n 1 > $tmp-create
+ls ${DATAD}/${VALUE7}/LV1/${NUM}_operation_* | cut -d'_' -f4 | sort -nk1,1 | head -n 1 > $tmp-create
 CREATE_DATE=$(cat $tmp-create)
 UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 
 ########################################
 #該当のデータ操作をロック
-LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'PARTS_LIST' ${NUM}`
+LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'OPERATION_LIST' ${NUM}`
 LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
 [ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
 
 ########################################
 #入力値を一時ファイル化
-#1.パーツ番号 2.パーツカテゴリ番号 3.パーツカテゴリ名 4.パーツ名(EN) 5.パーツ名(JP) 6.価格 7.備考 8.作成日時 9.更新日時 10.削除フラグ
-echo ${NUM}" "${VALUE4}" "${VALUE1}" "${VALUE2}" "${VALUE5}" "${VALUE3}" "${VALUE6}" "${CREATE_DATE}" "${UPDATE_DATE}" "0 > $tmp-parts
+#1.作業番号 2.作業カテゴリ番号 3.作業カテゴリ名 4.作業名(EN) 5.作業名(JP) 6.価格 7.備考 8.作成日時 9.更新日時 10.削除フラグ
+echo ${NUM}" "${VALUE4}" "${VALUE1}" "${VALUE2}" "${VALUE5}" "${VALUE3}" "${VALUE6}" "${CREATE_DATE}" "${UPDATE_DATE}" "0 > $tmp-operation
 
 ########################################
 #データ格納
 #LV1:原始データとして、ファイル追加のみを行う
-$(mv $tmp-parts ${DATAD}/${VALUE4}/LV1/${NUM}_parts_${UPDATE_DATE})
+$(mv $tmp-operation ${DATAD}/${VALUE4}/LV1/${NUM}_operation_${UPDATE_DATE})
 
 #LV2:変更されたデータとファイルを入れ替える
-cp -fp ${DATAD}/${VALUE4}/LV1/${NUM}_parts_${UPDATE_DATE} ${DATAD}/${VALUE4}/LV2/${NUM}_parts_${UPDATE_DATE}
+cp -fp ${DATAD}/${VALUE4}/LV1/${NUM}_operation_${UPDATE_DATE} ${DATAD}/${VALUE4}/LV2/${NUM}_operation_${UPDATE_DATE}
 
 #LV3:LV2のコピー
-cp -fp ${DATAD}/${VALUE4}/LV2/${NUM}_parts_${UPDATE_DATE} ${DATAD}/${VALUE4}/LV3/${NUM}_parts_${UPDATE_DATE}
+cp -fp ${DATAD}/${VALUE4}/LV2/${NUM}_operation_${UPDATE_DATE} ${DATAD}/${VALUE4}/LV3/${NUM}_operation_${UPDATE_DATE}
 
 ########################################
 #カテゴリ変更した場合、既存カテゴリDirにあるレコードを削除処理
-#1.パーツ番号 2.パーツカテゴリ番号 3.パーツカテゴリ名 4.パーツ名(EN) 5.パーツ名(JP) 6.価格 7.備考 8.作成日時 9.更新日時 10.削除フラグ=1
-echo ${NUM}" "${VALUE4}" "${VALUE1}" "${VALUE2}" "${VALUE5}" "${VALUE3}" "${VALUE6}" "${CREATE_DATE}" "${UPDATE_DATE}" "1 > $tmp-parts-delete
+#1.作業番号 2.作業カテゴリ番号 3.作業カテゴリ名 4.作業名(EN) 5.作業名(JP) 6.価格 7.備考 8.作成日時 9.更新日時 10.削除フラグ=1
+echo ${NUM}" "${VALUE4}" "${VALUE1}" "${VALUE2}" "${VALUE5}" "${VALUE3}" "${VALUE6}" "${CREATE_DATE}" "${UPDATE_DATE}" "1 > $tmp-operation-delete
 
 ########################################
 #データ格納
 #LV1:原始データとして、ファイル追加のみを行う
-$(mv $tmp-parts-delete ${DATAD}/${VALUE7}/LV1/${NUM}_parts_${UPDATE_DATE})
+$(mv $tmp-operation-delete ${DATAD}/${VALUE7}/LV1/${NUM}_operation_${UPDATE_DATE})
 
 #LV2:変更されたデータとファイルを入れ替える
-cp -ip ${DATAD}/${VALUE7}/LV1/${NUM}_parts_${UPDATE_DATE} ${DATAD}/${VALUE7}/LV2/${NUM}_parts_${UPDATE_DATE}_d
+cp -ip ${DATAD}/${VALUE7}/LV1/${NUM}_operation_${UPDATE_DATE} ${DATAD}/${VALUE7}/LV2/${NUM}_operation_${UPDATE_DATE}_d
 ls ${DATAD}/${VALUE7}/LV2/${NUM}_* | sort -nk1 | head -n 1 > $tmp-delete
 rm -f $(cat $tmp-delete)
 
 #LV3:LV2のコピー
-cp -ip ${DATAD}/${VALUE7}/LV2/${NUM}_parts_${UPDATE_DATE}_d ${DATAD}/${VALUE7}/LV3/${NUM}_parts_${UPDATE_DATE}_d
+cp -ip ${DATAD}/${VALUE7}/LV2/${NUM}_operation_${UPDATE_DATE}_d ${DATAD}/${VALUE7}/LV3/${NUM}_operation_${UPDATE_DATE}_d
 ls ${DATAD}/${VALUE7}/LV3/${NUM}_* | sort -nk1 | head -n 1 > $tmp-delete
 rm -f $(cat $tmp-delete)
 
 ########################################
 #データ操作ロックを解除
-UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'PARTS_LIST' ${NUM}`
+UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'OPERATION_LIST' ${NUM}`
 [ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
 
 ########################################

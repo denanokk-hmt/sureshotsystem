@@ -35,86 +35,86 @@ FIN
 #
 ########################################
 #フォームの入力値を取得
-NUM=$(nameread PARTS_CATEGORY_ID $tmp-post)
-NAME=$(nameread PARTS_CATEGORY_NAME $tmp-post)
+NUM=$(nameread OPERATION_CATEGORY_ID $tmp-post)
+NAME=$(nameread OPERATION_CATEGORY_NAME $tmp-post)
 #
 ########################################
 #既存データから作成日時取得、現在日時を更新日時とする
-ls ${DATAD}/LV1/${NUM}_parts_category_* | sort -nk1,1 | tail -n 1 | cut -d'/' -f8 | cut -d'_' -f4 > $tmp-create
+ls ${DATAD}/LV1/${NUM}_operation_category_* | sort -nk1,1 | tail -n 1 | cut -d'/' -f8 | cut -d'_' -f4 > $tmp-create
 CREATE_DATE=$(cat $tmp-create)
 UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 
 
 ########################################
-#　　パーツカテゴリのデータ操作
+#　　作業カテゴリのデータ操作
 ########################################
 
 ########################################
 #該当のデータ操作をロック
-LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'PARTS_CATEGORY' ${NUM}`
+LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'OPERATION_CATEGORY' ${NUM}`
 LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
 [ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
 
 ########################################
 #入力値を一時ファイル化
-#1.パーツカテゴリ番号 2.パーツカテゴリ名 3.作成日時 4.更新日時 5.削除フラグ
-echo ${NUM}" "${NAME}" "${CREATE_DATE}" "${UPDATE_DATE}" "1 > $tmp-parts-category
+#1.作業カテゴリ番号 2.作業カテゴリ名 3.作成日時 4.更新日時 5.削除フラグ
+echo ${NUM}" "${NAME}" "${CREATE_DATE}" "${UPDATE_DATE}" "1 > $tmp-operation-category
 
 ########################################
 #データ格納
 #LV1:原始データとして、ファイル追加のみを行う
-$(mv $tmp-parts-category ${DATAD}/LV1/${NUM}_parts_category_${UPDATE_DATE})
+$(mv $tmp-operation-category ${DATAD}/LV1/${NUM}_operation_category_${UPDATE_DATE})
 
 #LV2:変更されたデータとファイルを入れ替える
-cp -ip ${DATAD}/LV1/${NUM}_parts_category_${UPDATE_DATE} ${DATAD}/LV2/${NUM}_parts_category_${UPDATE_DATE}_d
+cp -ip ${DATAD}/LV1/${NUM}_operation_category_${UPDATE_DATE} ${DATAD}/LV2/${NUM}_operation_category_${UPDATE_DATE}_d
 ls ${DATAD}/LV2/${NUM}_* | sort -nk1 | head -n 1 > $tmp-delete
 rm -f $(cat $tmp-delete)
 
 #LV3:LV2のコピー
-cp -ip ${DATAD}/LV2/${NUM}_parts_category_${UPDATE_DATE}_d ${DATAD}/LV3/${NUM}_parts_category_${UPDATE_DATE}_d
+cp -ip ${DATAD}/LV2/${NUM}_operation_category_${UPDATE_DATE}_d ${DATAD}/LV3/${NUM}_operation_category_${UPDATE_DATE}_d
 ls ${DATAD}/LV3/${NUM}_* | sort -nk1 | head -n 1 > $tmp-delete
 rm -f $(cat $tmp-delete)
 
 ########################################
 #データ操作ロックを解除
-UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'PARTS_CATEGORY' ${NUM}`
+UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'OPERATION_CATEGORY' ${NUM}`
 [ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
 
 
 ########################################
-#　　パーツのデータ操作
+#　　作業のデータ操作
 ########################################
-PARTSD=${SYSD}/DATA/PARTS_LIST/LISTS
-#削除するカテゴリーで登録されているパーツに対して、
+OPERATIOND=${SYSD}/DATA/OPERATION_LIST/LISTS
+#削除するカテゴリーで登録されている作業に対して、
 # 1.カテゴリを999 未選択、更新日を現在にして999ディレクトリにコピー
-for file in `find ${PARTSD}/${NUM}/LV3/*[^_d] -maxdepth 1 -type f`; do
+for file in `find ${OPERATIOND}/${NUM}/LV3/*[^_d] -maxdepth 1 -type f`; do
 
-    #パーツ番号取得
+    #作業番号取得
     num=$(echo $file | cut -d'/' -f9 | cut -d'_' -f1) 
     update=$(echo $file | cut -d'/' -f9 | cut -d'_' -f3) 
     ARR+=($num)
 
     #該当のデータ操作をロック
-    LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'PARTS_LIST' ${num}`
+    LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'OPERATION_LIST' ${num}`
     LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
     [ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
     
     #LV1:原始データとして、ファイル追加のみを行う
-    destiny=${PARTSD}/999/LV1/${num}_parts_${UPDATE_DATE}
-    cat ${PARTSD}/${NUM}/LV1/${num}_parts_${update} | awk -v ud=${UPDATE_DATE} '{print $1, "999", "未選択", $4, $5, $6, $7, $8, ud, "0"}' > $destiny
+    destiny=${OPERATIOND}/999/LV1/${num}_operation_${UPDATE_DATE}
+    cat ${OPERATIOND}/${NUM}/LV1/${num}_operation_${update} | awk -v ud=${UPDATE_DATE} '{print $1, "999", "未選択", $4, $5, $6, $7, $8, ud, "0"}' > $destiny
 
     #LV2:変更されたデータとファイルを入れ替える
-    cp -fp ${PARTSD}/999/LV1/${num}_parts_${UPDATE_DATE} ${PARTSD}/999/LV2/${num}_parts_${UPDATE_DATE}
+    cp -fp ${OPERATIOND}/999/LV1/${num}_operation_${UPDATE_DATE} ${OPERATIOND}/999/LV2/${num}_operation_${UPDATE_DATE}
 
     #LV3:LV2のコピー
-    cp -fp ${PARTSD}/999/LV2/${num}_parts_${UPDATE_DATE} ${PARTSD}/999/LV3/${num}_parts_${UPDATE_DATE}
+    cp -fp ${OPERATIOND}/999/LV2/${num}_operation_${UPDATE_DATE} ${OPERATIOND}/999/LV3/${num}_operation_${UPDATE_DATE}
 
     #データ操作ロックを解除
-    UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'PARTS_LIST' ${num}`
+    UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'OPERATION_LIST' ${num}`
     [ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
 done
 # 2.ディレクトリ名の末尾に_dをつける
-mv ${PARTSD}/${NUM} ${PARTSD}/${NUM}_${UPDATE_DATE}_d
+mv ${OPERATIOND}/${NUM} ${OPERATIOND}/${NUM}_${UPDATE_DATE}_d
 
 ########################################
 #

@@ -34,6 +34,26 @@ FIN
 }
 
 ########################################
+#ディレクトリを作成する
+if [ -e ${SYSD}/DATA/${CATEGORY}  ]; then
+    :
+else
+    mkdir ${SYSD}/DATA/${CATEGORY}
+    cp -rp ${SYSD}/DATA/ORG_LV1-3/ ${SYSD}/DATA/${CATEGORY}/LISTS
+    chmod -R 775 ${SYSD}/DATA/${CATEGORY} #オーナーと権限を再帰的に設定
+    #chown -R root:apache ${SYSD}/DATA/NUMBERS/${CATEGORY}
+    ERROR_CHECK
+fi
+if [ -e ${SYSD}/DATA/PARTS_LIST  ]; then
+    :
+else
+    mkdir ${SYSD}/DATA/PARTS_LIST
+    mkdir ${SYSD}/DATA/PARTS_LIST/LISTS
+    chmod -R 775 ${SYSD}/DATA/PARTS_LIST #オーナーと権限を再帰的に設定
+    ERROR_CHECK
+fi
+
+########################################
 #カテゴリ番号の次のロットを追加する
 LATEST_NUM=$(ls ${SYSD}/DATA/NUMBERS/${CATEGORY}/ORIGIN | sort -nr | head -n 1)
 START=$((LATEST_NUM + 1))

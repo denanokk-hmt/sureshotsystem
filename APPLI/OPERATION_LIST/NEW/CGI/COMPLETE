@@ -2,7 +2,7 @@
 #
 
 ########################################
-#	PARTS_LIST/NEW COMPLETE.CGI
+#	OPERATION_LIST/NEW COMPLETE.CGI
 #
 #   引数
 #       $1:プロセスID
@@ -34,15 +34,15 @@ FIN
 }
 
 ########################################
-#パーツカテゴリ更新中は、処理をさせない
-#ls ${SYSD}/LOCK/PARTS_CATEGORY/* > $tmp-checker 2> /dev/null
+#作業カテゴリ更新中は、処理をさせない
+#ls ${SYSD}/LOCK/OPERATION_CATEGORY/* > $tmp-checker 2> /dev/null
 #if [ -n cat $tmp-checker ] ; then
 #    echo "333" > $tmp-ajax-html
 #    exit 0
 #fi
 
 ########################################
-#パーツ番号の次のロットを追加する
+#作業番号の次のロットを追加する
 LATEST_NUM=$(ls ${SYSD}/DATA/NUMBERS/${CATEGORY}/ORIGIN | sort -nr | head -n 1)
 START=$((LATEST_NUM + 1))
 END=$((START + 1))
@@ -50,8 +50,8 @@ SEQ_STATUS=`${SYSD}/CGI/NUMBER_SEQ $1 ${CATEGORY} ${START} ${END} `
 [[ ${SEQ_STATUS} != 'SUCCESS' ]] && exit 0
 
 ########################################
-#新規パーツ番号を確定する
-NEW_NUM=`${SYSD}/CGI/NUMBERS $1 'PARTS_LIST' `
+#新規作業番号を確定する
+NEW_NUM=`${SYSD}/CGI/NUMBERS $1 'OPERATION_LIST' `
 [ ${NEW_NUM} = 'ERROR' ] && exit 0 || :
 
 #######################################
@@ -59,14 +59,14 @@ NEW_NUM=`${SYSD}/CGI/NUMBERS $1 'PARTS_LIST' `
 cat $tmp-post
 PAGE_FILTER=$(nameread CATEGORY_PAGE_HIDDEN $tmp-post)
 PAGE_CATEGORY_NO=$(nameread CATEGORY_NO_PAGE_HIDDEN $tmp-post)
-VALUE1=$(nameread CATEGORY_NEW_HIDDEN $tmp-post)        #パーツカテゴリ名
-VALUE2=$(nameread NEW_PARTS_NAME $tmp-post)             #パーツ名(EN)
-VALUE3=$(nameread NEW_PARTS_PRICE $tmp-post)            #プライス
+VALUE1=$(nameread CATEGORY_NEW_HIDDEN $tmp-post)        #作業カテゴリ名
+VALUE2=$(nameread NEW_OPERATION_NAME $tmp-post)             #作業名(EN)
+VALUE3=$(nameread NEW_OPERATION_PRICE $tmp-post)            #プライス
 
 #新規追加
-VALUE4=$(nameread CATEGORY_NO_NEW_HIDDEN $tmp-post)     #パーツカテゴリ番号
-VALUE5=$(nameread NEW_PARTS_NAME_JP $tmp-post)          #パーツ名(JP)
-VALUE6=$(nameread NEW_PARTS_REMARKS $tmp-post)          #備考
+VALUE4=$(nameread CATEGORY_NO_NEW_HIDDEN $tmp-post)     #作業カテゴリ番号
+VALUE5=$(nameread NEW_OPERATION_NAME_JP $tmp-post)          #作業名(JP)
+VALUE6=$(nameread NEW_OPERATION_REMARKS $tmp-post)          #備考
 
 ########################################
 #重複確認
@@ -83,46 +83,46 @@ UPDATE_DATE=$CREATE_DATE
 
 ########################################
 #入力値を一時ファイル化
-#1.パーツ番号 2.パーツカテゴリ番号 3.パーツカテゴリ名 4.パーツ名(EN) 5.パーツ名(JP) 6.価格 7.備考 8.作成日時 9.更新日時 10.削除フラグ
-echo ${NEW_NUM}" "${VALUE4}" "${VALUE1}" "${VALUE2}" "${VALUE5}" "${VALUE3}" "${VALUE6}" "${CREATE_DATE}" "${UPDATE_DATE}" "0 > $tmp-parts
+#1.作業番号 2.作業カテゴリ番号 3.作業カテゴリ名 4.作業名(EN) 5.作業名(JP) 6.価格 7.備考 8.作成日時 9.更新日時 10.削除フラグ
+echo ${NEW_NUM}" "${VALUE4}" "${VALUE1}" "${VALUE2}" "${VALUE5}" "${VALUE3}" "${VALUE6}" "${CREATE_DATE}" "${UPDATE_DATE}" "0 > $tmp-operation
 
 ########################################
 #データ格納
 #LV1
-$(mv $tmp-parts ${DATAD}/${VALUE4}/LV1/${NEW_NUM}_parts_${CREATE_DATE})
+$(mv $tmp-operation ${DATAD}/${VALUE4}/LV1/${NEW_NUM}_operation_${CREATE_DATE})
 #LV2
-cat ${DATAD}/${VALUE4}/LV1/${NEW_NUM}_parts_${CREATE_DATE} > ${DATAD}/${VALUE4}/LV2/${NEW_NUM}_parts_${CREATE_DATE}
+cat ${DATAD}/${VALUE4}/LV1/${NEW_NUM}_operation_${CREATE_DATE} > ${DATAD}/${VALUE4}/LV2/${NEW_NUM}_operation_${CREATE_DATE}
 #LV3
-cat ${DATAD}/${VALUE4}/LV2/${NEW_NUM}_parts_${CREATE_DATE} > ${DATAD}/${VALUE4}/LV3/${NEW_NUM}_parts_${CREATE_DATE}
+cat ${DATAD}/${VALUE4}/LV2/${NEW_NUM}_operation_${CREATE_DATE} > ${DATAD}/${VALUE4}/LV3/${NEW_NUM}_operation_${CREATE_DATE}
 
 ########################################
-#パーツカテゴリを取得
-cat ${SYSD}/DATA/PARTS_CATEGORY/LISTS/LV3/*[^_d]    |
+#作業カテゴリを取得
+cat ${SYSD}/DATA/OPERATION_CATEGORY/LISTS/LV3/*[^_d]    |
 LANG=C sort -nk1,1                                  > $tmp-category
 
 ########################################
-#Page絞り込み用のパーツカテゴリ
+#Page絞り込み用の作業カテゴリ
 # 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_PAGE.HTML $tmp-category > $tmp-parts-category-page
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_PAGE.HTML $tmp-category > $tmp-operation-category-page
 
 ########################################
-#登録済パーツ用のパーツカテゴリ
+#登録済作業用の作業カテゴリ
 # 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_LIST.HTML $tmp-category > $tmp-parts-category-list
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_LIST.HTML $tmp-category > $tmp-operation-category-list
 
 ########################################
-#新規登録パーツ用のパーツカテゴリ
+#新規登録作業用の作業カテゴリ
 # 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_NEW.HTML $tmp-category > $tmp-parts-category-new
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_NEW.HTML $tmp-category > $tmp-operation-category-new
 
 ########################################
 # 改行文字を「\\n」という3文字の文字列に置換
-CATEGORY_PAGE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-page`
-CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-list`
-CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-new`
+CATEGORY_PAGE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-operation-category-page`
+CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-operation-category-list`
+CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-operation-category-new`
 
 ########################################
-#パーツリストを取得
+#作業リストを取得
 if [ "${PAGE_CATEGORY_NO}" -gt 0 ] ; then
     cat ${DATAD}/${PAGE_CATEGORY_NO}*[^_d]/LV3/*[^_d]   |
     LANG=C sort -nk1,1                                  |
@@ -136,7 +136,7 @@ fi
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/RECORDS.HTML $tmp-records > $tmp-table-records
 
 ########################################
-#登録済レコードにパーツカテゴリリストを嵌め込む
+#登録済レコードに作業カテゴリリストを嵌め込む
 cat $tmp-table-records                                      |
 sed -re "s|###CATEGORY###|${CATEGORY_LIST}|g"   > $tmp-table
 

@@ -2,7 +2,7 @@
 #
 
 ########################################
-#	PARTS_LIST SEARCH INPUT.CGI
+#	OPERATION_LIST SEARCH INPUT.CGI
 #
 #   引数
 #       $1:プロセスID
@@ -35,27 +35,27 @@ FIN
 
 #######################################
 #フォームの入力値を取得
-CATE_NO=$(nameread PARTS_CATEGORY_NO $tmp-post)
+CATE_NO=$(nameread OPERATION_CATEGORY_NO $tmp-post)
 ROW=$(nameread ROW $tmp-post)
 
 ########################################
-#パーツカテゴリを取得
-cat ${SYSD}/DATA/PARTS_LIST/LISTS/${CATE_NO}/LV3/*[^_d]  |
-LANG=C sort -nk1,1                                      > $tmp-parts
+#作業カテゴリを取得
+cat ${SYSD}/DATA/OPERATION_LIST/LISTS/${CATE_NO}/LV3/*[^_d]  |
+LANG=C sort -nk1,1                                      > $tmp-operation
 
 ########################################
-#Parts
+#Operation
 # 部品番号、カテゴリ番号、カテゴリ名、部品名(EN)、部品名(JP)、単価、UD、CD
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/DROPDOWN_LIST.HTML $tmp-parts > $tmp-parts-row
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/DROPDOWN_LIST.HTML $tmp-operation > $tmp-operation-row
 
 ########################################
 #選択行を設定
-cat $tmp-parts-row  |
+cat $tmp-operation-row  |
 sed -e "s/###ROW###/${ROW}/" > $tmp-ajax-html
 
 ########################################
 # 改行文字を「\\n」という3文字の文字に置換
-#PARTS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-html`
+#OPERATION=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-operation-html`
 
 ########################################
 #ending

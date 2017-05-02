@@ -7,9 +7,9 @@
         <tr>
             <th>#</th>
             <th>NO</th>
-            <th>PARTS CATEGORY</th>
-            <th>PARTS NAME (EN)</th>
-            <th>PARTS NAME (JP)</th>
+            <th>OPERATION CATEGORY</th>
+            <th>OPERATION NAME (EN)</th>
+            <th>OPERATION NAME (JP)</th>
             <th>PRICE</th>
             <th>REMARKS</th>
             <th></th>
@@ -17,10 +17,10 @@
         </tr>
     </thead>
     <tbody>
-        <!--登録済パーツの表示-->
+        <!--登録済作業の表示-->
         ###TABLE_RECORDS###
 
-        <!--パーツ新規追加-->
+        <!--作業新規追加-->
         <tr>
             <td>--</td>
             <td>
@@ -30,7 +30,7 @@
                 <div class="form-group">
                     <div class="btn-group">
                         <div class="btn-group">
-                            <button type="button" class="btn dropdown-toggle input-sm" id="new_parts_categogy" data-toggle="dropdown" aria-expended="false">
+                            <button type="button" class="btn dropdown-toggle input-sm" id="new_operation_categogy" data-toggle="dropdown" aria-expended="false">
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" role="menu" name="NEW">
@@ -38,7 +38,7 @@
                             </ul>
                         </div>
                         <div class="btn-group">
-                            <input type="text" name="CATEGORY_NEW" id="CATEGORY_NEW" value="" class="form-control input-sm" disabled placeholder="部品カテゴリ"/>
+                            <input type="text" name="CATEGORY_NEW" id="CATEGORY_NEW" value="" class="form-control input-sm" disabled placeholder="作業カテゴリ"/>
                         </div>
                     </div>
                     <input type="hidden" name="CATEGORY_NEW_HIDDEN" id="CATEGORY_NEW_HIDDEN" value="" class="form-control" />
@@ -46,19 +46,19 @@
                 </div>
             </td>
             <td>
-                <input type="text" id="NEW_PARTS_NAME" name="NEW_PARTS_NAME" value="" class="form-control input-sm" style="" placeholder="部品名-英数字(正)" >
+                <input type="text" id="NEW_OPERATION_NAME" name="NEW_OPERATION_NAME" value="" class="form-control input-sm" style="" placeholder="作業名-英数字(正)" >
             </td>
             <td>
-                <input type="text" id="NEW_PARTS_NAME_JP" name="NEW_PARTS_NAME_JP" value="" class="form-control input-sm" style="" placeholder="部品名-日本語(略)" >
+                <input type="text" id="NEW_OPERATION_NAME_JP" name="NEW_OPERATION_NAME_JP" value="" class="form-control input-sm" style="" placeholder="作業名-日本語(略)" >
             </td>
             <td>
-                <input type="number" id="NEW_PARTS_PRICE" name="NEW_PARTS_PRICE" value="" class="form-control input-sm" style="" placeholder="税抜価格" >
+                <input type="number" id="NEW_OPERATION_PRICE" name="NEW_OPERATION_PRICE" value="" class="form-control input-sm" style="" placeholder="税抜価格" >
             </td>
              <td>
-                <input type="text" id="NEW_PARTS_REMARKS" name="NEW_PARTS_REMARKS" value="" class="form-control input-sm" style="" placeholder="備考" >
+                <input type="text" id="NEW_OPERATION_REMARKS" name="NEW_OPERATION_REMARKS" value="" class="form-control input-sm" style="" placeholder="備考" >
             </td>           
             <td>
-                <a href="" class="btn btn-primary btn-sm" onclick="newParts(); return false;">NEW</a>
+                <a class="btn btn-primary btn-sm" onclick="newOperation(); return false;">NEW</a>
             </td>
        </tr>
    </tbody>

@@ -2,7 +2,7 @@
 #
 
 ########################################
-#	PARTS_LIST DELETE COMPLETE.CGI
+#	OPERATION_LIST DELETE COMPLETE.CGI
 #
 #   引数
 #       $1:プロセスID
@@ -34,8 +34,8 @@ FIN
 }
 
 ########################################
-#パーツカテゴリ更新中は、処理をさせない
-#ls ${SYSD}/LOCK/PARTS_CATEGORY/* > $tmp-checker
+#作業カテゴリ更新中は、処理をさせない
+#ls ${SYSD}/LOCK/OPERATION_CATEGORY/* > $tmp-checker
 #if [ -n cat $tmp-checker ] ; then
 #    echo "333" > $tmp-ajax-html
 #    exit 0
@@ -43,8 +43,8 @@ FIN
 
 #######################################
 #フォームの入力値を取得
-NUM=$(nameread DELETE_PARTS_NO $tmp-post)
-VALUE4=$(nameread DELETE_CATEGORY_NX $tmp-post)         #パーツカテゴリ番号(変更前)
+NUM=$(nameread DELETE_OPERATION_NO $tmp-post)
+VALUE4=$(nameread DELETE_CATEGORY_NX $tmp-post)         #作業カテゴリ番号(変更前)
 
 ########################################
 #存在確認
@@ -56,39 +56,39 @@ fi
 
 #######################################
 #既存データから作成日時取得、現在日時を更新日時とする
-ls ${DATAD}/${VALUE4}/LV1/${NUM}_parts_* | cut -d'_' -f4 | sort -nk1,1 | head -n 1 > $tmp-create
+ls ${DATAD}/${VALUE4}/LV1/${NUM}_operation_* | cut -d'_' -f4 | sort -nk1,1 | head -n 1 > $tmp-create
 CREATE_DATE=$(cat $tmp-create)
 UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 
 ########################################
 #該当のデータ操作をロック
-LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'PARTS_LIST' ${NUM}`
+LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'OPERATION_LIST' ${NUM}`
 LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
 [ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
 
 #########################################
 #一時ファイル化
-ls ${DATAD}/${VALUE4}/LV1/${NUM}_parts_* | sort -nk1,1 | tail -n 1 > $tmp-latest
-cat $tmp-latest | awk -v ud=${UPDATE_DATE} '{print $1, $2, $3, $4, $5, $6, $7, $8, ud, "1"}' > $tmp-parts
+ls ${DATAD}/${VALUE4}/LV1/${NUM}_operation_* | sort -nk1,1 | tail -n 1 > $tmp-latest
+cat $tmp-latest | awk -v ud=${UPDATE_DATE} '{print $1, $2, $3, $4, $5, $6, $7, $8, ud, "1"}' > $tmp-operation
 
 ########################################
 #データ格納
 #LV1:原始データとして、ファイル追加のみを行う
-$(mv $tmp-parts ${DATAD}/${VALUE4}/LV1/${NUM}_parts_${UPDATE_DATE})
+$(mv $tmp-operation ${DATAD}/${VALUE4}/LV1/${NUM}_operation_${UPDATE_DATE})
 
 #LV2:変更されたデータとファイルを入れ替える
-cp -ip ${DATAD}/${VALUE4}/LV1/${NUM}_parts_${UPDATE_DATE} ${DATAD}/${VALUE4}/LV2/${NUM}_parts_${UPDATE_DATE}_d
+cp -ip ${DATAD}/${VALUE4}/LV1/${NUM}_operation_${UPDATE_DATE} ${DATAD}/${VALUE4}/LV2/${NUM}_operation_${UPDATE_DATE}_d
 ls ${DATAD}/${VALUE4}/LV2/${NUM}_* | sort -nk1 | head -n 1 > $tmp-delete
 rm -f $(cat $tmp-delete)
 
 #LV3:LV2のコピー
-cp -ip ${DATAD}/${VALUE4}/LV2/${NUM}_parts_${UPDATE_DATE}_d ${DATAD}/${VALUE4}/LV3/${NUM}_parts_${UPDATE_DATE}_d
+cp -ip ${DATAD}/${VALUE4}/LV2/${NUM}_operation_${UPDATE_DATE}_d ${DATAD}/${VALUE4}/LV3/${NUM}_operation_${UPDATE_DATE}_d
 ls ${DATAD}/${VALUE4}/LV3/${NUM}_* | sort -nk1 | head -n 1 > $tmp-delete
 rm -f $(cat $tmp-delete)
 
 ########################################
 #データ操作ロックを解除
-UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'PARTS_LIST' ${NUM}`
+UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'OPERATION_LIST' ${NUM}`
 [ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
 
 ########################################

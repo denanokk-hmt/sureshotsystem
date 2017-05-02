@@ -18,16 +18,16 @@
             </div>
         </div>
 
-        <!--Parts Category Filter-->
+        <!--Operation Category Filter-->
         <div class="row">
-            <form action="/APP/PARTS_LIST/LISTS/SHOW" method="GET">    
+            <form action="/APP/OPERATION_LIST/LISTS/SHOW" method="GET">    
 
                 <div class="form-group">
                     <div class="btn-group">
                         
-                        <!--Parts Category Dropdown list-->
+                        <!--Operation Category Dropdown list-->
                         <div class="btn-group">
-                            <button type="submit" class="btn btn-info dropdown-toggle" data-toggle="dropdown" id="parts_category" aria-expended="false">
+                            <button type="submit" class="btn btn-info dropdown-toggle" data-toggle="dropdown" id="operation_category" aria-expended="false">
                                 &nbsp<span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" role="menu" name="PAGE">
@@ -67,7 +67,7 @@
 
     <!--Contents Records/Pagination-->
     <div class="header-under-contents">
-        <form class="form-inline form-horizontal"  action="/APP/PARTS_CATEGORY/LISTS/SHOW" method="GET">
+        <form class="form-inline form-horizontal"  action="/APP/OPERATION_CATEGORY/LISTS/SHOW" method="GET">
             <div class="contents-table">
                 ###TABLE###
             </div>
@@ -99,7 +99,7 @@
         var e = document.getElementById("cat-list-" + id);
         var choice = e.innerHTML;
 
-        //親の親(ulタグのnameにParts_noが指定されている、これを取得
+        //親の親(ulタグのnameにOperation_noが指定されている、これを取得
         var pe = obj.parentNode;
         var ppe = pe.parentNode;
         var nodes = ppe.attributes;
@@ -120,21 +120,21 @@
         $("#pager").sticky({topSpacing:0});
     });
 
-    //パーツ追加
-    function newParts() {
-        var new_parts_name = $('#NEW_PARTS_NAME').val();
+    //作業追加
+    function newOperation() {
+        var new_operation_name = $('#NEW_OPERATION_NAME').val();
         var params = $('form').serialize();
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/PARTS_LIST/NEW/COMPLETE',
+            url: '/APP/OPERATION_LIST/NEW/COMPLETE',
             data: params
         });
         jqXHR.done(function(data) {
             if (data == 2222) {
-                alert(new_parts_name + "は、既に使われています。");
+                alert(new_operation_name + "は、既に使われています。");
             } else {
                 $('table').html(data);
-                $('#info-msg').html(new_parts_name + "を追加しました。");
+                $('#info-msg').html(new_operation_name + "を追加しました。");
             }
         });
         jqXHR.fail(function(data) {
@@ -142,40 +142,40 @@
         });
     }
 
-    //パーツ変更
-    function editParts(id) {
+    //作業変更
+    function editOperation(id) {
         var page_filter = $('#CATEGORY_PAGE_HIDDEN').val();
         var page_category_no = $('#CATEGORY_NO_PAGE_HIDDEN').val();
         var edit_category_no = $('#CATEGORY_NO_' + id + '_HIDDEN').val();
         var edit_category_nx = $('#CATEGORY_NO_' + id + '_HIDDEN_EX').val();
         var edit_category_name = $('#CATEGORY_' + id + '_HIDDEN').val();
-        var edit_parts_name = $('#PARTS_NAME_' + id).val();
-        var edit_parts_name_jp = $('#PARTS_NAME_JP_' + id).val();
-        var edit_parts_price = $('#PARTS_PRICE_' + id).val();
-        var edit_parts_remarks = $('#PARTS_REMARKS_' + id).val();
+        var edit_operation_name = $('#OPERATION_NAME_' + id).val();
+        var edit_operation_name_jp = $('#OPERATION_NAME_JP_' + id).val();
+        var edit_operation_price = $('#OPERATION_PRICE_' + id).val();
+        var edit_operation_remarks = $('#OPERATION_REMARKS_' + id).val();
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/PARTS_LIST/EDIT/COMPLETE',
+            url: '/APP/OPERATION_LIST/EDIT/COMPLETE',
             data: {
                 PAGE_FILTER: page_filter,
                 CATEGORY_NO_PAGE_HIDDEN: page_category_no,
-                EDIT_PARTS_NO: id,
-                EDIT_PARTS_CATEGORY_NO: edit_category_no,
-                EDIT_PARTS_CATEGORY_NX: edit_category_nx,
-                EDIT_PARTS_CATEGORY_NAME: edit_category_name,
-                EDIT_PARTS_NAME: edit_parts_name,
-                EDIT_PARTS_NAME_JP: edit_parts_name_jp,
-                EDIT_PARTS_PRICE: edit_parts_price,
-                EDIT_PARTS_REMARKS: edit_parts_remarks
+                EDIT_OPERATION_NO: id,
+                EDIT_OPERATION_CATEGORY_NO: edit_category_no,
+                EDIT_OPERATION_CATEGORY_NX: edit_category_nx,
+                EDIT_OPERATION_CATEGORY_NAME: edit_category_name,
+                EDIT_OPERATION_NAME: edit_operation_name,
+                EDIT_OPERATION_NAME_JP: edit_operation_name_jp,
+                EDIT_OPERATION_PRICE: edit_operation_price,
+                EDIT_OPERATION_REMARKS: edit_operation_remarks
             }
         });
         jqXHR.done(function(data) {
             if (data == 2222) {
-                alert(edit_parts_name + "は、既に使われています。");
+                alert(edit_operation_name + "は、既に使われています。");
             } else if (data == 111) {
-                $('#info-msg').html(edit_parts_name + "を変更しました。");
+                $('#info-msg').html(edit_operation_name + "を変更しました。");
             } else {
-                $('#info-msg').html(edit_parts_name + "を変更出来ませんでした。");
+                $('#info-msg').html(edit_operation_name + "を変更出来ませんでした。");
             }
         });
         jqXHR.fail(function() {
@@ -183,27 +183,27 @@
         });
     }
 
-    //パーツ削除
-    function deleteParts(id) {
+    //作業削除
+    function deleteOperation(id) {
         var delete_category_nx = $('#CATEGORY_NO_' + id + '_HIDDEN_EX').val();
-        var delete_parts_name = $('#PARTS_NAME_' + id).val();
+        var delete_operation_name = $('#OPERATION_NAME_' + id).val();
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/PARTS_LIST/DELETE/COMPLETE',
+            url: '/APP/OPERATION_LIST/DELETE/COMPLETE',
             data: {
-                DELETE_PARTS_NO: id,
+                DELETE_OPERATION_NO: id,
                 DELETE_CATEGORY_NX: delete_category_nx,
             }
        });
         jqXHR.done(function(data) {
             if (data == 2222) {
-                alert(delete_parts_name + "は、使用されていませんでした。");
+                alert(delete_operation_name + "は、使用されていませんでした。");
             } else if (data == 111) {
                 var sel = '#edit-row-' + id;
                 $(sel).remove();
-                $('#info-msg').html(delete_parts_name + "を削除しました。");
+                $('#info-msg').html(delete_operation_name + "を削除しました。");
             } else {
-                $('#info-msg').html(delete_parts_name + "を削除出来ませんでした。");
+                $('#info-msg').html(delete_operation_name + "を削除出来ませんでした。");
             }
         });
         jqXHR.fail(function() {

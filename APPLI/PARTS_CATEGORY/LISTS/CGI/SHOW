@@ -60,5 +60,9 @@ sed -re "s|###TABLE###|${TABLE}|g" $tmp-base        |
 sed -e "s|###INFO_MSG###||g"                        > $tmp-html
 
 ########################################
+#page name
+echo "Parts category" > $tmp-pagename
+
+########################################
 echo "OK"
 exit 0

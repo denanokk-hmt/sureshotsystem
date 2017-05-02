@@ -32,8 +32,8 @@
 
             <div class="btn-toolbar">
                 <button class="btn btn-default col-smx-3" />customer</button>
-                <button class="btn btn-info col-smx-3 disabled" />parts</button>
-                <button class="btn btn-default col-smx-3" />operation</button>
+                <button class="btn btn-default col-smx-3 " />parts</button>
+                <button class="btn btn-info col-smx-3 disabled" />operation</button>
                 <button class="btn btn-default col-smx-3" />work</button>
                 <button class="btn btn-default col-smx-3" />check</button>
             </div>
@@ -115,8 +115,8 @@
         });
         jqXHR.done(function(data) {
             search_result = data;
-            $('#dropdown-parts-' + row).addClass('open');
-            $('#dropdown-parts-list-' + row).html(data);
+            $('#dropdown-operation-' + row).addClass('open');
+            $('#dropdown-operation-list-' + row).html(data);
             //パーツをクリア
             $('#PARTS_NM_' + row).val('');
             $('#PARTS_NO_HID_' + row).val('');
@@ -129,7 +129,7 @@
     });
 
     //登録済のパーツリストの取得
-    $(document).on('click', ':button.btn-parts', function() {
+    $(document).on('click', ':button.btn-operation', function() {
         var row = $(this).attr("name");
         var cat_no = $('#CATEGORY_NO_HID_' + row).val();
         var deferred = ajax_func();
@@ -149,8 +149,8 @@
                 }
             }).done(function(data) {
                 search_result = data;
-                $('#dropdown-parts-' + row).addClass('open');
-                $('#dropdown-parts-list-' + row).html(data);
+                $('#dropdown-operation-' + row).addClass('open');
+                $('#dropdown-operation-list-' + row).html(data);
             }).fail(function() {
                 search_result = '一致するパーツがありません。';
             }).always(function() {
@@ -162,19 +162,19 @@
 
 
     //パーツ選択
-    $(document).on('click', 'li.list-parts', function() {
+    $(document).on('click', 'li.list-operation', function() {
 
         //選択したリストのidから行を取得する:list-行-部品番号
         var idname = $(this).attr("id"); 
         var list_id = idname.split("-");
         var row = list_id[1];
-        var partsNo = $(this).val();
-        var partsNm = $(this).text();
-        var partsPrice = $('#PARTS_PRICE_' + row + '_' + partsNo).val();
-        $('#PARTS_NM_' + row).val(partsNm);
-        $('#PARTS_PRICE_' + row).val(partsPrice);
+        var operationNo = $(this).val();
+        var operationNm = $(this).text();
+        var operationPrice = $('#PARTS_PRICE_' + row + '_' + operationNo).val();
+        $('#PARTS_NM_' + row).val(operationNm);
+        $('#PARTS_PRICE_' + row).val(operationPrice);
         $('#PARTS_QTY_' + row).val('1');
-        $('#PARTS_NO_HID_' + row).val(partsNo);
+        $('#PARTS_NO_HID_' + row).val(operationNo);
     });
 
     //数量PLUS
@@ -198,7 +198,7 @@
     });
 
     //パーツ追加
-    $(document).on('click', 'a.btn-parts', function() {
+    $(document).on('click', 'a.btn-operation', function() {
         var idname = $(this).attr("id"); 
         var list_id = idname.split("_");
         var action = list_id[1];
@@ -207,11 +207,11 @@
         var temp_no = $('#TEMP_NO').val();
         var category_no = $('#CATEGORY_NO_HID_' + row).val();
         var category_nm = $('#CATEGORY_NM_' + row).val();
-        var parts_no = $('#PARTS_NO_HID_' + row).val();
-        var parts_nm = $('#PARTS_NM_' + row).val();
-        var parts_price = $('#PARTS_PRICE_' + row).val();
-        var parts_qty = $('#PARTS_QTY_' + row).val();
-        alert(temp_no+":"+category_no+":"+category_nm+":"+parts_no+":"+parts_nm+":"+parts_price+":"+parts_qty);
+        var operation_no = $('#PARTS_NO_HID_' + row).val();
+        var operation_nm = $('#PARTS_NM_' + row).val();
+        var operation_price = $('#PARTS_PRICE_' + row).val();
+        var operation_qty = $('#PARTS_QTY_' + row).val();
+        alert(temp_no+":"+category_no+":"+category_nm+":"+operation_no+":"+operation_nm+":"+operation_price+":"+operation_qty);
         var jqXHR = $.ajax({
             type: 'POST',
             url: '/APP/ASSESSMENT/NEW/PARTS/COMPLETE',
@@ -227,10 +227,10 @@
               TEMP_NO: temp_no,
               CATEGORY_NO: category_no,
               CATEGORY_NM: category_nm,
-              PARTS_NO: parts_no,
-              PARTS_NM: parts_nm,
-              PARTS_PRICE: parts_price,
-              PARTS_QTY: parts_qty
+              PARTS_NO: operation_no,
+              PARTS_NM: operation_nm,
+              PARTS_PRICE: operation_price,
+              PARTS_QTY: operation_qty
             }
         });
         jqXHR.done(function(data) {
