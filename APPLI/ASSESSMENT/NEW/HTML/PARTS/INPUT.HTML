@@ -29,6 +29,7 @@
         <div class="header-dummy" style="height:1.0em; background-color:piiink;"></div>
 
             <!--Goto Another Function-->
+
             <div class="btn-toolbar">
                 <button class="btn btn-default col-smx-3" />customer</button>
                 <button class="btn btn-info col-smx-3 disabled" />parts</button>
@@ -57,7 +58,7 @@
             <!--Contents-->
             <div class="col-md-4">
                 <div class="contents">
-                    <form action="/APP/ASSESSMENT/NEW/CONFIRM" method="POST">
+                    <form name="assessment" action="" method="">
                 		    <input type="hidden" id="TEMP_NO" name="TEMP_NO" value="###TEMP_NO###" />
                     </form>
                     <button type="submit" id="Set" class="btn btn-primary btn-lg ###DISABLED_SET###" />
@@ -77,10 +78,11 @@
 
     //HEADページ移動
     $(".btn-toolbar .btn").on('click', function() {
+        var temp_no = $("#TEMP_NO").val();
         var func = $(this).html().toUpperCase();
-        var frm = document.forms['assessment-customer'];
+        var frm = document.forms['assessment'];
         frm.method = 'GET';
-        frm.action = '/APP/ASSESSMENT/NEW/' + func + '/INPUT';
+        frm.action = '/APP/ASSESSMENT/NEW/' + func + '/INPUT' + '?temp_no=' + temp_no;
         frm.submit();
     });
 

@@ -110,7 +110,7 @@
                 		<input type="hidden" id="CUSTOMER_NO" name="CUSTOMER_NO" value="###CUSTOMER_NO###" />
                 		<input type="hidden" id="CUSTOMER_NM" name="CUSTOMER_NM" value="###CUSTOMER_NM###" />
                 		<input type="hidden" id="CUSTOMER_PH" name="CUSTOMER_PH" value="###CUSTOMER_PH###" />
-                    <form name="assessment-customer" action="" method="">
+                    <form name="assessment" action="" method="">
                 		    <input type="hidden" id="TEMP_NO" name="TEMP_NO" value="###TEMP_NO###" />
                     </form>
                     <button type="submit" id="Set" class="btn btn-primary btn-lg ###DISABLED_SET###" />
@@ -132,8 +132,9 @@
     //ページ移動
     $(".btn-toolbar .btn").on('click', function() {
         var temp_no = $("#TEMP_NO").val();
+        alert(temp_no);
         var func = $(this).html().toUpperCase();
-        var frm = document.forms['assessment-customer'];
+        var frm = document.forms['assessment'];
         frm.method = 'GET';
         frm.action = '/APP/ASSESSMENT/NEW/' + func + '/INPUT' + '?temp_no=' + temp_no;
         frm.submit();

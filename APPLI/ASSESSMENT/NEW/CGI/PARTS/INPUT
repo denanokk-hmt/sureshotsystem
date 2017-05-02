@@ -62,10 +62,6 @@ fi
 TEMPD=${SYSD}/TMP/ASSESSMENT/${TEMP_NO}
 
 #######################################
-#フォーム入力値を取得
-#VALUE1=$(nameread CUSTOMER_NO $tmp-post)
-
-#######################################
 #顧客情報を取得
 CUSTOMER_NM=$(cat ${TEMPD}/customer | cut -d' ' -f 2)
 

@@ -34,7 +34,8 @@ FIN
 
 #######################################
 #フォーム入力値を取得
-TEMP_NO=$(nameread TEMP_NO $tmp-post)
+MM=$REQUEST_METHOD
+TEMP_NO=$(cat $tmp-get | cut -d'&' -f1 | sed s/TEMP_NO=// )
 
 ########################################
 #ディレクトリを作成する
