@@ -36,6 +36,17 @@ FIN
 #フォーム入力値を取得
 TEMP_NO=$(nameread TEMP_NO $tmp-post)
 
+########################################
+#ディレクトリを作成する
+if [ -e ${SYSD}/TMP/ASSESSMENT  ]; then
+    :
+else
+    mkdir ${SYSD}/TMP/ASSESSMENT
+    #オーナーと権限を再帰的に設定
+    chmod -R 775 ${SYSD}/TMP/ASSESSMENT
+    #chown -R root:apache ${SYSD}/DATA/NUMBERS/${CATEGORY}
+    ERROR_CHECK
+fi
 #######################################
 #TEMP_NOが取得出来なかった場合、
 # 1.TEMP_NOを設定

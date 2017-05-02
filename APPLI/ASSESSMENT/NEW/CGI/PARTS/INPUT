@@ -40,7 +40,8 @@ FIN
 
 #######################################
 #フォーム入力値を取得
-TEMP_NO=$(nameread TEMP_NO $tmp-post)
+MM=$REQUEST_METHOD
+TEMP_NO=$(cat $tmp-get | cut -d'&' -f1 | sed s/TEMP_NO=// )
 
 #######################################
 #TEMP_NOが取得出来なかった場合、
@@ -66,7 +67,7 @@ TEMPD=${SYSD}/TMP/ASSESSMENT/${TEMP_NO}
 
 #######################################
 #顧客情報を取得
-CUSTOMER=${TEMPD}/customer
+CUSTOMER_NM=$(cat ${TEMPD}/customer | cut -d' ' -f 2)
 
 #######################################
 #パーツカテゴリを取得
@@ -90,7 +91,11 @@ CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-new`
 
 #######################################
 #仮登録部品情報を取得
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/RECORDS.HTML ${TEMPD}/parts     > $tmp-records
+if [ -n "$(cat ${TEMPD}/parts)" ]; then
+  cat ${TEMPD}/parts  |
+  juni                > $tmp-juni
+  mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/RECORDS.HTML $tmp-juni  > $tmp-records
+fi
 
 ########################################
 # 改行文字を「\\n」という3文字の文字列に置換
@@ -98,9 +103,9 @@ TABLE_RECORDS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-records`
 
 ########################################
 #tableにrecordsを嵌め込む
-cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/TABLE.HTML |
-sed -e "s|###TABLE_RECORDS###|${TABLE_RECORDS}|g"               |
-sed -e "s|###CATEGORY###|${CATEGORY_NEW}|g"                     > $tmp-table-html
+cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/TABLE.HTML         |
+sed -e "s|###TABLE_RECORDS###|${TABLE_RECORDS}|g"                       |
+sed -e "s|###CATEGORY###|${CATEGORY_NEW}|g"                             > $tmp-table-html
 
 ########################################
 # 改行文字を「\\n」という3文字の文字列に置換
@@ -109,9 +114,10 @@ TABLE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-html`
 ########################################
 #Making viweing body HTML filw path
 cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/${SUB_ACTION}.HTML |
+sed -e "s|###INFO_MSG###|部品を選択してください。|"                     |
+sed -e "s|###ASSESSMENT_NO###|${TEMP_NO}|"                              |
 sed -e "s|###TEMP_NO###|${TEMP_NO}|"                                    |
-sed -e "s|###CUSTOMER_NO###|${VALUE1}|"                                 |
-sed -e "s|###CUSTOMER_NM###|${VALUE2}|"                                 |
+sed -e "s|###CUSTOMER_NM###|${CUSTOMER_NM}|"                            |
 sed -e "s|###PARTS_CATEGORY###|${PARTS_CATEGORY}|"                      |
 sed -e "s|###TABLE###|${TABLE}|g"                                       > $tmp-html|
 

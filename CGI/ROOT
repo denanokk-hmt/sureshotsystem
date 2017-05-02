@@ -31,6 +31,7 @@ FIN
 
 ########################################
 #Get Parameters
+METHOD=$REQUEST_METHOD
 case $REQUEST_METHOD in
 GET)
     if [ ! -z $QUERY_STRING ]; then

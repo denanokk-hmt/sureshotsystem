@@ -35,17 +35,23 @@ FIN
 
 #######################################
 #フォームの入力値を取得
-VALUE1=$(nameread PARTS_CATEGORY_NO $tmp-post)
+CATE_NO=$(nameread PARTS_CATEGORY_NO $tmp-post)
+ROW=$(nameread ROW $tmp-post)
 
 ########################################
 #パーツカテゴリを取得
-cat ${SYSD}/DATA/PARTS_LIST/LISTS/${VALUE1}/LV3/*[^_d]  |
+cat ${SYSD}/DATA/PARTS_LIST/LISTS/${CATE_NO}/LV3/*[^_d]  |
 LANG=C sort -nk1,1                                      > $tmp-parts
 
 ########################################
 #Parts
 # 部品番号、カテゴリ番号、カテゴリ名、部品名(EN)、部品名(JP)、単価、UD、CD
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/DROPDOWN_LIST.HTML $tmp-parts > $tmp-ajax-html
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/DROPDOWN_LIST.HTML $tmp-parts > $tmp-parts-row
+
+########################################
+#選択行を設定
+cat $tmp-parts-row  |
+sed -e "s/###ROW###/${ROW}/" > $tmp-ajax-html
 
 ########################################
 # 改行文字を「\\n」という3文字の文字に置換
