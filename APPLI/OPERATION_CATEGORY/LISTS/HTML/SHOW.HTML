@@ -28,7 +28,7 @@
 
     <!--Contents-->
     <div class="header-under-contents">
-        <form class="form-horizontal" action="/APP/PARTS_CATEGORY/LISTS/SHOW" method="GET">
+        <form class="form-horizontal" action="/APP/OPERATION_CATEGORY/LISTS/SHOW" method="GET">
             <div class="contents-table">
                 ###TABLE###
             </div>
@@ -40,12 +40,12 @@
 <script>
 
     //カテゴリ名新規追加
-    function newPartsCategory() {
-        var new_category_name = $('#NEW_PARTS_CATEGORY_NAME').val();
+    function newOperationCategory() {
+        var new_category_name = $('#NEW_OPERATION_CATEGORY_NAME').val();
         var params = $('form').serialize();
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/PARTS_CATEGORY/NEW/COMPLETE',
+            url: '/APP/OPERATION_CATEGORY/NEW/COMPLETE',
             data: params
         });
         jqXHR.done(function(data) {
@@ -62,21 +62,21 @@
     }
 
     //カテゴリ名変更
-    function editPartsCategory(id) {
+    function editOperationCategory(id) {
 
         if (id == 999) {
             alert("更新対象です。");
             return false;
         }
 
-        var edit_category_name = $('#PARTS_CATEGORY_NAME_' + id).val();
+        var edit_category_name = $('#OPERATION_CATEGORY_NAME_' + id).val();
         var params = $('form').serialize();
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/PARTS_CATEGORY/EDIT/COMPLETE',
+            url: '/APP/OPERATION_CATEGORY/EDIT/COMPLETE',
             data: {
-                PARTS_CATEGORY_ID: id,
-                PARTS_CATEGORY_NAME: edit_category_name
+                OPERATION_CATEGORY_ID: id,
+                OPERATION_CATEGORY_NAME: edit_category_name
             }
         });
         jqXHR.done(function(data) {
@@ -93,21 +93,21 @@
     }
 
     //カテゴリ名削除
-    function deletePartsCategory(id) {
+    function deleteOperationCategory(id) {
 
         if (id == 999) {
             alert("削除対象外です。");
             return false;
         }
 
-        var delete_category_name = $('#PARTS_CATEGORY_NAME_' + id).val();
+        var delete_category_name = $('#OPERATION_CATEGORY_NAME_' + id).val();
         var params = $('form').serialize();
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/PARTS_CATEGORY/DELETE/COMPLETE',
+            url: '/APP/OPERATION_CATEGORY/DELETE/COMPLETE',
             data: {
-                PARTS_CATEGORY_ID: id,
-                PARTS_CATEGORY_NAME: delete_category_name
+                OPERATION_CATEGORY_ID: id,
+                OPERATION_CATEGORY_NAME: delete_category_name
             }
         });
         jqXHR.done(function(data) {
