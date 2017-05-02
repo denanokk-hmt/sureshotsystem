@@ -89,7 +89,7 @@
     //カテゴリを選択
     $(document).on('click', 'a.category-list', function() {
 
-        //選択した部品のidから行を取得する
+        //選択した作業のidから行を取得する
         var idname = $(this).attr("id"); 
         var list_id = idname.split("_");
         var row = $(this).parent().parent().attr("name");
@@ -104,12 +104,12 @@
         var input_hidden = document.getElementById('CATEGORY_NO_HID_' + row);
         input_hidden.value = cat_no;
 
-        //パーツリストを選択したカテゴリで抽出
+        //作業リストを選択したカテゴリで抽出
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/PARTS_LIST/SEARCH/INPUT',
+            url: '/APP/OPERATION_LIST/SEARCH/INPUT',
             data: {
-                PARTS_CATEGORY_NO: cat_no,
+                OPERATION_CATEGORY_NO: cat_no,
                 ROW: row
             }
         });
@@ -117,18 +117,18 @@
             search_result = data;
             $('#dropdown-operation-' + row).addClass('open');
             $('#dropdown-operation-list-' + row).html(data);
-            //パーツをクリア
-            $('#PARTS_NM_' + row).val('');
-            $('#PARTS_NO_HID_' + row).val('');
-            $('#PARTS_PRICE_' + row).val('');
-            $('#PARTS_QTY_' + row).val('0');
+            //作業をクリア
+            $('#OPERATION_NM_' + row).val('');
+            $('#OPERATION_NO_HID_' + row).val('');
+            $('#OPERATION_PRICE_' + row).val('');
+            $('#OPERATION_QTY_' + row).val('0');
         });
         jqXHR.fail(function() {
-            search_result = '一致するパーツがありません。';
+            search_result = '一致する作業がありません。';
         });
     });
 
-    //登録済のパーツリストの取得
+    //登録済の作業リストの取得
     $(document).on('click', ':button.btn-operation', function() {
         var row = $(this).attr("name");
         var cat_no = $('#CATEGORY_NO_HID_' + row).val();
@@ -137,14 +137,14 @@
           //done!!
         });
 
-        //パーツリストを選択したカテゴリで抽出
+        //作業リストを選択したカテゴリで抽出
         function ajax_func() {
             var deferred = new $.Deferred();
             $.ajax({
                 type: 'POST',
-                url: '/APP/PARTS_LIST/SEARCH/INPUT',
+                url: '/APP/OPERATION_LIST/SEARCH/INPUT',
                 data: {
-                    PARTS_CATEGORY_NO: cat_no,
+                    OPERATION_CATEGORY_NO: cat_no,
                     ROW: row
                 }
             }).done(function(data) {
@@ -152,7 +152,7 @@
                 $('#dropdown-operation-' + row).addClass('open');
                 $('#dropdown-operation-list-' + row).html(data);
             }).fail(function() {
-                search_result = '一致するパーツがありません。';
+                search_result = '一致する作業がありません。';
             }).always(function() {
                 deferred.resolve();
             });
@@ -161,20 +161,20 @@
     });
 
 
-    //パーツ選択
+    //作業選択
     $(document).on('click', 'li.list-operation', function() {
 
-        //選択したリストのidから行を取得する:list-行-部品番号
+        //選択したリストのidから行を取得する:list-行-作業番号
         var idname = $(this).attr("id"); 
         var list_id = idname.split("-");
         var row = list_id[1];
         var operationNo = $(this).val();
         var operationNm = $(this).text();
-        var operationPrice = $('#PARTS_PRICE_' + row + '_' + operationNo).val();
-        $('#PARTS_NM_' + row).val(operationNm);
-        $('#PARTS_PRICE_' + row).val(operationPrice);
-        $('#PARTS_QTY_' + row).val('1');
-        $('#PARTS_NO_HID_' + row).val(operationNo);
+        var operationPrice = $('#OPERATION_PRICE_' + row + '_' + operationNo).val();
+        $('#OPERATION_NM_' + row).val(operationNm);
+        $('#OPERATION_PRICE_' + row).val(operationPrice);
+        $('#OPERATION_QTY_' + row).val('1');
+        $('#OPERATION_NO_HID_' + row).val(operationNo);
     });
 
     //数量PLUS
@@ -182,8 +182,8 @@
         var idname = $(this).attr("id"); 
         var list_id = idname.split("_");
         var row = list_id[2];
-        var qty = $('#PARTS_QTY_' + row).val();
-        $('#PARTS_QTY_' + row).val(parseInt(qty) + parseInt(1));
+        var qty = $('#OPERATION_QTY_' + row).val();
+        $('#OPERATION_QTY_' + row).val(parseInt(qty) + parseInt(1));
     });
 
     //数量MINUS
@@ -191,13 +191,13 @@
         var idname = $(this).attr("id"); 
         var list_id = idname.split("_");
         var row = list_id[2];
-        var qty = $('#PARTS_QTY_' + row).val();
+        var qty = $('#OPERATION_QTY_' + row).val();
         if (parseInt(qty) > 0) {
-            $('#PARTS_QTY_' + row).val(parseInt(qty) - parseInt(1));
+            $('#OPERATION_QTY_' + row).val(parseInt(qty) - parseInt(1));
         }
     });
 
-    //パーツ追加
+    //作業追加
     $(document).on('click', 'a.btn-operation', function() {
         var idname = $(this).attr("id"); 
         var list_id = idname.split("_");
@@ -207,14 +207,14 @@
         var temp_no = $('#TEMP_NO').val();
         var category_no = $('#CATEGORY_NO_HID_' + row).val();
         var category_nm = $('#CATEGORY_NM_' + row).val();
-        var operation_no = $('#PARTS_NO_HID_' + row).val();
-        var operation_nm = $('#PARTS_NM_' + row).val();
-        var operation_price = $('#PARTS_PRICE_' + row).val();
-        var operation_qty = $('#PARTS_QTY_' + row).val();
+        var operation_no = $('#OPERATION_NO_HID_' + row).val();
+        var operation_nm = $('#OPERATION_NM_' + row).val();
+        var operation_price = $('#OPERATION_PRICE_' + row).val();
+        var operation_qty = $('#OPERATION_QTY_' + row).val();
         alert(temp_no+":"+category_no+":"+category_nm+":"+operation_no+":"+operation_nm+":"+operation_price+":"+operation_qty);
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/ASSESSMENT/NEW/PARTS/COMPLETE',
+            url: '/APP/ASSESSMENT/NEW/OPERATION/COMPLETE',
             /*
             data: { 
               params,
@@ -227,15 +227,15 @@
               TEMP_NO: temp_no,
               CATEGORY_NO: category_no,
               CATEGORY_NM: category_nm,
-              PARTS_NO: operation_no,
-              PARTS_NM: operation_nm,
-              PARTS_PRICE: operation_price,
-              PARTS_QTY: operation_qty
+              OPERATION_NO: operation_no,
+              OPERATION_NM: operation_nm,
+              OPERATION_PRICE: operation_price,
+              OPERATION_QTY: operation_qty
             }
         });
         jqXHR.done(function(data) {
             if (data == 2222) {
-                alert("パーツの追加が出来ませんでした。");
+                alert("作業の追加が出来ませんでした。");
             } else {
                 $('intput[type="text"]').each(function() {
                 });

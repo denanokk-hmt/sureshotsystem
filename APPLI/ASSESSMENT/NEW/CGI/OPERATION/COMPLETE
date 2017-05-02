@@ -33,8 +33,8 @@ FIN
 }
 
 ########################################
-#パーツカテゴリ更新中は、処理をさせない
-#ls ${SYSD}/LOCK/PARTS_CATEGORY/* > $tmp-checker 2> /dev/null
+#作業カテゴリ更新中は、処理をさせない
+#ls ${SYSD}/LOCK/OPERATION_CATEGORY/* > $tmp-checker 2> /dev/null
 #if [ -n cat $tmp-checker ] ; then
 #    echo "333" > $tmp-ajax-html
 #    exit 0
@@ -45,12 +45,12 @@ FIN
 ACTION=$(nameread ACTION $tmp-post)
 ROW=$(nameread ROW $tmp-post)
 TEMP_NO=$(nameread TEMP_NO $tmp-post)
-CATE_NM=$(nameread CATEGORY_NM $tmp-post)   #パーツカテゴリ名
-CATE_NO=$(nameread CATEGORY_NO $tmp-post)   #パーツカテゴリ番号
-PARTS_NM=$(nameread PARTS_NM $tmp-post)     #パーツ名
-PARTS_NO=$(nameread PARTS_NO $tmp-post)     #パーツ番号
-PRICE=$(nameread PARTS_PRICE $tmp-post)     #プライス
-QTY=$(nameread PARTS_QTY $tmp-post)         #数量
+CATE_NM=$(nameread CATEGORY_NM $tmp-post)   #作業カテゴリ名
+CATE_NO=$(nameread CATEGORY_NO $tmp-post)   #作業カテゴリ番号
+OPERATION_NM=$(nameread OPERATION_NM $tmp-post)     #作業名
+OPERATION_NO=$(nameread OPERATION_NO $tmp-post)     #作業番号
+PRICE=$(nameread OPERATION_PRICE $tmp-post)     #プライス
+QTY=$(nameread OPERATION_QTY $tmp-post)         #数量
 
 ########################################
 #仮番号ディレクトリ
@@ -60,54 +60,54 @@ TEMPD=${SYSD}/TMP/ASSESSMENT/${TEMP_NO}
 #ACTIONで振り分け
 case ${ACTION} in
 ADD)    #追加
-  #1:カテゴリ番号、2:カテゴリ名、3:部品番号、4:部品名、5:価格、6:数量
-  echo ${CATE_NO}" "${CATE_NM}" "${PARTS_NO}" "${PARTS_NM}" "${PRICE}" "${QTY}  >> ${TEMPD}/parts
+  #1:カテゴリ番号、2:カテゴリ名、3:作業番号、4:作業名、5:価格、6:数量
+  echo ${CATE_NO}" "${CATE_NM}" "${OPERATION_NO}" "${OPERATION_NM}" "${PRICE}" "${QTY}  >> ${TEMPD}/operation
   #空行を削除
-  cat ${TEMPD}/parts | awk /./ > $tmp-parts
+  cat ${TEMPD}/operation | awk /./ > $tmp-operation
   ;;
 EDIT)   #変更
-  cat ${TEMPD}/parts | 
+  cat ${TEMPD}/operation | 
   awk \
       -v row=${ROW} \
       -v cate_no=${CATE_NO} -v cate_nm=${CATE_NM} \
-      -v parts_no=${PARTS_NO} -v parts_nm=${PARTS_NM} \
+      -v operation_no=${OPERATION_NO} -v operation_nm=${OPERATION_NM} \
       -v price=${PRICE} \
       -v qty=${QTY} \
       'NR!=row{print} \
-      NR==row{print(cate_no, cate_nm, parts_no, parts_nm, price, qty)}' \
-      > $tmp-parts
+      NR==row{print(cate_no, cate_nm, operation_no, operation_nm, price, qty)}' \
+      > $tmp-operation
   ;;
 DELETE) #削除
-  cat ${TEMPD}/parts | awk -v d=${ROW} 'NR!=d{print}' > $tmp-parts
+  cat ${TEMPD}/operation | awk -v d=${ROW} 'NR!=d{print}' > $tmp-operation
   ;;
 esac
 
 ########################################
-cat $tmp-parts > ${TEMPD}/parts
+cat $tmp-operation > ${TEMPD}/operation
 
 ########################################
-#パーツカテゴリを取得
-cat ${SYSD}/DATA/PARTS_CATEGORY/LISTS/LV3/*[^_d]    |
+#作業カテゴリを取得
+cat ${SYSD}/DATA/OPERATION_CATEGORY/LISTS/LV3/*[^_d]    |
 LANG=C sort -nk1,1                                  > $tmp-category
 
 ########################################
-#登録済パーツ用のパーツカテゴリ
+#登録済作業用の作業カテゴリ
 # 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/ASSESSMENT/NEW/HTML/PARTS/CATEGORY_LIST.HTML $tmp-category > $tmp-parts-category-list
+mojihame -lRECORDS ${SYSD}/APPLI/ASSESSMENT/NEW/HTML/OPERATION/CATEGORY_LIST.HTML $tmp-category > $tmp-operation-category-list
 
 #######################################
 # 改行文字を「\\n」という3文字の文字列に置換
-CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-list`
+CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-operation-category-list`
 
 ########################################
-#パーツリストを取得
-cat ${TEMPD}/parts |
+#作業リストを取得
+cat ${TEMPD}/operation |
 juni               > $tmp-records
-#1:順位、2:カテゴリ番号、3:カテゴリ名、4:部品番号、5:部品名、6:価格、7:数量
-mojihame -lRECORDS ${SYSD}/APPLI/ASSESSMENT/NEW/HTML/PARTS/RECORDS.HTML $tmp-records > $tmp-table-records
+#1:順位、2:カテゴリ番号、3:カテゴリ名、4:作業番号、5:作業名、6:価格、7:数量
+mojihame -lRECORDS ${SYSD}/APPLI/ASSESSMENT/NEW/HTML/OPERATION/RECORDS.HTML $tmp-records > $tmp-table-records
 
 ########################################
-#パーツリストにパーツカテゴリリストを嵌め込む
+#作業リストに作業カテゴリリストを嵌め込む
 cat $tmp-table-records                         |
 sed -e "s|###CATEGORY###|${CATEGORY_LIST}|g"   > $tmp-table-records2
 
@@ -118,17 +118,17 @@ TABLE_RECORDS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-records2`
 echo ${TABLE_RECORDS} > /tmp/vvvvvv
 
 ########################################
-#新規登録パーツ用のパーツカテゴリ
+#新規登録作業用の作業カテゴリ
 # 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/ASSESSMENT/NEW/HTML/PARTS/CATEGORY_NEW.HTML $tmp-category > $tmp-parts-category-new
+mojihame -lRECORDS ${SYSD}/APPLI/ASSESSMENT/NEW/HTML/OPERATION/CATEGORY_NEW.HTML $tmp-category > $tmp-operation-category-new
 
 ########################################
 # 改行文字を「\\n」という3文字の文字列に置換
-CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-new`
+CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-operation-category-new`
 
 ########################################
 #tableにrecordsを嵌め込む
-cat ${SYSD}/APPLI/ASSESSMENT/NEW/HTML/PARTS/TABLE.HTML    |
+cat ${SYSD}/APPLI/ASSESSMENT/NEW/HTML/OPERATION/TABLE.HTML    |
 sed -e "s|###CATEGORY###|${CATEGORY_NEW}|g"               |
 sed -e "s|###TABLE_RECORDS###|${TABLE_RECORDS}|g"         > $tmp-ajax-html
 
