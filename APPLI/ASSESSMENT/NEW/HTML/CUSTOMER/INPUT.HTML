@@ -21,7 +21,7 @@
             <button class="btn btn-info col-smx-3 disabled" />customer</button>
             <button class="btn btn-default col-smx-3 " />parts</button>
             <button class="btn btn-default col-smx-3 " />operation</button>
-            <button class="btn btn-default col-smx-3 " />work</button>
+            <button class="btn btn-default col-smx-3 " />set</button>
             <button class="btn btn-default col-smx-3 " />check</button>
         </div>
 
@@ -219,7 +219,7 @@
         var temp_no = $('#TEMP_NO').val();
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/ASSESSMENT/NEW/CUSTOMER/CONFIRM',
+            url: '/APP/ASSESSMENT/NEW/CUSTOMER/COMPLETE',
             data: {
                 CUSTOMER_NO: cust_no,
                 CUSTOMER_NM: cust_nm,
