@@ -16,7 +16,7 @@
 
 ########################################
 #基本設定
-SYSD=/home/sureshotsystem
+SYSD=$(cd $(dirname $0) && pwd | awk '{print substr($0, 0, index($0, "sureshotsystem")+13)}')
 PID=$1
 DATE_TIME_PID=$(date +%Y%m%d).$(date +%H%M%S).${PID}
 #exec 2> ${SYSD}/LOG/LOG.$(basename $0).${DATE_TIME_PID}
