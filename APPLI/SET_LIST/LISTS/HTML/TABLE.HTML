@@ -1,0 +1,67 @@
+<!--<!DOCTYPE html>-->
+<!--<html>-->
+
+
+<table class="table" style="font-size:12px;">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>NO</th>
+            <th>SET CATEGORY</th>
+            <th>SET NAME (EN)</th>
+            <th>SET NAME (JP)</th>
+            <th>PRICE</th>
+            <th>REMARKS</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        <!--登録済セットの表示-->
+        ###TABLE_RECORDS###
+
+        <!--セット新規追加-->
+        <tr>
+            <td>--</td>
+            <td>
+                <span class="label label-default">NEW</span>
+            </td>
+            <td>
+                <div class="form-group">
+                    <div class="btn-group">
+                        <div class="btn-group">
+                            <button type="button" class="btn dropdown-toggle input-sm" id="new_set_categogy" data-toggle="dropdown" aria-expended="false">
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu" name="NEW">
+                                ###CATEGORY###
+                            </ul>
+                        </div>
+                        <div class="btn-group">
+                            <input type="text" name="CATEGORY_NEW" id="CATEGORY_NEW" value="" class="form-control input-sm" disabled placeholder="セットカテゴリ"/>
+                        </div>
+                    </div>
+                    <input type="hidden" name="CATEGORY_NEW_HIDDEN" id="CATEGORY_NEW_HIDDEN" value="" class="form-control" />
+                    <input type="hidden" name="CATEGORY_NO_NEW_HIDDEN" id="CATEGORY_NO_NEW_HIDDEN" value="" class="form-control" />
+                </div>
+            </td>
+            <td>
+                <input type="text" id="NEW_SET_NAME" name="NEW_SET_NAME" value="" class="form-control input-sm" style="" placeholder="セット名-英数字(正)" >
+            </td>
+            <td>
+                <input type="text" id="NEW_SET_NAME_JP" name="NEW_SET_NAME_JP" value="" class="form-control input-sm" style="" placeholder="セット名-日本語(略)" >
+            </td>
+            <td>
+                <input type="number" id="NEW_SET_PRICE" name="NEW_SET_PRICE" value="" class="form-control input-sm" style="" placeholder="税抜価格" >
+            </td>
+             <td>
+                <input type="text" id="NEW_SET_REMARKS" name="NEW_SET_REMARKS" value="" class="form-control input-sm" style="" placeholder="備考" >
+            </td>           
+            <td>
+                <a class="btn btn-primary btn-sm" onclick="newSet(); return false;">NEW</a>
+            </td>
+       </tr>
+   </tbody>
+</table>
+
+<!--</html>-->
