@@ -77,7 +77,7 @@ RESULT=`${SYSD}/CGI/PAGER $1 /APP/STUFF/USERS/SHOW ${SHOW_PAGE} ${RECORDS} ${VIE
 
 ########################################
 #Making viweing body HTML filw path
-sed -re "s|###PAGER###|$(cat $tmp-pager-html)|g" $tmp-template-html > $tmp-html
+sed -e "s|###PAGER###|$(cat $tmp-pager-html)|g" $tmp-template-html > $tmp-html
 
 #########################################
 #page name

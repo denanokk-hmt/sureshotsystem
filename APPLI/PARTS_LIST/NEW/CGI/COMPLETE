@@ -138,7 +138,7 @@ mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/RECORDS.HTML $tmp-record
 ########################################
 #登録済レコードにパーツカテゴリリストを嵌め込む
 cat $tmp-table-records                                      |
-sed -re "s|###CATEGORY###|${CATEGORY_LIST}|g"   > $tmp-table
+sed -e "s|###CATEGORY###|${CATEGORY_LIST}|g"   > $tmp-table
 
 ########################################
 # 改行文字を「\\n」という3文字の文字列に置換

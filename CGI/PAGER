@@ -154,9 +154,5 @@ echo ${TEXT} > $tmp-pager-text
 
 cat $tmp-pager-text | sed -e 's|&|\\&|g' > $tmp-pager-html
 
-########################################
-#pagerをはめ込み
-#sed -re "s|###PAGER###|${TEXT}|g" $tmp-template-html > $tmp-html
-
 
 exit 0
