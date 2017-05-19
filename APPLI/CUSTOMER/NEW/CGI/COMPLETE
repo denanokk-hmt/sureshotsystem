@@ -67,6 +67,18 @@ UPDATE_DATE=$CREATE_DATE
 echo ${NEW_NUM}" "${VALUE1}" "${VALUE2}" "${VALUE3}" "${VALUE6}" "${CREATE_DATE}" "${UPDATE_DATE}" "${VALUE5}" "0 > $tmp-customer
 
 ########################################
+#ディレクトリを作成する
+if [ -e ${SYSD}/DATA/${CATEGORY}  ]; then
+  :
+else
+  mkdir ${SYSD}/DATA/${CATEGORY}
+  cp -rp ${SYSD}/DATA/ORG_LV1-3/ ${SYSD}/DATA/${CATEGORY}/LISTS
+  mkdir ${SYSD}/DATA/${CATEGORY}/TMP
+  chmod -R 770 ${SYSD}/DATA/${CATEGORY} #権限を再帰的に設定
+  ERROR_CHECK
+fi
+
+########################################
 #データ格納
 #LV1
 $(mv $tmp-customer ${DATAD}/LV1/${NEW_NUM}_customer_${CREATE_DATE})
