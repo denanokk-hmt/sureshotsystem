@@ -1,0 +1,55 @@
+<!--<!DOCTYPE html>-->
+<!--<html>-->
+
+
+<!--RECORDS-->
+<tr id="edit-row-%2">
+    <td>%1</td>
+    <td>
+        <span class="label label-default">%2</span>
+    </td>
+    <td>
+        <div class="edit">
+            <div class="form-group">
+                <div class="btn-group">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-info dropdown-toggle input-sm" data-toggle="dropdown" id="category" aria-expended="false">
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu" name="%2">
+                            ###CATEGORY###
+                        </ul>
+                    </div>
+                    <div class="btn-group">
+                        <input type="text" name="CATEGORY_%2" id="CATEGORY_%2" value="%4" class="form-control input-sm" disabled />
+                    </div>
+                    <input type="hidden" name="CATEGORY_%2_HIDDEN" id="CATEGORY_%2_HIDDEN" value="%4" class="form-control" />
+                    <input type="hidden" name="CATEGORY_NO_%2_HIDDEN" id="CATEGORY_NO_%2_HIDDEN" value="%3" class="form-control" />
+                    <input type="hidden" name="CATEGORY_NO_%2_HIDDEN_EX" id="CATEGORY_NO_%2_HIDDEN_EX" value="%3" class="form-control" />
+                </div>
+            </div>
+        </div>
+    </td>
+    <td>
+        <input type="text" name="PARTS_NAME_%2" id="PARTS_NAME_%2" value="%5" class="form-control input-sm" />
+    </td>
+    <td>
+        <input type="text" name="PARTS_NAME_JP_%2" id="PARTS_NAME_JP_%2" value="%6" class="form-control input-sm" />
+    </td>
+    <td>
+        <input type="text" name="PARTS_PRICE_%2" id="PARTS_PRICE_%2" value="%7" class="form-control input-sm" />
+    </td>
+    <td>
+        <input type="text" name="PARTS_REMARKS_%2" id="PARTS_REMARKS_%2" value="%8" class="form-control input-sm" />
+    </td>
+    <td>
+        <a href="" class="btn btn-warning btn-sm" id="PARTS_EDIT_%2" onclick="editParts(%2); return false;" >EDIT</a>
+    </td>
+    <td>
+        <a class="btn btn-danger btn-sm" id="PARTS_DELETE_%2" onclick="deleteParts(%2); return false;" >DEL</a>
+    </td>
+</tr>
+<!--RECORDS-->
+
+
+<!--</html>-->

@@ -1,0 +1,113 @@
+#!/bin/bash -vx
+#
+
+########################################
+#	ASSESSMENT NEW INPUT PARTS.CGI
+#
+#   Arg
+#       $1:$$   necessary
+#       $2:Assessment no
+#
+#	Written by hiramatsu
+
+
+########################################
+#基本設定
+SYSD=$(cd $(dirname $0) && pwd | awk '{print substr($0, 0, index($0, "sureshotsystem")+13)}')
+#exec 2> $SYSD/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
+tmp=/tmp/tmp_$1
+LANG=ja_JP.UTF-8
+PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
+CATEGORY=`cat $tmp-category`
+FUNC=`cat $tmp-func`
+ACTION=`cat $tmp-action`
+SUB_ACTION=`cat $tmp-sub-action`
+
+########################################
+#Check error
+ERROR_CHECK(){
+	[ $(plus ${PIPESTATUS[@]}) -eq 0 ] && return
+cat <<- FIN
+	Context-type: text/html
+	NG input
+FIN
+	cat $tmp-result
+	exit 1
+}
+
+########################################
+#第二引数を取得
+ASS=${2:-0}
+
+########################################
+#新規の場合のみ
+#1.査定番号の次のロットを追加する
+#2.新規査定番号を確定する
+if [ "${ASS}" = 0 ]; then
+    LATEST_NUM=$(ls ${SYSD}/DATA/NUMBERS/${CATEGORY}/ORIGIN | sort -nr | head -n 1)
+    START=$((LATEST_NUM + 1))
+    END=$((START + 1))
+    SEQ_STATUS=`${SYSD}/CGI/NUMBER_SEQ $1 ${CATEGORY} ${START} ${END} `
+    [[ ${SEQ_STATUS} != 'SUCCESS' ]] && exit 0
+    
+    ASS=`${SYSD}/CGI/NUMBERS $1 ${CATEGORY} `
+    [ ${NEW_NUM} = 'ERROR' ] && exit 0 || :
+fi
+
+#######################################
+#フォーム入力値を取得
+VALUE1=$(nameread CUSTOMER_NO $tmp-post)
+VALUE2=$(nameread CUSTOMER_NM $tmp-post)
+
+########################################
+#パーツカテゴリを取得
+cat ${SYSD}/DATA/PARTS_CATEGORY/LISTS/LV3/*[^_d]    |
+LANG=C sort -nk1,1                                  > $tmp-category
+
+########################################
+#入力済みパーツリストのパーツカテゴリ
+# 1;カテゴリ番号 2;カテゴリ名
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/${SUB_ACTION}_CATEGORY_LIST.HTML $tmp-category > $tmp-parts-category-list
+
+########################################
+#新規登録パーツ用のパーツカテゴリ
+# 1;カテゴリ番号 2;カテゴリ名
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/${SUB_ACTION}_CATEGORY_NEW.HTML $tmp-category > $tmp-parts-category-new
+
+########################################
+# 改行文字を「\\n」という3文字の文字列に置換
+CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-list`
+CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-new`
+
+########################################
+#入力済みパーツリストを取得
+
+
+
+
+########################################
+#tableにrecordsを嵌め込む
+cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/${SUB_ACTION}_TABLE.HTML   |
+sed -e "s|###TABLE_RECORDS###|${TABLE_RECORDS}|g"                               |
+sed -e "s|###CATEGORY###|${CATEGORY_NEW}|g"                                     > $tmp-table-html
+
+########################################
+# 改行文字を「\\n」という3文字の文字列に置換
+TABLE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-html`
+
+########################################
+#Making viweing body HTML filw path
+ACTION=`cat $tmp-action`
+SUB_ACTION=`cat $tmp-sub-action`
+cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/${SUB_ACTION}.HTML |
+sed -e "s|###ASSESSMENT_NO###|${ASS}|"                                  |
+sed -e "s|###CUSTOMER_NO###|${VALUE1}|"                                 |
+sed -e "s|###CUSTOMER_NM###|${VALUE2}|"                                 |
+sed -e "s|###PARTS_CATEGORY###|${PARTS_CATEGORY}|"                      |
+sed -e "s|###TABLE###|${TABLE}|g"                                       > $tmp-html|
+
+########################################
+##ending
+echo "OK"
+exit 0
+

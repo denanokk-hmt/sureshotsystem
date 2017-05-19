@@ -1,0 +1,122 @@
+#!/bin/bash -evx
+#
+
+########################################
+#	CUSTOMER DELETE COMPLETE.CGI
+#
+#   引数
+#       $1:プロセスID
+#
+#	Written by hiramatsu
+
+
+########################################
+#基本設定
+SYSD=$(cd $(dirname $0) && pwd | awk '{print substr($0, 0, index($0, "sureshotsystem")+13)}')
+#exec 2> ${SYSD}/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
+tmp=/tmp/tmp_$1
+LANG=ja_JP.UTF-8
+PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
+CATEGORY=`cat $tmp-category`
+FUNC=`cat $tmp-func`
+DATAD=${SYSD}/DATA/${CATEGORY}/LISTS
+
+########################################
+#Check error
+ERROR_CHECK(){
+	[ $(plus ${PIPESTATUS[@]}) -eq 0 ] && return
+cat <<- FIN
+	Context-type: text/html
+	NG input
+FIN
+	cat $tmp-result
+	exit 1
+}
+
+#######################################
+#Get Form Data
+ID=$(nameread ID $tmp-post)
+VALUE1=$(nameread FIRST_NAME $tmp-post)
+VALUE2=$(nameread GIVEN_NAME $tmp-post)
+VALUE3=$(nameread EMAIL $tmp-post)
+VALUE4=$(nameread PHONE $tmp-post)
+CUSTOMER_ID=$(nameread CUSTOMER_ID $tmp-post)
+
+########################################
+#顧客番号一致確認
+if [ -e ${SYSD}/DATA/${CATEGORY}/TMP/${CUSTOMER_ID} ]; then
+    CUSTOMER_NUM=$(cat ${SYSD}/DATA/${CATEGORY}/TMP/${CUSTOMER_ID})
+    rm -f ${SYSD}/DATA/CUSTOMER/TMP/${CUSTOMER_ID}
+else
+    cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/CONFIRM.HTML             |
+    sed -e "s/###ERROR_MSG###/データ不整合により処理を中止しました。/"  |
+    sed -e "s/###ID_###/${ID}/"                                         |
+    sed -e "s/###FIRST_NAME_###/${VALUE1}/"                             |
+    sed -e "s/###GIVEN_NAME_###/${VALUE2}/"                             |
+    sed -e "s/###EMAIL_###/${VALUE3}/"                                  |
+    sed -e "s/###PHONE_###/${VALUE4}/"                                  |
+    sed -e "s/###CUSTOMER_ID###/${CUSTOMER_ID}/"                        > $tmp-html
+    exit 0
+fi
+
+########################################
+#該当のCUSTOMERのデータ操作をロック
+LOCK=`${SYSD}/CGI/LOCK/LOCK $1 ${CATEGORY} ${CUSTOMER_NUM}`
+LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
+[ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
+
+########################################
+#既存データから作成日時取得、現在日時を更新日時とする
+ls ${DATAD}/LV1/${CUSTOMER_NUM}_customer_* | cut -d'_' -f3 | sort -nk1,1 | head -n 1 > $tmp-create
+CREATE_DATE=$(cat $tmp-create)
+UPDATE_DATE=$(date +%Y%m%d%H%M%S)
+
+########################################
+#一時ファイルに書き出し
+#1.顧客番号 2.姓 3.名 4.EMAIL 5.TEL 6.作成日時 7.更新日時 8.ADMINフラグ 9.削除フラグ
+cat ${DATAD}/LISTS/LV1/${CUSTOMER_NUM}_customer_${CREATE_DATE} |
+awk -v update=${UPDATE_DATE} '{print $1,$2,$3,$4,$5,$6,update,$8,1}' > $tmp-customer
+
+########################################
+#データの格納
+#LV1
+#原始データとして、ファイル追加のみを行う
+mv $tmp-customer ${DATAD}/LV1/${CUSTOMER_NUM}_customer_${UPDATE_DATE}
+
+#LV2
+#変更されたデータとファイルを入れ替える
+cp -ip ${DATAD}/LV1/${CUSTOMER_NUM}_customer_${UPDATE_DATE} ${DATAD}/LV2/${CUSTOMER_NUM}_customer_${UPDATE_DATE}_d
+ls ${DATAD}/LV2/${CUSTOMER_NUM}* | sort -nk1 | head -n 1 > $tmp-delete
+rm -f $(cat $tmp-delete)
+
+#LV3
+#リンク用のURLを追加
+#変更されたデータとファイルを入れ替える
+cat ${DATAD}/LV1/${CUSTOMER_NUM}_customer_${UPDATE_DATE} |
+awk '{print sprintf("%d %s %s %s %s %s %s %d %d /APP/CUSTOMER/LISTS/SHOW/?id=%d /APP/CUSTOMER/EDIT/INPUT/?id=%d /APP/CUSTOMER/DELETE/CONFIRM/?id=%d",$1,$2,$3,$4,$5,$6,$7,$8,$9,$1,$1,$1)}'  > ${DATAD}/LV3/${CUSTOMER_NUM}_customer_${UPDATE_DATE}_d
+ls ${DATAD}/LV3/${CUSTOMER_NUM}* | sort -nk1 | head -n 1 > $tmp-delete
+rm -f $(cat $tmp-delete)
+
+########################################
+#CUSTOMERのデータ操作ロックを解除
+UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 ${CATEGORY} ${CUSTOMER_NUM}`
+[ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
+
+########################################
+#HTMLの設定
+ACTION=`cat $tmp-action`
+cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML   |
+sed -e "s/###ID_LABEL###/${ID}/"                            |
+sed -e "s/###FIRST_NAME_LABEL###/${VALUE1}/"                |
+sed -e "s/###GIVEN_NAME_LABEL###/${VALUE2}/"                |
+sed -e "s/###EMAIL_LABEL###/${VALUE3}/"                     |
+sed -e "s/###PHONE_LABEL###/${VALUE4}/"                     > $tmp-html
+
+#########################################
+#page name
+echo "Customer delete" > $tmp-pagename
+
+###############################################################################
+#ending
+echo "OK"
+exit 0

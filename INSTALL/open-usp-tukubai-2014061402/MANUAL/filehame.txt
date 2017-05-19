@@ -1,0 +1,66 @@
+Tukubaiオンラインコマンドマニュアル
+
+filehame(1)
+
+【名前】
+
+filehame : テンプレートにファイルをはめ込み
+
+【書式】
+
+Usage   : filehame -l<string> <template> <data>
+Version : Thu Aug  2 14:07:28 JST 2012
+
+【説明】
+
+<template>ファイルに含まれる文字列<string>が含まれる行を<data>ファイルの中身に
+置き換える。
+
+【例1】
+
+$ cat template
+<html>
+<meta>
+<!-- label1 -->
+</meta>
+<body>
+<!-- label2 -->
+</body>
+</html>
+$
+
+$ cat data1
+<script type="javascript/text">
+        function sb(i) {
+                submit(getElementById(i))
+        }
+</script>
+$
+
+$ cat data2
+<input id="123" type="button" onclick=sb('123') value="push" />
+$
+
+$ filehame -llabel1 template file1 | filehame -llabel2 - file2
+<html>
+<meta>
+<script type="javascript/text">
+        function sb(i) {
+                submit(getElementById(i))
+        }
+</script>
+</meta>
+<body>
+<input id="123" type="button" onclick=sb('123') value="push" />
+</body>
+</html>
+$
+
+
+【関連項目】
+
+formhame(1)、mojihame(1)
+
+last modified: 2014-01-13 16:01:13
+Contact us: uecinfo@usp-lab.com
+Copyright (c) 2012-2014 Universal Shell Programming Laboratory All Rights

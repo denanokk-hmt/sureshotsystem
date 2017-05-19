@@ -1,0 +1,145 @@
+<!--<!DOCTYPE html>-->
+<!--<html>-->
+<!--<body>-->
+<div class="container">
+
+    <div class="col-md-6 col-md-offset-1">
+
+        <!--Header Info-->
+        <div class="row">
+            <div class="col-md-1 col-xs-1" >
+                <label class="control-label">
+                    <i class="glyphicon glyphicon-info-sign"></i>
+                </label>
+            </div>
+            <div class="col-md-10 lbl-header-info">
+                <span class="label label-danger ###FIRST_NAME_ERR###">FIRST NAME was Invalid.</span>
+                <span class="label label-danger ###GIVEN_NAME_ERR###">GIVEN NAME was Invalid.</span>
+                <span class="label label-danger ###EMAIL_ERR###">EMAIL was Invalid.</span>
+                <span class="label label-danger ###PHONE_ERR###">Phone Number was Invalid.</span>
+                <span class="label label-danger ###EMAIL_DUPLECATED###">Duplicated EMAIL.</span>
+                <span class="label label-danger ###PASSWORD_ERR###">PASSWORD was Invalid.</span>
+                <span class="label label-danger ###PASSWORD_CONFIRMATION_ERR###">PASSWORD CONFIRMATION was Invalid.</span>
+                </span>
+            </div>
+        </div>
+        <br> 
+
+        <!--INPUT-->
+        <form action="/APP/CUSTOMER/EDIT/CONFIRM" method="POST">
+
+        <!--First Name-->
+            <div class="row">
+               <div class="col-md-1 hidden-xs">
+                    <label class="control-label">
+                        <i class="glyphicon glyphicon-user" style=""></i>
+                    </label>
+                </div>
+                <div class="col-md-10 col-xs-11">
+                    <div class="form-group">
+	                    <input type="text" name="FIRST_NAME" value="###FIRST_NAME_VALUE###" class="form-control" placeholder="First Name" />
+                    </div>
+                </div>
+                <div class="col-md-1 col-xs-1"></div>
+            </div>
+
+        <!--Given Name-->
+            <div class="row">
+                <div class="col-md-1 hidden-xs">
+                    <label class="control-label">
+                        <i class="glyphicon glyphicon-user"></i>
+                    </label>
+                </div>
+                <div class="col-md-10 col-xs-11">
+                    <div class="form-group">
+	                    <input type="text" name="GIVEN_NAME" value="###GIVEN_NAME_VALUE###" class="form-control" placeholder="Given Name" />
+                    </div>
+                </div>
+                <div class="col-md-1 col-xs-1"></div>
+            </div>
+            <br> 
+
+        <!--ID(e-mail)-->
+            <div class="row">
+                <div class="col-md-1 hidden-xs">
+                    <label class="control-label">
+                        <i class="glyphicon glyphicon-envelope"></i>
+                    </label>
+                </div>
+                <div class="col-md-10 col-xs-11">
+                    <div class="form-group">
+                        <input type="email" name="EMAIL" id="EMAIL" value="###EMAIL_VALUE###" class="form-control" placeholder="ID (e-mail)" />
+                    </div>
+                </div>
+                <div class="col-md-1 col-xs-1"></div>
+            </div>
+
+        <!--Phone Number-->
+            <div class="row">
+               <div class="col-md-1 hidden-xs">
+                   <label class="control-label">
+                       <i class="glyphicon glyphicon-phone-alt"></i>
+                   </label>
+               </div>
+               <div class="col-md-10 col-xs-11">
+                   <div class="form-group">
+                       <input type="tel" name="PHONE" id="PHONE" value="###PHONE_VALUE###" class="form-control" placeholder="Phone Number" />
+                   </div>
+               </div>
+               <div class="col-md-1 col-xs-1"></div>
+           </div>
+        
+        <!--Password-->
+            <div class="row">
+                <div class="col-md-1 hidden-xs ">
+                    <label class="control-label">
+                        <i class="glyphicon glyphicon-lock"></i>
+                    </label>
+                </div>
+                <div class="col-md-10 col-xs-11 ">
+                    <div class="form-group">
+                        <input type="password" name="PASSWORD" id="PASSWORD" value="###PASSWORD_VALUE###" class="form-control" placeholder="Password" />
+                    </div>
+                </div>
+                <div class="col-md-1 col-xs-1"></div>
+            </div>
+
+        <!--Password Confirmation-->
+            <div class="row">
+                <div class="col-md-1 hidden-xs">
+                    <label class="control-label">
+                        <i class="glyphicon glyphicon-check"></i>
+                    </label>
+                </div>
+                <div class="col-md-10 col-xs-11">
+                    <div class="form-group">
+                        <input type="password" name="PASSWORD_CONFIRMATION" id="PASSWORD_CONFIRMATION" value="###PASSWORD_CONFIRMATION_VALUE###" class="form-control" placeholder="Password Confirmation" />
+                    </div>
+                </div>
+                <div class="col-md-1 col-xs-1"></div>
+            </div>
+            <br> 
+
+        <!--Submit Button-->
+            <div class="row">
+                <div class="col-md-1 hidden-xs">
+                    <label class="control-label">
+                        <i class="glyphicon glyphicon-thumbs-up"></i>
+                    </label>
+                </div>
+                <div class="col-md-10 col-xs-11">
+                    <div class="form-group">
+	                    <button type="submit" class="btn btn-primary btn-md" />
+                            Confirm
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+	    	<input type="hidden" name="STATUS" value="INPUT" />
+	    	<input type="hidden" name="CUSTOMER_ID" value="###CUSTOMER_ID###" />
+	    </form>
+    </div>
+</div>
+<!--</body>-->
+<!--</html>-->

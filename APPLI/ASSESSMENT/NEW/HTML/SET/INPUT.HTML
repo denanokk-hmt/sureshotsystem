@@ -1,0 +1,252 @@
+<!--<!DOCTYPE html>-->
+<!--<html>-->
+<div class="container">
+    
+    <div class="fixed gray-trans-over z-index-3" style="padding:10px;">
+
+        <div class="row">
+            <!--INFOMATION MSG-->
+            <div class="control-label col-sm-1" style="margin-bottom:0.5em;">
+                <i class="glyphicon glyphicon-info-sign"></i>
+            </div>
+            <div class="row">
+                <div id="info-msg" class="col-sm-6 label label-lg label-###INFO_LV###">
+                    ###INFO_MSG###
+                </div>
+            </div>
+            <div class="row">
+            <!--CUSTOMER INFO--->
+                <div id="info-msg" class="col-sm-6 label label-md">
+                    ###ASSESSMENT_NO###
+                </div>
+                <div id="info-msg" class="col-sm-5 label label-md">
+                    ###CUSTOMER_NM###
+                </div>
+            </div>
+        </div>
+
+        <!--Spacer-->
+        <div class="header-dummy" style="height:1.0em; background-color:piiink;"></div>
+
+            <!--Goto Another Function-->
+
+            <div class="btn-toolbar">
+                <button class="btn btn-default col-smx-3" />customer</button>
+                <button class="btn btn-info col-smx-3 disabled" />set</button>
+                <button class="btn btn-default col-smx-3" />operation</button>
+                <button class="btn btn-default col-smx-3" />set</button>
+                <button class="btn btn-default col-smx-3" />check</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!--Spacer-->
+    <div class="header-dummy" style="height:9.0em; background-color:piiink;"></div>
+
+    <!--Contents Records-->
+    <div class="container">
+        <div class="row">
+            <div class="contents-table">
+                ###TABLE###
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <!--Contents-->
+            <div class="col-md-4">
+                <div class="contents">
+                    <form name="assessment" action="" method="">
+                		    <input type="hidden" id="TEMP_NO" name="TEMP_NO" value="###TEMP_NO###" />
+                    </form>
+                    <button type="submit" id="Set" class="btn btn-primary btn-lg ###DISABLED_SET###" />
+                        Set
+                    </button>
+                	<button type="submit" id="Delete" class="btn btn-warning btn-lg ###DISABLED_DEL###" />
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+    //HEADページ移動
+    $(".btn-toolbar .btn").on('click', function() {
+        var temp_no = $("#TEMP_NO").val();
+    alert(temp_no);
+        var func = $(this).html().toUpperCase();
+        var frm = document.forms['assessment'];
+        frm.method = 'GET';
+        frm.action = '/APP/ASSESSMENT/NEW/' + func + '/INPUT' + '?temp_no=' + temp_no;
+        frm.submit();
+    });
+
+    //カテゴリを選択
+    $(document).on('click', 'a.category-list', function() {
+
+        //選択したセットのidから行を取得する
+        var idname = $(this).attr("id"); 
+        var list_id = idname.split("_");
+        var row = $(this).parent().parent().attr("name");
+        var cat_no = list_id[2];
+        var choice = $(this).text();
+
+        //該当のレコードに選択したカテゴリ名を設定
+        $('#CATEGORY_NM_' + row).val(choice);
+        $('#CATEGORY_NM_HID' + row).val(choice);
+
+        //該当のレコードに選択したカテゴリ番号を設定
+        var input_hidden = document.getElementById('CATEGORY_NO_HID_' + row);
+        input_hidden.value = cat_no;
+
+        //セットリストを選択したカテゴリで抽出
+        var jqXHR = $.ajax({
+            type: 'POST',
+            url: '/APP/SET_LIST/SEARCH/INPUT',
+            data: {
+                SET_CATEGORY_NO: cat_no,
+                ROW: row
+            }
+        });
+        jqXHR.done(function(data) {
+            search_result = data;
+            $('#dropdown-set-' + row).addClass('open');
+            $('#dropdown-set-list-' + row).html(data);
+            //セットをクリア
+            $('#SET_NM_' + row).val('');
+            $('#SET_NO_HID_' + row).val('');
+            $('#SET_PRICE_' + row).val('');
+            $('#SET_QTY_' + row).val('0');
+        });
+        jqXHR.fail(function() {
+            search_result = '一致するセットがありません。';
+        });
+    });
+
+    //登録済のセットリストの取得
+    $(document).on('click', ':button.btn-set', function() {
+        var row = $(this).attr("name");
+        var cat_no = $('#CATEGORY_NO_HID_' + row).val();
+        var deferred = ajax_func();
+        deferred.done(function() {
+          //done!!
+        });
+
+        //セットリストを選択したカテゴリで抽出
+        function ajax_func() {
+            var deferred = new $.Deferred();
+            $.ajax({
+                type: 'POST',
+                url: '/APP/SET_LIST/SEARCH/INPUT',
+                data: {
+                    SET_CATEGORY_NO: cat_no,
+                    ROW: row
+                }
+            }).done(function(data) {
+                search_result = data;
+                $('#dropdown-set-' + row).addClass('open');
+                $('#dropdown-set-list-' + row).html(data);
+            }).fail(function() {
+                search_result = '一致するセットがありません。';
+            }).always(function() {
+                deferred.resolve();
+            });
+            return deferred;
+        }
+    });
+
+
+    //セット選択
+    $(document).on('click', 'li.list-set', function() {
+
+        //選択したリストのidから行を取得する:list-行-セット番号
+        var idname = $(this).attr("id"); 
+        var list_id = idname.split("-");
+        var row = list_id[1];
+        var setNo = $(this).val();
+        var setNm = $(this).text();
+        var setPrice = $('#SET_PRICE_' + row + '_' + setNo).val();
+        $('#SET_NM_' + row).val(setNm);
+        $('#SET_PRICE_' + row).val(setPrice);
+        $('#SET_QTY_' + row).val('1');
+        $('#SET_NO_HID_' + row).val(setNo);
+    });
+
+    //数量PLUS
+    $(document).on('click', ':button.btn-plus', function() {
+        var idname = $(this).attr("id"); 
+        var list_id = idname.split("_");
+        var row = list_id[2];
+        var qty = $('#SET_QTY_' + row).val();
+        $('#SET_QTY_' + row).val(parseInt(qty) + parseInt(1));
+    });
+
+    //数量MINUS
+    $(document).on('click', ':button.btn-minus', function() {
+        var idname = $(this).attr("id"); 
+        var list_id = idname.split("_");
+        var row = list_id[2];
+        var qty = $('#SET_QTY_' + row).val();
+        if (parseInt(qty) > 0) {
+            $('#SET_QTY_' + row).val(parseInt(qty) - parseInt(1));
+        }
+    });
+
+    //セット追加
+    $(document).on('click', 'a.btn-set', function() {
+        var idname = $(this).attr("id"); 
+        var list_id = idname.split("_");
+        var action = list_id[1];
+        var row = list_id[2];
+        alert(action+ ":"+row);
+        var temp_no = $('#TEMP_NO').val();
+        var category_no = $('#CATEGORY_NO_HID_' + row).val();
+        var category_nm = $('#CATEGORY_NM_' + row).val();
+        var set_no = $('#SET_NO_HID_' + row).val();
+        var set_nm = $('#SET_NM_' + row).val();
+        var set_price = $('#SET_PRICE_' + row).val();
+        var set_qty = $('#SET_QTY_' + row).val();
+        var jqXHR = $.ajax({
+            type: 'POST',
+            url: '/APP/ASSESSMENT/NEW/SET/COMPLETE',
+            /*
+            data: { 
+              params,
+              TEMP_NO: temp_no
+            }
+            */
+            data: {
+              ACTION: action,
+              ROW: row,
+              TEMP_NO: temp_no,
+              CATEGORY_NO: category_no,
+              CATEGORY_NM: category_nm,
+              SET_NO: set_no,
+              SET_NM: set_nm,
+              SET_PRICE: set_price,
+              SET_QTY: set_qty
+            }
+        });
+        jqXHR.done(function(data) {
+            if (data == 2222) {
+                alert("セットの追加が出来ませんでした。");
+            } else {
+                $('intput[type="text"]').each(function() {
+                });
+                $('table').html(data);
+            }
+        });
+        jqXHR.fail(function(data) {
+            alert("新規登録処理に失敗しました。");
+        });
+    });
+
+
+</script>
+<!--</html>-->

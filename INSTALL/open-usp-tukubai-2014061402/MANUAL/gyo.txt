@@ -1,0 +1,88 @@
+Tukubaiオンラインコマンドマニュアル
+
+gyo(1)
+
+【名前】
+
+gyo : 行をカウント
+
+【書式】
+
+Usage   : gyo [-f] <file> ...
+Version : Thu Dec 15 13:46:38 JST 2011
+
+【説明】
+
+引数のファイルまたは標準入力のテキストデータの行数(行数)をカウントして出力する
+。
+
+【例1】
+
+$ cat data
+0000000 浜地______ 50 F 91 59 20 76 54
+0000001 鈴田______ 50 F 46 39 8  5  21
+0000003 杉山______ 26 F 30 50 71 36 30
+0000004 白土______ 40 M 58 71 20 10 6
+0000005 崎村______ 50 F 82 79 16 21 80
+0000007 梶川______ 42 F 50 2  33 15 62
+$
+
+$ gyo data
+6
+$
+
+【例2】
+
+複数のファイルの行数を一度にカウントできる。
+
+$ cat data1
+1 file1
+2 file1
+3 file1
+$
+
+$ cat data2
+1 file2
+2 file2
+$
+
+$ cat data3
+1 file3
+2 file3
+3 file3
+4 file3
+$
+
+$ gyo data1 data2 data3
+3
+2
+4
+$
+
+【例3】
+
+"-f"オプションを使用するとファイル名と行数をそれぞれ表示する。
+
+$ gyo -f data1 data2 data3
+data1 3
+data2 2
+data3 4
+$
+
+【備考】
+
+ファイル名に - を指定すると標準入力ファイルを期待する。
+
+$ cat data2 |  gyo -f data1 - data3
+data1 3
+data2 2
+data3 4
+$
+
+【関連項目】
+
+count(1)、juni(1)、rank(1)、retu(1)
+
+last modified: 2014-01-13 16:01:13
+Contact us: uecinfo@usp-lab.com
+Copyright (c) 2012-2014 Universal Shell Programming Laboratory All Rights

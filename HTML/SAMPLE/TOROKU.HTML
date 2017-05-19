@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="Content-Style-type" content="text/css" />
+		<title>Input Form</title>
+	</head>
+	<body>
+		###MESSAGE###
+		<form action="../CGI/SAMPLE/TOROKU.CGI" method="POST" style="border:1px solid black">
+			FAMILY NAME
+			<input type="text" name="FAMILYNAME" />
+			<br />
+			GIVEN NAME
+			<input type="text" name="GIVENNAME" />
+			<br />
+			AGE
+			<select name="AGE">
+				<option value="10">10</option>
+				<option value="20">20</option>
+				<option value="30">30</option>
+				<option value="40">40</option>
+			</select>
+			<input type="hidden" name="MODE" value="CHK" />
+			<input type="submit" name="SUBMIT" />
+		</form>
+	</body>
+</html>
+

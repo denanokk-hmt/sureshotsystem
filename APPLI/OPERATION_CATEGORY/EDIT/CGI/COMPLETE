@@ -1,0 +1,140 @@
+#!/bin/bash -evx
+#
+
+########################################
+# OPERATION_CATEGORY EDIT COMPLETE.CGI
+#
+#   引数
+#       $1:プロセスID
+#
+#	Written by hiramatsu
+
+
+########################################
+#基本設定
+SYSD=$(cd $(dirname $0) && pwd | awk '{print substr($0, 0, index($0, "sureshotsystem")+13)}')
+#exec 2> ${SYSD}/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
+tmp=/tmp/tmp_$1
+LANG=ja_JP.UTF-8
+#PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
+CATEGORY=`cat $tmp-category`
+FUNC=`cat $tmp-func`
+DATAD=${SYSD}/DATA/${CATEGORY}/LISTS
+
+########################################
+#Check error
+ERROR_CHECK(){
+	[ $(plus ${PIPESTATUS[@]}) -eq 0 ] && return
+cat <<- FIN
+	Context-type: text/html
+	NG input
+FIN
+	cat $tmp-result
+	exit 1
+}
+
+#######################################
+#フォームの入力値を取得
+NUM=$(nameread OPERATION_CATEGORY_ID $tmp-post)
+NAME=$(nameread OPERATION_CATEGORY_NAME $tmp-post)
+
+########################################
+#重複確認
+cat ${DATAD}/LV3/* | awk -v nm=${NAME} '$2==nm{print $1}' > $tmp-valid1
+if [ -n "$(cat $tmp-valid1)" ] ; then
+    echo 2222 > $tmp-ajax-html
+    exit 0
+fi
+
+########################################
+#既存データから作成日時取得、現在日時を更新日時とする
+ls ${DATAD}/LV1/${NUM}_operation_category_* | cut -d'_' -f5 | sort -nk1,1 | head -n 1 > $tmp-create
+CREATE_DATE=$(cat $tmp-create)
+UPDATE_DATE=$(date +%Y%m%d%H%M%S)
+
+
+########################################
+#　　作業カテゴリのデータ操作
+########################################
+
+
+########################################
+#該当のデータ操作をロック
+LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'OPERATION_CATEGORY' ${NUM}`
+LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
+[ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
+
+########################################
+#入力値を一時ファイル化
+#1.作業カテゴリ番号 2.作業カテゴリ名 3.作成日時 4.更新日時 5.削除フラグ
+echo ${NUM}" "${NAME}" "${CREATE_DATE}" "${UPDATE_DATE}" "0 > $tmp-operation-category
+
+########################################
+#データ格納
+#LV1:原始データとして、ファイル追加のみを行う
+$(mv $tmp-operation-category ${DATAD}/LV1/${NUM}_operation_category_${UPDATE_DATE})
+
+#LV2:変更されたデータとファイルを入れ替える
+cp -ip ${DATAD}/LV1/${NUM}_operation_category_${UPDATE_DATE} ${DATAD}/LV2/${NUM}_operation_category_${UPDATE_DATE}
+ls ${DATAD}/LV2/${NUM}_* | sort -nk1 | head -n 1 > $tmp-delete
+rm -f $(cat $tmp-delete)
+
+#LV3:LV2のコピー
+cp -ip ${DATAD}/LV2/${NUM}_operation_category_${UPDATE_DATE} ${DATAD}/LV3/${NUM}_operation_category_${UPDATE_DATE}
+ls ${DATAD}/LV3/${NUM}_* | sort -nk1 | head -n 1 > $tmp-delete
+rm -f $(cat $tmp-delete)
+
+########################################
+#データ操作ロックを解除
+UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'OPERATION_CATEGORY' ${NUM}`
+[ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
+
+
+########################################
+#　　作業のデータ操作
+########################################
+
+#該当カテゴリで登録されている作業に対して、
+# 1.カテゴリ名を修正するための更新処理を行う
+OPERATIOND=${SYSD}/DATA/OPERATION_LIST/LISTS/${NUM}
+for file in `find ${OPERATIOND}/LV3/*[^_d] -maxdepth 1 -type f`; do
+
+    #作業番号を取得
+    num=$(echo $file | cut -d'/' -f9 | cut -d'_' -f1) 
+    update=$(echo $file | cut -d'/' -f9 | cut -d'_' -f3) 
+    ARR+=($num)
+
+    #該当のデータ操作をロック
+    LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'OPERATION_LIST' ${num}`
+    LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
+    [ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
+
+    #LV1:原始データとして、ファイル追加のみを行う
+    destiny=${OPERATIOND}/LV1/${num}_operation_${UPDATE_DATE}
+    cat ${OPERATIOND}/LV1/${num}_operation_${update} | 
+    awk -v nm=${NAME} -v ud=${UPDATE_DATE} '{print $1, $2, nm, $4, $5, $6, $7, $8, ud, $10}' > $destiny
+
+    #LV2:変更されたデータとファイルを入れ替える
+    cp -fp ${OPERATIOND}/LV1/${num}_operation_${UPDATE_DATE} ${OPERATIOND}/LV2/${num}_operation_${UPDATE_DATE}
+    ls ${OPERATIOND}/LV2/${num}_* | sort -nk1 | head -n 1 > $tmp-delete
+    rm -f $(cat $tmp-delete)
+
+    #LV3:LV2のコピー
+    cp -fp ${OPERATIOND}/LV2/${num}_operation_${UPDATE_DATE} ${OPERATIOND}/LV3/${num}_operation_${UPDATE_DATE}
+    ls ${OPERATIOND}/LV3/${num}_* | sort -nk1 | head -n 1 > $tmp-delete
+    rm -f $(cat $tmp-delete)
+    
+    #データ操作ロックを解除
+    UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'OPERATION_LIST' ${num}`
+    [ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
+done
+
+
+########################################
+#
+echo "111"> $tmp-ajax-html
+
+########################################
+#ending
+echo "OK"
+exit 0

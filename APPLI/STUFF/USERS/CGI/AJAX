@@ -1,0 +1,38 @@
+#!/bin/bash -evx
+#
+
+########################################
+#	INDEX.CGI
+#
+#	Written by hiramatsu
+
+
+########################################
+#基本設定
+SYSD=$(cd $(dirname $0) && pwd | awk '{print substr($0, 0, index($0, "sureshotsystem")+13)}')
+exec 2> ${SYSD}/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
+tmp=/tmp/tmp_$1
+LANG=ja_JP.UTF-8
+PATH=/home/:/home/UTL:/usr/local/bin:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
+#SESS_LIFE_MIN=5
+
+########################################
+#Check error
+ERROR_CHECK(){
+	[ $(plus ${PIPESTATUS[@]}) -eq 0 ] && return
+cat <<- FIN
+	Context-type: text/html
+	NG input
+FIN
+	cat $tmp-result
+	exit 1
+}
+
+########################################
+cat << FIN > $tmp-ajax
+{"AJAX":"1233"}
+FIN
+
+#########################################
+##ending
+exit 0

@@ -1,0 +1,75 @@
+#!/bin/bash -vx
+#
+
+########################################
+#	STUFF DELETE CONFIRM.CGI
+#
+#   引数
+#       $1:必須 $$
+#
+#	Written by hiramatsu
+
+
+########################################
+#基本設定
+SYSD=$(cd $(dirname $0) && pwd | awk '{print substr($0, 0, index($0, "sureshotsystem")+13)}')
+#exec 2> $SYSD/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
+tmp=/tmp/tmp_$1
+LANG=ja_JP.UTF-8
+#PATH=/home/:/home/UTL:/usr/local/bin:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
+CATEGORY=`cat $tmp-category`
+FUNC=`cat $tmp-func`
+
+########################################
+#Check error
+ERROR_CHECK(){
+	[ $(plus ${PIPESTATUS[@]}) -eq 0 ] && return
+cat <<- FIN
+	Context-type: text/html
+	NG input
+FIN
+	cat $tmp-result
+	exit 1
+}
+
+########################################
+#同一社員番号確認用にIDを暗号化し、ファイル保存
+#また、この暗号化したIDをフォームのhiddenタグに適用
+cat $tmp-get | sed -e "s/id\=//" > $tmp-id
+ID=$(cat $tmp-id)
+STUFF_ID=$(sha1 $RANDOM$ID)
+echo $ID > ${SYSD}/DATA/${CATEGORY}/TMP/${STUFF_ID}
+
+########################################
+#スタッフ情報を取得
+ARR=( `cat ${SYSD}/DATA/${CATEGORY}/USERS/LV3/${ID}_stuff_* |
+        awk -v id=$ID '$1==id{print}'                       |
+        tr -s ' ' ' '`)
+ID=${ARR[0]}
+FAMILY_NAME=${ARR[1]}
+GIVEN_NAME=${ARR[2]}
+EMAIL=${ARR[3]}
+TEL=${ARR[4]}
+CREATE_DATE=${ARR[5]}
+UPDATE_DATE=${ARR[6]}
+ADMIN_FLAG=${ARR[7]}
+DEL_FLAG=${ARR[8]}
+
+########################################
+#HTMLの設定
+cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/CONFIRM.HTML     |
+sed -e "s/###MSG###/このスタッフの情報を削除します。/"      |
+sed -e "s/###ID_###/${ID}/"                                 |
+sed -e "s/###FAMILY_NAME_###/${FAMILY_NAME}/"               |
+sed -e "s/###GIVEN_NAME_###/${GIVEN_NAME}/"                 |
+sed -e "s/###EMAIL_###/${EMAIL}/"                           |
+sed -e "s/###STUFF_ID###/${STUFF_ID}/"                      > $tmp-html
+
+#########################################
+#page name
+echo "Stuff info delete confirm" > $tmp-pagename
+
+########################################
+#ending
+echo "OK"
+exit 0

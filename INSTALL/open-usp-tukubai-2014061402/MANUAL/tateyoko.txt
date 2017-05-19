@@ -1,0 +1,69 @@
+Tukubaiオンラインコマンドマニュアル
+
+tateyoko(1)
+
+【名前】
+
+tateyoko : 縦テキストを横テキストへ変換
+
+【書式】
+
+Usage   : tateyoko <file>
+Version : Thu Dec 15 13:46:38 JST 2011
+
+【説明】
+
+<file>の行を列に縦横変換する。出力する<file>ファイルの指定がないとき、あるいは
+ファイル名が-の時は、標準入力ファイルを取り込む。
+
+【例1】
+
+$ cat data
+1 2 3
+A B C
+4 5 6
+$
+
+$ tateyoko data
+1 A 4
+2 B 5
+3 C 6
+$
+
+【例2】
+
+map(1)の出力を縦横変換する。
+
+$ cat data
+A 10/01 1
+A 10/02 2
+A 10/03 3
+B 10/01 4
+B 10/02 5
+B 10/03 6
+$
+
+$ map num=1 data |  keta
+* 10/01 10/02 10/03
+A     1     2     3
+B     4     5     6
+$
+
+$ map num=1 data | tateyoko | keta
+*     A B
+10/01 1 4
+10/02 2 5
+10/03 3 6
+$
+
+【備考】
+
+tateyoko(1)は指定ファイルを一旦すべてメモリへ展開する。
+
+【関連項目】
+
+map(1)、unmap(1)
+
+last modified: 2014-01-13 16:01:13
+Contact us: uecinfo@usp-lab.com
+Copyright (c) 2012-2014 Universal Shell Programming Laboratory All Rights

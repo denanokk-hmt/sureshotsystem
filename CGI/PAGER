@@ -1,0 +1,158 @@
+#!/bin/bash -vx
+#
+
+########################################
+#	PAGER.CGI
+#
+#   引数
+#       $1:必須　プロセス番号, 
+#       $2:必須　ページリンクURL　
+#       $3:必須　表示するページ　
+#       $4:必須　レコード総数　
+#       $5:必須　最大表示レコード数　
+#       $6:必須　ページャーに表示する最大ページ数
+#       $7:任意　クエリパラメーター1 (&aaa=111)
+#       $8:任意　クエリパラメーター2
+#       $9:任意　クエリパラメーター3
+#                   ※ソースがループにより複雑化するので、pageクエリパラメーター以外は,3つまでに限定した
+#
+#	Written by hiramatsu
+
+
+########################################
+#基本設定
+SYSD=$(cd $(dirname $0) && pwd | awk '{print substr($0, 0, index($0, "sureshotsystem")+13)}')
+#exec 2> ${SYSD}/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
+tmp=/tmp/tmp_$1
+LANG=ja_JP.UTF-8
+PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
+
+########################################
+#Check error
+ERROR_CHECK(){
+	[ $(plus ${PIPESTATUS[@]}) -eq 0 ] && return
+cat <<- FIN
+	Context-type: text/html
+	NG input
+FIN
+	cat $tmp-result
+	exit 1
+}
+
+########################################
+#引数　ページリンクURL　表示するページ　レコード総数　最大表示レコード数　ページャーに表示する最大ページ数
+LINK_URL=$2
+SHOW_PAGE=$3    #show page
+RECORDS=$4      #All Records
+PAGE_MAX_VIEW_RECORDS=${5:-20}
+PAGER_MAX_VIEW_PAGES=${6:-5}
+QRY1=${7:-''}
+QRY2=${8:-''}
+QRY3=${9:-''}
+
+########################################
+#ページ総数を計算
+SHOU=$(expr ${RECORDS} / ${PAGE_MAX_VIEW_RECORDS})
+JOUYO=$(expr ${RECORDS} % ${PAGE_MAX_VIEW_RECORDS}) 
+[ $JOUYO -gt 0 ] && LAST_PAGE=$(expr ${SHOU} + 1) || LAST_PAGE=${SHOU}
+
+########################################
+#表示するページのセットの位置
+SHOU2=$(expr ${SHOW_PAGE} / ${PAGER_MAX_VIEW_PAGES})
+JOUYO2=$(expr ${SHOW_PAGE} % ${PAGER_MAX_VIEW_PAGES})
+[ $JOUYO2 -eq 0 ] && SET_NOW=${SHOU2} || SET_NOW=$(expr ${SHOU2} + 1)
+
+########################################
+#セットの最大値
+if [ ${LAST_PAGE} -lt ${PAGER_MAX_VIEW_PAGES} ]; then
+    SET_MAX=${LAST_PAGE}
+else
+    SHOU3=$(expr ${LAST_PAGE} / ${PAGER_MAX_VIEW_PAGES})
+    JOUYO3=$(expr ${LAST_PAGE} % ${PAGER_MAX_VIEW_PAGES})
+    [ $JOUYO3 -eq 0 ] && SET_MAX=${SHOU3} || SET_MAX=$(expr ${SHOU3} + 1)
+fi
+
+########################################
+#ページャーの必要有無を確認(レコード総数が最大表示数以下→ページャー不必要)
+if [ ${RECORDS} -le ${PAGE_MAX_VIEW_RECORDS} ]; then
+    echo ''> $tmp-pager-html
+    exit 0
+fi
+
+########################################
+#端のボタンリンク
+case "${SHOW_PAGE}" in
+    #最初のセットの場合、PREVは無効、NEXTは有効、最大表示レコード数、PREVのURL=#、NEXTのURL=次のページ
+    1)  
+        PREV_ACTIVE='hidden'
+        NEXT_ACTIVE=''
+        PREV_URL='#'
+        NEXT_URL=${LINK_URL}/?page=$(expr ${SHOW_PAGE} + 1)${QRY1}${QRY2}${QRY3}
+        echo "min"
+        ;;
+    #最後(最大)のセットの場合、PREVは有効、NEXTは有効、レコード総数、PREVのURL=前のページ、NEXTのURL=#
+    "${LAST_PAGE}")
+        PREV_ACTIVE=''
+        NEXT_ACTIVE='hidden'
+        PREV_URL=${LINK_URL}/?page=$(expr ${SHOW_PAGE} - 1)${QRY1}${QRY2}${QRY3}
+        NEXT_URL='#'
+        echo "max"
+        ;;
+    #上記以外(途中)のセットの場合、PREVは有効、NEXTは有効、PREVのURL=前のページ、NEXTのURL=次のページ
+    *)
+        PREV_ACTIVE=''
+        NEXT_ACTIVE=''
+        PREV_URL=${LINK_URL}/?page=$(expr ${SHOW_PAGE} - 1)${QRY1}${QRY2}${QRY3}
+        NEXT_URL=${LINK_URL}/?page=$(expr ${SHOW_PAGE} + 1)${QRY1}${QRY2}${QRY3}
+        echo "middle"
+        ;;
+esac
+
+########################################
+#ページャーの開始と終了
+CAL_END=$( expr ${SET_NOW} \* ${PAGER_MAX_VIEW_PAGES} )
+PAGER_START=$( expr ${CAL_END} - ${PAGER_MAX_VIEW_PAGES} + 1 )
+[ ${LAST_PAGE} -lt ${CAL_END} ] && PAGER_END=${LAST_PAGE} || PAGER_END=${CAL_END}
+
+########################################
+#ページャの開始と終了からシーケンスを作成
+seq  ${PAGER_START} ${PAGER_END} > $tmp-pager-seq
+
+########################################
+#LINK_URLのアンダースコアをエスケープ
+echo $LINK_URL | sed -e 's|_|\\\\_|g' > $tmp-link-url
+
+########################################
+#PREV/NEXT_URLのアンパサンドをエスケープ
+echo $PREV_URL | sed -e 's|&|\\&|g' > $tmp-pager-prev
+echo $NEXT_URL | sed -e 's|&|\\&|g' > $tmp-pager-next
+
+########################################
+#ページャの開始と終了からシーケンスを作成
+#Set Pagination VALUE
+cat $tmp-pager-seq | 
+awk -v now=$SHOW_PAGE -v url=$(cat $tmp-link-url) -v query=${QRY1}${QRY2}${QRY3}    \
+'{print $1==now?"active":"-", sprintf("%s/?page=%d%s",url,$1,query), $1}'           > $tmp-pager-value
+
+########################################
+#Set Pages HTML
+# 1:active or not, 2:link url, 3:page num
+mojihame -lPAGES ${SYSD}/HTML/PAGER.HTML $tmp-pager-value > $tmp-pager-mojihame
+
+########################################
+#Set Pagination HTML
+cat $tmp-pager-mojihame                             |
+sed -e "s|###PREV_ACTIVE###|${PREV_ACTIVE}|"        |
+sed -e "s|###PREV_URL###|$(cat $tmp-pager-prev)|"   |
+sed -e "s|###NEXT_ACTIVE###|${NEXT_ACTIVE}|"        |
+sed -e "s|###NEXT_URL###|$(cat $tmp-pager-next)|"   > $tmp-pager
+
+########################################
+# 改行文字を「\\n」という3文字の文字列に置換
+TEXT=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-pager`
+echo ${TEXT} > $tmp-pager-text
+
+cat $tmp-pager-text | sed -e 's|&|\\&|g' > $tmp-pager-html
+
+
+exit 0

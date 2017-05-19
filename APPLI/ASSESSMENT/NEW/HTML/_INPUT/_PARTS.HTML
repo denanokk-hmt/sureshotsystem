@@ -1,0 +1,194 @@
+<!--<!DOCTYPE html>-->
+<!--<html>-->
+<div class="container">
+    
+    <div class="fixed gray-trans-over z-index-3" style="padding:10px;">
+
+        <div class="row">
+            <!--INFOMATION MSG-->
+            <div class="control-label col-sm-1" style="margin-bottom:0.5em;">
+                <i class="glyphicon glyphicon-info-sign"></i>
+            </div>
+            <div class="row">
+                <div id="info-msg" class="col-sm-6 label label-lg label-###INFO_LV###">
+                    ###INFO_MSG###
+                </div>
+            </div>
+            <div class="row">
+            <!--CUSTOMER INFO--->
+                <div id="info-msg" class="col-sm-6 label label-md">
+                    ###ASSESSMENT_NO###
+                </div>
+                <div id="info-msg" class="col-sm-5 label label-md">
+                    ###CUSTOMER_NM###
+                </div>
+            </div>
+        </div>
+
+        <!--Spacer-->
+        <div class="header-dummy" style="height:1.0em; background-color:piiink;"></div>
+
+            <!--Goto Another Function-->
+            <div class="btn-toolbar">
+                <button class="btn btn-default col-smx-3" />customer</button>
+                <button class="btn btn-info col-smx-3 disabled" />parts</button>
+                <button class="btn btn-default col-smx-3" />operation</button>
+                <button class="btn btn-default col-smx-3" />work</button>
+                <button class="btn btn-default col-smx-3" />check</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!--Spacer-->
+    <div class="header-dummy" style="height:9.0em; background-color:piiink;"></div>
+
+    <!--Search-->
+    <!--CATEGORY Search-->
+    <div class="container">
+        <div class="row">
+
+            <!--PARTS CATEGORY dropdown-->
+            <div class="col-sm-5">
+                <div class="btn-group">
+                    <div class="btn-group">
+                        <div class="btn-group">
+                            <div class="dropdown">
+                                <button type="button" id="dropdown-category-btn" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                    Category
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" id="dropdown-category-list">
+                                    ###PARTS_CATEGORY###
+                                </ul>
+                            </div>
+                         </div>
+                        <div class="btn-group">
+                            <input type="text" name="CATEGORY" id="CATEGORY" value="" class="form-control" disabled />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--PARTS dropdown-->
+            <div class="col-sm-5">
+                <div class="btn-group">
+                    <div class="btn-group">
+                        <div id="dropdown-parts" class="dropdown">
+                            <button type="button" id="dropdown-parts-btn" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                Parts
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" id="dropdown-parts-list">
+                                ###PARTS###
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="btn-group">
+                        <input type="text" name="PARTS" id="PARTS" value="" class="form-control" disabled />
+                    </div>
+                </div>
+            </div>
+            
+            <!--Spacer-->
+            <div class="col-sm-1 hidden-xs"></div>
+        </div>
+    </div>
+
+    <!--Csutomer Search Result choice-->
+    <div class="container">
+        <div class="gray-trans-over">
+            <h3>
+                <div class="row">
+                    <div class="col-md-8 ">
+                        <div class="alert alert-success green-trans-over">
+                            <strong>Customer No &nbsp&nbsp : </strong><span id="customer-no"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-8 ">
+                        <div class="alert alert-success green-trans-over">
+                            <strong>Name &nbsp&nbsp : </strong><span id="customer-nm"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-8 ">
+                        <div class="alert alert-success green-trans-over">
+                            <strong>Phone &nbsp&nbsp : </strong><span id="customer-ph"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-8 ">
+                        <div class="alert alert-success blue-trans-over">
+                            <strong>Assessment No &nbsp&nbsp : </strong><span id="assessment-no"></span>
+                        </div>
+                    </div>
+                </div>
+            </h3>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <!--Contents-->
+            <div class="col-md-4">
+                <div class="contents">
+                    <form action="/APP/ASSESSMENT/NEW/CONFIRM" method="POST">
+                        <div class="form-group">
+                		    <input type="hidden" name="STATUS" value="INPUT" />
+                		    <input type="hidden" id="CUSTOMER_NO" name="CUSTOMER_NO" value="0" />
+                		    <input type="hidden" id="ASSESSMENT_NO" name="ASSESSMENT_NO" value="0" />
+                		    <button type="submit" id="Start" class="btn btn-primary btn-lg ###DISABLED_START###" />
+                                Start
+                            </button>
+                		    <button type="submit" id="Delete" class="btn btn-warning btn-lg ###DISABLED_DELETE###" />
+                                Delete
+                            </button>
+                        </div>
+                   </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+    //パーツカテゴリー選択
+    $(document).on('click', 'li.list-category', function() {
+        var text = $(this).text();
+        var value = $(this).val();
+        $('#CATEGORY').val(text);
+        var jqXHR = $.ajax({
+            type: 'POST',
+            url: '/APP/PARTS_LIST/SEARCH/INPUT',
+            data: {
+                PARTS_CATEGORY_NO: value
+            }
+        });
+        jqXHR.done(function(data) {
+            search_result = data;
+            $('#dropdown-parts').addClass('open');
+            $('#dropdown-parts-list').html(data);
+        });
+        jqXHR.fail(function() {
+            search_result = '一致するパーツがありません。';
+        });
+    });
+
+    //パーツ選択
+    $(document).on('click', 'li.parts-category', function() {
+        var text = $(this).text();
+        var value = $(this).val();
+        $('#PARTS').val(text);
+    });
+
+</script>
+<!--</html>-->

@@ -1,0 +1,50 @@
+#!/bin/bash -vx
+#
+
+########################################
+#	SIGNIN/CGI/INPUT
+#
+#	Written by hiramatsu
+
+
+########################################
+#基本設定
+SYSD=$(cd $(dirname $0) && pwd | awk '{print substr($0, 0, index($0, "sureshotsystem")+13)}')
+#exec 2> $SYSD/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
+tmp=/tmp/tmp_$1
+LANG=ja_JP.UTF-8
+PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
+CATEGORY=`cat $tmp-category`
+FUNC=`cat $tmp-func`
+
+########################################
+#Check error
+ERROR_CHECK(){
+	[ $(plus ${PIPESTATUS[@]}) -eq 0 ] && return
+cat <<- FIN
+	Context-type: text/html
+	NG input
+FIN
+	cat $tmp-result
+	exit 1
+}
+
+########################################
+#Making viweing body HTML filw path
+ACTION=`cat $tmp-action`
+cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML   |
+sed -e "s/###INFO_LV###/primary/"                           |
+sed -e "s/###AUTH_MSG###/Please input Your ID and PW./"     |
+sed -e "s/###ID_VALUE###//"                                 |
+sed -e "s/###PASSWORD_VALUE###//"                           |
+sed -e "s|###RETURN_URL###|$(cat $tmp-return-url)|"         > $tmp-html
+
+#########################################
+#ページ名
+echo "Stuff Sign in" > $tmp-pagename
+
+#########################################
+##ending
+echo "OK"
+exit 0
+

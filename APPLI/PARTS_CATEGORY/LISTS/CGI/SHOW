@@ -1,0 +1,68 @@
+#!/bin/bash -vx
+#
+
+########################################
+#	SHOW.CGI
+#
+#   $1:必須 $$
+#
+#	Written by hiramatsu
+
+
+########################################
+#基本設定
+SYSD=$(cd $(dirname $0) && pwd | awk '{print substr($0, 0, index($0, "sureshotsystem")+13)}')
+#exec 2> $SYSD/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
+tmp=/tmp/tmp_$1
+LANG=ja_JP.UTF-8
+PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
+CATEGORY=`cat $tmp-category`
+FUNC=`cat $tmp-func`
+ACTION=`cat $tmp-action`
+
+#######################################
+#Check error
+ERROR_CHECK(){
+	[ $(plus ${PIPESTATUS[@]}) -eq 0 ] && return
+cat <<- FIN
+	Context-type: text/html
+	NG input
+FIN
+	cat $tmp-result
+	exit 1
+}
+
+########################################
+#Get records
+cat ${SYSD}/DATA/${CATEGORY}/LISTS/LV3/*[^_d]       |
+LANG=C sort -nk1,1                                  |
+juni                                                > $tmp-records
+# 1;カテゴリ番号 2;カテゴリ名
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/RECORDS.HTML $tmp-records > $tmp-table-records
+
+########################################
+# 改行文字を「\\n」という3文字の文字列に置換
+TABLE_RECORDS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-records`
+
+########################################
+#tableにrecordsを嵌め込む
+cat ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/TABLE.HTML   > $tmp-table
+sed -e "s|###TABLE_RECORDS###|${TABLE_RECORDS}|g" $tmp-table    > $tmp-table-html
+
+########################################
+# 改行文字を「\\n」という3文字の文字列に置換
+TABLE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-html`
+
+########################################
+#tableをはめ込む
+cat ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/SHOW.HTML  > $tmp-base
+sed -e "s|###TABLE###|${TABLE}|g" $tmp-base        |
+sed -e "s|###INFO_MSG###||g"                        > $tmp-html
+
+########################################
+#page name
+echo "Parts category" > $tmp-pagename
+
+########################################
+echo "OK"
+exit 0

@@ -1,0 +1,129 @@
+<!--<!DOCTYPE html>-->
+<!--<html>-->
+
+<div class="container">
+    
+    <div class="fixed">
+
+        <!--Header Info-->
+        <div class="row">
+            <label class="control-label col-sm-1">
+                <h3><i class="glyphicon glyphicon-info-sign"></i></h3>
+            </label>
+            <div class="col-sm-6 lbl-header-info">
+                <span id="info-msg" class="label label-lg label-###INFO_LV###">
+                    ###INFO_MSG###
+                </span>
+            </div>
+        </div>
+
+        <!--Search-->
+        <!--
+
+        -->
+    </div>
+
+    <!--Spacer-->
+    <div class="header-dummy" style="height:7.0em; background-color:piiiiink;"></div>
+
+    <!--Contents-->
+    <div class="header-under-contents">
+        <form class="form-horizontal" action="/APP/OPERATION_CATEGORY/LISTS/SHOW" method="GET">
+            <div class="contents-table">
+                ###TABLE###
+            </div>
+        </form>
+    </div>
+</div>
+<!--</html>-->
+
+<script>
+
+    //カテゴリ名新規追加
+    function newOperationCategory() {
+        var new_category_name = $('#NEW_OPERATION_CATEGORY_NAME').val();
+        var params = $('form').serialize();
+        var jqXHR = $.ajax({
+            type: 'POST',
+            url: '/APP/OPERATION_CATEGORY/NEW/COMPLETE',
+            data: params
+        });
+        jqXHR.done(function(data) {
+            if (data == 2222) {
+                alert(new_category_name + "は、既に使われています。");
+            } else {
+                $('table').html(data);
+                $('#info-msg').html(new_category_name + "を追加しました。");
+            }
+        });
+        jqXHR.fail(function(data) {
+            alert("新規登録処理に失敗しました。");
+        });
+    }
+
+    //カテゴリ名変更
+    function editOperationCategory(id) {
+
+        if (id == 999) {
+            alert("更新対象です。");
+            return false;
+        }
+
+        var edit_category_name = $('#OPERATION_CATEGORY_NAME_' + id).val();
+        var params = $('form').serialize();
+        var jqXHR = $.ajax({
+            type: 'POST',
+            url: '/APP/OPERATION_CATEGORY/EDIT/COMPLETE',
+            data: {
+                OPERATION_CATEGORY_ID: id,
+                OPERATION_CATEGORY_NAME: edit_category_name
+            }
+        });
+        jqXHR.done(function(data) {
+            if (data == 2222) {
+                alert(edit_category_name + "は、既に使われています。");
+            } else {
+                alert(edit_category_name + "を変更しました。");
+                $('#info-msg').html(edit_category_name + "を変更しました。");
+            }
+        });
+        jqXHR.fail(function() {
+            alert("更新処理に失敗しました。");
+        });
+    }
+
+    //カテゴリ名削除
+    function deleteOperationCategory(id) {
+
+        if (id == 999) {
+            alert("削除対象外です。");
+            return false;
+        }
+
+        var delete_category_name = $('#OPERATION_CATEGORY_NAME_' + id).val();
+        var params = $('form').serialize();
+        var jqXHR = $.ajax({
+            type: 'POST',
+            url: '/APP/OPERATION_CATEGORY/DELETE/COMPLETE',
+            data: {
+                OPERATION_CATEGORY_ID: id,
+                OPERATION_CATEGORY_NAME: delete_category_name
+            }
+        });
+        jqXHR.done(function(data) {
+            if (data == 111) {
+                var sel = '#edit-row-' + id;
+                $(sel).remove();
+                $('#info-msg').html(delete_category_name + "を削除しました。");
+            } else {
+                $('#info-msg').html(delete_category_name + "を削除出来ませんでした。");
+            }
+        });
+        jqXHR.fail(function() {
+            alert("削除処理に失敗しました。");
+        });
+ 
+    }
+
+</script>
+<!--</html>-->

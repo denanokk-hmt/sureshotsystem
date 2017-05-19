@@ -1,0 +1,102 @@
+#!/bin/bash -evx
+#
+
+########################################
+#	SET_LIST DELETE COMPLETE.CGI
+#
+#   引数
+#       $1:プロセスID
+#
+#	Written by hiramatsu
+
+
+########################################
+#基本設定
+SYSD=$(cd $(dirname $0) && pwd | awk '{print substr($0, 0, index($0, "sureshotsystem")+13)}')
+#exec 2> ${SYSD}/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
+tmp=/tmp/tmp_$1
+LANG=ja_JP.UTF-8
+PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
+CATEGORY=`cat $tmp-category`
+FUNC=`cat $tmp-func`
+DATAD=${SYSD}/DATA/${CATEGORY}/LISTS
+
+########################################
+#Check error
+ERROR_CHECK(){
+	[ $(plus ${PIPESTATUS[@]}) -eq 0 ] && return
+cat <<- FIN
+	Context-type: text/html
+	NG input
+FIN
+	cat $tmp-result
+	exit 1
+}
+
+########################################
+#セットカテゴリ更新中は、処理をさせない
+#ls ${SYSD}/LOCK/SET_CATEGORY/* > $tmp-checker
+#if [ -n cat $tmp-checker ] ; then
+#    echo "333" > $tmp-ajax-html
+#    exit 0
+#fi
+
+#######################################
+#フォームの入力値を取得
+NUM=$(nameread DELETE_SET_NO $tmp-post)
+VALUE4=$(nameread DELETE_CATEGORY_NX $tmp-post)         #セットカテゴリ番号(変更前)
+
+########################################
+#存在確認
+cat ${DATAD}/${VALUE4}/LV3/${NUM}_*[^_d] | awk '{print}' > $tmp-valid1
+if [ -z "$(cat $tmp-valid1)" ] ; then
+    echo 2222 > $tmp-ajax-html
+    exit 0
+fi
+
+#######################################
+#既存データから作成日時取得、現在日時を更新日時とする
+ls ${DATAD}/${VALUE4}/LV1/${NUM}_set_* | cut -d'_' -f4 | sort -nk1,1 | head -n 1 > $tmp-create
+CREATE_DATE=$(cat $tmp-create)
+UPDATE_DATE=$(date +%Y%m%d%H%M%S)
+
+########################################
+#該当のデータ操作をロック
+LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'SET_LIST' ${NUM}`
+LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
+[ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
+
+#########################################
+#一時ファイル化
+ls ${DATAD}/${VALUE4}/LV1/${NUM}_set_* | sort -nk1,1 | tail -n 1 > $tmp-latest
+cat $tmp-latest | awk -v ud=${UPDATE_DATE} '{print $1, $2, $3, $4, $5, $6, $7, $8, ud, "1"}' > $tmp-set
+
+########################################
+#データ格納
+#LV1:原始データとして、ファイル追加のみを行う
+$(mv $tmp-set ${DATAD}/${VALUE4}/LV1/${NUM}_set_${UPDATE_DATE})
+
+#LV2:変更されたデータとファイルを入れ替える
+cp -ip ${DATAD}/${VALUE4}/LV1/${NUM}_set_${UPDATE_DATE} ${DATAD}/${VALUE4}/LV2/${NUM}_set_${UPDATE_DATE}_d
+ls ${DATAD}/${VALUE4}/LV2/${NUM}_* | sort -nk1 | head -n 1 > $tmp-delete
+rm -f $(cat $tmp-delete)
+
+#LV3:LV2のコピー
+cp -ip ${DATAD}/${VALUE4}/LV2/${NUM}_set_${UPDATE_DATE}_d ${DATAD}/${VALUE4}/LV3/${NUM}_set_${UPDATE_DATE}_d
+ls ${DATAD}/${VALUE4}/LV3/${NUM}_* | sort -nk1 | head -n 1 > $tmp-delete
+rm -f $(cat $tmp-delete)
+
+########################################
+#データ操作ロックを解除
+UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'SET_LIST' ${NUM}`
+[ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
+
+########################################
+#
+echo "111" > $tmp-ajax-html
+
+########################################
+#ending
+echo "OK"
+exit 0
+

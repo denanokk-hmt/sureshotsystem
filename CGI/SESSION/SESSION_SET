@@ -1,0 +1,73 @@
+#!/bin/bash -vx
+#
+
+########################################
+#	SESSION_SET.CGI
+#
+#       $1:必須 セッションID
+#       $2:必須 セッションの寿命-分数で指定  デフォルト:15フン
+#       $3:任意 セッションファイル内に書き込みたい値
+#
+#	Written by hiramatsu
+
+
+########################################
+#基本設定
+SYSD=$(cd $(dirname $0) && pwd | awk '{print substr($0, 0, index($0, "sureshotsystem")+13)}')
+#exec 2> ${SYSD}/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
+TMP=/tmp/tmp_$$
+LANG=ja_JP.UTF-8
+PATH=/home/:/home/UTL:/usr/local/bin:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
+SESSION_FILED=${SYSD}/SESSION
+LIFETIME_MIN=15
+#COOKIE_LIFETIME_MIN=15
+
+#######################################
+#Arguments 
+SESS_ID=$1
+SESS_LIFE=${2:-"$LIFETIME_MIN"}
+COOK_LIFE=`expr $SESS_LIFE \* 60`
+SESSION_FILE_VALUE=$3
+
+#######################################
+#Check session
+SESS_STATUS=`${SYSD}/CGI/SESSION/SESSION_CHECK ${SESS_ID} `
+
+#######################################
+#TOKEN
+#TOKEN=$(openssl rand -base64 12 | fold -w 10 | head -1 | sha1)
+
+case ${SESS_STATUS} in
+live)
+    #今を知る
+    TOKEN=$(session_get ${SESS_ID})
+    ;;
+*)
+     #新しきを求める
+    KEY=$(openssl rand -base64 12)
+    TOKEN=$(sha1 $KEY)
+    ;;
+esac
+
+########################################
+#Make session file
+#live->上書きしてタイムスタンプを更新
+#expire->古きを削除し、新しきを作る
+#none->新しきを作る
+#touch ${SESSION_FILED}/${TOKEN}
+echo $SESSION_FILE_VALUE > ${SESSION_FILED}/${TOKEN}
+if [ "${SESS_STATUS}" = 'expire' ]; then
+    rm -f "${SESSION_FILED}/${SESS}"
+fi
+
+########################################
+#Make cookie setting words
+COOK_SET=$(session_set ${COOK_LIFE} ${SESS_ID} ${TOKEN})
+#echo $COOK_SET > /tmp/cook-set_before
+
+#######################################
+#Return cookie words
+echo ${COOK_SET}
+rm -f $tmp-*
+exit 0
+

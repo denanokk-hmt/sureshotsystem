@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <script language="JavaScript">
+        function modoru(mode) {
+            if (mode == REG) {
+                document.toroku.MODE.value = "REG";
+            } else {
+                document.toroku.MODE.value = "BACK";
+            }
+            document.toroku.submit();
+        }
+    </script>
+	<head>
+		<meta http-equiv="Content-type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="Content-Style-type" content="text/css" />
+		<title>Check Form</title>
+	</head>
+	<body>
+		登録内容は、以下の内容で宜しいでしょうか？
+        宜しければ、登録ボタンを押してください。
+		<form name=toroku action="../CGI/TOROKU.CGI" method="POST" style="border:1px solid black">
+		    <table cellspacing="0">
+                <tr>
+                    <td>項目</td>
+                    <td>入力</td>
+                </tr>
+<!--RECORDS-->
+                <tr>
+                    <td>%3<td>
+                    <td>
+                        <input type="text" readonly="readomnly" name=%1 value="%4" />
+                    </td>
+                </tr>
+<!--RECORDS-->
+            </table>
+            <input type="hidden" name="MODE" value="REG" />
+		    <input type="submit" name="SUBMIT" />
+		</form>
+	</body>
+</html>
+

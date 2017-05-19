@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="Content-Script-type" content="text/javascript" />
+		<title>Server Sync</title>
+        <script>
+            function init(){
+                getServerTime();
+                setInterval(getServerTime,3000);
+            }
+
+            function getServerTime() {
+                var httpReq = new XMLHttpRequest();
+                httpReq.open("POST","../CGI/AJAX.CGI",true);
+                httpReq.setRequestHeader("Content-Type","application/x-www-urlencoded");
+                httpReq.onreadystatechenge = function(){
+                    if(httpReq.readyState != 4 || httpReq.status != 200)
+                        return;
+
+                    document.getElementById("SERVERTIME").innerHTML = httpReq.responseText;
+                }
+                httpReq.send( "DUMMY=" + Math.random() );
+            }
+        </script>
+	</head>
+	<body onload="init();">
+        <h1>ServerTime</h1>
+        練習サーバ:
+        <span id="SERVERTIME"></span>
+        <input type="submit" name="do?" />
+	</body>
+</html>
+
