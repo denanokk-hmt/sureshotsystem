@@ -57,9 +57,8 @@ else
     mkdir ${SYSD}/DATA/NUMBERS/${CATEGORY}
     mkdir ${SYSD}/DATA/NUMBERS/${CATEGORY}/ORIGIN
     mkdir ${SYSD}/DATA/NUMBERS/${CATEGORY}/USED
-    #オーナーと権限を再帰的に設定
-    chmod -R 775 ${SYSD}/DATA/NUMBERS/${CATEGORY}
-    #chown -R root:apache ${SYSD}/DATA/NUMBERS/${CATEGORY}
+    #権限を再帰的に設定
+    chmod -R 770 ${SYSD}/DATA/NUMBERS/${CATEGORY}
     ERROR_CHECK
 fi
 
@@ -68,7 +67,7 @@ fi
 for i in `seq $START $END`
 do
     touch ${SYSD}/DATA/NUMBERS/${CATEGORY}/ORIGIN/$i
-    chmod 775 ${SYSD}/DATA/NUMBERS/${CATEGORY}/ORIGIN/$i
+    chmod 770 ${SYSD}/DATA/NUMBERS/${CATEGORY}/ORIGIN/$i
     ERROR_CHECK
 done
 
