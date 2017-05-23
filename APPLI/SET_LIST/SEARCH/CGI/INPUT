@@ -44,7 +44,7 @@ cat ${SYSD}/DATA/SET_LIST/LISTS/${CATE_NO}/LV3/*[^_d]  |
 LANG=C sort -nk1,1                                      > $tmp-set
 
 ########################################
-#set
+#Set
 # 部品番号、カテゴリ番号、カテゴリ名、部品名(EN)、部品名(JP)、単価、UD、CD
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/DROPDOWN_LIST.HTML $tmp-set > $tmp-set-row
 

@@ -46,8 +46,8 @@ QRY_PAGE=$( cat $tmp-get | sed -e 's/^.*\(page\=[0-9]*\).*$/\1/' | sed -e 's/pag
 cat $tmp-get | grep 'SEARCH' > $tmp-search
 if [ -n "$(cat $tmp-get | grep 'SEARCH=1')" ] ; then
     #絞込のカテゴリを取得(urldecode)
-    PAGE_CATEGORY=$( cat $tmp-get | cut -d'&' -f1 | sed -e 's/CATEGORY_PAGE_HIDDEN\=//' | ruby -r uri -ne 'print URI.unescape $_')
-    PAGE_CATEGORY_NO=$( cat $tmp-get | cut -d'&' -f2 | sed -e 's/CATEGORY_NO_PAGE_HIDDEN\=//' | ruby -r uri -ne 'print URI.unescape $_')
+    PAGE_CATEGORY=$( cat $tmp-get | cut -d'&' -f1 | sed -e 's/CATEGORY_NM_HID_PAGE\=//' | ruby -r uri -ne 'print URI.unescape $_')
+    PAGE_CATEGORY_NO=$( cat $tmp-get | cut -d'&' -f2 | sed -e 's/CATEGORY_NO_HID_PAGE\=//' | ruby -r uri -ne 'print URI.unescape $_')
 else
     PAGE_CATEGORY=$( cat $tmp-get | cut -d'&' -f2 | sed -e 's/category\=//' | ruby -r uri -ne 'print URI.unescape $_')
     PAGE_CATEGORY_NO=$( cat $tmp-get | cut -d'&' -f3 | sed -e 's/category-no\=//' | ruby -r uri -ne 'print URI.unescape $_')
@@ -147,8 +147,8 @@ TABLE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-html`
 ########################################
 #tableをはめ込む、ページャーを差し込む
 cat ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/SHOW.HTML              |
-sed -e "s|###CATEGORY_PAGE_HIDDEN###|${PAGE_CATEGORY}|g"        |
-sed -e "s|###CATEGORY_NO_PAGE_HIDDEN###|${PAGE_CATEGORY_NO}|g"  |
+sed -e "s|###CATEGORY_NM_PAGE###|${PAGE_CATEGORY}|g"        |
+sed -e "s|###CATEGORY_NO_PAGE###|${PAGE_CATEGORY_NO}|g"  |
 sed -e "s|###CATEGORY###|${CATEGORY_PAGE}|g"                    |
 sed -e "s|###TABLE###|${TABLE}|g"                               |
 sed -e "s|###INFO_MSG###||g"                                    |
@@ -156,7 +156,7 @@ sed -e "s|###PAGER###|$(cat $tmp-pager-html)|g"                 > $tmp-html
 
 ########################################
 #page name
-echo "set lists" > $tmp-pagename
+echo "Set lists" > $tmp-pagename
 
 ########################################
 echo "OK"

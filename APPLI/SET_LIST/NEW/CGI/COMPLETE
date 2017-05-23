@@ -57,14 +57,14 @@ NEW_NUM=`${SYSD}/CGI/NUMBERS $1 'SET_LIST' `
 #######################################
 #フォームの入力値を取得
 cat $tmp-post
-PAGE_FILTER=$(nameread CATEGORY_PAGE_HIDDEN $tmp-post)
-PAGE_CATEGORY_NO=$(nameread CATEGORY_NO_PAGE_HIDDEN $tmp-post)
-VALUE1=$(nameread CATEGORY_NEW_HIDDEN $tmp-post)        #セットカテゴリ名
+PAGE_FILTER=$(nameread CATEGORY_NM_HID_PAGE $tmp-post)
+PAGE_CATEGORY_NO=$(nameread CATEGORY_NO_HID_PAGE $tmp-post)
+VALUE1=$(nameread CATEGORY_NM_HID_NEW $tmp-post)        #セットカテゴリ名
 VALUE2=$(nameread NEW_SET_NAME $tmp-post)             #セット名(EN)
 VALUE3=$(nameread NEW_SET_PRICE $tmp-post)            #プライス
 
 #新規追加
-VALUE4=$(nameread CATEGORY_NO_NEW_HIDDEN $tmp-post)     #セットカテゴリ番号
+VALUE4=$(nameread CATEGORY_NO_HID_NEW $tmp-post)     #セットカテゴリ番号
 VALUE5=$(nameread NEW_SET_NAME_JP $tmp-post)          #セット名(JP)
 VALUE6=$(nameread NEW_SET_REMARKS $tmp-post)          #備考
 
