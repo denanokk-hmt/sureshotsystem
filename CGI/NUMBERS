@@ -48,7 +48,8 @@ ERROR_CHECK
 NUM=$( cat $tmp-numbers |
 rev                     |
 cut -d' ' -f1           |
-cut -c 1 )
+cut -d'/' -f1           |
+cut -c 2- )
 ERROR_CHECK
 
 ########################################
