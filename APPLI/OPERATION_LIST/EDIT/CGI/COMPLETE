@@ -43,8 +43,8 @@ FIN
 
 #######################################
 #フォームの入力値を取得
-PAGE_FILTER=$(nameread CATEGORY_PAGE_HIDDEN $tmp-post)              #フィルター:カテゴリ名
-PAGE_CATEGORY_NO=$(nameread CATEGORY_NO_PAGE_HIDDEN $tmp-post)     #フィルター:カテゴリNO
+PAGE_FILTER=$(nameread CATEGORY_NM_HID_PAGE $tmp-post)              #フィルター:カテゴリ名
+PAGE_CATEGORY_NO=$(nameread CATEGORY_NO_HID_PAGE $tmp-post)     #フィルター:カテゴリNO
 NUM=$(nameread EDIT_OPERATION_NO $tmp-post)                             #作業番号
 VALUE1=$(nameread EDIT_OPERATION_CATEGORY_NAME $tmp-post)               #作業カテゴリ名
 VALUE2=$(nameread EDIT_OPERATION_NAME $tmp-post)                        #作業名(EN)

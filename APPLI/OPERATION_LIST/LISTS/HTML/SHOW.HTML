@@ -32,13 +32,13 @@
                             </button>
                             <ul class="dropdown-menu" role="menu" name="PAGE">
                                <li name="CATEGORY_PAGE">
-                                   <a id="cat-list-0" onclick="categoryChoice(0,this); return false;" >ALL</a>
+                                   <a class="category-list" id="cat_list_0" >ALL</a>
                                </li>
                                ###CATEGORY###
                             </ul>
                         </div>
                         <div class="btn-group">
-                            <input type="text" name="CATEGORY_PAGE" id="CATEGORY_PAGE" value="###CATEGORY_PAGE_HIDDEN###" class="form-control" disabled />
+                            <input type="text" name="CATEGORY_NM_PAGE" id="CATEGORY_NM_PAGE" value="###CATEGORY_NM_PAGE###" class="form-control" disabled />
                         </div>
 
                         <!--Search Submit button-->
@@ -49,8 +49,8 @@
                         </div>
                     </div>
 
-                    <input type="hidden" name="CATEGORY_PAGE_HIDDEN" id="CATEGORY_PAGE_HIDDEN" value="###CATEGORY_PAGE_HIDDEN###" class="form-control" />
-                    <input type="hidden" name="CATEGORY_NO_PAGE_HIDDEN" id="CATEGORY_NO_PAGE_HIDDEN" value="###CATEGORY_NO_PAGE_HIDDEN###" class="form-control" />
+                    <input type="hidden" name="CATEGORY_NM_HID_PAGE" id="CATEGORY_NM_HID_PAGE" value="###CATEGORY_NM_PAGE###" class="form-control" />
+                    <input type="hidden" name="CATEGORY_NO_HID_PAGE" id="CATEGORY_NO_HID_PAGE" value="###CATEGORY_NO_PAGE###" class="form-control" />
                     <input type="hidden" name="SEARCH" id="SEARCH" value="1" class="form-control" />
                     <input type="hidden" name="page" id="page" value="1" class="form-control" />
                 </div>
@@ -81,43 +81,26 @@
 
 <script>
 
-    //カテゴリを選択
-    /* 
-        jQueryバージョン問題により、ajaxで要素追加後にイベント(.on記述も無効)が
-        発火しない事象により、個別のJSへ切り替え
-        →時間のあるときに出来ればリファクタリングしたい点
-        jQuery(function () {
-            $(".dropdown-menu li a").click(function() {
-                console.log($(this).html());
-                $(this).parents('.form-group').find('[name^="CATEGORY_"]').val($(this).html());
-            });
-        });
-    */
-    function categoryChoice(id,obj) {
-
-        //選択したカテゴリ名
-        var e = document.getElementById("cat-list-" + id);
-        var choice = e.innerHTML;
-
-        //親の親(ulタグのnameにOperation_noが指定されている、これを取得
-        var pe = obj.parentNode;
-        var ppe = pe.parentNode;
-        var nodes = ppe.attributes;
-        var cat_no = nodes.name.nodeValue;
-
-        //該当のレコードに選択したカテゴリ名を設定
-        var input_text = document.getElementById('CATEGORY_' + cat_no);
-        input_text.value = choice;
-        var input_hidden = document.getElementById('CATEGORY_' + cat_no + '_HIDDEN');
-        input_hidden.value = choice;
-
-        //該当のレコードに選択したカテゴリ番号を設定
-        var input_hidden = document.getElementById('CATEGORY_NO_' + cat_no + '_HIDDEN');
-        input_hidden.value = id;
-    }
-
     $(document).ready(function() {
         $("#pager").sticky({topSpacing:0});
+    });
+
+    //カテゴリを選択
+    $(document).on('click', 'a.category-list', function() {
+
+        //選択した部品のidから行を取得する
+        var idname = $(this).attr("id"); 
+        var list_id = idname.split("_");
+        var row = $(this).parent().parent().attr("name");
+        var cat_no = list_id[2];
+        var choice = $(this).text();
+
+        //該当のレコードに選択したカテゴリ名を設定
+        $('#CATEGORY_NM_' + row).val(choice);
+        $('#CATEGORY_NM_HID_' + row).val(choice);
+
+        //該当のレコードに選択したカテゴリ番号を設定
+        $('#CATEGORY_NO_HID_' + row).val(cat_no);
     });
 
     //作業追加
@@ -144,11 +127,11 @@
 
     //作業変更
     function editOperation(id) {
-        var page_filter = $('#CATEGORY_PAGE_HIDDEN').val();
-        var page_category_no = $('#CATEGORY_NO_PAGE_HIDDEN').val();
-        var edit_category_no = $('#CATEGORY_NO_' + id + '_HIDDEN').val();
-        var edit_category_nx = $('#CATEGORY_NO_' + id + '_HIDDEN_EX').val();
-        var edit_category_name = $('#CATEGORY_' + id + '_HIDDEN').val();
+        var page_filter = $('#CATEGORY_NM_HID_PAGE').val();
+        var page_category_no = $('#CATEGORY_NO_HID_PAGE').val();
+        var edit_category_no = $('#CATEGORY_NO_HID_' + id).val();
+        var edit_category_nx = $('#CATEGORY_NX_HID_' + id).val();
+        var edit_category_name = $('#CATEGORY_NM_HID_' + id).val();
         var edit_operation_name = $('#OPERATION_NAME_' + id).val();
         var edit_operation_name_jp = $('#OPERATION_NAME_JP_' + id).val();
         var edit_operation_price = $('#OPERATION_PRICE_' + id).val();
@@ -158,7 +141,7 @@
             url: '/APP/OPERATION_LIST/EDIT/COMPLETE',
             data: {
                 PAGE_FILTER: page_filter,
-                CATEGORY_NO_PAGE_HIDDEN: page_category_no,
+                CATEGORY_NO_HID_PAGE: page_category_no,
                 EDIT_OPERATION_NO: id,
                 EDIT_OPERATION_CATEGORY_NO: edit_category_no,
                 EDIT_OPERATION_CATEGORY_NX: edit_category_nx,
@@ -185,8 +168,8 @@
 
     //作業削除
     function deleteOperation(id) {
-        var delete_category_nx = $('#CATEGORY_NO_' + id + '_HIDDEN_EX').val();
         var delete_operation_name = $('#OPERATION_NAME_' + id).val();
+        var delete_category_nx = $('#CATEGORY_NX_HID_' + id).val();
         var jqXHR = $.ajax({
             type: 'POST',
             url: '/APP/OPERATION_LIST/DELETE/COMPLETE',
