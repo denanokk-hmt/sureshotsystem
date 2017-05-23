@@ -4,8 +4,6 @@
 mkdir ../BACKUP
 mkdir ../DATA
 mkdir ../DATA/NUMBERS
-mkdir ../DATA/NUMBERS/ORIGIN
-mkdir ../DATA/NUMBERS/USED
 mkdir ../DATA/ORG_LV1-3
 mkdir ../DATA/ORG_LV1-3/LV1
 mkdir ../DATA/ORG_LV1-3/LV2
