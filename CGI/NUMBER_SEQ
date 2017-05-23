@@ -55,7 +55,23 @@ if [ -e ${SYSD}/DATA/NUMBERS/${CATEGORY}  ]; then
 else
     #ディレクトリ作成
     mkdir ${SYSD}/DATA/NUMBERS/${CATEGORY}
+    #権限を再帰的に設定
+    chmod -R 770 ${SYSD}/DATA/NUMBERS/${CATEGORY}
+    ERROR_CHECK
+fi
+if [ -e ${SYSD}/DATA/NUMBERS/${CATEGORY}/ORIGIN  ]; then
+    :
+else
+    #ディレクトリ作成
     mkdir ${SYSD}/DATA/NUMBERS/${CATEGORY}/ORIGIN
+    #権限を再帰的に設定
+    chmod -R 770 ${SYSD}/DATA/NUMBERS/${CATEGORY}
+    ERROR_CHECK
+fi
+if [ -e ${SYSD}/DATA/NUMBERS/${CATEGORY}/USED  ]; then
+    :
+else
+    #ディレクトリ作成
     mkdir ${SYSD}/DATA/NUMBERS/${CATEGORY}/USED
     #権限を再帰的に設定
     chmod -R 770 ${SYSD}/DATA/NUMBERS/${CATEGORY}

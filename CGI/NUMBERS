@@ -38,17 +38,17 @@ ERROR_CHECK(){
 ########################################
 #新規採番番号を確定
 #指定されたカテゴリのNUMBERS/ORIGINの最小値ファイル名を/USEDへ移動
-$( ls ${NUMBERSD}/ORIGIN/ | sort -n | head -n 1                 |
+ls ${NUMBERSD}/ORIGIN/ | sort -n | head -n 1                    |
 awk -v url=${NUMBERSD} '{print sprintf(url"/ORIGIN/%s",$1)}'    |
-xargs -i mv -v {} ${NUMBERSD}/USED > $tmp-numbers )
+xargs -I{} mv -v {} ${NUMBERSD}/USED > $tmp-numbers
 ERROR_CHECK
 
 ########################################
 #確定(USEDに移された番号)した番号を取得
 NUM=$( cat $tmp-numbers |
+rev                     |
 cut -d' ' -f1           |
-cut -d'/' -f8           |
-sed -e 's/[^0-9]*//g'   )
+cut -c 1 )
 ERROR_CHECK
 
 ########################################

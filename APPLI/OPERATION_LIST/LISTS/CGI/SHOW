@@ -126,8 +126,6 @@ else
     juni                                                    > $tmp-records
 fi
 
-cat $tmp-records > /tmp/tmp-vvvvvvvv
-
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/RECORDS.HTML $tmp-records     > $tmp-table-records
 cat $tmp-table-records                                                                  |
 sed -e "s|###CATEGORY###|${CATEGORY_LIST}|g"                                            > $tmp-table-records2
