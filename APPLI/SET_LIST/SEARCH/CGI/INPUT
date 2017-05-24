@@ -35,7 +35,7 @@ FIN
 
 #######################################
 #フォームの入力値を取得
-CATE_NO=$(nameread SET_CATEGORY_NO $tmp-post)
+CATE_NO=$(nameread CATEGORY_NO $tmp-post)
 ROW=$(nameread ROW $tmp-post)
 
 ########################################

@@ -102,15 +102,14 @@
         $('#CATEGORY_NM_HID_' + row).val(choice);
 
         //該当のレコードに選択したカテゴリ番号を設定
-        var input_hidden = document.getElementById('CATEGORY_NO_HID_' + row);
-        input_hidden.value = cat_no;
+        $('#CATEGORY_NO_HID_' + row).val(cat_no);
 
         //パーツリストを選択したカテゴリで抽出
         var jqXHR = $.ajax({
             type: 'POST',
             url: '/APP/PARTS_LIST/SEARCH/INPUT',
             data: {
-                PARTS_CATEGORY_NO: cat_no,
+                CATEGORY_NO: cat_no,
                 ROW: row
             }
         });
@@ -145,7 +144,7 @@
                 type: 'POST',
                 url: '/APP/PARTS_LIST/SEARCH/INPUT',
                 data: {
-                    PARTS_CATEGORY_NO: cat_no,
+                    CATEGORY_NO: cat_no,
                     ROW: row
                 }
             }).done(function(data) {

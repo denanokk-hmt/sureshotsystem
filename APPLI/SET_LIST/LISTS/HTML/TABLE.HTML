@@ -35,7 +35,7 @@
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu SET" role="menu" name="NEW">
-                                ###SET_CATEGORY_NEW###
+                                ###SET_CATEGORY###
                             </ul>
                         </div>
                         <div class="btn-group">
@@ -51,19 +51,19 @@
                 <div class="form-group">
                     <div class="btn-group">
                         <div class="btn-group">
-                            <button type="button" class="btn dropdown-toggle input-sm category" id="ope_categogy_new" data-toggle="dropdown" aria-expended="false">
+                            <button type="button" class="btn dropdown-toggle input-sm category" id="operation_categogy_new" data-toggle="dropdown" aria-expended="false">
                                 <span class="caret"></span>
                             </button>
-                            <ul class="dropdown-menu OPE" role="menu" name="NEW" id="category_ul_NEW">
-                                ###OPE_CATEGORY_NEW###
+                            <ul class="dropdown-menu OPERATION" role="menu" name="NEW" id="category_ul_NEW">
+                                ###OPERATION_CATEGORY###
                             </ul>
                         </div>
                         <div class="btn-group">
-                            <input type="text" name="OPE_CATEGORY_NM_NEW" id="OPE_CATEGORY_NM_NEW" value="" class="form-control input-sm" disabled placeholder="作業カテゴリ"/>
+                            <input type="text" name="OPERATION_CATEGORY_NM_NEW" id="OPERATION_CATEGORY_NM_NEW" value="" class="form-control input-sm" disabled placeholder="作業カテゴリ"/>
                         </div>
                     </div>
-                    <input type="hidden" name="OPE_CATEGORY_NM_HID_NEW" id="OPE_CATEGORY_NM_HID_NEW" value="" class="form-control" />
-                    <input type="hidden" name="OPE_CATEGORY_NO_HID_NEW" id="OPE_CATEGORY_NO_HID_NEW" value="" class="form-control" />
+                    <input type="hidden" name="OPERATION_CATEGORY_NM_HID_NEW" id="OPERATION_CATEGORY_NM_HID_NEW" value="" class="form-control" />
+                    <input type="hidden" name="OPERATION_CATEGORY_NO_HID_NEW" id="OPERATION_CATEGORY_NO_HID_NEW" value="" class="form-control" />
                 </div>
             </td>
             <!--R1 部品カテゴリ-->
@@ -75,7 +75,7 @@
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" role="menu" name="NEW" id="category_ul_NEW">
-                                ###PARTS_CATEGORY_NEW###
+                                ###PARTS_CATEGORY###
                             </ul>
                         </div>
                         <div class="btn-group">
@@ -115,19 +115,19 @@
                 <div class="form-group">
                     <div class="btn-group">
                         <div class="btn-group">
-                            <div id="dropdown-ope-NEW" class="btn-group">
-                                <button type="button" class="btn dropdown-toggle input-sm" id="ope_new" data-toggle="dropdown" aria-expended="false">
+                            <div id="dropdown-operation-NEW" class="btn-group">
+                                <button type="button" class="btn dropdown-toggle input-sm" id="operation_new" data-toggle="dropdown" aria-expended="false">
                                     <span class="caret"></span>
                                 </button>
-                                <ul id="dropdown-ope-list-NEW" class="dropdown-menu" role="menu" name="NEW">
+                                <ul id="dropdown-operation-list-NEW" class="dropdown-menu" role="menu" name="NEW">
                                 </ul>
                             </div>
                             <div class="btn-group">
-                                <input type="text" name="OPE_NM_NEW" id="OPE_NM_NEW" value="" class="form-control input-sm" disabled placeholder="作業"/>
+                                <input type="text" name="OPERATION_NM_NEW" id="OPERATION_NM_NEW" value="" class="form-control input-sm" disabled placeholder="作業"/>
                             </div>
                        </div>
                     </div>
-                    <input type="hidden" name="OPE_HID_NO_NEW" id="OPE_NO_HID_NEW" value="" class="form-control" />
+                    <input type="hidden" name="OPERATION_HID_NO_NEW" id="OPERATION_NO_HID_NEW" value="" class="form-control" />
                 </div>
             </td>
            <!--R2部品名-->
@@ -180,12 +180,12 @@
                             </button>
                         </div>
                         <div class="btn-group">
-                            <input type="number" id="NEW_SET_PRICE" name="NEW_SET_PRICE" value="" class="form-control input-sm" style="" placeholder="セット税抜価格" >
+                            <input type="number" id="SET_PRICE_NEW" name="SET_PRICE_NEW" value="" class="form-control input-sm" style="" placeholder="セット税抜価格" >
                         </div>
                     </div>
                 </div>
             </td>
-            <!--iR3 作業価格-->
+            <!--R3 作業価格-->
             <td>
                 <div class="form-group">
                     <div class="btn-group">
@@ -195,7 +195,7 @@
                             </button>
                         </div>
                         <div class="btn-group"> 
-                            <input type="number" id="NEW_OPE_PRICE" name="NEW_OPE_PRICE" value="" class="form-control input-sm" style="" placeholder="作業税抜価格" >
+                            <input type="number" id="OPERATION_PRICE_NEW" name="OPERATION_PRICE_NEW" value="" class="form-control input-sm" style="" placeholder="作業税抜価格" >
                         </div>
                     </div>
                 </div>
@@ -210,7 +210,7 @@
                             </button>
                         </div>
                         <div class="btn-group">
-                            <input type="number" id="NEW_PARTS_PRICE" name="NEW_PARTS_PRICE" value="" class="form-control input-sm" style="" placeholder="部品税抜価格" >
+                            <input type="number" id="PARTS_PRICE_NEW" name="PARTS_PRICE_NEW" value="" class="form-control input-sm" style="" placeholder="部品税抜価格" >
                         </div>
                     </div>
                 </div>
@@ -218,7 +218,7 @@
             <td></td>
             <!--R3 備考-->
             <td>
-                <input type="text" id="NEW_SET_REMARKS" name="NEW_SET_REMARKS" value="" class="form-control input-sm" style="" placeholder="備考" >
+                <input type="text" id="NEW_SET_REMARKS" name="SET_REMARKS_NEW" value="" class="form-control input-sm" style="" placeholder="備考" >
             </td>           
        </tr>
    </tbody>

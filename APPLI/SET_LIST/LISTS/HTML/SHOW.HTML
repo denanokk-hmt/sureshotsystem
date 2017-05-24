@@ -87,6 +87,13 @@
 
     //カテゴリを選択
     $(document).on('click', 'a.category-list', function() {
+        
+        //選択カテゴリを取得する
+        var kindU = $(this).parent().attr("name");        
+        var kindL = $(this).parent().attr("name").toLowerCase();        
+
+        //SEARCH用URLを設定
+        search_url = '/APP/' + kindU + '_LIST/SEARCH/INPUT';
 
         //選択した部品のidから行を取得する
         var idname = $(this).attr("id"); 
@@ -96,12 +103,103 @@
         var choice = $(this).text();
 
         //該当のレコードに選択したカテゴリ名を設定
-        $('#CATEGORY_NM_' + row).val(choice);
-        $('#CATEGORY_NM_HID_' + row).val(choice);
+        $('#' + kindU + '_CATEGORY_NM_' + row).val(choice);
+        $('#' + kindU + '_CATEGORY_NM_HID_' + row).val(choice);
 
         //該当のレコードに選択したカテゴリ番号を設定
-        $('#CATEGORY_NO_HID_' + row).val(cat_no);
+        $('#' + kindU + '_CATEGORY_NO_HID_' + row).val(cat_no);
+
+        if (kindU != 'PAGE' && kindU != 'SET') {
+
+            //選択したカテゴリで抽出
+            var jqXHR = $.ajax({
+                type: 'POST',
+                url: search_url,
+                data: {
+                    CATEGORY_NO: cat_no,
+                    ROW: row
+                }
+            });
+            jqXHR.done(function(data) {
+                search_result = data;
+                $('#dropdown-' + kindL + '-' + row).addClass('open');
+                $('#dropdown-' + kindL + '-list-' + row).html(data);
+                
+                //クリア
+                $('#' + kindU + '_NM_' + row).val('');
+                $('#' + kindU + '_NO_HID_' + row).val('');
+                $('#' + kindU + '_PRICE_' + row).val('');
+                if (kindU == 'PARTS') {
+                    $('#PARTS_QTY_' + row).val('0');
+                }
+                if (row != 'PAGE' && row != 'NEW') {
+                    $('#' + kindU + '_NX_HID_' + row).val('');
+                }
+            });
+            jqXHR.fail(function() {
+                search_result = '一致するパーツがありません。';
+            });
+        }
     });
+
+    //作業選択
+    $(document).on('click', 'li.list-operation', function() {
+
+        //選択したリストのidから行を取得する:list-行-部品番号
+        var idname = $(this).attr("id"); 
+        var list_id = idname.split("-");
+        var row = list_id[1];
+        var operationNo = $(this).val();
+        var operationNm = $(this).text();
+        var operationPrice = $('#OPERATION_PRICE_' + row + '_' + operationNo).val();
+        $('#OPERATION_NM_' + row).val(operationNm);
+        $('#OPERATION_PRICE_' + row).val(operationPrice);
+        $('#OPERATION_NO_HID_' + row).val(operationNo);
+    });
+
+    //パーツ選択
+    $(document).on('click', 'li.list-parts', function() {
+
+        //選択したリストのidから行を取得する:list-行-部品番号
+        var idname = $(this).attr("id"); 
+        var list_id = idname.split("-");
+        var row = list_id[1];
+        var partsNo = $(this).val();
+        var partsNm = $(this).text();
+        var partsPrice = $('#PARTS_PRICE_' + row + '_' + partsNo).val();
+        $('#PARTS_NM_' + row).val(partsNm);
+        $('#PARTS_PRICE_' + row).val(partsPrice);
+        $('#PARTS_QTY_' + row).val('1');
+        $('#PARTS_NO_HID_' + row).val(partsNo);
+    });
+
+    //パーツ数量PLUS
+    $(document).on('click', ':button.btn-plus', function() {
+        var idname = $(this).attr("id"); 
+        var list_id = idname.split("_");
+        var row = list_id[2];
+        var qty = $('#PARTS_QTY_' + row).val();
+        var subTTL = $('#PARTS_PRICE_' + row).val();
+        $('#PARTS_QTY_' + row).val(parseInt(qty) + parseInt(1));
+        qty = $('#PARTS_QTY_' + row).val();
+        $('#PARTS_PRICE_' + row).val(parseInt(subTTL) * parseInt(qty));
+    });
+
+    //パーツ数量MINUS
+    $(document).on('click', ':button.btn-minus', function() {
+        var idname = $(this).attr("id"); 
+        var list_id = idname.split("_");
+        var row = list_id[2];
+        var qty = $('#PARTS_QTY_' + row).val();
+        var subTTL = $('#PARTS_PRICE_' + row).val();
+        if (parseInt(qty) > 1) {
+            $('#PARTS_QTY_' + row).val(parseInt(qty) - parseInt(1));
+        }
+        $('#PARTS_PRICE_' + row).val(parseInt(subTTL) / parseInt(qty));
+    });
+
+ 
+
 
     //セット追加
     function newSet() {

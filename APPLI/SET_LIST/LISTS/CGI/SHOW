@@ -46,11 +46,11 @@ QRY_PAGE=$( cat $tmp-get | sed -e 's/^.*\(page\=[0-9]*\).*$/\1/' | sed -e 's/pag
 cat $tmp-get | grep 'SEARCH' > $tmp-search
 if [ -n "$(cat $tmp-get | grep 'SEARCH=1')" ] ; then
     #絞込のカテゴリを取得(urldecode)
-    PAGE_CATEGORY=$( cat $tmp-get | cut -d'&' -f1 | sed -e 's/CATEGORY_NM_HID_PAGE\=//' | ruby -r uri -ne 'print URI.unescape $_')
-    PAGE_CATEGORY_NO=$( cat $tmp-get | cut -d'&' -f2 | sed -e 's/CATEGORY_NO_HID_PAGE\=//' | ruby -r uri -ne 'print URI.unescape $_')
+    SET_PAGE_CATEGORY=$( cat $tmp-get | cut -d'&' -f1 | sed -e 's/SET_CATEGORY_NM_HID_PAGE\=//' | ruby -r uri -ne 'print URI.unescape $_')
+    SET_PAGE_CATEGORY_NO=$( cat $tmp-get | cut -d'&' -f2 | sed -e 's/SET_CATEGORY_NO_HID_PAGE\=//' | ruby -r uri -ne 'print URI.unescape $_')
 else
-    PAGE_CATEGORY=$( cat $tmp-get | cut -d'&' -f2 | sed -e 's/category\=//' | ruby -r uri -ne 'print URI.unescape $_')
-    PAGE_CATEGORY_NO=$( cat $tmp-get | cut -d'&' -f3 | sed -e 's/category-no\=//' | ruby -r uri -ne 'print URI.unescape $_')
+    SET_PAGE_CATEGORY=$( cat $tmp-get | cut -d'&' -f2 | sed -e 's/set-category\=//' | ruby -r uri -ne 'print URI.unescape $_')
+    SET_PAGE_CATEGORY_NO=$( cat $tmp-get | cut -d'&' -f3 | sed -e 's/set-category-no\=//' | ruby -r uri -ne 'print URI.unescape $_')
 fi
 
 #######################################
@@ -99,34 +99,74 @@ RESULT=`${SYSD}/CGI/PAGER $1 "/APP/SET_LIST/LISTS/SHOW" ${SHOW_PAGE} ${RECORDS} 
 ########################################
 #セットカテゴリを取得
 cat ${SYSD}/DATA/SET_CATEGORY/LISTS/LV3/*[^_d]    |
-LANG=C sort -nk1,1                                  > $tmp-category
+LANG=C sort -nk1,1                                  > $tmp-set-category
 
 ########################################
 #Page絞り込み用のセットカテゴリ
 # 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_PAGE.HTML $tmp-category > $tmp-set-category-page
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/SET_CATEGORY_PAGE.HTML $tmp-set-category > $tmp-set-category-page
 
 ########################################
 #セットリスト用のセットカテゴリ
 # 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_LIST.HTML $tmp-category > $tmp-set-category-list
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/SET_CATEGORY_LIST.HTML $tmp-set-category > $tmp-set-category-list
 
 ########################################
 #セット新規登録用のセットカテゴリ
 # 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_NEW.HTML $tmp-category > $tmp-set-category-new
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/SET_CATEGORY_NEW.HTML $tmp-set-category > $tmp-set-category-new
+
+########################################
+# セットカテゴリの改行文字を「\\n」という3文字の文字列に置換
+SET_CATEGORY_PAGE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-set-category-page`
+SET_CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-set-category-list`
+SET_CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-set-category-new`
+
+########################################
+#作業カテゴリを取得
+cat ${SYSD}/DATA/OPERATION_CATEGORY/LISTS/LV3/*[^_d]    |
+LANG=C sort -nk1,1                                  > $tmp-operation-category
+
+########################################
+#作業リスト用の作業カテゴリ
+# 1;カテゴリ番号 2;カテゴリ名
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/OPERATION_CATEGORY_LIST.HTML $tmp-operation-category > $tmp-operation-category-list
+
+########################################
+#作業新規登録用の作業カテゴリ
+# 1;カテゴリ番号 2;カテゴリ名
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/OPERATION_CATEGORY_NEW.HTML $tmp-operation-category > $tmp-operation-category-new
 
 ########################################
 # 改行文字を「\\n」という3文字の文字列に置換
-CATEGORY_PAGE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-set-category-page`
-CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-set-category-list`
-CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-set-category-new`
+OPERATION_CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-operation-category-list`
+OPERATION_CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-operation-category-new`
+
+########################################
+#パーツカテゴリを取得
+cat ${SYSD}/DATA/PARTS_CATEGORY/LISTS/LV3/*[^_d]    |
+LANG=C sort -nk1,1                                  > $tmp-parts-category
+
+########################################
+#パーツリスト用のパーツカテゴリ
+# 1;カテゴリ番号 2;カテゴリ名
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/PARTS_CATEGORY_LIST.HTML $tmp-parts-category > $tmp-parts-category-list
+
+########################################
+#パーツ新規登録用のパーツカテゴリ
+# 1;カテゴリ番号 2;カテゴリ名
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/PARTS_CATEGORY_NEW.HTML $tmp-parts-category > $tmp-parts-category-new
+
+########################################
+# 改行文字を「\\n」という3文字の文字列に置換
+PARTS_CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-list`
+PARTS_CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-new`
 
 ########################################
 #セットリストを取得
-if [ "${PAGE_CATEGORY_NO}" -gt 0 ] ; then
+if [ "${SET_PAGE_CATEGORY_NO}" -gt 0 ] ; then
     #ページフィルターにALL以外(空欄を除く)が選択された場合
-    cat ${DATAD}/${PAGE_CATEGORY_NO}*[^_d]/LV3/*[^_d]       |
+    cat ${DATAD}/${SET_PAGE_CATEGORY_NO}*[^_d]/LV3/*[^_d]   |
     LANG=C sort -nk1,1                                      |
     awk -v s=${START} -v e=${END} 'NR>=s&&NR<=e&&$9!=1'     |
     juni                                                    > $tmp-records
@@ -139,7 +179,9 @@ fi
 
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/RECORDS.HTML $tmp-records     > $tmp-table-records
 cat $tmp-table-records                                                                  |
-sed -e "s|###CATEGORY###|${CATEGORY_LIST}|g"                                            > $tmp-table-records2
+sed -e "s|###SET_CATEGORY###|${SET_CATEGORY_LIST}|g"                                    |
+sed -e "s|###OPERATION_CATEGORY###|${OPERATION_CATEGORY_LIST}|g"                                    | 
+sed -e "s|###PARTS_CATEGORY###|${SET_CATEGORY_LIST}|g"                                  > $tmp-table-records2
 
 ########################################
 # 改行文字を「\\n」という3文字の文字列に置換
@@ -149,7 +191,9 @@ TABLE_RECORDS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-records2`
 #tableにrecordsを嵌め込む
 cat ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/TABLE.HTML         |
 sed -e "s|###TABLE_RECORDS###|${TABLE_RECORDS}|g"           |
-sed -e "s|###CATEGORY###|${CATEGORY_NEW}|g"                 > $tmp-table-html
+sed -e "s|###SET_CATEGORY###|${SET_CATEGORY_NEW}|g"         | 
+sed -e "s|###OPERATION_CATEGORY###|${OPERATION_CATEGORY_NEW}|g"         |
+sed -e "s|###PARTS_CATEGORY###|${PARTS_CATEGORY_NEW}|g"     > $tmp-table-html
 
 ########################################
 # 改行文字を「\\n」という3文字の文字列に置換
@@ -158,9 +202,9 @@ TABLE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-html`
 ########################################
 #tableをはめ込む、ページャーを差し込む
 cat ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/SHOW.HTML              |
-sed -e "s|###CATEGORY_NM_PAGE###|${PAGE_CATEGORY}|g"        |
-sed -e "s|###CATEGORY_NO_PAGE###|${PAGE_CATEGORY_NO}|g"  |
-sed -e "s|###CATEGORY###|${CATEGORY_PAGE}|g"                    |
+sed -e "s|###SET_CATEGORY_NM_PAGE###|${SET_PAGE_CATEGORY}|g"    |
+sed -e "s|###SET_CATEGORY_NO_PAGE###|${SET_PAGE_CATEGORY_NO}|g" |
+sed -e "s|###SET_CATEGORY###|${SET_CATEGORY_PAGE}|g"            |
 sed -e "s|###TABLE###|${TABLE}|g"                               |
 sed -e "s|###INFO_MSG###||g"                                    |
 sed -e "s|###PAGER###|$(cat $tmp-pager-html)|g"                 > $tmp-html
