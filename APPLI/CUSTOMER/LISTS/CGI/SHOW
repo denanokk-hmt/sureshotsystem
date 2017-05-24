@@ -32,6 +32,17 @@ FIN
 	exit 1
 }
 
+#######################################
+#最大表示レコード数設定ファイルの確認
+if [ -e ${SYSD}/SYS/${CATEGORY}/${FUNC}/VIEW_MAX_RECORDS ]; then
+    :
+else    
+    mkdir ${SYSD}/SYS/${CATEGORY}    
+    mkdir ${SYSD}/SYS/${CATEGORY}/${FUNC}
+    cp ${SYSD}/SYS/ORG_VIEW_MAX/VIEW_MAX_RECORDS ${SYSD}/SYS/${CATEGORY}/${FUNC}/
+    cp ${SYSD}/SYS/ORG_VIEW_MAX/VIEW_MAX_PAGES ${SYSD}/SYS/${CATEGORY}/${FUNC}/
+fi
+
 ########################################
 #最大表示レコード数
 cat ${SYSD}/SYS/${CATEGORY}/${FUNC}/VIEW_MAX_RECORDS | 
