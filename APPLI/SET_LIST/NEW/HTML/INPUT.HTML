@@ -142,63 +142,106 @@
         }
     });
 
-    //作業選択
-    $(document).on('click', 'li.list-operation', function() {
+    //作業・部品選択
+    $(document).on('click', 'li.list-operation,li.list-parts', function() {
+
+        var kind = $(this).parent().parent().attr("name");
 
         //選択したリストのidから行を取得する:list-行-部品番号
         var idname = $(this).attr("id"); 
         var list_id = idname.split("-");
         var row = list_id[1];
-        var operationNo = $(this).val();
-        var operationNm = $(this).text();
-        var operationPrice = $('#OPERATION_PRICE_' + row + '_' + operationNo).val();
-        $('#OPERATION_NM_' + row).val(operationNm);
-        $('#OPERATION_PRICE_' + row).val(operationPrice);
-        $('#OPERATION_NO_HID_' + row).val(operationNo);
+        var itemNo = $(this).val();
+        var itemNm = $(this).text();
+        var itemPrice = $('#' + kind + '_PRICE_' + row + '_' + itemNo).val();
+        $('#' + kind + '_NM_' + row).val(itemNm);
+        $('#' + kind + '_PRICE_' + row).val(itemPrice);
+        $('#' + kind + '_QTY_' + row).val('1');
+        $('#' + kind + '_NO_HID_' + row).val(itemNo);
     });
 
-    //パーツ選択
-    $(document).on('click', 'li.list-parts', function() {
-
-        //選択したリストのidから行を取得する:list-行-部品番号
-        var idname = $(this).attr("id"); 
-        var list_id = idname.split("-");
-        var row = list_id[1];
-        var partsNo = $(this).val();
-        var partsNm = $(this).text();
-        var partsPrice = $('#PARTS_PRICE_' + row + '_' + partsNo).val();
-        $('#PARTS_NM_' + row).val(partsNm);
-        $('#PARTS_PRICE_' + row).val(partsPrice);
-        $('#PARTS_QTY_' + row).val('1');
-        $('#PARTS_NO_HID_' + row).val(partsNo);
-    });
-
-    //パーツ数量PLUS
+    //作業・部品　数量PLUS
     $(document).on('click', ':button.btn-plus', function() {
+        var kind = $(this).attr("name");
         var idname = $(this).attr("id"); 
         var list_id = idname.split("_");
         var row = list_id[2];
-        var qty = $('#PARTS_QTY_' + row).val();
-        var subTTL = $('#PARTS_PRICE_' + row).val();
-        $('#PARTS_QTY_' + row).val(parseInt(qty) + parseInt(1));
-        qty = $('#PARTS_QTY_' + row).val();
-        $('#PARTS_PRICE_' + row).val(parseInt(subTTL) * parseInt(qty));
+        var qty = $('#' + kind + '_QTY_' + row).val();
+        var subTTL = $('#' + kind + '_PRICE_' + row).val();
+        $('#' + kind + '_QTY_' + row).val(parseInt(qty) + parseInt(1));
+        qty = $('#' + kind + '_QTY_' + row).val();
+        $('#' + kind + '_PRICE_' + row).val(parseInt(subTTL) * parseInt(qty));
     });
 
-    //パーツ数量MINUS
+    //作業・部品　数量MINUS
     $(document).on('click', ':button.btn-minus', function() {
+        var kind = $(this).attr("name");
         var idname = $(this).attr("id"); 
         var list_id = idname.split("_");
         var row = list_id[2];
-        var qty = $('#PARTS_QTY_' + row).val();
-        var subTTL = $('#PARTS_PRICE_' + row).val();
+        var qty = $('#' + kind + '_QTY_' + row).val();
+        var subTTL = $('#' + kind + '_PRICE_' + row).val();
         if (parseInt(qty) > 1) {
-            $('#PARTS_QTY_' + row).val(parseInt(qty) - parseInt(1));
+            $('#' + kind + '_QTY_' + row).val(parseInt(qty) - parseInt(1));
         }
-        $('#PARTS_PRICE_' + row).val(parseInt(subTTL) / parseInt(qty));
+        $('#' + kind + '_PRICE_' + row).val(parseInt(subTTL) / parseInt(qty));
     });
 
- 
+     //パーツ追加
+    $(document).on('click', 'a.btn-set', function() {
+        var idname = $(this).attr("id"); 
+        var list_id = idname.split("_");
+        var action = list_id[1];
+        var row = list_id[2];
+        alert(action+ ":"+row);
+        var set_category_no = $('#SET_CATEGORY_NO_HID_' + row).val();
+        var set_category_nm = $('#SET_CATEGORY_NM_' + row).val();
+        var operation_category_no = $('#OPERATION_CATEGORY_NO_HID_' + row).val();
+        var operation_category_nm = $('#OPERATION_CATEGORY_NM_' + row).val();
+        var operation_no = $('#PARTS_NO_HID_' + row).val();
+        var operation_nm = $('#PARTS_NM_' + row).val();
+        var parts_category_no = $('#PARTS_CATEGORY_NO_HID_' + row).val();
+        var parts_category_nm = $('#PARTS_CATEGORY_NM_' + row).val();
+        var parts_no = $('#PARTS_NO_HID_' + row).val();
+        var parts_nm = $('#PARTS_NM_' + row).val();
+        var parts_price = $('#PARTS_PRICE_' + row).val();
+        var parts_qty = $('#PARTS_QTY_' + row).val();
+        var jqXHR = $.ajax({
+            type: 'POST',
+            url: '/APP/ASSESSMENT/NEW/PARTS/COMPLETE',
+            /*
+            data: { 
+              params,
+              TEMP_NO: temp_no
+            }
+            */
+            data: {
+              ACTION: action,
+              ROW: row,
+              TEMP_NO: temp_no,
+              CATEGORY_NO: category_no,
+              CATEGORY_NM: category_nm,
+              PARTS_NO: parts_no,
+              PARTS_NM: parts_nm,
+              PARTS_PRICE: parts_price,
+              PARTS_QTY: parts_qty
+            }
+        });
+        jqXHR.done(function(data) {
+            if (data == 2222) {
+                alert("パーツの追加が出来ませんでした。");
+            } else {
+                $('intput[type="text"]').each(function() {
+                });
+                $('table').html(data);
+            }
+        });
+        jqXHR.fail(function(data) {
+            alert("新規登録処理に失敗しました。");
+        });
+    });
+
+
 
 
     //セット追加

@@ -52,12 +52,12 @@ PW=$(cat $tmp-sha1-pw)
 
 #######################################
 #AUTH
-#cat ${LOGIND}/LV3/*   | awk -v id=$VALUE_ID -v pw=$PW '$2==id&&$3==pw&&$6==0{print}' > $tmp-auth
 cat ${LOGIND}/LV3/*   | awk -v id=$VALUE_ID -v pw=$PW '$2==id&&$3==pw&&$6==0{print}' > $tmp-auth
 
 ########################################
 #SET LOGIN SESSION
 if [ -n "$(cat $tmp-auth)" ] ; then
+    #ログインOKの場合
 
     #ログインセッション用クッキー設定文字列
     STUFF_SESS_ID='sureshot_stuff_session_id'
@@ -69,21 +69,31 @@ if [ -n "$(cat $tmp-auth)" ] ; then
     COOK=`${SYSD}/CGI/SESSION/SESSION_SET ${STUFF_SESS_AC} 15 ${VALUE_ID}`
     echo $COOK > $tmp-cook-account
 
+    #セッションファイルにstuff idを埋め込む
+    
+
     #サイドメニューのサインイン/アウトの表示非表示
     echo "hidden" > $tmp-side-signin
     echo "show" > $tmp-side-signout
     
-	#IDを保存(ローテート必要)
-	#echo $VALUE_ID > ${SYSD}/SYS/STUFF/LOGIN/${ID}
-	echo $VALUE_ID > ${SYSD}/TMP/STUFF/LOGIN/${ID}
+    #IDを保存(ローテート必要)
+    echo $VALUE_ID > ${SYSD}/TMP/STUFF/LOGIN/${ID}
+    
+    #ログインしたSTUFFフォルダをTMPに作成
+    cat ${LOGIND}/LV3/*                                           | 
+    awk -v id=$VALUE_ID -v pw=$PW '$2==id&&$3==pw&&$6==0{print}'  |
+    cut -d' ' -f1                                                 > $tmp-stuff-no
+    mkdir ${SYSD}/TMP/$(cat $tmp-stuff-no)
 
-	#ログインしたSTUFFの名前表示用
-	cat ${USERSD}/LV3/*   | awk -v id=$VALUE_ID '$4==id{print $3, $2}' >> ${SYSD}/TMP/STUFF/LOGIN/${ID}
+    #ログインSTUFFの名前をTMPに格納
+    cat ${USERSD}/LV3/*   | awk -v id=$VALUE_ID '$4==id{print $3, $2}' >> ${SYSD}/TMP/$(cat $tmp-stuff-no)/${ID}
+
 fi
 
 #######################################
 #HTMLの設定
 if [ -z "$(cat $tmp-auth)" ] ; then
+    #ログインエラーの場合
     ACTION=INPUT
     cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML           |
     sed -e "s/###INFO_LV###/danger/"                                    |
