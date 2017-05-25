@@ -189,38 +189,56 @@
 
      //パーツ追加
     $(document).on('click', 'a.btn-set', function() {
+
+        //TYPE
+        var type = 'ADD';
+
+        //イベント基本情報
         var idname = $(this).attr("id"); 
         var list_id = idname.split("_");
         var action = list_id[1];
         var row = list_id[2];
-        alert(action+ ":"+row);
+        //セット
         var set_category_no = $('#SET_CATEGORY_NO_HID_' + row).val();
         var set_category_nm = $('#SET_CATEGORY_NM_' + row).val();
+        var set_nm = $('#SET_NM_' + row).val();
+        var set_price = $('#SET_PRICE_' + row).val();
+        var set_remarks = $('#SET_REMARKS_' + row).val();
+        //作業
         var operation_category_no = $('#OPERATION_CATEGORY_NO_HID_' + row).val();
         var operation_category_nm = $('#OPERATION_CATEGORY_NM_' + row).val();
-        var operation_no = $('#PARTS_NO_HID_' + row).val();
-        var operation_nm = $('#PARTS_NM_' + row).val();
+        var operation_no = $('#OPERATION_NO_HID_' + row).val();
+        var operation_nm = $('#OPERATION_NM_' + row).val();
+        var operation_price = $('#OPERATION_PRICE_' + row).val();
+        var operation_qty = $('#OPERATION_QTY_' + row).val();
+        //部品
         var parts_category_no = $('#PARTS_CATEGORY_NO_HID_' + row).val();
         var parts_category_nm = $('#PARTS_CATEGORY_NM_' + row).val();
         var parts_no = $('#PARTS_NO_HID_' + row).val();
         var parts_nm = $('#PARTS_NM_' + row).val();
         var parts_price = $('#PARTS_PRICE_' + row).val();
         var parts_qty = $('#PARTS_QTY_' + row).val();
+
+        //仮登録して画面のレコードに1行追加する
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/ASSESSMENT/NEW/PARTS/COMPLETE',
-            /*
-            data: { 
-              params,
-              TEMP_NO: temp_no
-            }
-            */
+            url: '/APP/SET_LIST/NEW/ADD',
             data: {
-              ACTION: action,
+              TYPE: type,
               ROW: row,
-              TEMP_NO: temp_no,
-              CATEGORY_NO: category_no,
-              CATEGORY_NM: category_nm,
+              SET_CATEGORY_NO: set_category_no,
+              SET_CATEGORY_NM: set_category_nm,
+              SET_NM: set_nm,
+              SET_PRICE: set_price,
+              SET_REMARKS: set_remarks,
+              OPERATION_CATEGORY_NO: operation_category_no,
+              OPERATION_CATEGORY_NM: operation_category_nm,
+              OPERATION_NO: operation_no,
+              OPERATION_NM: operation_nm,
+              OPERATION_PRICE: parts_price,
+              OPERATION_QTY: parts_qty,
+              PARTS_CATEGORY_NO: parts_category_no,
+              PARTS_CATEGORY_NM: parts_category_nm,
               PARTS_NO: parts_no,
               PARTS_NM: parts_nm,
               PARTS_PRICE: parts_price,

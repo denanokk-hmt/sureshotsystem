@@ -57,20 +57,23 @@ cat ${LOGIND}/LV3/*   | awk -v id=$VALUE_ID -v pw=$PW '$2==id&&$3==pw&&$6==0{pri
 ########################################
 #SET LOGIN SESSION
 if [ -n "$(cat $tmp-auth)" ] ; then
+
     #ログインOKの場合
 
-    #ログインセッション用クッキー設定文字列
+    #スタッフ番号を取得
+    cat ${LOGIND}/LV3/*                                           | 
+    awk -v id=$VALUE_ID -v pw=$PW '$2==id&&$3==pw&&$6==0{print}'  |
+    cut -d' ' -f1                                                 > $tmp-stuff-no
+ 
+    #ログインセッション用クッキー設定文字列(ファイル内に社員IDを書き込む)
     STUFF_SESS_ID='sureshot_stuff_session_id'
-    COOK=`${SYSD}/CGI/SESSION/SESSION_SET ${STUFF_SESS_ID} `
+    COOK=`${SYSD}/CGI/SESSION/SESSION_SET ${STUFF_SESS_ID} 15 $(cat $tmp-stuff-no)`
     echo $COOK > $tmp-cook-login
 
-    #ログインアカウント用クッキー設定文字列
+    #ログインアカウント用クッキー設定文字列(ファイル内にアカウントIDを書き込む)
     STUFF_SESS_AC='sureshot_stuff_session_ac'
     COOK=`${SYSD}/CGI/SESSION/SESSION_SET ${STUFF_SESS_AC} 15 ${VALUE_ID}`
     echo $COOK > $tmp-cook-account
-
-    #セッションファイルにstuff idを埋め込む
-    
 
     #サイドメニューのサインイン/アウトの表示非表示
     echo "hidden" > $tmp-side-signin
@@ -80,13 +83,10 @@ if [ -n "$(cat $tmp-auth)" ] ; then
     echo $VALUE_ID > ${SYSD}/TMP/STUFF/LOGIN/${ID}
     
     #ログインしたSTUFFフォルダをTMPに作成
-    cat ${LOGIND}/LV3/*                                           | 
-    awk -v id=$VALUE_ID -v pw=$PW '$2==id&&$3==pw&&$6==0{print}'  |
-    cut -d' ' -f1                                                 > $tmp-stuff-no
     mkdir ${SYSD}/TMP/$(cat $tmp-stuff-no)
 
-    #ログインSTUFFの名前をTMPに格納
-    cat ${USERSD}/LV3/*   | awk -v id=$VALUE_ID '$4==id{print $3, $2}' >> ${SYSD}/TMP/$(cat $tmp-stuff-no)/${ID}
+    #ログインSTUFFの姓、名、社員IDをTMP/社員ID/配下にSHA1でアカウントを暗号化した形で格納
+    cat ${USERSD}/LV3/*   | awk -v id=$VALUE_ID '$4==id{print $3, $2, $1}' >> ${SYSD}/TMP/$(cat $tmp-stuff-no)/${ID}
 
 fi
 
