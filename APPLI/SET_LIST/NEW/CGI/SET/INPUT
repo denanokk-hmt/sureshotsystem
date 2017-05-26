@@ -51,12 +51,6 @@ CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-set-category-new`
 ########################################
 #新規ではなくバリデーションNGで戻ってきた場合、$tmpから値を取得
 #tableにrecordsを嵌め込む　※実質は新規なのでレコードは存在しない。平仄あわせ。
-
-
-DDD=`cat $tmp-set-category-no`
-echo $DDD
-
-
 cat ${SYSD}/APPLI/${CATEGORY}/NEW/HTML/SET/TABLE.HTML               |
 sed -e "s|###CATEGORY###|${CATEGORY_NEW}|g"                         |
 sed -e "s/###SET_CATEGORY_NM###/$(cat $tmp-set-category-nm)/"       |
