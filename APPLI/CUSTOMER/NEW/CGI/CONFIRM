@@ -1,4 +1,4 @@
-#!/bin/bash -vx
+#!/bin/bash -vxCATEGORY
 #
 
 ########################################
@@ -83,7 +83,7 @@ fi
 #バリデーション(EMAIL重複確認)
 #1.顧客番号 2.姓 3.名 4.EMAIL 5.TEL 6.作成日時 7.更新日時 8.削除フラグ
 EMAIL=$(cat $tmp-value3)
-cat ${SYSD}/DATA/STUFF/LV3/STUFF | awk '$4=="'"${EMAIL}"'"{print $0}' > $tmp-attr-VALID3
+cat ${SYSD}/DATA/${CATEGORY}/LIST/LV3/*[^_d] | awk '$4=="'"${EMAIL}"'"{print $0}' > $tmp-attr-VALID3
 
 ########################################
 #バリデーションエラー項目の確定
