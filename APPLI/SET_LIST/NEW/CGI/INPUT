@@ -101,37 +101,57 @@ PARTS_CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-list`
 PARTS_CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-new`
 
 ########################################
-#セットリストを取得 ※実際にはレコードの表示はない。HTMLの枠組みのために読み込む
-if [ "${SET_PAGE_CATEGORY_NO}" -gt 0 ] ; then
-    #ページフィルターにALL以外(空欄を除く)が選択された場合
-    cat ${DATAD}/${SET_PAGE_CATEGORY_NO}*[^_d]/LV3/*[^_d]   |
-    LANG=C sort -nk1,1                                      |
-    awk -v s=${START} -v e=${END} 'NR>=s&&NR<=e&&$9!=1'     |
-    juni                                                    > $tmp-records
-else
-    cat ${DATAD}/*[^_d]/LV3/*[^_d]                          |
-    LANG=C sort -nk1,1                                      |
-    awk -v s=${START} -v e=${END} 'NR>=s&&NR<=e&&$9!=1'     |
-    juni                                                    > $tmp-records
-fi
-
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/RECORDS.HTML $tmp-records     > $tmp-table-records
-cat $tmp-table-records                                                                  |
-sed -e "s|###SET_CATEGORY###|${SET_CATEGORY_LIST}|g"                                    |
-sed -e "s|###OPERATION_CATEGORY###|${OPERATION_CATEGORY_LIST}|g"                        | 
-sed -e "s|###PARTS_CATEGORY###|${SET_CATEGORY_LIST}|g"                                  > $tmp-table-records2
+#仮登録ディレクトリ
+SESSION=$(session_get 'sureshot_stuff_session_id') 
+STUFF_ID=$(cat ${SYSD}/SESSION/${SESSION})
+TMPD=${SYSD}/TMP/${STUFF_ID}
 
 ########################################
-# 改行文字を「\\n」という3文字の文字列に置換
-TABLE_RECORDS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-records2`
+#作業仮登録リストを取得
+cat ${TMPD}/set_list_tmp_operation                      |
+juni                                                    |
+LANG=C sort -nk2,1                                      > $tmp-operation-records
+
+########################################
+#作業仮登録リストをHTMLに書き込む
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/OPERATION_RECORDS.HTML $tmp-operation-records > $tmp-table-records-operation
+
+########################################
+#作業仮登録リストのHTMLにSETと作業のカテゴリを書き込む
+cat $tmp-table-records-operation                                  |
+sed -e "s|###OPERATION_CATEGORY###|${OPERATION_CATEGORY_LIST}|g"  > $tmp-table-records-operation2
+
+########################################
+#作業仮登録リストのHTMLの改行文字を「\\n」という3文字の文字列に置換
+OPERATION_TABLE_RECORDS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-records-operation2`
+
+########################################
+#部品仮登録リストをHTMLに書き込む
+cat ${TMPD}/set_list_tmp_parts                          |
+juni                                                    |
+LANG=C sort -nk2,1                                      > $tmp-parts-records
+
+########################################
+#部品仮登録リストをHTMLに書き込む
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/PARTS_RECORDS.HTML $tmp-parts-records > $tmp-table-records-parts
+
+########################################
+#部品仮登録リストのHTMLに部品のカテゴリを書き込む
+cat $tmp-table-records-parts                                      |
+sed -e "s|###PARTS_CATEGORY###|${PARTS_CATEGORY_LIST}|g"  > $tmp-table-records-parts2
+
+########################################
+#部品仮登録リストのHTMLの改行文字を「\\n」という3文字の文字列に置換
+PARTS_TABLE_RECORDS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-records-parts2`
 
 ########################################
 #tableにrecordsを嵌め込む　
-cat ${SYSD}/APPLI/${CATEGORY}/NEW/HTML/TABLE.HTML               |
-sed -e "s|###TABLE_RECORDS###|${TABLE_RECORDS}|g"               |
-sed -e "s|###SET_CATEGORY###|${SET_CATEGORY_NEW}|g"             | 
-sed -e "s|###OPERATION_CATEGORY###|${OPERATION_CATEGORY_NEW}|g" |
-sed -e "s|###PARTS_CATEGORY###|${PARTS_CATEGORY_NEW}|g"         > $tmp-table-html
+cat ${SYSD}/APPLI/${CATEGORY}/NEW/HTML/TABLE.HTML                     |
+sed -e "s|###SET_CATEGORY###|${SET_CATEGORY_NEW}|g"                   | 
+sed -e "s|###OPERATION_CATEGORY###|${OPERATION_CATEGORY_NEW}|g"       |
+sed -e "s|###OPERATION_TABLE_RECORDS###|${OPERATION_TABLE_RECORDS}|g" |
+sed -e "s|###PARTS_CATEGORY###|${PARTS_CATEGORY_NEW}|g"               |
+sed -e "s|###PARTS_TABLE_RECORDS###|${PARTS_TABLE_RECORDS}|g"         > $tmp-table-html
 
 ########################################
 # 改行文字を「\\n」という3文字の文字列に置換
@@ -140,12 +160,11 @@ TABLE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-html`
 ########################################
 #tableをはめ込む、ページャーを差し込む
 cat ${SYSD}/APPLI/${CATEGORY}/NEW/HTML/INPUT.HTML               |
+sed -e "s|###INFO_MSG###||g"                                    |
 sed -e "s|###SET_CATEGORY_NM_PAGE###|${SET_PAGE_CATEGORY}|g"    |
 sed -e "s|###SET_CATEGORY_NO_PAGE###|${SET_PAGE_CATEGORY_NO}|g" |
 sed -e "s|###SET_CATEGORY###|${SET_CATEGORY_PAGE}|g"            |
-sed -e "s|###TABLE###|${TABLE}|g"                               |
-sed -e "s|###INFO_MSG###||g"                                    |
-sed -e "s|###PAGER###|$(cat $tmp-pager-html)|g"                 > $tmp-html
+sed -e "s|###TABLE###|${TABLE}|g"                               > $tmp-html
 
 ########################################
 #page name

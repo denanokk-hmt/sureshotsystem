@@ -5,24 +5,20 @@
         <tr>
             <th>#</th>
             <th>NO</th>
-            <th>SET</th>
-            <th>OPERATION</th>
-            <th>PARTS</th>
-            <th>PARTS QTY</th>
+            <th>SET CATEGORY</th>
+            <th>SET NAME</th>
+            <th>SET PRICE</th>
             <th>REMARKS</th>
             <th></th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-        <!--LIST 登録済セットの表示-->
-        ###TABLE_RECORDS###
-
         <!--NEW セット新規追加-->
 				<!-- R1 -->
         <tr>
-            <td rowspan="3">ー</td>
-            <td rowspan="3">
+            <td>ー</td>
+            <td>
                 <span class="label label-default">NEW</span>
             </td>
             
@@ -76,14 +72,35 @@
             <td>
                 <input type="text" id="NEW_SET_REMARKS" name="SET_REMARKS_NEW" value="" class="form-control input-sm" style="" placeholder="備考" >
             </td>           
-            <!--R1 ADDボタン-->
+            <!--R1 NEWボタン-->
             <td>
-                <a class="btn btn-primary btn-sm btn-set" id="SET_ADD_NEW">ADD</a>
+                <a class="btn btn-primary btn-sm btn-set" id="SET_NEW_NEW">NEW</a>
             </td>
         </tr>
+   </tbody>
+</table>
 
+<table class="table" style="font-size:12px;">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>NO</th>
+            <th>OPERATION CATEGORY</th>
+            <th>OPERATION NAME</th>
+            <th>OPERATION PRICE</th>
+            <th>OPERATION QTY</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
 				<!-- R2 -->
         <tr>
+            <td>ー</td>
+            <td>
+                <span class="label label-default">NEW</span>
+            </td>
+ 
             <!--R2 作業カテゴリ-->
             <td>
                 <div class="form-group">
@@ -153,8 +170,34 @@
            <td>ー</td>
         </tr>
 
+        <!--LIST 登録済セットの表示-->
+        ###OPERATION_TABLE_RECORDS###
+   </tbody>
+</table>
+
+
+<table class="table" style="font-size:12px;">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>NO</th>
+            <th>PARTS CATEGORY</th>
+            <th>PARTS NAME</th>
+            <th>PARTS PRICE</th>
+            <th>PARTS QTY</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+ 
 				<!-- R3 -->
         <tr>
+            <td>ー</td>
+            <td>
+                <span class="label label-default">NEW</span>
+            </td>
+ 
            <!--R3 部品カテゴリ-->
             <td>
                 <div class="form-group">
@@ -220,8 +263,10 @@
                 </div>
             </td>
             <td>ー</td>
-      </tr>
+        </tr>
+
+        <!--LIST 登録済セットの表示-->
+        ###PARTS_TABLE_RECORDS###
    </tbody>
-</table>
 
 <!--</html>-->

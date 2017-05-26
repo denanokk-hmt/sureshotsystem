@@ -1,0 +1,64 @@
+<!--<!DOCTYPE html>-->
+<!--<html>-->
+
+<div class="container">
+    
+    <div class="container">
+    <div class="fixed gray-trans-over">
+
+        <!--Header Info-->
+        <div class="row">
+            <label class="control-label col-sm-1">
+                <h3><i class="glyphicon glyphicon-info-sign"></i></h3>
+            </label>
+            <div class="col-sm-6 lbl-header-info">
+                <span id="info-msg" class="label label-lg label-###INFO_LV###">
+                <span class="label label-danger ###CATEGORY_ERR###">Category was Invalid.</span>
+                <span class="label label-danger ###NAME_ERR###">Name was Invalid.</span>
+                <span class="label label-danger ###PRICE_ERR###">Price was Invalid.</span>
+                <span class="label label-danger ###NAME_DUPLECATED###">Duplicated name.</span>
+                    ###INFO_MSG###
+                </span>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <!--Spacer-->
+    <div class="header-dummy" style="height:9.0em; background-color:piink;"></div>
+
+    <!--Contents Records/Pagination-->
+    <div class="header-under-contents">
+        <form id="form1" class="form-inline form-horizontal"  action="/APP/SET_LIST/NEW/OPERATION/INPUT" method="POST">
+            <div class="contents-table">
+                ###TABLE###
+            </div>
+       </form>
+    </div>
+</div>
+
+<script>
+
+    //カテゴリを選択
+    $(document).on('click', 'a.category-list', function() {
+
+        //選択した部品のidから行を取得する
+        var idname = $(this).attr("id"); 
+        var list_id = idname.split("_");
+        var row = $(this).parent().parent().attr("name");
+        var cat_no = list_id[2];
+        var choice = $(this).text();
+
+        //該当のレコードに選択したカテゴリ名を設定
+        $('#SET_CATEGORY_NM_' + row).val(choice);
+        $('#SET_CATEGORY_NM_HID_' + row).val(choice);
+        $('#SET_CATEGORY_NO_HID_' + row).val(cat_no);
+    });
+
+     //セット追加
+    $(document).on('click', 'a.btn-set', function() {
+        $('#form1').submit();
+    });
+
+</script>
+<!--</html>-->

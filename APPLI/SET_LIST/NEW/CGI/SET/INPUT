@@ -1,0 +1,94 @@
+#!/bin/bash -vx
+#
+
+########################################
+# SET_LIST/NEW/SET INPUT.CGI
+#
+#   $1:必須 $$
+#
+#	Written by hiramatsu
+
+
+########################################
+#基本設定
+export LANG=ja_JP.utf8
+echo $LANG
+SYSD=$(cd $(dirname $0) && pwd | awk '{print substr($0, 0, index($0, "sureshotsystem")+13)}')
+#exec 2> $SYSD/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
+tmp=/tmp/tmp_$1
+LANG=ja_JP.UTF-8
+#PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
+CATEGORY=`cat $tmp-category`
+FUNC=`cat $tmp-func`
+DATAD=${SYSD}/DATA/${CATEGORY}/LISTS
+
+#######################################
+#Check error
+ERROR_CHECK(){
+	[ $(plus ${PIPESTATUS[@]}) -eq 0 ] && return
+cat <<- FIN
+	Context-type: text/html
+	NG input
+FIN
+	cat $tmp-result
+	exit 1
+}
+
+########################################
+#セットカテゴリを取得
+cat ${SYSD}/DATA/SET_CATEGORY/LISTS/LV3/*[^_d]    |
+LANG=C sort -nk1,1                                  > $tmp-set-category
+
+########################################
+#セット新規登録用のセットカテゴリ
+# 1;カテゴリ番号 2;カテゴリ名
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/NEW/HTML/SET/SET_CATEGORY_NEW.HTML $tmp-set-category > $tmp-set-category-new
+
+########################################
+# セットカテゴリの改行文字を「\\n」という3文字の文字列に置換
+CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-set-category-new`
+
+########################################
+#新規ではなくバリデーションNGで戻ってきた場合、$tmpから値を取得
+#tableにrecordsを嵌め込む　※実質は新規なのでレコードは存在しない。平仄あわせ。
+
+
+DDD=`cat $tmp-set-category-no`
+echo $DDD
+
+
+cat ${SYSD}/APPLI/${CATEGORY}/NEW/HTML/SET/TABLE.HTML               |
+sed -e "s|###CATEGORY###|${CATEGORY_NEW}|g"                         |
+sed -e "s/###SET_CATEGORY_NM###/$(cat $tmp-set-category-nm)/"       |
+sed -e "s/###SET_CATEGORY_NM_HID###/$(cat $tmp-set-category-nm)/"   |
+sed -e "s/###SET_CATEGORY_NO_HID###/$(cat $tmp-set-category-no)/"   |
+sed -e "s/###SET_NM###/$(cat $tmp-set-nm)/"                         |
+sed -e "s/###SET_PRICE###/$(cat $tmp-set-price)/"                   |
+sed -e "s/###SET_REMARKS###/$(cat $tmp-set-remarks)/"               > $tmp-table-html
+
+########################################
+# 改行文字を「\\n」という3文字の文字列に置換
+TABLE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-html`
+
+########################################
+#新規ではなくバリデーションNGで戻ってきた場合、$tmpから値を取得
+[ -e $tmp-valid-set-category-no-nm ] && VALID=NG || echo 'hidden' > $tmp-valid-set-category-no-nm 
+[ -e $tmp-valid-set-nm ] && VALID=NG || echo 'hidden' > $tmp-valid-set-nm 
+[ -e $tmp-valid-set-price ] && VALID=NG || echo 'hidden' > $tmp-valid-set-price 
+[ -e $tmp-valid-set-nm-duplicate ] && VALID=NG || echo 'hidden' > $tmp-valid-set-nm-duplicate 
+#tableをはめ込む、ページャーを差し込む
+cat ${SYSD}/APPLI/${CATEGORY}/NEW/HTML/SET/INPUT.HTML                 |
+sed -e "s|###INFO_MSG###||g"                                          |
+sed -e "s/###CATEGORY_ERR###/$(cat $tmp-valid-set-category-no-nm)/"   |
+sed -e "s/###NAME_ERR###/$(cat $tmp-valid-set-nm)/"                   |
+sed -e "s/###PRICE_ERR###/$(cat $tmp-valid-set-price)/"               |
+sed -e "s/###NAME_DUPLECATED###/$(cat $tmp-valid-set-nm-duplicate)/"  |
+sed -e "s|###TABLE###|${TABLE}|g"                                     > $tmp-html
+
+########################################
+#page name
+echo "Set Name input" > $tmp-pagename
+
+########################################
+echo "OK"
+exit 0
