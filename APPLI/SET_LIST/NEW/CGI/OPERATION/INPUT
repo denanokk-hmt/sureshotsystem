@@ -35,7 +35,7 @@ FIN
 }
 
 ########################################
-#セットのバリデーション
+#セットのバリデーション。NGならばセットに戻す。
 RESULT=`${SYSD}/APPLI/${CATEGORY}/${FUNC}/CGI/SET/CONFIRM $1`
 if [ "${RESULT}" != 'OK' ]; then
     echo "NG"
@@ -43,33 +43,51 @@ if [ "${RESULT}" != 'OK' ]; then
 fi
 
 ########################################
-#セットカテゴリを取得
-cat ${SYSD}/DATA/SET_CATEGORY/LISTS/LV3/*[^_d]    |
-LANG=C sort -nk1,1                                  > $tmp-set-category
+#作業カテゴリを取得
+cat ${SYSD}/DATA/OPERATION_CATEGORY/LISTS/LV3/*[^_d]    |
+LANG=C sort -nk1,1                                      > $tmp-operation-category
 
 ########################################
-#セット新規登録用のセットカテゴリ
+#作業新規登録用の作業カテゴリ
 # 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/NEW/HTML/SET/SET_CATEGORY_NEW.HTML $tmp-set-category > $tmp-set-category-new
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/OPERATION/OPERATION_CATEGORY_NEW.HTML $tmp-operation-category > $tmp-operation-category-new
 
 ########################################
 # セットカテゴリの改行文字を「\\n」という3文字の文字列に置換
-CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-set-category-new`
+CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-operation-category-new`
 
 ########################################
-#tableにrecordsを嵌め込む　※実質は新規なのでレコードは存在しない。平仄あわせ。
-cat ${SYSD}/APPLI/${CATEGORY}/NEW/HTML/SET/TABLE.HTML             |
-sed -e "s|###CATEGORY###|${CATEGORY_NEW}|g"               > $tmp-table-html
+#作業レコード用の作業カテゴリ
+# 1;カテゴリ番号 2;カテゴリ名
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/OPERATION/OPERATION_CATEGORY_LIST.HTML $tmp-operation-category > $tmp-operation-category-list
+
+########################################
+#作業カテゴリの改行文字を「\\n」という3文字の文字列に置換
+CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-operation-category-list`
+
+########################################
+#tableにrecordsを嵌め込む
+cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/OPERATION/TABLE.HTML     |
+sed -e "s|###CATEGORY###|${CATEGORY_NEW}|g"                         > $tmp-table-html
 
 ########################################
 # 改行文字を「\\n」という3文字の文字列に置換
 TABLE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-html`
 
 ########################################
+#新規ではなくバリデーションNGで戻ってきた場合、$tmpから値を取得
+[ -e $tmp-valid-operation-category-no-nm ] && VALID=NG || echo 'hidden' > $tmp-valid-operation-category-no-nm 
+[ -e $tmp-valid-operation-nm ] && VALID=NG || echo 'hidden' > $tmp-valid-operation-nm 
+[ -e $tmp-valid-operation-price ] && VALID=NG || echo 'hidden' > $tmp-valid-operation-price 
+[ -e $tmp-valid-operation-duplicate ] && VALID=NG || echo 'hidden' > $tmp-valid-operation-duplicate 
 #tableをはめ込む、ページャーを差し込む
-cat ${SYSD}/APPLI/${CATEGORY}/NEW/HTML/SET/INPUT.HTML             |
-sed -e "s|###INFO_MSG###||g"                                      |
-sed -e "s|###TABLE###|${TABLE}|g"                                 > $tmp-html
+cat ${SYSD}/APPLI/${CATEGORY}/NEW/HTML/SET/INPUT.HTML                     |
+sed -e "s|###INFO_MSG###||g"                                              |
+sed -e "s/###CATEGORY_ERR###/$(cat $tmp-valid-operation-category-no-nm)/" |
+sed -e "s/###NAME_ERR###/$(cat $tmp-valid-operation-nm)/"                 |
+sed -e "s/###PRICE_ERR###/$(cat $tmp-valid-operation-price)/"             |
+sed -e "s/###ITEM_DUPLECATED###/$(cat $tmp-valid-operation-duplicate)/"   |
+sed -e "s|###TABLE###|${TABLE}|g"                                         > $tmp-html
 
 ########################################
 #page name
