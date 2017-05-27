@@ -43,6 +43,14 @@ if [ "${RESULT}" != 'OK' ]; then
 fi
 
 ########################################
+#仮登録を削除
+#SESSION=$(session_get 'sureshot_stuff_session_id') 
+#STUFF_ID=$(cat ${SYSD}/SESSION/${SESSION}
+#TMPD=${SYSD}/TMP/${STUFF_ID}
+TMPD=${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
+rm -f ${TMPD}/set_list_operation
+
+########################################
 #作業カテゴリを取得
 cat ${SYSD}/DATA/OPERATION_CATEGORY/LISTS/LV3/*[^_d]    |
 LANG=C sort -nk1,1                                      > $tmp-operation-category
@@ -66,24 +74,17 @@ mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/OPERATION/OPERATION_CA
 CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-operation-category-list`
 
 ########################################
-#仮登録ディレクトリ
-#SESSION=$(session_get 'sureshot_stuff_session_id') 
-#STUFF_ID=$(cat ${SYSD}/SESSION/${SESSION}
-#TMPD=${SYSD}/TMP/${STUFF_ID}
-TMP_STUFFD=${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
-
-########################################
 #作業仮登録リストを取得
-cat ${TMP_STUFFD}/${CATEGORY}/operation   |
-juni                                      | 
-LANG=C sort -nk1,1                        > $tmp-records
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/OPERATION/RECORDS.HTML $tmp-records > $tmp-table-records
-cat $tmp-table-records                        |
-sed -e "s|###CATEGORY###|${CATEGORY_LIST}|g"  > $tmp-table-records2
+#cat ${TMP_STUFFD}/${CATEGORY}/operation   |
+#juni                                      | 
+#LANG=C sort -nk1,1                        > $tmp-records
+#mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/OPERATION/RECORDS.HTML $tmp-records > $tmp-table-records
+#cat $tmp-table-records                        |
+#sed -e "s|###CATEGORY###|${CATEGORY_LIST}|g"  > $tmp-table-records2
 
 ########################################
 # 改行文字を「\\n」という3文字の文字列に置換
-TABLE_RECORDS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-records2`
+#TABLE_RECORDS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-records2`
 
 ########################################
 #tableにrecordsを嵌め込む

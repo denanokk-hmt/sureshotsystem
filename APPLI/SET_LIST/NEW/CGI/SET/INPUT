@@ -5,7 +5,7 @@
 # SET_LIST/NEW/SET INPUT.CGI
 #
 #   $1:必須 $$
-#
+
 #	Written by hiramatsu
 
 
@@ -33,6 +33,14 @@ FIN
 	cat $tmp-result
 	exit 1
 }
+
+########################################
+#仮登録を削除
+#SESSION=$(session_get 'sureshot_stuff_session_id') 
+#STUFF_ID=$(cat ${SYSD}/SESSION/${SESSION}
+#TMPD=${SYSD}/TMP/${STUFF_ID}
+TMPD=${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
+rm -f ${TMPD}/set_list_operation
 
 ########################################
 #セットカテゴリを取得

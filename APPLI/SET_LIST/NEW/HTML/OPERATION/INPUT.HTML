@@ -100,7 +100,7 @@
         }
     });
 
-    //作業・部品選択
+    //作業選択
     $(document).on('click', 'li.list-operation,li.list-parts', function() {
 
         var kind = $(this).parent().parent().attr("name");
@@ -118,7 +118,7 @@
         $('#' + kind + '_NO_HID_' + row).val(itemNo);
     });
 
-    //作業・部品　数量PLUS
+    //作業 数量PLUS
     $(document).on('click', ':button.btn-plus', function() {
         var kind = $(this).attr("name");
         var idname = $(this).attr("id"); 
@@ -131,7 +131,7 @@
         $('#' + kind + '_PRICE_' + row).val(parseInt(subTTL) * parseInt(qty));
     });
 
-    //作業・部品　数量MINUS
+    //作業 数量MINUS
     $(document).on('click', ':button.btn-minus', function() {
         var kind = $(this).attr("name");
         var idname = $(this).attr("id"); 
@@ -145,67 +145,38 @@
         $('#' + kind + '_PRICE_' + row).val(parseInt(subTTL) / parseInt(qty));
     });
 
-     //パーツ追加
+     //作業追加
     $(document).on('click', 'a.btn-set', function() {
-
-        //TYPE
-        var type = 'ADD';
 
         //イベント基本情報
         var idname = $(this).attr("id"); 
         var list_id = idname.split("_");
         var action = list_id[1];
         var row = list_id[2];
-        //セット
-        var set_category_no = $('#SET_CATEGORY_NO_HID_' + row).val();
-        var set_category_nm = $('#SET_CATEGORY_NM_' + row).val();
-        var set_nm = $('#SET_NM_' + row).val();
-        var set_price = $('#SET_PRICE_' + row).val();
-        var set_remarks = $('#SET_REMARKS_' + row).val();
-        //作業
+       //作業
         var operation_category_no = $('#OPERATION_CATEGORY_NO_HID_' + row).val();
         var operation_category_nm = $('#OPERATION_CATEGORY_NM_' + row).val();
         var operation_no = $('#OPERATION_NO_HID_' + row).val();
         var operation_nm = $('#OPERATION_NM_' + row).val();
         var operation_price = $('#OPERATION_PRICE_' + row).val();
         var operation_qty = $('#OPERATION_QTY_' + row).val();
-        //部品
-        var parts_category_no = $('#PARTS_CATEGORY_NO_HID_' + row).val();
-        var parts_category_nm = $('#PARTS_CATEGORY_NM_' + row).val();
-        var parts_no = $('#PARTS_NO_HID_' + row).val();
-        var parts_nm = $('#PARTS_NM_' + row).val();
-        var parts_price = $('#PARTS_PRICE_' + row).val();
-        var parts_qty = $('#PARTS_QTY_' + row).val();
 
         //仮登録して画面のレコードに1行追加する
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/SET_LIST/NEW/ADD',
+            url: '/APP/SET_LIST/NEW/OPERATION/ADD',
             data: {
-              TYPE: type,
-              ROW: row,
-              SET_CATEGORY_NO: set_category_no,
-              SET_CATEGORY_NM: set_category_nm,
-              SET_NM: set_nm,
-              SET_PRICE: set_price,
-              SET_REMARKS: set_remarks,
               OPERATION_CATEGORY_NO: operation_category_no,
               OPERATION_CATEGORY_NM: operation_category_nm,
               OPERATION_NO: operation_no,
               OPERATION_NM: operation_nm,
-              OPERATION_PRICE: parts_price,
-              OPERATION_QTY: parts_qty,
-              PARTS_CATEGORY_NO: parts_category_no,
-              PARTS_CATEGORY_NM: parts_category_nm,
-              PARTS_NO: parts_no,
-              PARTS_NM: parts_nm,
-              PARTS_PRICE: parts_price,
-              PARTS_QTY: parts_qty
+              OPERATION_PRICE: operation_price,
+              OPERATION_QTY: operation_qty
             }
         });
         jqXHR.done(function(data) {
             if (data == 2222) {
-                alert("パーツの追加が出来ませんでした。");
+                alert("作業の追加が出来ませんでした。");
             } else {
                 $('intput[type="text"]').each(function() {
                 });
@@ -213,34 +184,9 @@
             }
         });
         jqXHR.fail(function(data) {
-            alert("新規登録処理に失敗しました。");
+            alert("作業の追加に失敗しました。");
         });
     });
-
-
-
-
-    //セット追加
-    function newSet() {
-        var new_set_name = $('#NEW_SET_NAME').val();
-        var params = $('form').serialize();
-        var jqXHR = $.ajax({
-            type: 'POST',
-            url: '/APP/SET_LIST/NEW/COMPLETE',
-            data: params
-        });
-        jqXHR.done(function(data) {
-            if (data == 2222) {
-                alert(new_set_name + "は、既に使われています。");
-            } else {
-                $('table').html(data);
-                $('#info-msg').html(new_set_name + "を追加しました。");
-            }
-        });
-        jqXHR.fail(function(data) {
-            alert("新規登録処理に失敗しました。");
-        });
-    }
 
     //セット変更
     function editSet(id) {
