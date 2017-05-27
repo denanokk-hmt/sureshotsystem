@@ -12,54 +12,16 @@
                 <h3><i class="glyphicon glyphicon-info-sign"></i></h3>
             </label>
             <div class="col-sm-6 lbl-header-info">
+                <span class="label label-danger ###CATEGORY_ERR###">Category was Invalid.</span>
+                <span class="label label-danger ###NAME_ERR###">Name was Invalid.</span>
+                <span class="label label-danger ###PRICE_ERR###">Price was Invalid.</span>
+                <span class="label label-danger ###ITEM_DUPLECATED###">Duplicated name.</span>
                 <span id="info-msg" class="label label-lg label-###INFO_LV###">
                     ###INFO_MSG###
                 </span>
             </div>
         </div>
-
-        <!--Set Category Filter-->
-        <div class="row">
-            <form action="/APP/SET_LIST/LISTS/SHOW" method="GET">    
-
-                <div class="form-group">
-                    <div class="btn-group">
-                        
-                        <!--Set Category Dropdown list-->
-                        <div class="btn-group">
-                            <button type="submit" class="btn btn-info dropdown-toggle" data-toggle="dropdown" id="set_category" aria-expended="false">
-                                &nbsp<span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu SET" role="menu" name="PAGE">
-                               <li name="CATEGORY_PAGE">
-                                   <a class="category-list" id="cat_list_0" >ALL</a>
-                               </li>
-                               ###SET_CATEGORY###
-                            </ul>
-                        </div>
-                        <div class="btn-group">
-                            <input type="text" name="SET_CATEGORY_NM_PAGE" id="SET_CATEGORY_NM_PAGE" value="###SET_CATEGORY_NM_PAGE###" class="form-control" disabled />
-                        </div>
-
-                        <!--Search Submit button-->
-                        <div class="btn-group">
-                            <button type="submit" class="btn btn-info" />
-                                <span clss="glyphicon glyphicon-eye-open">Search</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <input type="hidden" name="CATEGORY_NM_HID_PAGE" id="SET_CATEGORY_NM_HID_PAGE" value="###SET_CATEGORY_NM_PAGE###" class="form-control" />
-                    <input type="hidden" name="CATEGORY_NO_HID_PAGE" id="SET_CATEGORY_NO_HID_PAGE" value="###SET_CATEGORY_NO_PAGE###" class="form-control" />
-                    <input type="hidden" name="SEARCH" id="SEARCH" value="1" class="form-control" />
-                    <input type="hidden" name="page" id="page" value="1" class="form-control" />
-                </div>
-
-                <!--Spacer-->
-                <div class="col-sm-1 hidden-xs"></div>
-            </form>
-        </div>
-        </div>
+    </div>
     </div>
 
     <!--Spacer-->

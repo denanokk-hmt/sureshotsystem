@@ -2,7 +2,7 @@
 #
 
 ########################################
-#	SET_LIST NEW SET CONFIRM.CGI
+#	SET_LIST NEW OPERATION CONFIRM.CGI
 #
 #   Arg
 #       $1:$$
@@ -35,44 +35,44 @@ FIN
 
 ########################################
 #フォーム値の設定
-nameread SET_CATEGORY_NO_HID_NEW  $tmp-post  | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-set-category-no
-nameread SET_CATEGORY_NM_HID_NEW  $tmp-post  | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-set-category-nm
-nameread SET_NM_NEW               $tmp-post  | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-set-nm
-nameread SET_PRICE_NEW            $tmp-post  | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-set-price
-nameread SET_REMARKS_NEW          $tmp-post  | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-set-remarks
+nameread OPERATION_CATEGORY_NO_HID_NEW  $tmp-post  | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-set-category-no
+nameread OPERATION_CATEGORY_NM_HID_NEW  $tmp-post  | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-set-category-nm
+nameread OPERATION_NM_NEW               $tmp-post  | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-set-nm
+nameread OPERATION_PRICE_NEW            $tmp-post  | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-set-price
+nameread OPERATION_REMARKS_NEW          $tmp-post  | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-set-remarks
 
 ########################################
 #バリデーション(必須入力確認)
 #入力ありの場合、空ファイルが出力され、なしの場合、そのフィールド名が記載される
-cat $tmp-post | awk '$2=="_" && $1=="SET_CATEGORY_NO_HID_NEW"{print $1}'  > $tmp-need-VALID1
-cat $tmp-post | awk '$2=="_" && $1=="SET_CATEGORY_NM_HID_NEW"{print $1}'  > $tmp-need-VALID2
-cat $tmp-post | awk '$2=="_" && $1=="SET_NM_NEW"{print $1}'               > $tmp-need-VALID3
-cat $tmp-post | awk '$2=="_" && $1=="SET_PRICE_NEW"{print $1}'            > $tmp-need-VALID4
+cat $tmp-post | awk '$2=="_" && $1=="OPERATION_CATEGORY_NO_HID_NEW"{print $1}'  > $tmp-need-VALID1
+cat $tmp-post | awk '$2=="_" && $1=="OPERATION_CATEGORY_NM_HID_NEW"{print $1}'  > $tmp-need-VALID2
+cat $tmp-post | awk '$2=="_" && $1=="OPERATION_NM_NEW"{print $1}'               > $tmp-need-VALID3
+cat $tmp-post | awk '$2=="_" && $1=="OPERATION_PRICE_NEW"{print $1}'            > $tmp-need-VALID4
 
 ########################################
 #バリデーション(重複確認)
 #ファイル名の先頭にセット番号
 #カテゴリ番号、セット番号、セット名、セット価格、備考
-SET_CATEGORY_NO=$(cat $tmp-set-category-no)
-SET_NAME=$(cat $tmp-set-nm)
-cat ${SYSD}/DATA/SET_LIST/LIST/${SET_CATEGORY_NO}/LV3/*[^_d] | awk '$3=="${SET_NAME}" {print}' > $tmp-duplicate-VALID1
+OPERATION_CATEGORY_NO=$(cat $tmp-set-category-no)
+OPERATION_NAME=$(cat $tmp-set-nm)
+cat ${SYSD}/DATA/SET_LIST/LIST/${OPERATION_CATEGORY_NO}/LV3/*[^_d] | awk '$3=="${OPERATION_NAME}" {print}' > $tmp-duplicate-VALID1
 
 ########################################
 #バリデーションエラー項目の確定
-#SET_CATEGORY_NO_HID_NEW
-#SET_CATEGORY_NM_HID_NEW
+#OPERATION_CATEGORY_NO_HID_NEW
+#OPERATION_CATEGORY_NM_HID_NEW
 if [ -n "$(cat $tmp-need-VALID1)$(cat $tmp-need-VALID2)" ] ; then 
     echo 'show' > $tmp-valid-set-category-no-nm
 else
     echo 'hidden' > $tmp-valid-set-category-no-nm
 fi
-#SET_NM_NEW
+#OPERATION_NM_NEW
 if [ -n "$(cat $tmp-need-VALID3)" ] ; then
     echo 'show' > $tmp-valid-set-nm
 else
     echo 'hidden' > $tmp-valid-set-nm
 fi
-#SET_PRICE_NEW
+#OPERATION_PRICE_NEW
 if [ -n "$(cat $tmp-need-VALID4)" ] ; then
     echo 'show' > $tmp-valid-set-price
 else
@@ -99,7 +99,7 @@ awk '{print length($1)}'      > $tmp-valid-result
 ########################################
 #HTMLの設定
 if [ ${VALID} = 'NG' ] ; then
-    RESULT=`${SYSD}/APPLI/${CATEGORY}/${FUNC}/CGI/SET/INPUT $1`
+    RESULT=`${SYSD}/APPLI/${CATEGORY}/${FUNC}/CGI/OPERATION/INPUT $1`
     echo "NG"
 else
     echo "OK"
