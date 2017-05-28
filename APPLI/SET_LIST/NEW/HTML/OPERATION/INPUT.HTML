@@ -29,7 +29,7 @@
 
     <!--Contents Records/Pagination-->
     <div class="header-under-contents">
-        <form class="form-inline form-horizontal"  action="/APP/SET_CATEGORY/LISTS/SHOW" method="GET">
+        <form id="form1" class="form-inline form-horizontal"  action="/APP/SET_CATEGORY/PARTS/INPUT" method="POST">
             <div class="contents-table">
                 ###TABLE###
             </div>
@@ -39,9 +39,11 @@
 
 <script>
 
+/*
     $(document).ready(function() {
         $("#pager").sticky({topSpacing:0});
     });
+*/
 
     //カテゴリを選択
     $(document).on('click', 'a.category-list', function() {
@@ -125,6 +127,7 @@
         var list_id = idname.split("_");
         var row = list_id[2];
         var qty = $('#' + kind + '_QTY_' + row).val();
+        if (!qty) return;
         var subTTL = $('#' + kind + '_PRICE_' + row).val();
         $('#' + kind + '_QTY_' + row).val(parseInt(qty) + parseInt(1));
         qty = $('#' + kind + '_QTY_' + row).val();
@@ -138,6 +141,7 @@
         var list_id = idname.split("_");
         var row = list_id[2];
         var qty = $('#' + kind + '_QTY_' + row).val();
+        if (!qty) return;
         var subTTL = $('#' + kind + '_PRICE_' + row).val();
         if (parseInt(qty) > 1) {
             $('#' + kind + '_QTY_' + row).val(parseInt(qty) - parseInt(1));
@@ -145,15 +149,28 @@
         $('#' + kind + '_PRICE_' + row).val(parseInt(subTTL) / parseInt(qty));
     });
 
-     //作業追加
-    $(document).on('click', 'a.btn-set', function() {
+    //ADD.EDIT.DELETEボタン
+    $(document).on('click', 'a.btn-operation', function() {
 
         //イベント基本情報
+        //selecter id format: kind_action_row
         var idname = $(this).attr("id"); 
         var list_id = idname.split("_");
         var action = list_id[1];
         var row = list_id[2];
-       //作業
+
+        //CLEAR->Newをクリア
+        if (action == 'CLEAR') {
+            $('#OPERATION_CATEGORY_NO_HID_'+ row).val("");
+            $('#OPERATION_CATEGORY_NM_' + row).val("");
+            $('#OPERATION_NO_HID_' + row).val("");
+            $('#OPERATION_NM_' + row).val("");
+            $('#OPERATION_PRICE_' + row).val("");
+            $('#OPERATION_QTY_' + row).val("");
+            return;
+        }
+      
+        //値
         var operation_category_no = $('#OPERATION_CATEGORY_NO_HID_' + row).val();
         var operation_category_nm = $('#OPERATION_CATEGORY_NM_' + row).val();
         var operation_no = $('#OPERATION_NO_HID_' + row).val();
@@ -161,11 +178,24 @@
         var operation_price = $('#OPERATION_PRICE_' + row).val();
         var operation_qty = $('#OPERATION_QTY_' + row).val();
 
-        //仮登録して画面のレコードに1行追加する
+        //Validation
+        if (!operation_category_no) {
+            alert("作業カテゴリが選択されていません。");
+            return;
+        }
+        //Validation
+        if (!operation_no) {
+            alert("作業が選択されていません。");
+            return;
+        }
+
+        //仮登録の登録・更新・削除
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/SET_LIST/NEW/OPERATION/ADD',
+            url: '/APP/SET_LIST/NEW/OPERATION/COMPLETE',
             data: {
+              ACTION: action,
+              ROW: row,
               OPERATION_CATEGORY_NO: operation_category_no,
               OPERATION_CATEGORY_NM: operation_category_nm,
               OPERATION_NO: operation_no,
@@ -176,7 +206,7 @@
         });
         jqXHR.done(function(data) {
             if (data == 2222) {
-                alert("作業の追加が出来ませんでした。");
+                alert("作業" + row + "の" + action + "が出来ませんでした。");
             } else {
                 $('intput[type="text"]').each(function() {
                 });
@@ -184,79 +214,14 @@
             }
         });
         jqXHR.fail(function(data) {
-            alert("作業の追加に失敗しました。");
+            alert("作業" + row + "の" + action + "に失敗しました。");
         });
     });
 
-    //セット変更
-    function editSet(id) {
-        var page_filter = $('#CATEGORY_NM_HID_PAGE').val();
-        var page_category_no = $('#CATEGORY_NO_HID_PAGE').val();
-        var edit_category_no = $('#CATEGORY_NO_HID_' + id).val();
-        var edit_category_nx = $('#CATEGORY_NX_HID_' + id).val();
-        var edit_category_name = $('#CATEGORY_NM_HID_' + id).val();
-        var edit_set_name = $('#SET_NAME_' + id).val();
-        var edit_set_name_jp = $('#SET_NAME_JP_' + id).val();
-        var edit_set_price = $('#SET_PRICE_' + id).val();
-        var edit_set_remarks = $('#SET_REMARKS_' + id).val();
-        var jqXHR = $.ajax({
-            type: 'POST',
-            url: '/APP/SET_LIST/EDIT/COMPLETE',
-            data: {
-                PAGE_FILTER: page_filter,
-                CATEGORY_NO_HID_PAGE: page_category_no,
-                EDIT_SET_NO: id,
-                EDIT_SET_CATEGORY_NO: edit_category_no,
-                EDIT_SET_CATEGORY_NX: edit_category_nx,
-                EDIT_SET_CATEGORY_NAME: edit_category_name,
-                EDIT_SET_NAME: edit_set_name,
-                EDIT_SET_NAME_JP: edit_set_name_jp,
-                EDIT_SET_PRICE: edit_set_price,
-                EDIT_SET_REMARKS: edit_set_remarks
-            }
-        });
-        jqXHR.done(function(data) {
-            if (data == 2222) {
-                alert(edit_set_name + "は、既に使われています。");
-            } else if (data == 111) {
-                $('#info-msg').html(edit_set_name + "を変更しました。");
-            } else {
-                $('#info-msg').html(edit_set_name + "を変更出来ませんでした。");
-            }
-        });
-        jqXHR.fail(function() {
-            alert("更新処理に失敗しました。");
-        });
-    }
 
-    //セット削除
-    function deleteSet(id) {
-        var delete_set_name = $('#SET_NAME_' + id).val();
-        var delete_category_nx = $('#CATEGORY_NX_HID_' + id).val();
-        var jqXHR = $.ajax({
-            type: 'POST',
-            url: '/APP/SET_LIST/DELETE/COMPLETE',
-            data: {
-                DELETE_SET_NO: id,
-                DELETE_CATEGORY_NX: delete_category_nx,
-            }
-       });
-        jqXHR.done(function(data) {
-            if (data == 2222) {
-                alert(delete_set_name + "は、使用されていませんでした。");
-            } else if (data == 111) {
-                var sel = '#edit-row-' + id;
-                $(sel).remove();
-                $('#info-msg').html(delete_set_name + "を削除しました。");
-            } else {
-                $('#info-msg').html(delete_set_name + "を削除出来ませんでした。");
-            }
-        });
-        jqXHR.fail(function() {
-            alert("削除処理に失敗しました。");
-        });
- 
-    }
-
+    //SETボタン
+    $(document).on('click', 'a.btn-set', function() {
+        $('#form1').submit();      
+    });
 </script>
 <!--</html>-->

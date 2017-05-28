@@ -22,6 +22,12 @@ FUNC=`cat $tmp-func`
 SUBFUNC=`cat $tmp-subfunc`
 
 ########################################
+#仮登録ディレクトリ
+SESSION=$(session_get 'sureshot_stuff_session_id') 
+STUFF_ID=$(cat ${SYSD}/SESSION/${SESSION})
+TEMPD=${SYSD}/TMP/${STUFF_ID}
+
+########################################
 #Check error
 ERROR_CHECK(){
 	[ $(plus ${PIPESTATUS[@]}) -eq 0 ] && return
@@ -102,6 +108,7 @@ if [ ${VALID} = 'NG' ] ; then
     RESULT=`${SYSD}/APPLI/${CATEGORY}/${FUNC}/CGI/SET/INPUT $1`
     echo "NG"
 else
+    echo $(cat $tmp-set-category-no) $(cat $tmp-set-category-nm) $(cat $tmp-set-name) $(cat $tmp-set-price) $(cat $tmp-set-remarks) > ${TEMPD}/set_list
     echo "OK"
 fi
 

@@ -4,18 +4,21 @@
     <thead>
         <tr>
             <th>#</th>
-            <th>NO</th>
             <th>OPERATION CATEGORY</th>
             <th>OPERATION NAME</th>
             <th>OPERATION PRICE</th>
             <th>OPERATION QTY</th>
-            <th></th>
+            <th>
+                <!--ADDボタン-->
+                <td>
+                    <a class="btn btn-success btn-sm btn-set" id="OPERATION_SET">SET</a>
+                </td>
+            </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
         <tr>
-            <td>ー</td>
             <td>
                 <span class="label label-default">NEW</span>
             </td>
@@ -66,7 +69,7 @@
                 <div class="form-group">
                     <div class="btn-group">
                        <div class="btn-group"> 
-                            <input type="number" id="OPERATION_PRICE_NEW" name="OPERATION_PRICE_NEW" value="" class="form-control input-sm" style="" placeholder="作業税抜価格" >
+                            <input type="number" id="OPERATION_PRICE_NEW" name="OPERATION_PRICE_NEW" value="" class="form-control input-sm" disabled=disabled style="" placeholder="作業税抜価格" >
                         </div>
                     </div>
                 </div>
@@ -78,17 +81,20 @@
                         <button type="button" class="btn btn-md input-sm btn-plus" name="OPERATION" id="qty_plus_NEW">+</button>
                     </div>
                     <div class="btn-group">
-                        <input type="text" name="OPERATION_QTY_NEW" id="OPERATION_QTY_NEW" value="" class="form-control input-sm" disabled placeholder="数量" style="width:3em"/>
+                        <input type="text" name="OPERATION_QTY_NEW" id="OPERATION_QTY_NEW" value="" class="form-control input-sm" disabled=disabled placeholder="数量" style="width:3em"/>
                     </div>
                     <div class="btn-group">
                         <button type="button" class="btn btn-md input-sm btn-minus" name="OPERATION" id="qty_minus_NEW">-</button>
                     </div>
                 </div>
             </td>
-            <td>ー</td>
-             <!--ADDボタン-->
+            <!--Clearボタン-->
             <td>
-                <a class="btn btn-primary btn-sm btn-set" id="ADD_NEW">ADD</a>
+                <a class="btn btn-default btn-sm btn-operation" id="OPERATION_CLEAR_NEW">CLEAR</a>
+            </td>
+            <!--ADDボタン-->
+            <td>
+                <a class="btn btn-primary btn-sm btn-operation" id="OPERATION_ADD_NEW">ADD</a>
             </td>
         </tr>
 
