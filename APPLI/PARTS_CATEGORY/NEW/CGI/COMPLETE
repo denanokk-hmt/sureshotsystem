@@ -49,7 +49,7 @@ if [ -e ${SYSD}/DATA/PARTS_LIST  ]; then
 else
     mkdir ${SYSD}/DATA/PARTS_LIST
     mkdir ${SYSD}/DATA/PARTS_LIST/LISTS
-    chmod -R 775 ${SYSD}/DATA/PARTS_LIST #オーナーと権限を再帰的に設定
+    chmod -R 770 ${SYSD}/DATA/PARTS_LIST #オーナーと権限を再帰的に設定
     ERROR_CHECK
 fi
 

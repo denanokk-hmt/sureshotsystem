@@ -42,6 +42,18 @@ FIN
 #fi
 
 ########################################
+#ディレクトリを作成する
+if [ -e ${SYSD}/DATA/${CATEGORY}  ]; then
+    :
+else
+    mkdir ${SYSD}/DATA/${CATEGORY}
+    cp -rp ${SYSD}/DATA/ORG_LV1-3/ ${SYSD}/DATA/${CATEGORY}/LISTS
+    chmod -R 770 ${SYSD}/DATA/${CATEGORY} #オーナーと権限を再帰的に設定
+    #chown -R root:apache ${SYSD}/DATA/NUMBERS/${CATEGORY}
+    ERROR_CHECK
+fi
+
+########################################
 #セット番号の次のロットを追加する
 LATEST_NUM=$(ls ${SYSD}/DATA/NUMBERS/${CATEGORY}/ORIGIN | sort -nr | head -n 1)
 START=$((LATEST_NUM + 1))
@@ -54,91 +66,48 @@ SEQ_STATUS=`${SYSD}/CGI/NUMBER_SEQ $1 ${CATEGORY} ${START} ${END} `
 NEW_NUM=`${SYSD}/CGI/NUMBERS $1 'SET_LIST' `
 [ ${NEW_NUM} = 'ERROR' ] && exit 0 || :
 
-#######################################
-#フォームの入力値を取得
-cat $tmp-post
-PAGE_FILTER=$(nameread CATEGORY_NM_HID_PAGE $tmp-post)
-PAGE_CATEGORY_NO=$(nameread CATEGORY_NO_HID_PAGE $tmp-post)
-VALUE1=$(nameread CATEGORY_NM_HID_NEW $tmp-post)        #セットカテゴリ名
-VALUE2=$(nameread NEW_SET_NAME $tmp-post)             #セット名(EN)
-VALUE3=$(nameread NEW_SET_PRICE $tmp-post)            #プライス
-
-#新規追加
-VALUE4=$(nameread CATEGORY_NO_HID_NEW $tmp-post)     #セットカテゴリ番号
-VALUE5=$(nameread NEW_SET_NAME_JP $tmp-post)          #セット名(JP)
-VALUE6=$(nameread NEW_SET_REMARKS $tmp-post)          #備考
-
-########################################
-#重複確認
-cat ${DATAD}/${VALUE4}*[^_d]/LV3/* | awk -v cat=${VALUE4} -v nm=${VALUE2} '$2==cat&&$4==nm{print $1}' > $tmp-valid1
-if [ -n "$(cat $tmp-valid1)" ] ; then
-    echo 2222 > $tmp-ajax-html
-    exit 0
-fi
-
 ########################################
 #日付を設定
 CREATE_DATE=$(date +%Y%m%d%H%M%S)
 UPDATE_DATE=$CREATE_DATE
 
 ########################################
-#入力値を一時ファイル化
-#1.セット番号 2.セットカテゴリ番号 3.セットカテゴリ名 4.セット名(EN) 5.セット名(JP) 6.価格 7.備考 8.作成日時 9.更新日時 10.削除フラグ
-echo ${NEW_NUM}" "${VALUE4}" "${VALUE1}" "${VALUE2}" "${VALUE5}" "${VALUE3}" "${VALUE6}" "${CREATE_DATE}" "${UPDATE_DATE}" "0 > $tmp-set
+#仮登録ディレクトリ
+SESSION=$(session_get 'sureshot_stuff_session_id') 
+STUFF_ID=$(cat ${SYSD}/SESSION/${SESSION})
+TEMPD=${SYSD}/TMP/${STUFF_ID}
+
+#######################################
+#仮登録セットリストを取得
+#SET_LISTのデータ構造  IDとyyyymmddhhmmssは一致
+#SET_LIST/LIST/LV*/[ID]_setlist_[yyyymmddhhmmss]
+#SET_LIST/LIST/LV*/[ID]_setlist_operation_[yyyymmddhhmmss]
+#SET_LIST/LIST/LV*/[id]_setlist_parts_[yyyymmddhhmmss]
+cat ${TEMPD}/set_list | awk -v cdt=${CREATE_DATE} -v udt=${UPDATE_DATE} '{print $0, cdt, udt}' > $tmp-set-list
+cat ${TEMPD}/set_list_operation | awk -v cdt=${CREATE_DATE} -v udt=${UPDATE_DATE} '{print $0, cdt, udt}' > $tmp-set-list_operation
+cat ${TEMPD}/set_list_parts | awk -v cdt=${CREATE_DATE} -v udt=${UPDATE_DATE} '{print $0, cdt, udt}' > $tmp-set-list_parts
 
 ########################################
 #データ格納
 #LV1
-$(mv $tmp-set ${DATAD}/${VALUE4}/LV1/${NEW_NUM}_set_${CREATE_DATE})
+$(mv $tmp-set-list ${DATAD}/LV1/${NEW_NUM}_setlist_${CREATE_DATE})
+$(mv $tmp-set-list_operation ${DATAD}/LV1/${NEW_NUM}_setlist_operation_${CREATE_DATE})
+$(mv $tmp-set-list_parts ${DATAD}/LV1/${NEW_NUM}_setlist_parts_${CREATE_DATE})
 #LV2
-cat ${DATAD}/${VALUE4}/LV1/${NEW_NUM}_set_${CREATE_DATE} > ${DATAD}/${VALUE4}/LV2/${NEW_NUM}_set_${CREATE_DATE}
+cat ${DATAD}/LV1/${NEW_NUM}_setlist_${CREATE_DATE} > ${DATAD}/LV2/${NEW_NUM}_setlist_${CREATE_DATE}
+cat ${DATAD}/LV1/${NEW_NUM}_setlist_operation_${CREATE_DATE} > ${DATAD}/LV2/${NEW_NUM}_setlist_operation_${CREATE_DATE}
+cat ${DATAD}/LV1/${NEW_NUM}_setlist_parts_${CREATE_DATE} > ${DATAD}/LV2/${NEW_NUM}_setlist_parts_${CREATE_DATE}
 #LV3
-cat ${DATAD}/${VALUE4}/LV2/${NEW_NUM}_set_${CREATE_DATE} > ${DATAD}/${VALUE4}/LV3/${NEW_NUM}_set_${CREATE_DATE}
-
-########################################
-#セットカテゴリを取得
-cat ${SYSD}/DATA/SET_CATEGORY/LISTS/LV3/*[^_d]    |
-LANG=C sort -nk1,1                                  > $tmp-category
-
-########################################
-#Page絞り込み用のセットカテゴリ
-# 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_PAGE.HTML $tmp-category > $tmp-set-category-page
-
-########################################
-#登録済セット用のセットカテゴリ
-# 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_LIST.HTML $tmp-category > $tmp-set-category-list
-
-########################################
-#新規登録セット用のセットカテゴリ
-# 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_NEW.HTML $tmp-category > $tmp-set-category-new
-
-########################################
-# 改行文字を「\\n」という3文字の文字列に置換
-CATEGORY_PAGE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-set-category-page`
-CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-set-category-list`
-CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-set-category-new`
+cat ${DATAD}/LV2/${NEW_NUM}_setlist_${CREATE_DATE} > ${DATAD}/LV3/${NEW_NUM}_setlist_${CREATE_DATE}
+cat ${DATAD}/LV2/${NEW_NUM}_setlist_operation_${CREATE_DATE} > ${DATAD}/LV3/${NEW_NUM}_setlist_operation_${CREATE_DATE}
+cat ${DATAD}/LV2/${NEW_NUM}_setlist_parts_${CREATE_DATE} > ${DATAD}/LV3/${NEW_NUM}_setlist_parts_${CREATE_DATE}
 
 ########################################
 #セットリストを取得
-if [ "${PAGE_CATEGORY_NO}" -gt 0 ] ; then
-    cat ${DATAD}/${PAGE_CATEGORY_NO}*[^_d]/LV3/*[^_d]   |
-    LANG=C sort -nk1,1                                  |
-    juni                                                > $tmp-records
-else
-    cat ${DATAD}/*[^_d]/LV3/*[^_d]                      |
-    LANG=C sort -nk1,1                                  |
-    juni                                                > $tmp-records
-fi
-#
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/RECORDS.HTML $tmp-records > $tmp-table-records
-
-########################################
-#登録済レコードにセットカテゴリリストを嵌め込む
-cat $tmp-table-records                                      |
-sed -e "s|###CATEGORY###|${CATEGORY_LIST}|g"   > $tmp-table
+cat ${DATAD}/*[^_d]/LV3/*[^_d]                      |
+LANG=C sort -nk1,1                                  |
+juni                                                > $tmp-records
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/RECORDS.HTML $tmp-records > $tmp-table
 
 ########################################
 # 改行文字を「\\n」という3文字の文字列に置換
@@ -147,8 +116,7 @@ TABLE_RECORDS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table`
 ########################################
 #tableにrecordsを嵌め込む
 cat ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/TABLE.HTML         |
-sed -e "s|###CATEGORY###|${CATEGORY_NEW}|g"                 |
-sed -e "s|###TABLE_RECORDS###|${TABLE_RECORDS}|g"           > $tmp-ajax-html
+sed -e "s|###TABLE_RECORDS###|${TABLE_RECORDS}|g"           > $tmp-html
 
 ########################################
 #ending
