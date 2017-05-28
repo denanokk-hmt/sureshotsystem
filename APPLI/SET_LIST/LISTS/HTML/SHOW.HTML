@@ -34,11 +34,11 @@
                                <li name="CATEGORY_PAGE">
                                    <a class="category-list" id="cat_list_0" >ALL</a>
                                </li>
-                               ###SET_CATEGORY###
+                               ###CATEGORY###
                             </ul>
                         </div>
                         <div class="btn-group">
-                            <input type="text" name="SET_CATEGORY_NM_PAGE" id="SET_CATEGORY_NM_PAGE" value="###SET_CATEGORY_NM_PAGE###" class="form-control" disabled />
+                            <input type="text" name="CATEGORY_NM_PAGE" id="CATEGORY_NM_PAGE" value="###CATEGORY_NM_PAGE###" class="form-control" disabled />
                         </div>
 
                         <!--Search Submit button-->
@@ -49,8 +49,8 @@
                         </div>
                     </div>
 
-                    <input type="hidden" name="CATEGORY_NM_HID_PAGE" id="SET_CATEGORY_NM_HID_PAGE" value="###SET_CATEGORY_NM_PAGE###" class="form-control" />
-                    <input type="hidden" name="CATEGORY_NO_HID_PAGE" id="SET_CATEGORY_NO_HID_PAGE" value="###SET_CATEGORY_NO_PAGE###" class="form-control" />
+                    <input type="hidden" name="CATEGORY_NM_HID_PAGE" id="CATEGORY_NM_HID_PAGE" value="###CATEGORY_NM_PAGE###" class="form-control" />
+                    <input type="hidden" name="CATEGORY_NO_HID_PAGE" id="CATEGORY_NO_HID_PAGE" value="###CATEGORY_NO_PAGE###" class="form-control" />
                     <input type="hidden" name="SEARCH" id="SEARCH" value="1" class="form-control" />
                     <input type="hidden" name="page" id="page" value="1" class="form-control" />
                 </div>
@@ -67,7 +67,7 @@
 
     <!--Contents Records/Pagination-->
     <div class="header-under-contents">
-        <form class="form-inline form-horizontal"  action="/APP/SET_CATEGORY/LISTS/SHOW" method="GET">
+        <form class="form-inline form-horizontal"  action="" method="">
             <div class="contents-table">
                 ###TABLE###
             </div>
@@ -108,190 +108,10 @@
 
         //該当のレコードに選択したカテゴリ番号を設定
         $('#' + kindU + '_CATEGORY_NO_HID_' + row).val(cat_no);
-
-        if (kindU != 'PAGE' && kindU != 'SET') {
-
-            //選択したカテゴリで抽出
-            var jqXHR = $.ajax({
-                type: 'POST',
-                url: search_url,
-                data: {
-                    CATEGORY_NO: cat_no,
-                    ROW: row
-                }
-            });
-            jqXHR.done(function(data) {
-                search_result = data;
-                $('#dropdown-' + kindL + '-' + row).addClass('open');
-                $('#dropdown-' + kindL + '-list-' + row).html(data);
-                
-                //クリア
-                $('#' + kindU + '_NM_' + row).val('');
-                $('#' + kindU + '_NO_HID_' + row).val('');
-                $('#' + kindU + '_PRICE_' + row).val('');
-                if (kindU == 'PARTS') {
-                    $('#PARTS_QTY_' + row).val('0');
-                }
-                if (row != 'PAGE' && row != 'NEW') {
-                    $('#' + kindU + '_NX_HID_' + row).val('');
-                }
-            });
-            jqXHR.fail(function() {
-                search_result = '一致するパーツがありません。';
-            });
-        }
     });
 
-    //作業選択
-    $(document).on('click', 'li.list-operation', function() {
-
-        //選択したリストのidから行を取得する:list-行-部品番号
-        var idname = $(this).attr("id"); 
-        var list_id = idname.split("-");
-        var row = list_id[1];
-        var operationNo = $(this).val();
-        var operationNm = $(this).text();
-        var operationPrice = $('#OPERATION_PRICE_' + row + '_' + operationNo).val();
-        $('#OPERATION_NM_' + row).val(operationNm);
-        $('#OPERATION_PRICE_' + row).val(operationPrice);
-        $('#OPERATION_NO_HID_' + row).val(operationNo);
-    });
-
-    //パーツ選択
-    $(document).on('click', 'li.list-parts', function() {
-
-        //選択したリストのidから行を取得する:list-行-部品番号
-        var idname = $(this).attr("id"); 
-        var list_id = idname.split("-");
-        var row = list_id[1];
-        var partsNo = $(this).val();
-        var partsNm = $(this).text();
-        var partsPrice = $('#PARTS_PRICE_' + row + '_' + partsNo).val();
-        $('#PARTS_NM_' + row).val(partsNm);
-        $('#PARTS_PRICE_' + row).val(partsPrice);
-        $('#PARTS_QTY_' + row).val('1');
-        $('#PARTS_NO_HID_' + row).val(partsNo);
-    });
-
-    //パーツ数量PLUS
-    $(document).on('click', ':button.btn-plus', function() {
-        var idname = $(this).attr("id"); 
-        var list_id = idname.split("_");
-        var row = list_id[2];
-        var qty = $('#PARTS_QTY_' + row).val();
-        var subTTL = $('#PARTS_PRICE_' + row).val();
-        $('#PARTS_QTY_' + row).val(parseInt(qty) + parseInt(1));
-        qty = $('#PARTS_QTY_' + row).val();
-        $('#PARTS_PRICE_' + row).val(parseInt(subTTL) * parseInt(qty));
-    });
-
-    //パーツ数量MINUS
-    $(document).on('click', ':button.btn-minus', function() {
-        var idname = $(this).attr("id"); 
-        var list_id = idname.split("_");
-        var row = list_id[2];
-        var qty = $('#PARTS_QTY_' + row).val();
-        var subTTL = $('#PARTS_PRICE_' + row).val();
-        if (parseInt(qty) > 1) {
-            $('#PARTS_QTY_' + row).val(parseInt(qty) - parseInt(1));
-        }
-        $('#PARTS_PRICE_' + row).val(parseInt(subTTL) / parseInt(qty));
-    });
-
- 
 
 
-    //セット追加
-    function newSet() {
-        var new_set_name = $('#NEW_SET_NAME').val();
-        var params = $('form').serialize();
-        var jqXHR = $.ajax({
-            type: 'POST',
-            url: '/APP/SET_LIST/NEW/COMPLETE',
-            data: params
-        });
-        jqXHR.done(function(data) {
-            if (data == 2222) {
-                alert(new_set_name + "は、既に使われています。");
-            } else {
-                $('table').html(data);
-                $('#info-msg').html(new_set_name + "を追加しました。");
-            }
-        });
-        jqXHR.fail(function(data) {
-            alert("新規登録処理に失敗しました。");
-        });
-    }
-
-    //セット変更
-    function editSet(id) {
-        var page_filter = $('#CATEGORY_NM_HID_PAGE').val();
-        var page_category_no = $('#CATEGORY_NO_HID_PAGE').val();
-        var edit_category_no = $('#CATEGORY_NO_HID_' + id).val();
-        var edit_category_nx = $('#CATEGORY_NX_HID_' + id).val();
-        var edit_category_name = $('#CATEGORY_NM_HID_' + id).val();
-        var edit_set_name = $('#SET_NAME_' + id).val();
-        var edit_set_name_jp = $('#SET_NAME_JP_' + id).val();
-        var edit_set_price = $('#SET_PRICE_' + id).val();
-        var edit_set_remarks = $('#SET_REMARKS_' + id).val();
-        var jqXHR = $.ajax({
-            type: 'POST',
-            url: '/APP/SET_LIST/EDIT/COMPLETE',
-            data: {
-                PAGE_FILTER: page_filter,
-                CATEGORY_NO_HID_PAGE: page_category_no,
-                EDIT_SET_NO: id,
-                EDIT_SET_CATEGORY_NO: edit_category_no,
-                EDIT_SET_CATEGORY_NX: edit_category_nx,
-                EDIT_SET_CATEGORY_NAME: edit_category_name,
-                EDIT_SET_NAME: edit_set_name,
-                EDIT_SET_NAME_JP: edit_set_name_jp,
-                EDIT_SET_PRICE: edit_set_price,
-                EDIT_SET_REMARKS: edit_set_remarks
-            }
-        });
-        jqXHR.done(function(data) {
-            if (data == 2222) {
-                alert(edit_set_name + "は、既に使われています。");
-            } else if (data == 111) {
-                $('#info-msg').html(edit_set_name + "を変更しました。");
-            } else {
-                $('#info-msg').html(edit_set_name + "を変更出来ませんでした。");
-            }
-        });
-        jqXHR.fail(function() {
-            alert("更新処理に失敗しました。");
-        });
-    }
-
-    //セット削除
-    function deleteSet(id) {
-        var delete_set_name = $('#SET_NAME_' + id).val();
-        var delete_category_nx = $('#CATEGORY_NX_HID_' + id).val();
-        var jqXHR = $.ajax({
-            type: 'POST',
-            url: '/APP/SET_LIST/DELETE/COMPLETE',
-            data: {
-                DELETE_SET_NO: id,
-                DELETE_CATEGORY_NX: delete_category_nx,
-            }
-       });
-        jqXHR.done(function(data) {
-            if (data == 2222) {
-                alert(delete_set_name + "は、使用されていませんでした。");
-            } else if (data == 111) {
-                var sel = '#edit-row-' + id;
-                $(sel).remove();
-                $('#info-msg').html(delete_set_name + "を削除しました。");
-            } else {
-                $('#info-msg').html(delete_set_name + "を削除出来ませんでした。");
-            }
-        });
-        jqXHR.fail(function() {
-            alert("削除処理に失敗しました。");
-        });
- 
-    }
 
 </script>
 <!--</html>-->

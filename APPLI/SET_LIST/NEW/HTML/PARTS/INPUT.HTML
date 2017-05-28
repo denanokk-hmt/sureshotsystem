@@ -25,7 +25,7 @@
 
     <!--Contents Records/Pagination-->
     <div class="header-under-contents">
-        <form id="form1" class="form-inline form-horizontal"  action="/APP/SET_LIST/NEW/COMPLETE/" method="POST">
+        <form id="form1" class="form-inline form-horizontal"  action="" method="">
             <div class="contents-table">
                 ###TABLE###
             </div>
@@ -217,10 +217,21 @@
         });
     });
 
-
     //SETボタン
     $(document).on('click', 'a.btn-set', function() {
-        $('#form1').submit();      
+
+        var jqXHR = $.ajax({
+            type: 'POST',
+            url: '/APP/SET_LIST/NEW/COMPLETE',
+       });
+        jqXHR.done(function(data) {
+            alert("セットを登録しました。");
+            location.href = '/APP/SET_LIST/LISTS/SHOW';
+        });
+        jqXHR.fail(function(data) {
+            alert("セットの登録が出来ませんでした。");
+        });
     });
+
 </script>
 <!--</html>-->

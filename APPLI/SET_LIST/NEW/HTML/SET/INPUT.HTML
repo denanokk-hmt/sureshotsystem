@@ -12,11 +12,7 @@
                 <h3><i class="glyphicon glyphicon-info-sign"></i></h3>
             </label>
             <div class="col-sm-6 lbl-header-info">
-                <span class="label label-danger ###CATEGORY_ERR###">Category was Invalid.</span>
-                <span class="label label-danger ###NAME_ERR###">Name was Invalid.</span>
-                <span class="label label-danger ###PRICE_ERR###">Price was Invalid.</span>
-                <span class="label label-danger ###NAME_DUPLECATED###">Duplicated name.</span>
-                <span id="info-msg" class="label label-lg label-###INFO_LV###">
+               <span id="info-msg" class="label label-lg label-###INFO_LV###">
                     ###INFO_MSG###
                 </span>
             </div>
@@ -29,7 +25,7 @@
 
     <!--Contents Records/Pagination-->
     <div class="header-under-contents">
-        <form id="form1" class="form-inline form-horizontal"  action="/APP/SET_LIST/NEW/OPERATION/INPUT" method="POST">
+        <form id="form1" class="form-inline form-horizontal"  action="" method="">
             <div class="contents-table">
                 ###TABLE###
             </div>
@@ -51,13 +47,67 @@
 
         //該当のレコードに選択したカテゴリ名を設定
         $('#SET_CATEGORY_NM_' + row).val(choice);
-        $('#SET_CATEGORY_NM_HID_' + row).val(choice);
         $('#SET_CATEGORY_NO_HID_' + row).val(cat_no);
     });
 
-     //セット追加
+    //NEWボタン
     $(document).on('click', 'a.btn-set', function() {
-        $('#form1').submit();
+
+        //イベント基本情報
+        //selecter id format: kind_action_row
+        var idname = $(this).attr("id"); 
+        var list_id = idname.split("_");
+        var action = list_id[1];
+        var row = list_id[2];
+      
+        //値
+        var set_category_no = $('#SET_CATEGORY_NO_HID_' + row).val();
+        var set_category_nm = $('#SET_CATEGORY_NM_' + row).val();
+        var set_nm = $('#SET_NM_' + row).val();
+        var set_price = $('#SET_PRICE_' + row).val();
+        var set_remarks = $('#SET_REMARKS_' + row).val();
+
+        //Validation
+        if (!set_category_no) {
+            alert("セットカテゴリが選択されていません。");
+            return;
+        }
+        //Validation
+        if (!set_nm) {
+            alert("セット名が入力されていません。");
+            return;
+        }
+        //Validation
+        if (!set_price) {
+            alert("セットの金額が入力されていません。");
+            return;
+        }
+
+        //セット名を仮登録
+        var jqXHR = $.ajax({
+            type: 'POST',
+            url: '/APP/SET_LIST/NEW/SET/COMPLETE',
+            data: {
+              SET_CATEGORY_NO: set_category_no,
+              SET_CATEGORY_NM: set_category_nm,
+              SET_NM: set_nm,
+              SET_PRICE: set_price,
+              SET_REMARKS: set_remarks
+            }
+        });
+        jqXHR.done(function(data) {
+            if (data == 2222) {
+                alert("入力したセット名はすでに登録されています。");
+            } else {
+                $('intput[type="text"]').each(function() {
+                });
+                alert("セット名を仮登録しました。");
+                location.href = '/APP/SET_LIST/NEW/OPERATION/INPUT';
+            }
+        });
+        jqXHR.fail(function(data) {
+            alert("セット" + row + "の" + action + "に失敗しました。");
+        });
     });
 
 </script>

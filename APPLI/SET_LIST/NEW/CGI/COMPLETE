@@ -19,7 +19,6 @@ LANG=ja_JP.UTF-8
 PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
 CATEGORY=`cat $tmp-category`
 FUNC=`cat $tmp-func`
-DATAD=${SYSD}/DATA/${CATEGORY}/LISTS
 
 ########################################
 #Check error
@@ -42,16 +41,32 @@ FIN
 #fi
 
 ########################################
+#仮登録ディレクトリ
+SESSION=$(session_get 'sureshot_stuff_session_id') 
+STUFF_ID=$(cat ${SYSD}/SESSION/${SESSION})
+TEMPD=${SYSD}/TMP/${STUFF_ID}/SET_LIST
+
+
+########################################
+#セットカテゴリ
+SET_CATEGORY_NO=$(cat ${TEMPD}/set_list | awk '{print $1}')
+
+########################################
 #ディレクトリを作成する
 if [ -e ${SYSD}/DATA/${CATEGORY}  ]; then
     :
 else
     mkdir ${SYSD}/DATA/${CATEGORY}
-    cp -rp ${SYSD}/DATA/ORG_LV1-3/ ${SYSD}/DATA/${CATEGORY}/LISTS
+    mkdir ${SYSD}/DATA/${CATEGORY}/LISTS
+    cp -rp ${SYSD}/DATA/ORG_LV1-3/ ${SYSD}/DATA/${CATEGORY}/LISTS/${SET_CATEGORY_NO}
     chmod -R 770 ${SYSD}/DATA/${CATEGORY} #オーナーと権限を再帰的に設定
     #chown -R root:apache ${SYSD}/DATA/NUMBERS/${CATEGORY}
     ERROR_CHECK
 fi
+
+########################################
+#DATAディレクトリ
+DATAD=${SYSD}/DATA/${CATEGORY}/LISTS/${SET_CATEGORY_NO}
 
 ########################################
 #セット番号の次のロットを追加する
@@ -70,12 +85,6 @@ NEW_NUM=`${SYSD}/CGI/NUMBERS $1 'SET_LIST' `
 #日付を設定
 CREATE_DATE=$(date +%Y%m%d%H%M%S)
 UPDATE_DATE=$CREATE_DATE
-
-########################################
-#仮登録ディレクトリ
-SESSION=$(session_get 'sureshot_stuff_session_id') 
-STUFF_ID=$(cat ${SYSD}/SESSION/${SESSION})
-TEMPD=${SYSD}/TMP/${STUFF_ID}
 
 #######################################
 #仮登録セットリストを取得
@@ -102,21 +111,9 @@ cat ${DATAD}/LV2/${NEW_NUM}_setlist_${CREATE_DATE} > ${DATAD}/LV3/${NEW_NUM}_set
 cat ${DATAD}/LV2/${NEW_NUM}_setlist_operation_${CREATE_DATE} > ${DATAD}/LV3/${NEW_NUM}_setlist_operation_${CREATE_DATE}
 cat ${DATAD}/LV2/${NEW_NUM}_setlist_parts_${CREATE_DATE} > ${DATAD}/LV3/${NEW_NUM}_setlist_parts_${CREATE_DATE}
 
-########################################
-#セットリストを取得
-cat ${DATAD}/*[^_d]/LV3/*[^_d]                      |
-LANG=C sort -nk1,1                                  |
-juni                                                > $tmp-records
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/RECORDS.HTML $tmp-records > $tmp-table
-
-########################################
-# 改行文字を「\\n」という3文字の文字列に置換
-TABLE_RECORDS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table`
-
-########################################
-#tableにrecordsを嵌め込む
-cat ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/TABLE.HTML         |
-sed -e "s|###TABLE_RECORDS###|${TABLE_RECORDS}|g"           > $tmp-html
+#######################################
+#仮登録セットリストを削除
+rm -rf ${TEMPD}
 
 ########################################
 #ending

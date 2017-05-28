@@ -38,8 +38,8 @@ FIN
 #仮登録を削除
 SESSION=$(session_get 'sureshot_stuff_session_id') 
 STUFF_ID=$(cat ${SYSD}/SESSION/${SESSION})
-TEMPD=${SYSD}/TMP/${STUFF_ID}
-rm -f ${TEMPD}/set_list
+TEMPD=${SYSD}/TMP/${STUFF_ID}/SET_LIST
+[ -e "${TEMPD}" ] && rm -rf ${TEMPD} || mkdir ${TEMPD}
 
 ########################################
 #セットカテゴリを取得
@@ -59,32 +59,16 @@ CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-set-category-new`
 #新規ではなくバリデーションNGで戻ってきた場合、$tmpから値を取得
 #tableにrecordsを嵌め込む　※実質は新規なのでレコードは存在しない。平仄あわせ。
 cat ${SYSD}/APPLI/${CATEGORY}/NEW/HTML/SET/TABLE.HTML               |
-sed -e "s|###CATEGORY###|${CATEGORY_NEW}|g"                         |
-sed -e "s/###SET_CATEGORY_NM###/$(cat $tmp-set-category-nm)/"       |
-sed -e "s/###SET_CATEGORY_NM_HID###/$(cat $tmp-set-category-nm)/"   |
-sed -e "s/###SET_CATEGORY_NO_HID###/$(cat $tmp-set-category-no)/"   |
-sed -e "s/###SET_NM###/$(cat $tmp-set-nm)/"                         |
-sed -e "s/###SET_PRICE###/$(cat $tmp-set-price)/"                   |
-sed -e "s/###SET_REMARKS###/$(cat $tmp-set-remarks)/"               > $tmp-table-html
+sed -e "s|###CATEGORY###|${CATEGORY_NEW}|g"                         > $tmp-table-html
 
 ########################################
 # 改行文字を「\\n」という3文字の文字列に置換
 TABLE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-html`
 
-########################################
-#新規ではなくバリデーションNGで戻ってきた場合、$tmpから値を取得
-[ -e $tmp-valid-set-category-no-nm ] && VALID=NG || echo 'hidden' > $tmp-valid-set-category-no-nm 
-[ -e $tmp-valid-set-nm ] && VALID=NG || echo 'hidden' > $tmp-valid-set-nm 
-[ -e $tmp-valid-set-price ] && VALID=NG || echo 'hidden' > $tmp-valid-set-price 
-[ -e $tmp-valid-set-nm-duplicate ] && VALID=NG || echo 'hidden' > $tmp-valid-set-nm-duplicate 
 #tableをはめ込む、ページャーを差し込む
-cat ${SYSD}/APPLI/${CATEGORY}/NEW/HTML/SET/INPUT.HTML                 |
-sed -e "s|###INFO_MSG###||g"                                          |
-sed -e "s/###CATEGORY_ERR###/$(cat $tmp-valid-set-category-no-nm)/"   |
-sed -e "s/###NAME_ERR###/$(cat $tmp-valid-set-nm)/"                   |
-sed -e "s/###PRICE_ERR###/$(cat $tmp-valid-set-price)/"               |
-sed -e "s/###NAME_DUPLECATED###/$(cat $tmp-valid-set-nm-duplicate)/"  |
-sed -e "s|###TABLE###|${TABLE}|g"                                     > $tmp-html
+cat ${SYSD}/APPLI/${CATEGORY}/NEW/HTML/SET/INPUT.HTML               |
+sed -e "s|###INFO_MSG###|"登録するセット名を入力してください。"|g"  |
+sed -e "s|###TABLE###|${TABLE}|g"                                   > $tmp-html
 
 ########################################
 #page name
