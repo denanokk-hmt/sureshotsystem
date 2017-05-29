@@ -2,22 +2,30 @@
 <!--<html>-->
 
 <div class="container">
-    
-    <div class="container">
-    <div class="fixed gray-trans-over">
+ 
+    <!--Header Info& Goto subpage button-->
+    <div class="fixed gray-trans-over z-index-3" style="padding:10px;">
 
-        <!--Header Info-->
+        <!--Infomation-->
         <div class="row">
             <label class="control-label col-sm-1">
                 <h3><i class="glyphicon glyphicon-info-sign"></i></h3>
             </label>
             <div class="col-sm-6 lbl-header-info">
-                <span id="info-msg" class="label label-lg label-###INFO_LV###">
+                <span id="info-msg" class="label label-lg ">
                     ###INFO_MSG###
                 </span>
             </div>
         </div>
-    </div>
+
+        <!--Goto Subpage-->
+        <div class="btn-toolbar">
+            <button class="btn btn-subpage btn-default col-smx-3 " />Set</button>
+            <button class="btn btn-subpage btn-default col-smx-3 " />Operation</button>
+            <button class="btn btn-subpage btn-info col-smx-3 disabled" />Parts</button>
+            <button class="btn btn-subpage btn-success col-smx-3 " />Confirm</button>
+        </div>
+
     </div>
 
     <!--Spacer-->
@@ -25,7 +33,7 @@
 
     <!--Contents Records/Pagination-->
     <div class="header-under-contents">
-        <form id="form1" class="form-inline form-horizontal"  action="" method="">
+        <form id="set_list" class="form-inline form-horizontal"  action="" method="">
             <div class="contents-table">
                 ###TABLE###
             </div>
@@ -40,6 +48,15 @@
         $("#pager").sticky({topSpacing:0});
     });
 */
+
+    //ページ移動
+    $(".btn-toolbar .btn-subpage").on('click', function() {
+        var func = $(this).html().toUpperCase();
+        var frm = document.forms['set_list'];
+        frm.method = 'GET';
+        frm.action = '/APP/SET_LIST/NEW/' + func + '/INPUT';
+        frm.submit();
+    });
 
     //カテゴリを選択
     $(document).on('click', 'a.category-list', function() {

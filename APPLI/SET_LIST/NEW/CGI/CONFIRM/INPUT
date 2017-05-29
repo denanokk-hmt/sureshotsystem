@@ -2,7 +2,7 @@
 #
 
 ########################################
-# SET_LIST/NEW/PARTS INPUT.CGI
+# SET_LIST/NEW/CONFIRM INPUT.CGI
 #
 #   $1:必須 $$
 #
@@ -35,52 +35,63 @@ FIN
 }
 
 ########################################
+#セットのバリデーション。NGならばセットに戻す。
+#RESULT=`${SYSD}/APPLI/${CATEGORY}/${FUNC}/CGI/SET/CONFIRM $1`
+#if [ "${RESULT}" != 'OK' ]; then
+#    echo "NG"
+#    exit 0
+#fi
+
+########################################
 #仮登録を削除
 #SESSION=$(session_get 'sureshot_stuff_session_id') 
 #STUFF_ID=$(cat ${SYSD}/SESSION/${SESSION}
 #TEMPD=${SYSD}/TMP/${STUFF_ID}
 TEMPD=${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/SET_LIST
-#rm -f ${TEMPD}/set_list_parts
+
+
 
 ########################################
-#部品カテゴリを取得
-cat ${SYSD}/DATA/PARTS_CATEGORY/LISTS/LV3/*[^_d]    |
-LANG=C sort -nk1,1                                      > $tmp-parts-category
+#仮登録を取得
+#SET_ARRY=(`cat ${TEMPD}/set_list`)
+SET_CATEGORY_NO=$(cat ${TEMPD}/set_list | cut -d' ' -f1)
+SET_CATEGORY_NM=$(cat ${TEMPD}/set_list | cut -d' ' -f2)
+SET_NM=$(cat ${TEMPD}/set_list | cut -d' ' -f3)
+SET_PRICE=$(cat ${TEMPD}/set_list | cut -d' ' -f4)
+SET_REMARKS=$(cat ${TEMPD}/set_list | cut -d' ' -f5)
 
 ########################################
-#部品新規登録用の部品カテゴリ
-# 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/PARTS/PARTS_CATEGORY_NEW.HTML $tmp-parts-category > $tmp-parts-category-new
+#Get records
+cat ${TEMPD}/set_list_operation     |
+juni                                |
+LANG=C sort -nk1,1                  > $tmp-records
+mojihame -lRECORDS_OPERATION ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/CONFIRM/OPERATION_RECORDS.HTML $tmp-records > $tmp-table-records-operaion
 
 ########################################
-# セットカテゴリの改行文字を「\\n」という3文字の文字列に置換
-CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-new`
-
-########################################
-#部品レコード用の部品カテゴリ
-# 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/PARTS/PARTS_CATEGORY_LIST.HTML $tmp-parts-category > $tmp-parts-category-list
-
-########################################
-#部品カテゴリの改行文字を「\\n」という3文字の文字列に置換
-CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-list`
+# 改行文字を「\\n」という3文字の文字列に置換
+TABLE_RECORDS_OPERATION=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-records-operaion`
 
 ########################################
 #Get records
 cat ${TEMPD}/set_list_parts         |
 juni                                |
 LANG=C sort -nk1,1                  > $tmp-records
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/PARTS/RECORDS.HTML $tmp-records > $tmp-table-records
+mojihame -lRECORDS_PARTS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/CONFIRM/PARTS_RECORDS.HTML $tmp-records > $tmp-table-records-parts
 
 ########################################
 # 改行文字を「\\n」という3文字の文字列に置換
-TABLE_RECORDS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-records`
+TABLE_RECORDS_PARTS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-records-parts`
 
 ########################################
 #tableにrecordsを嵌め込む
-cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/PARTS/TABLE.HTML     |
-sed -e "s|###TABLE_RECORDS###|${TABLE_RECORDS}|g"               |
-sed -e "s|###CATEGORY###|${CATEGORY_NEW}|g"                     > $tmp-table-html
+cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/CONFIRM/TABLE.HTML         |
+sed -e "s|###SET_CATEGORY_NM###|${SET_CATEGORY_NM}|g"                 |
+sed -e "s|###SET_CATEGORY_NO###|${SET_CATEGORY_N0}|g"                 |
+sed -e "s|###SET_NM###|${SET_NM}|g"                                   |
+sed -e "s|###SET_PRICE###|${SET_PRICE}|g"                             |
+sed -e "s|###SET_REMARKS###|${SET_REMARKS}|g"                         |
+sed -e "s|###TABLE_RECORDS_OPERATION###|${TABLE_RECORDS_OPERATION}|g" |
+sed -e "s|###TABLE_RECORDS_PARTS###|${TABLE_RECORDS_PARTS}|g"         > $tmp-table-html
 
 ########################################
 # 改行文字を「\\n」という3文字の文字列に置換
@@ -89,12 +100,12 @@ TABLE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-html`
 ########################################
 #tableをはめ込む、ページャーを差し込む
 cat ${SYSD}/APPLI/${CATEGORY}/NEW/HTML/PARTS/INPUT.HTML                 |
-sed -e "s|###INFO_MSG###|"セットに登録する部品を追加してください。"|g"  |
+sed -e "s|###INFO_MSG###|"セットに登録する内容を確認してください。"|g"  |
 sed -e "s|###TABLE###|${TABLE}|g"                                       > $tmp-html
 
 ########################################
 #page name
-echo "Set Parts input" > $tmp-pagename
+echo "Set Confirm" > $tmp-pagename
 
 ########################################
 echo "OK"

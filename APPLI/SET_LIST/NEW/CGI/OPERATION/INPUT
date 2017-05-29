@@ -48,7 +48,7 @@ FIN
 #STUFF_ID=$(cat ${SYSD}/SESSION/${SESSION}
 #TEMPD=${SYSD}/TMP/${STUFF_ID}
 TEMPD=${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/SET_LIST
-rm -f ${TEMPD}/set_list_operation
+#rm -f ${TEMPD}/set_list_operation
 
 ########################################
 #作業カテゴリを取得
@@ -72,6 +72,17 @@ mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/OPERATION/OPERATION_CA
 ########################################
 #作業カテゴリの改行文字を「\\n」という3文字の文字列に置換
 CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-operation-category-list`
+
+########################################
+#Get records
+cat ${TEMPD}/set_list_operation     |
+juni                                |
+LANG=C sort -nk1,1                  > $tmp-records
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/OPERATION/RECORDS.HTML $tmp-records > $tmp-table-records
+
+########################################
+# 改行文字を「\\n」という3文字の文字列に置換
+TABLE_RECORDS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-records`
 
 ########################################
 #tableにrecordsを嵌め込む

@@ -39,7 +39,16 @@ FIN
 SESSION=$(session_get 'sureshot_stuff_session_id') 
 STUFF_ID=$(cat ${SYSD}/SESSION/${SESSION})
 TEMPD=${SYSD}/TMP/${STUFF_ID}/SET_LIST
-[ -e "${TEMPD}" ] && rm -rf ${TEMPD} || mkdir ${TEMPD}
+#[ -e "${TEMPD}" ] && rm -rf ${TEMPD} || mkdir ${TEMPD}
+
+########################################
+#仮登録を取得
+#SET_ARRY=(`cat ${TEMPD}/set_list`)
+SET_CATEGORY_NO=$(cat ${TEMPD}/set_list | cut -d' ' -f1)
+SET_CATEGORY_NM=$(cat ${TEMPD}/set_list | cut -d' ' -f2)
+SET_NM=$(cat ${TEMPD}/set_list | cut -d' ' -f3)
+SET_PRICE=$(cat ${TEMPD}/set_list | cut -d' ' -f4)
+SET_REMARKS=$(cat ${TEMPD}/set_list | cut -d' ' -f5)
 
 ########################################
 #セットカテゴリを取得
@@ -56,10 +65,14 @@ mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/NEW/HTML/SET/SET_CATEGORY_NEW.HTML 
 CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-set-category-new`
 
 ########################################
-#新規ではなくバリデーションNGで戻ってきた場合、$tmpから値を取得
-#tableにrecordsを嵌め込む　※実質は新規なのでレコードは存在しない。平仄あわせ。
-cat ${SYSD}/APPLI/${CATEGORY}/NEW/HTML/SET/TABLE.HTML               |
-sed -e "s|###CATEGORY###|${CATEGORY_NEW}|g"                         > $tmp-table-html
+#tableにrecordsを嵌め込む
+cat ${SYSD}/APPLI/${CATEGORY}/NEW/HTML/SET/TABLE.HTML   |
+sed -e "s|###SET_CATEGORY_NM###|${SET_CATEGORY_NM}|g"   |
+sed -e "s|###SET_CATEGORY_NO###|${SET_CATEGORY_NO}|g"   |
+sed -e "s|###SET_NM###|${SET_NM}|g"                     |
+sed -e "s|###SET_PRICE###|${SET_PRICE}|g"               |
+sed -e "s|###SET_REMARKS###|${SET_REMARKS}|g"           |
+sed -e "s|###CATEGORY###|${CATEGORY_NEW}|g"             > $tmp-table-html
 
 ########################################
 # 改行文字を「\\n」という3文字の文字列に置換
