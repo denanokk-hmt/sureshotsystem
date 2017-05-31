@@ -34,11 +34,11 @@
                                <li name="CATEGORY_PAGE">
                                    <a class="category-list" id="cat_list_0" >ALL</a>
                                </li>
-                               ###CATEGORY###
+                               ###SET_CATEGORY###
                             </ul>
                         </div>
                         <div class="btn-group">
-                            <input type="text" name="CATEGORY_NM_PAGE" id="CATEGORY_NM_PAGE" value="###CATEGORY_NM_PAGE###" class="form-control" disabled />
+                            <input type="text" name="CATEGORY_NM_PAGE" id="CATEGORY_NM_PAGE" value="" class="form-control" disabled />
                         </div>
 
                         <!--Search Submit button-->
@@ -49,8 +49,8 @@
                         </div>
                     </div>
 
-                    <input type="hidden" name="CATEGORY_NM_HID_PAGE" id="CATEGORY_NM_HID_PAGE" value="###CATEGORY_NM_PAGE###" class="form-control" />
-                    <input type="hidden" name="CATEGORY_NO_HID_PAGE" id="CATEGORY_NO_HID_PAGE" value="###CATEGORY_NO_PAGE###" class="form-control" />
+                    <input type="hidden" name="SET_CATEGORY_NM_HID_PAGE" id="SET_CATEGORY_NM_HID_PAGE" value="###SET_CATEGORY_NM_PAGE###" class="form-control" />
+                    <input type="hidden" name="SET_CATEGORY_NO_HID_PAGE" id="SET_CATEGORY_NO_HID_PAGE" value="###SET_CATEGORY_NO_PAGE###" class="form-control" />
                     <input type="hidden" name="SEARCH" id="SEARCH" value="1" class="form-control" />
                     <input type="hidden" name="page" id="page" value="1" class="form-control" />
                 </div>
@@ -67,7 +67,7 @@
 
     <!--Contents Records/Pagination-->
     <div class="header-under-contents">
-        <form class="form-inline form-horizontal"  action="" method="">
+        <form id="form_set_list" class="form-inline form-horizontal"  action="GET" method="/APP/SET_LIST/EDIT/SET/INPUT">
             <div class="contents-table">
                 ###TABLE###
             </div>
@@ -84,6 +84,69 @@
     $(document).ready(function() {
         $("#pager").sticky({topSpacing:0});
     });
+
+    //NEWボタン
+    $(document).on('click', 'a.btn-set-new', function() {
+alert();
+        //イベント基本情報
+        var idname = $(this).attr("id"); 
+        var list_id = idname.split("_");
+        var action = list_id[1];
+        var set_no = list_id[2];
+  
+        var frm = document.forms['form_set_list'];
+        frm.method = 'GET';
+        frm.action = '/APP/SET_LIST/NEW/SET/INPUT';
+        frm.submit();
+    });
+
+    //EDITボタン
+    $(document).on('click', 'a.btn-set-edit', function() {
+
+        //イベント基本情報
+        var idname = $(this).attr("id"); 
+        var list_id = idname.split("_");
+        var action = list_id[1];
+        var set_no = list_id[2];
+  
+        var frm = document.forms['form_set_list'];
+        frm.method = 'GET';
+        frm.action = '/APP/SET_LIST/EDIT/SET/INPUT' + '?set_no=' + set_no;
+        frm.submit();
+    });
+
+    //DELETEボタン
+    $(document).on('click', 'a.btn-set-delete', function() {
+
+        //イベント基本情報
+        var idname = $(this).attr("id"); 
+        var list_id = idname.split("_");
+        var action = list_id[1];
+        var set_no = list_id[2];
+  
+        //セット名を仮登録
+        var jqXHR = $.ajax({
+            type: 'POST',
+            url: '/APP/SET_LIST/DELETE/COMPLETE',
+            data: {
+              SET_NO: set_no
+            }
+        });
+        jqXHR.done(function(data) {
+            if (data == 2222) {
+                alert("セット" + set_no + "の削除に失敗しました。");
+            } else {
+                $('intput[type="text"]').each(function() {
+                });
+                alert("セット" + set_no + "を削除しました。");
+            }
+        });
+        jqXHR.fail(function(data) {
+            alert("セット" + set_no + "の削除に失敗しました。");
+        });
+    });
+
+
 
     //カテゴリを選択
     $(document).on('click', 'a.category-list', function() {

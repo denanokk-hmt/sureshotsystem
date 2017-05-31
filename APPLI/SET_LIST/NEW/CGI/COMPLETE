@@ -95,23 +95,25 @@ UPDATE_DATE=$CREATE_DATE
 #SET_LIST/LIST/LV*/[ID]_setlist_[yyyymmddhhmmss]
 #SET_LIST/LIST/LV*/[ID]_setlist_operation_[yyyymmddhhmmss]
 #SET_LIST/LIST/LV*/[id]_setlist_parts_[yyyymmddhhmmss]
-cat ${TEMPD}/set_list | awk -v cdt=${CREATE_DATE} -v udt=${UPDATE_DATE} '{print $0, cdt, udt}' > $tmp-set-list
-cat ${TEMPD}/set_list_operation | awk -v cdt=${CREATE_DATE} -v udt=${UPDATE_DATE} '{print $0, cdt, udt}' > $tmp-set-list_operation
-cat ${TEMPD}/set_list_parts | awk -v cdt=${CREATE_DATE} -v udt=${UPDATE_DATE} '{print $0, cdt, udt}' > $tmp-set-list_parts
+#セット番号、セットカテゴリ番号、セットカテゴリ名、セット名、セット価格、備考、作成日、更新日
+cat ${TEMPD}/set_list | awk -v id=${NEW_NUM} -v cdt=${CREATE_DATE} -v udt=${UPDATE_DATE} '{print id, $0, cdt, udt}' > $tmp-set-list
+#セット番号、セットカテゴリ番号、作業カテゴリ番号、作業名、作業数量、作業価格、作成日、更新日
+cat ${TEMPD}/set_list_operation | awk -v id=${NEW_NUM} -v cat=${SET_CATEGORY_NO} -v cdt=${CREATE_DATE} -v udt=${UPDATE_DATE} '{print id, cat, $0, cdt, udt}' > $tmp-set-list_operation
+#セット番号、セットカテゴリ番号、部品カテゴリ番号、部品名、部品数量、部品価格、作成日、更新日
+cat ${TEMPD}/set_list_parts | awk -v id=${NEW_NUM} -v cat=${SET_CATEGORY_NO} -v cdt=${CREATE_DATE} -v udt=${UPDATE_DATE} '{print id, cat, $0, cdt, udt}' > $tmp-set-list_parts
 
 ########################################
 #データ格納
 #LV1
-cat $tmp-set-list > /tmp/GFGF
-mv $tmp-set-list ${DATAD}/LV1/${NEW_NUM}_setlist_${CREATE_DATE}
+mv $tmp-set-list ${DATAD}/LV1/${NEW_NUM}_setlist_base_${CREATE_DATE}
 mv $tmp-set-list_operation ${DATAD}/LV1/${NEW_NUM}_setlist_operation_${CREATE_DATE}
 mv $tmp-set-list_parts ${DATAD}/LV1/${NEW_NUM}_setlist_parts_${CREATE_DATE}
 #LV2
-cat ${DATAD}/LV1/${NEW_NUM}_setlist_${CREATE_DATE} > ${DATAD}/LV2/${NEW_NUM}_setlist_${CREATE_DATE}
+cat ${DATAD}/LV1/${NEW_NUM}_setlist_base_${CREATE_DATE} > ${DATAD}/LV2/${NEW_NUM}_setlist_base_${CREATE_DATE}
 cat ${DATAD}/LV1/${NEW_NUM}_setlist_operation_${CREATE_DATE} > ${DATAD}/LV2/${NEW_NUM}_setlist_operation_${CREATE_DATE}
 cat ${DATAD}/LV1/${NEW_NUM}_setlist_parts_${CREATE_DATE} > ${DATAD}/LV2/${NEW_NUM}_setlist_parts_${CREATE_DATE}
 #LV3
-cat ${DATAD}/LV2/${NEW_NUM}_setlist_${CREATE_DATE} > ${DATAD}/LV3/${NEW_NUM}_setlist_${CREATE_DATE}
+cat ${DATAD}/LV2/${NEW_NUM}_setlist_base_${CREATE_DATE} > ${DATAD}/LV3/${NEW_NUM}_setlist_base_${CREATE_DATE}
 cat ${DATAD}/LV2/${NEW_NUM}_setlist_operation_${CREATE_DATE} > ${DATAD}/LV3/${NEW_NUM}_setlist_operation_${CREATE_DATE}
 cat ${DATAD}/LV2/${NEW_NUM}_setlist_parts_${CREATE_DATE} > ${DATAD}/LV3/${NEW_NUM}_setlist_parts_${CREATE_DATE}
 

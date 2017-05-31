@@ -4,54 +4,52 @@
 l
 <!--RECORDS-->
 <tr id="edit-row-%2">
-    <td rowspan="3">%1</td>
-    <td rowspan="3">
+
+    <!--順位-->
+    <td>%1</td>
+
+    <!--セット番号-->
+    <td>
         <span class="label label-default">%2</span>
     </td>
+
 		<!--セットカテゴリ-->
     <td>
         <div class="edit">
             <div class="form-group">
-                <input type="text" name="SET_CATEGORY_NM_%2" id="SET_CATEGORY_NM_%2" value="%3" class="form-control input-sm" disabled />
-                <input type="hidden" name="SET_CATEGORY_NO_HID_%2" id="CATEGORY_NO_HID_%2" value="%2" class="form-control" disabled=disabled/>
+                <input type="text" name="SET_CATEGORY_NM_%2" id="SET_CATEGORY_NM_%2" value="%4" class="form-control input-sm" disabled />
+                <input type="hidden" name="SET_CATEGORY_NO_HID_%2" id="CATEGORY_NO_HID_%2" value="%3" class="form-control" disabled=disabled/>
             </div>
         </div>
     </td>
+
 		<!--セット名-->
 		<td>
 		    <div class="form-group">
-	          <input type="text" name="SET_NM_%2" id="SET_NM_%2" value="%6" class="form-control input-sm" disabled=disabled/>
-		        <input type="hidden" name="SET_NO_HID_%2" id="SET_NO_HID_%2" value="%5" class="form-control" />
+	          <input type="text" name="SET_NM_%2" id="SET_NM_%2" value="%5" class="form-control input-sm" disabled=disabled/>
 		    </div>
 		</td>
-		<!--R1 部品カテゴリ-->
+
+		<!--セット価格-->
 		<td>
 		    <div class="form-group">
-		        <div class="btn-group">
-		            <div class="btn-group">
-		                <button type="button" class="btn dropdown-toggle input-sm category" id="parts_categogy_%2" data-toggle="dropdown" aria-expended="false">
-		                    <span class="caret"></span>
-		                </button>
-		                <ul class="dropdown-menu" role="menu" name="%2" id="category_ul_%2">
-		                    ###PARTS_CATEGORY###
-		                </ul>
-		            </div>
-		            <div class="btn-group">
-		                <input type="text" name="PARTS_CATEGORY_NM_%2" id="PARTS_CATEGORY_NM_%2" value="%12" class="form-control input-sm" disabled placeholder="部品カテゴリ"/>
-		            </div>
-		        </div>
-		        <input type="hidden" name="PARTS_CATEGORY_NM_HID_%2" id="PARTS_CATEGORY_NM_HID_%2" value="%12" class="form-control" />
-		        <input type="hidden" name="PARTS_CATEGORY_NO_HID_%2" id="PARTS_CATEGORY_NO_HID_%2" value="%11" class="form-control" />
-		        <input type="hidden" name="PARTS_CATEGORY_NX_HID_%2" id="PARTS_CATEGORY_NX_HID_%2" value="%11" class="form-control" />
+	          <input type="text" name="SET_PRICE_%2" id="SET_PRICE_NM_%2" value="%6" class="form-control input-sm" disabled=disabled />
 		    </div>
-		</td>
-		<td></td>
-		<td></td>
+    </td>
+
+    <!--備考-->
+		<td>
+		    <div class="form-group">
+	          <input type="text" name="SET_REMARKS_%2" id="SET_REMARKS_%2" value="%6" class="form-control input-sm" disabled=disabled />
+		    </div>
+    </td>
+
+  
     <td>
-        <a class="btn btn-warning btn-sm btn-set" id="SET_EDIT_%2" >EDIT</a>
+        <a class="btn btn-warning btn-sm btn-set-edit" id="SET_EDIT_%2" >EDIT</a>
     </td>
     <td>
-        <a class="btn btn-danger btn-sm btn-set" id="SET_DELETE_%2" >DEL</a>
+        <a class="btn btn-danger btn-sm btn-set-delete" id="SET_DELETE_%2" >DEL</a>
     </td>
 </tr>
           
