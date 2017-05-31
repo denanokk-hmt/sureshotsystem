@@ -46,22 +46,24 @@ SESSION=$(session_get 'sureshot_stuff_session_id')
 STUFF_ID=$(cat ${SYSD}/SESSION/${SESSION})
 TEMPD=${SYSD}/TMP/${STUFF_ID}/SET_LIST
 
-
 ########################################
 #セットカテゴリ
 SET_CATEGORY_NO=$(cat ${TEMPD}/set_list | awk '{print $1}')
 
 ########################################
 #ディレクトリを作成する
-if [ -e ${SYSD}/DATA/${CATEGORY}  ]; then
+if [ -e "${SYSD}/DATA/${CATEGORY}"  ]; then
     :
 else
     mkdir ${SYSD}/DATA/${CATEGORY}
     mkdir ${SYSD}/DATA/${CATEGORY}/LISTS
-    mkdir ${SYSD}/DATA/${CATEGORY}/LISTS/${SET_CATEGORY_NO}
-    cp -rp ${SYSD}/DATA/ORG_LV1-3/ ${SYSD}/DATA/${CATEGORY}/LISTS/${SET_CATEGORY_NO}/
+fi
+if [ -e "${SYSD}/DATA/${CATEGORY}/LISTS/${SET_CATEGORY_NO}"  ]; then
+    :
+else
+    #mkdir ${SYSD}/DATA/${CATEGORY}/LISTS/${SET_CATEGORY_NO}
+    cp -rp ${SYSD}/DATA/ORG_LV1-3 ${SYSD}/DATA/${CATEGORY}/LISTS/${SET_CATEGORY_NO}/
     chmod -R 770 ${SYSD}/DATA/${CATEGORY} #オーナーと権限を再帰的に設定
-    #chown -R root:apache ${SYSD}/DATA/NUMBERS/${CATEGORY}
     ERROR_CHECK
 fi
 
@@ -100,9 +102,10 @@ cat ${TEMPD}/set_list_parts | awk -v cdt=${CREATE_DATE} -v udt=${UPDATE_DATE} '{
 ########################################
 #データ格納
 #LV1
-$(mv $tmp-set-list ${DATAD}/LV1/${NEW_NUM}_setlist_${CREATE_DATE})
-$(mv $tmp-set-list_operation ${DATAD}/LV1/${NEW_NUM}_setlist_operation_${CREATE_DATE})
-$(mv $tmp-set-list_parts ${DATAD}/LV1/${NEW_NUM}_setlist_parts_${CREATE_DATE})
+cat $tmp-set-list > /tmp/GFGF
+mv $tmp-set-list ${DATAD}/LV1/${NEW_NUM}_setlist_${CREATE_DATE}
+mv $tmp-set-list_operation ${DATAD}/LV1/${NEW_NUM}_setlist_operation_${CREATE_DATE}
+mv $tmp-set-list_parts ${DATAD}/LV1/${NEW_NUM}_setlist_parts_${CREATE_DATE}
 #LV2
 cat ${DATAD}/LV1/${NEW_NUM}_setlist_${CREATE_DATE} > ${DATAD}/LV2/${NEW_NUM}_setlist_${CREATE_DATE}
 cat ${DATAD}/LV1/${NEW_NUM}_setlist_operation_${CREATE_DATE} > ${DATAD}/LV2/${NEW_NUM}_setlist_operation_${CREATE_DATE}

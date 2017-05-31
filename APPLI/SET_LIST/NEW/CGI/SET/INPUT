@@ -42,6 +42,15 @@ TEMPD=${SYSD}/TMP/${STUFF_ID}/SET_LIST
 #[ -e "${TEMPD}" ] && rm -rf ${TEMPD} || mkdir ${TEMPD}
 
 ########################################
+#SET_LISTディレクトリを作成
+if [ -e "${TEMPD}" ]; then
+  :
+else
+  mkdir ${TEMPD}
+  chmod 770 -R ${TEMPD}
+fi
+
+########################################
 #仮登録を取得
 #SET_ARRY=(`cat ${TEMPD}/set_list`)
 SET_CATEGORY_NO=$(cat ${TEMPD}/set_list | cut -d' ' -f1)

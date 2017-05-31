@@ -114,8 +114,44 @@
         }
     });
 
+    //登録済作業名ボタン押下
+    $(document).on('click', 'button.operation', function() {
+
+        //選択カテゴリを取得する
+        var kindU = $(this).parent().attr("name");        
+        var kindL = $(this).parent().attr("name").toLowerCase();        
+
+        //SEARCH用URLを設定
+        search_url = '/APP/' + kindU + '_LIST/SEARCH/INPUT';
+
+        //選択した部品のidから行を取得する
+        var idname = $(this).attr("id"); 
+        var list_id = idname.split("_");
+        var row = list_id[1];
+        var cat_no = $('#' + kindU + '_CATEGORY_NO_HID_' + row).val();
+
+        //選択したカテゴリで抽出
+        var jqXHR = $.ajax({
+            type: 'POST',
+            url: search_url,
+            data: {
+                CATEGORY_NO: cat_no,
+                ROW: row
+            }
+        });
+        jqXHR.done(function(data) {
+            search_result = data;
+            $('#dropdown-' + kindL + '-' + row).addClass('open');
+            $('#dropdown-' + kindL + '-list-' + row).html(data);
+       });
+        jqXHR.fail(function() {
+            search_result = '一致する作業名がありません。';
+        });
+    });
+
+
     //作業選択
-    $(document).on('click', 'li.list-operation,li.list-parts', function() {
+    $(document).on('click', 'li.list-operation', function() {
 
         var kind = $(this).parent().parent().attr("name");
 
