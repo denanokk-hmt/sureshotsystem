@@ -1,0 +1,32 @@
+<!--<!DOCTYPE html>-->
+<!--<html>-->
+<!--SET LISTS Records-->
+
+<!--RECORDS_OPERATION-->
+<!-- R1 -->
+<tr id="operation-edit-row-%1">
+    <td>
+        <span class="label label-default">%1</span>
+    </td>
+		<!--作業カテゴリ-->
+		<td>
+	      <input type="text" name="OPERATION_CATEGORY_NM_HID_%1" id="OPERATION_CATEGORY_NM_HID_%1" value="%3" class="form-control input-sm" disabled=disabled placeholder="作業カテゴリ" />
+		    <input type="hidden" name="OPERATION_CATEGORY_NO_HID_%1" id="OPERATION_CATEGORY_NO_HID_%1" value="%2" class="form-control" />
+		</td>
+     <!--作業名-->
+    <td>
+        <input type="text" name="OPERATION_NM_HID_%1" id="OPERATION_NM_HID_%1" value="%5" class="form-control input-sm" disabled=disabled placeholder="作業名" />
+        <input type="hidden" name="OPERATION_NO_HID_%1" id="OPERATION_NO_HID_%1" value="%4" class="form-control" />
+    </td>
+    <!--作業価格-->
+    <td>
+        <input type="number" id="OPERATION_PRICE_%1" name="OPERATION_PRICE_%1" value="%6" class="form-control input-sm" placeholder="作業税抜価格" disabled=disabled />
+    </td>
+    <!--作業QTY-->
+    <td>
+        <input type="text" name="OPERATION_QTY_%1" id="OPERATION_QTY_%1" value="%7" class="form-control input-sm" placeholder="数量" disabled=disabled style="width:3em;"/>
+    </td>
+</tr>
+<!--RECORDS_OPERATION-->
+
+<!--</html>-->
