@@ -2,7 +2,7 @@
 #
 
 ########################################
-# SET_LIST/NEW/SET INPUT.CGI
+# SET_LIST/EDIT/SET INPUT.CGI
 #
 #   $1:必須 $$
 
@@ -34,32 +34,44 @@ FIN
 	exit 1
 }
 
-########################################
-#仮登録を削除
-SESSION=$(session_get 'sureshot_stuff_session_id') 
-STUFF_ID=$(cat ${SYSD}/SESSION/${SESSION})
-TEMPD=${SYSD}/TMP/${STUFF_ID}/SET_LIST
-#[ -e "${TEMPD}" ] && rm -rf ${TEMPD} || mkdir ${TEMPD}
+#
+#########################################
+##仮登録を削除
+#SESSION=$(session_get 'sureshot_stuff_session_id') 
+#STUFF_ID=$(cat ${SYSD}/SESSION/${SESSION})
+#TEMPD=${SYSD}/TMP/${STUFF_ID}/SET_LIST
+#[ -e "${TEMPD}" ] && rm -rf ${TEMPD} || :
+#
+#########################################
+##SET_LISTディレクトリを作成
+#if [ -e "${TEMPD}" ]; then
+#  :
+#else
+#  mkdir ${TEMPD}
+#  chmod 770 -R ${TEMPD}
+#fi
+#
+#########################################
+##仮登録を取得
+##SET_ARRY=(`cat ${TEMPD}/set_list`)
+#SET_CATEGORY_NO=$(cat ${TEMPD}/set_list | cut -d' ' -f1)
+#SET_CATEGORY_NM=$(cat ${TEMPD}/set_list | cut -d' ' -f2)
+#SET_NM=$(cat ${TEMPD}/set_list | cut -d' ' -f3)
+#SET_PRICE=$(cat ${TEMPD}/set_list | cut -d' ' -f4)
+#SET_REMARKS=$(cat ${TEMPD}/set_list | cut -d' ' -f5)
+#
 
 ########################################
-#SET_LISTディレクトリを作成
-if [ -e "${TEMPD}" ]; then
-  :
-else
-  mkdir ${TEMPD}
-  chmod 770 -R ${TEMPD}
-fi
+#
+#SET_CATEGORY_NO_HID_EDIT=1&SET_NO_HID_EDIT=52
+SET_CATEGORY_NO=$( cat $tmp-get | cut -d'&' -f1 | sed -e 's/SET_CATEGORY_NO_HID_EDIT\=//' | ruby -r uri -ne 'print URI.unescape $_')
+SET_NO=$( cat $tmp-get | cut -d'&' -f2 | sed -e 's/SET_NO_HID_EDIT\=//' | ruby -r uri -ne 'print URI.unescape $_')
 
-########################################
-#仮登録を取得
-#SET_ARRY=(`cat ${TEMPD}/set_list`)
-SET_CATEGORY_NO=$(cat ${TEMPD}/set_list | cut -d' ' -f1)
-SET_CATEGORY_NM=$(cat ${TEMPD}/set_list | cut -d' ' -f2)
-SET_NM=$(cat ${TEMPD}/set_list | cut -d' ' -f3)
-SET_PRICE=$(cat ${TEMPD}/set_list | cut -d' ' -f4)
-SET_REMARKS=$(cat ${TEMPD}/set_list | cut -d' ' -f5)
+echo ${SET_CATEGORY_NO}
+echo ${SET_NO}
+exit 2
 
-########################################
+#######################################
 #セットカテゴリを取得
 cat ${SYSD}/DATA/SET_CATEGORY/LISTS/LV3/*[^_d]    |
 LANG=C sort -nk1,1                                  > $tmp-set-category

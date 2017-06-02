@@ -82,7 +82,7 @@
         var func = $(this).html().toUpperCase();
         var frm = document.forms['assessment'];
         frm.method = 'GET';
-        frm.action = '/APP/ASSESSMENT/NEW/' + func + '/INPUT' + '?temp_no=' + temp_no;
+        frm.action = '/APP/ASSESSMENT/NEW/' + func + '/INPUT'
         frm.submit();
     });
 

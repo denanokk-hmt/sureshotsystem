@@ -67,7 +67,10 @@
 
     <!--Contents Records/Pagination-->
     <div class="header-under-contents">
-        <form id="form_set_list" class="form-inline form-horizontal"  action="GET" method="/APP/SET_LIST/EDIT/SET/INPUT">
+        <form name="form_set_list" class="form-inline form-horizontal"  action="" method="">
+	          <input type="hidden" name="SET_CATEGORY_NO_HID_EDIT" id="SET_CATEGORY_NO_HID_EDIT" value="" class="form-control input-sm" />
+	          <input type="hidden" name="SET_NO_HID_EDIT" id="SET_NO_HID_EDIT" value="" class="form-control input-sm" />
+  
             <div class="contents-table">
                 ###TABLE###
             </div>
@@ -87,13 +90,12 @@
 
     //NEWボタン
     $(document).on('click', 'a.btn-set-new', function() {
-alert();
+
         //イベント基本情報
         var idname = $(this).attr("id"); 
         var list_id = idname.split("_");
         var action = list_id[1];
         var set_no = list_id[2];
-  
         var frm = document.forms['form_set_list'];
         frm.method = 'GET';
         frm.action = '/APP/SET_LIST/NEW/SET/INPUT';
@@ -108,10 +110,16 @@ alert();
         var list_id = idname.split("_");
         var action = list_id[1];
         var set_no = list_id[2];
-  
+        var cat_no = $('#SET_CATEGORY_NO_HID_' + set_no).val(); 
         var frm = document.forms['form_set_list'];
+
+        //パラメータを設定
+        $('#SET_CATEGORY_NO_HID_EDIT').val(cat_no); 
+        $('#SET_NO_HID_EDIT').val(set_no); 
+
+        //submit
         frm.method = 'GET';
-        frm.action = '/APP/SET_LIST/EDIT/SET/INPUT' + '?set_no=' + set_no;
+        frm.action = '/APP/SET_LIST/EDIT/SET/INPUT';
         frm.submit();
     });
 
@@ -145,36 +153,6 @@ alert();
             alert("セット" + set_no + "の削除に失敗しました。");
         });
     });
-
-
-
-    //カテゴリを選択
-    $(document).on('click', 'a.category-list', function() {
-        
-        //選択カテゴリを取得する
-        var kindU = $(this).parent().attr("name");        
-        var kindL = $(this).parent().attr("name").toLowerCase();        
-
-        //SEARCH用URLを設定
-        search_url = '/APP/' + kindU + '_LIST/SEARCH/INPUT';
-
-        //選択した部品のidから行を取得する
-        var idname = $(this).attr("id"); 
-        var list_id = idname.split("_");
-        var row = $(this).parent().parent().attr("name");
-        var cat_no = list_id[2];
-        var choice = $(this).text();
-
-        //該当のレコードに選択したカテゴリ名を設定
-        $('#' + kindU + '_CATEGORY_NM_' + row).val(choice);
-        $('#' + kindU + '_CATEGORY_NM_HID_' + row).val(choice);
-
-        //該当のレコードに選択したカテゴリ番号を設定
-        $('#' + kindU + '_CATEGORY_NO_HID_' + row).val(cat_no);
-    });
-
-
-
 
 </script>
 <!--</html>-->

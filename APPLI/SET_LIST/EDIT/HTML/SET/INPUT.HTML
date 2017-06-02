@@ -52,22 +52,7 @@
         frm.submit();
     });
 
-    //カテゴリを選択
-    $(document).on('click', 'a.category-list', function() {
-
-        //選択した部品のidから行を取得する
-        var idname = $(this).attr("id"); 
-        var list_id = idname.split("_");
-        var row = $(this).parent().parent().attr("name");
-        var cat_no = list_id[2];
-        var choice = $(this).text();
-
-        //該当のレコードに選択したカテゴリ名を設定
-        $('#SET_CATEGORY_NM_' + row).val(choice);
-        $('#SET_CATEGORY_NO_HID_' + row).val(cat_no);
-    });
-
-    //NEWボタン
+    //EDITボタン
     $(document).on('click', 'a.btn-set', function() {
 
         //イベント基本情報
@@ -84,32 +69,12 @@
         var set_price = $('#SET_PRICE_' + row).val();
         var set_remarks = $('#SET_REMARKS_' + row).val();
 
-        //Validation
-        if (!set_category_no) {
-            alert("セットカテゴリが選択されていません。");
-            return;
-        }
-        //Validation
-        if (!set_nm) {
-            alert("セット名が入力されていません。");
-            return;
-        }
-        //Validation
-        if (set_nm.indexOf("&") != -1) {
-            alert("{&}文字は入力出来ません。");
-            return;
-        }
-        //Validation
-        if (!set_price) {
-            alert("セットの金額が入力されていません。");
-            return;
-        }
-
         //セット名を仮登録
         var jqXHR = $.ajax({
             type: 'POST',
             url: '/APP/SET_LIST/NEW/SET/COMPLETE',
             data: {
+              ROW: row,
               SET_CATEGORY_NO: set_category_no,
               SET_CATEGORY_NM: set_category_nm,
               SET_NM: set_nm,
@@ -131,6 +96,39 @@
             alert("セット" + row + "の" + action + "に失敗しました。");
         });
     });
+
+    //DELETEボタン
+    $(document).on('click', 'a.btn-set', function() {
+
+        //イベント基本情報
+        //selecter id format: kind_action_row
+        var idname = $(this).attr("id"); 
+        var list_id = idname.split("_");
+        var action = list_id[1];
+        var row = list_id[2];
+
+        //セット名を仮登録
+        var jqXHR = $.ajax({
+            type: 'POST',
+            url: '/APP/SET_LIST/DELETE/COMPLETE',
+            data: {
+              ROW: row
+            }
+        });
+        jqXHR.done(function(data) {
+            if (data == 2222) {
+                alert("セット;#" + row + " の削除に失敗しました。");
+            } else {
+                $('intput[type="text"]').each(function() {
+                });
+                alert("セット;#" + row + " を削除しました。");
+            }
+        });
+        jqXHR.fail(function(data) {
+            alert("セット;#" + row + " の削除に失敗しました。");
+        });
+    });
+
 
 </script>
 <!--</html>-->
