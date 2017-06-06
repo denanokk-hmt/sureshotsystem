@@ -34,50 +34,31 @@ FIN
 	exit 1
 }
 
-#
-#########################################
-##仮登録を削除
-#SESSION=$(session_get 'sureshot_stuff_session_id') 
-#STUFF_ID=$(cat ${SYSD}/SESSION/${SESSION})
-#TEMPD=${SYSD}/TMP/${STUFF_ID}/SET_LIST
-#[ -e "${TEMPD}" ] && rm -rf ${TEMPD} || :
-#
-#########################################
-##SET_LISTディレクトリを作成
-#if [ -e "${TEMPD}" ]; then
-#  :
-#else
-#  mkdir ${TEMPD}
-#  chmod 770 -R ${TEMPD}
-#fi
-#
-#########################################
-##仮登録を取得
-##SET_ARRY=(`cat ${TEMPD}/set_list`)
-#SET_CATEGORY_NO=$(cat ${TEMPD}/set_list | cut -d' ' -f1)
-#SET_CATEGORY_NM=$(cat ${TEMPD}/set_list | cut -d' ' -f2)
-#SET_NM=$(cat ${TEMPD}/set_list | cut -d' ' -f3)
-#SET_PRICE=$(cat ${TEMPD}/set_list | cut -d' ' -f4)
-#SET_REMARKS=$(cat ${TEMPD}/set_list | cut -d' ' -f5)
-#
-
 ########################################
-#
-#SET_CATEGORY_NO_HID_EDIT=1&SET_NO_HID_EDIT=52
+#GETパラメータを取得
 SET_CATEGORY_NO=$( cat $tmp-get | cut -d'&' -f1 | sed -e 's/SET_CATEGORY_NO_HID_EDIT\=//' | ruby -r uri -ne 'print URI.unescape $_')
 SET_NO=$( cat $tmp-get | cut -d'&' -f2 | sed -e 's/SET_NO_HID_EDIT\=//' | ruby -r uri -ne 'print URI.unescape $_')
 
-echo ${SET_CATEGORY_NO}
-echo ${SET_NO}
-exit 2
+#######################################
+#セットを取得
+cat ${DATAD}/${SET_CATEGORY_NO}/LV3/${SET_NO}_setlist_base_*[^_d]   |
+LA1NG=C sort -nk1,1                                                 > $tmp-set-list
+
+#######################################
+#セット情報を取得
+#52 1 オイル交換 Oil_Filter交換 12000 S1 20170531173834 20170531173834
+SET_CATEGORY_NM=$(cat $tmp-set-list | cut -d' ' -f3)  
+SET_NM=$(cat $tmp-set-list | cut -d' ' -f4)  
+SET_PRICE=$(cat $tmp-set-list | cut -d' ' -f5)
+SET_REMARKS=$(cat $tmp-set-list | cut -d' ' -f6)
 
 #######################################
 #セットカテゴリを取得
-cat ${SYSD}/DATA/SET_CATEGORY/LISTS/LV3/*[^_d]    |
-LANG=C sort -nk1,1                                  > $tmp-set-category
+cat ${SYSD}/DATA/SET_CATEGORY/LISTS/LV3/*_set_category_*[^_d]  |
+LA1NG=C sort -nk1,1                                                       > $tmp-set-category
 
 ########################################
-#セット新規登録用のセットカテゴリ
+#セットカテゴリ
 # 1;カテゴリ番号 2;カテゴリ名
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/NEW/HTML/SET/SET_CATEGORY_NEW.HTML $tmp-set-category > $tmp-set-category-new
 
@@ -87,9 +68,10 @@ CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-set-category-new`
 
 ########################################
 #tableにrecordsを嵌め込む
-cat ${SYSD}/APPLI/${CATEGORY}/NEW/HTML/SET/TABLE.HTML   |
+cat ${SYSD}/APPLI/${CATEGORY}/EDIT/HTML/SET/TABLE.HTML  |
 sed -e "s|###SET_CATEGORY_NM###|${SET_CATEGORY_NM}|g"   |
 sed -e "s|###SET_CATEGORY_NO###|${SET_CATEGORY_NO}|g"   |
+sed -e "s|###SET_NO###|${SET_NO}|g"                     |
 sed -e "s|###SET_NM###|${SET_NM}|g"                     |
 sed -e "s|###SET_PRICE###|${SET_PRICE}|g"               |
 sed -e "s|###SET_REMARKS###|${SET_REMARKS}|g"           |
