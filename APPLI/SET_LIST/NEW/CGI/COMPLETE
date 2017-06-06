@@ -61,7 +61,6 @@ fi
 if [ -e "${SYSD}/DATA/${CATEGORY}/LISTS/${SET_CATEGORY_NO}"  ]; then
     :
 else
-    #mkdir ${SYSD}/DATA/${CATEGORY}/LISTS/${SET_CATEGORY_NO}
     cp -rp ${SYSD}/DATA/ORG_LV1-3 ${SYSD}/DATA/${CATEGORY}/LISTS/${SET_CATEGORY_NO}/
     chmod -R 770 ${SYSD}/DATA/${CATEGORY} #オーナーと権限を再帰的に設定
     ERROR_CHECK
