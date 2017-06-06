@@ -71,6 +71,7 @@ CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-set-category-new`
 cat ${SYSD}/APPLI/${CATEGORY}/EDIT/HTML/SET/TABLE.HTML  |
 sed -e "s|###SET_CATEGORY_NM###|${SET_CATEGORY_NM}|g"   |
 sed -e "s|###SET_CATEGORY_NO###|${SET_CATEGORY_NO}|g"   |
+sed -e "s|###SET_CATEGORY_NX###|${SET_CATEGORY_NO}|g"   |
 sed -e "s|###SET_NO###|${SET_NO}|g"                     |
 sed -e "s|###SET_NM###|${SET_NM}|g"                     |
 sed -e "s|###SET_PRICE###|${SET_PRICE}|g"               |
@@ -82,7 +83,7 @@ sed -e "s|###CATEGORY###|${CATEGORY_NEW}|g"             > $tmp-table-html
 TABLE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-html`
 
 #tableをはめ込む、ページャーを差し込む
-cat ${SYSD}/APPLI/${CATEGORY}/NEW/HTML/SET/INPUT.HTML               |
+cat ${SYSD}/APPLI/${CATEGORY}/EDIT/HTML/SET/INPUT.HTML              |
 sed -e "s|###INFO_MSG###|"登録するセット名を入力してください。"|g"  |
 sed -e "s|###TABLE###|${TABLE}|g"                                   > $tmp-html
 

@@ -2,7 +2,7 @@
 #
 
 ########################################
-#	SET_LIST/NEW COMPLETE.CGI
+#	SET_LIST/EDIT COMPLETE.CGI
 #
 #   引数
 #       $1:プロセスID
@@ -16,7 +16,7 @@ SYSD=$(cd $(dirname $0) && pwd | awk '{print substr($0, 0, index($0, "sureshotsy
 #exec 2> ${SYSD}/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
 tmp=/tmp/tmp_$1
 LANG=ja_JP.UTF-8
-PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
+#PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
 CATEGORY=`cat $tmp-category`
 FUNC=`cat $tmp-func`
 
@@ -40,62 +40,52 @@ FIN
 #    exit 0
 #fi
 
-########################################
-#仮登録ディレクトリ
-SESSION=$(session_get 'sureshot_stuff_session_id') 
-STUFF_ID=$(cat ${SYSD}/SESSION/${SESSION})
-TEMPD=${SYSD}/TMP/${STUFF_ID}/SET_LIST
-
-########################################
-#セットカテゴリ
-SET_CATEGORY_NO=$(cat ${TEMPD}/set_list | awk '{print $1}')
-
-########################################
-#ディレクトリを作成する
-if [ -e "${SYSD}/DATA/${CATEGORY}"  ]; then
-    :
-else
-    mkdir ${SYSD}/DATA/${CATEGORY}
-    mkdir ${SYSD}/DATA/${CATEGORY}/LISTS
-fi
-if [ -e "${SYSD}/DATA/${CATEGORY}/LISTS/${SET_CATEGORY_NO}"  ]; then
-    :
-else
-    #mkdir ${SYSD}/DATA/${CATEGORY}/LISTS/${SET_CATEGORY_NO}
-    cp -rp ${SYSD}/DATA/ORG_LV1-3 ${SYSD}/DATA/${CATEGORY}/LISTS/${SET_CATEGORY_NO}/
-    chmod -R 770 ${SYSD}/DATA/${CATEGORY} #オーナーと権限を再帰的に設定
-    ERROR_CHECK
-fi
+#######################################
+#フォームの入力値を取得
+SET_CATEGORY_NO=$(nameread SET_CATEGORY_NO $tmp-post)
+SET_CATEGORY_NX=$(nameread SET_CATEGORY_NX $tmp-post)
+SET_CATEGORY_NM=$(nameread SET_CATEGORY_NM $tmp-post)
+SET_NO=$(nameread SET_NO $tmp-post)
+SET_NM=$(nameread SET_NM $tmp-post)
+SET_PRICE=$(nameread SET_PRICE $tmp-post)
+SET_REMARKS=$(nameread SET_REMARKS $tmp-post)
 
 ########################################
 #DATAディレクトリ
-DATAD=${SYSD}/DATA/${CATEGORY}/LISTS/${SET_CATEGORY_NO}
+DATAD_OLD=${SYSD}/DATA/${CATEGORY}/${SET_CATEGORY_NX}/LISTS
+DATAD_NEW=${SYSD}/DATA/${CATEGORY}/${SET_CATEGORY_NO}/LISTS
 
 ########################################
-#セット番号の次のロットを追加する
-LATEST_NUM=$(ls ${SYSD}/DATA/NUMBERS/${CATEGORY}/ORIGIN | sort -nr | head -n 1)
-START=$((LATEST_NUM + 1))
-END=$((START + 1))
-SEQ_STATUS=`${SYSD}/CGI/NUMBER_SEQ $1 ${CATEGORY} ${START} ${END} `
-[[ ${SEQ_STATUS} != 'SUCCESS' ]] && exit 0
+#重複確認
+cat ${DATAD_OLD}/LV3/* | awk -v nm=${SET_NM} '$4==nm{print $1}' > $tmp-valid1
+if [ -n "$(cat $tmp-valid1)" ] ; then
+    echo 2222 > $tmp-ajax-html
+    exit 0
+fi
 
 ########################################
-#新規セット番号を確定する
-NEW_NUM=`${SYSD}/CGI/NUMBERS $1 'SET_LIST' `
-[ ${NEW_NUM} = 'ERROR' ] && exit 0 || :
+#既存データから作成日時取得、現在日時を更新日時とする
+ls ${DATAD_OLD}/LV1/${SET_NO}_setlist_base_* | cut -d'_' -f4 | sort -nk1,1 | head -n 1 > $tmp-create
+CREATE_DATE=$(cat $tmp-create)
+UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 
 ########################################
-#日付を設定
-CREATE_DATE=$(date +%Y%m%d%H%M%S)
-UPDATE_DATE=$CREATE_DATE
+#ディレクトリを作成する
+if [ -e "${DATAD_NEW}"  ]; then
+    :
+else
+    mkdir ${SYSD}/DATA/${CATEGORY}/${SET_CATEGORY_NO} 
+    mkdir ${DATAD_NEW}/LISTS
+    cp -rp ${SYSD}/DATA/ORG_LV1-3 ${DATAD_NEW}/
+    chmod -R 770 ${DATAD_NEW} #オーナーと権限を再帰的に設定
+    ERROR_CHECK
+fi
 
 #######################################
-#仮登録セットリストを取得
-#SET_LISTのデータ構造  IDとyyyymmddhhmmssは一致
-#SET_LIST/LIST/LV*/[ID]_setlist_[yyyymmddhhmmss]
-#SET_LIST/LIST/LV*/[ID]_setlist_operation_[yyyymmddhhmmss]
-#SET_LIST/LIST/LV*/[id]_setlist_parts_[yyyymmddhhmmss]
+#セットカテゴリに変更がない場合
 #セット番号、セットカテゴリ番号、セットカテゴリ名、セット名、セット価格、備考、作成日、更新日
+cat ${DATAD_OLD}/LV3
+
 cat ${TEMPD}/set_list | awk -v id=${NEW_NUM} -v cdt=${CREATE_DATE} -v udt=${UPDATE_DATE} '{print id, $0, cdt, udt}' > $tmp-set-list
 #セット番号、セットカテゴリ番号、作業カテゴリ番号、作業名、作業数量、作業価格、作成日、更新日
 cat ${TEMPD}/set_list_operation | awk -v id=${NEW_NUM} -v cat=${SET_CATEGORY_NO} -v cdt=${CREATE_DATE} -v udt=${UPDATE_DATE} '{print id, cat, $0, cdt, udt}' > $tmp-set-list_operation
