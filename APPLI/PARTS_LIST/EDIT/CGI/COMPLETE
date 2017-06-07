@@ -65,7 +65,7 @@ VALUE7=$(nameread EDIT_PARTS_CATEGORY_NX $tmp-post)                 #パーツ�
 
 ########################################
 #既存データから作成日時取得、現在日時を更新日時とする
-ls ${DATAD}/${VALUE7}/LV1/${NUM}_parts_* | cut -d'_' -f4 | sort -nk1,1 | head -n 1 > $tmp-create
+ls ${DATAD}/${VALUE7}/LV1/${NUM}_parts_* | sort -nk1,1 | head -n 1 | cut -d'_' -f4 > $tmp-create
 CREATE_DATE=$(cat $tmp-create)
 UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 
@@ -78,38 +78,30 @@ LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
 ########################################
 #入力値を一時ファイル化
 #1.パーツ番号 2.パーツカテゴリ番号 3.パーツカテゴリ名 4.パーツ名(EN) 5.パーツ名(JP) 6.価格 7.備考 8.作成日時 9.更新日時 10.削除フラグ
-echo ${NUM}" "${VALUE4}" "${VALUE1}" "${VALUE2}" "${VALUE5}" "${VALUE3}" "${VALUE6}" "${CREATE_DATE}" "${UPDATE_DATE}" "0 > $tmp-parts
+echo ${NUM} ${VALUE4} ${VALUE1} ${VALUE2} ${VALUE5} ${VALUE3} ${VALUE6} ${CREATE_DATE} ${UPDATE_DATE} 0 > $tmp-parts
 
 ########################################
 #データ格納
 #LV1:原始データとして、ファイル追加のみを行う
-$(mv $tmp-parts ${DATAD}/${VALUE4}/LV1/${NUM}_parts_${UPDATE_DATE})
+mv $tmp-parts ${DATAD}/${VALUE4}/LV1/${NUM}_parts_${UPDATE_DATE}
 
-#LV2:変更されたデータとファイルを入れ替える
-cp -fp ${DATAD}/${VALUE4}/LV1/${NUM}_parts_${UPDATE_DATE} ${DATAD}/${VALUE4}/LV2/${NUM}_parts_${UPDATE_DATE}
+#カテゴリを変更した場合
+if [ "${VALUE4}" != "${VALUE7}" ]; then
+    #旧カテゴリにあるLV1のパーツを論理削除
+    ls ${DATAD}/${VALUE7}/LV1/${NUM}_parts_* | sort -nk1 | tail -n 1 > $tmp-delete-lv1
+    cp $(cat $tmp-delete-lv1) ${DATAD}/${VALUE7}/LV1/${NUM}_parts_${UPDATE_DATE}_d
+    #旧カテゴリにあるLV2、LV3のパーツを論理削除ファイルと入れ替える
+    rm -f ${DATAD}/${VALUE7}/LV2/${NUM}_parts_*
+    cp ${DATAD}/${VALUE7}/LV1/${NUM}_parts_${UPDATE_DATE}_d ${DATAD}/${VALUE7}/LV2/   
+    rm -f ${DATAD}/${VALUE7}/LV3/${NUM}_parts_*
+    cp ${DATAD}/${VALUE7}/LV2/${NUM}_parts_* ${DATAD}/${VALUE7}/LV3/   
+fi
 
-#LV3:LV2のコピー
-cp -fp ${DATAD}/${VALUE4}/LV2/${NUM}_parts_${UPDATE_DATE} ${DATAD}/${VALUE4}/LV3/${NUM}_parts_${UPDATE_DATE}
-
-########################################
-#カテゴリ変更した場合、既存カテゴリDirにあるレコードを削除処理
-#1.パーツ番号 2.パーツカテゴリ番号 3.パーツカテゴリ名 4.パーツ名(EN) 5.パーツ名(JP) 6.価格 7.備考 8.作成日時 9.更新日時 10.削除フラグ=1
-echo ${NUM}" "${VALUE4}" "${VALUE1}" "${VALUE2}" "${VALUE5}" "${VALUE3}" "${VALUE6}" "${CREATE_DATE}" "${UPDATE_DATE}" "1 > $tmp-parts-delete
-
-########################################
-#データ格納
-#LV1:原始データとして、ファイル追加のみを行う
-$(mv $tmp-parts-delete ${DATAD}/${VALUE7}/LV1/${NUM}_parts_${UPDATE_DATE})
-
-#LV2:変更されたデータとファイルを入れ替える
-cp -ip ${DATAD}/${VALUE7}/LV1/${NUM}_parts_${UPDATE_DATE} ${DATAD}/${VALUE7}/LV2/${NUM}_parts_${UPDATE_DATE}_d
-ls ${DATAD}/${VALUE7}/LV2/${NUM}_* | sort -nk1 | head -n 1 > $tmp-delete
-rm -f $(cat $tmp-delete)
-
-#LV3:LV2のコピー
-cp -ip ${DATAD}/${VALUE7}/LV2/${NUM}_parts_${UPDATE_DATE}_d ${DATAD}/${VALUE7}/LV3/${NUM}_parts_${UPDATE_DATE}_d
-ls ${DATAD}/${VALUE7}/LV3/${NUM}_* | sort -nk1 | head -n 1 > $tmp-delete
-rm -f $(cat $tmp-delete)
+#LV3:LV2を更新ファイルと入れ替え
+rm -f ${DATAD}/${VALUE4}/LV2/${NUM}_parts_*
+cp -fp ${DATAD}/${VALUE4}/LV1/${NUM}_parts_${UPDATE_DATE} ${DATAD}/${VALUE4}/LV2/
+rm -f ${DATAD}/${VALUE4}/LV3/${NUM}_parts_*
+cp -fp ${DATAD}/${VALUE4}/LV2/${NUM}_parts_${UPDATE_DATE} ${DATAD}/${VALUE4}/LV3/
 
 ########################################
 #データ操作ロックを解除
@@ -117,7 +109,7 @@ UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'PARTS_LIST' ${NUM}`
 [ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
 
 ########################################
-#
+#Ajax return
 echo "111"> $tmp-ajax-html
 
 ########################################
