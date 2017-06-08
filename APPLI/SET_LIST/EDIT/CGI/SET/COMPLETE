@@ -45,8 +45,9 @@ FIN
 SET_CATEGORY_NO=$(nameread SET_CATEGORY_NO $tmp-post)
 SET_CATEGORY_NX=$(nameread SET_CATEGORY_NX $tmp-post)
 SET_CATEGORY_NM=$(nameread SET_CATEGORY_NM $tmp-post)
-SET_NO=$(nameread SET_NO $tmp-post)
+NUM=$(nameread SET_NO $tmp-post)
 SET_NM=$(nameread SET_NM $tmp-post)
+SET_NM_NX=$(nameread SET_NM_NX $tmp-post)
 SET_PRICE=$(nameread SET_PRICE $tmp-post)
 SET_REMARKS=$(nameread SET_REMARKS $tmp-post)
 
@@ -57,17 +58,13 @@ DATAD_NEW=${SYSD}/DATA/${CATEGORY}/LISTS/${SET_CATEGORY_NO}
 
 ########################################
 #重複確認
-cat ${DATAD_OLD}/LV3/* | awk -v nm=${SET_NM} '$4==nm{print $1}' > $tmp-valid1
-if [ -n "$(cat $tmp-valid1)" ] ; then
-    echo 2222 > $tmp-ajax-html
-    exit 0
+if [ "${SET_NM}" != "${SET_NM_NX}" ] ; then
+    cat ${DATAD_OLD}/LV3/* | awk -v nm=${SET_NM} '$4==nm{print $1}' > $tmp-valid1
+    if [ -n "$(cat $tmp-valid1)" ] ; then
+        echo 2222 > $tmp-ajax-html
+        exit 0
+    fi
 fi
-
-########################################
-#既存データから作成日時取得、現在日時を更新日時とする
-ls ${DATAD_OLD}/LV1/${SET_NO}_setlist_base_* | cut -d'_' -f4 | sort -nk1,1 | head -n 1 > $tmp-create
-CREATE_DATE=$(cat $tmp-create)
-UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 
 #######################################
 #ディレクトリを作成する
@@ -80,34 +77,50 @@ else
     ERROR_CHECK
 fi
 
-#######################################
-#セットカテゴリが同一かどうかをチェック
-if [ "${DATAD_OLD}" = "${DATAD_NEW}" ]; then
-    CATEG
-else
+########################################
+#既存データから作成日時取得、現在日時を更新日時とする
+ls ${DATAD_OLD}/LV1/${NUM}_setlist_base_* | cut -d'_' -f4 | sort -nk1,1 | head -n 1 > $tmp-create
+CREATE_DATE=$(cat $tmp-create)
+UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 
-fi
+########################################
+#該当のデータ操作をロック
+LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'SET_LIST' ${NUM}`
+LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
+[ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
+
+#######################################
+#一時ファイル化
+#セット番号、セットカテゴリ番号、セットカテゴリ名、セット名、セット価格、備考、作成日、更新日
+echo ${NUM} ${SET_CATEGORY_NO} ${SET_CATEGORY_NM} ${SET_NM} ${SET_PRICE} ${SET_REMARKS} ${CREATE_DATE} ${UPDATE_DATE} > $tmp-set-list
 
 #######################################
 #データ格納
-#セット番号、セットカテゴリ番号、セットカテゴリ名、セット名、セット価格、備考、作成日、更新日
-cat ${SET_NO} ${SET_CATEGORY_NO} ${SET_CATEGORY_NM} ${SET_NM} ${SET_PRICE} ${SET_REMARKS} ${CREATE_DATE} ${UPDATE_DATE} > $tmp-set-list
-#LV1
-mv $tmp-set-list ${DATAD}/LV1/${NEW_NUM}_setlist_base_${CREATE_DATE}
-mv $tmp-set-list_operation ${DATAD}/LV1/${NEW_NUM}_setlist_operation_${CREATE_DATE}
-mv $tmp-set-list_parts ${DATAD}/LV1/${NEW_NUM}_setlist_parts_${CREATE_DATE}
-#LV2
-cat ${DATAD}/LV1/${NEW_NUM}_setlist_base_${CREATE_DATE} > ${DATAD}/LV2/${NEW_NUM}_setlist_base_${CREATE_DATE}
-cat ${DATAD}/LV1/${NEW_NUM}_setlist_operation_${CREATE_DATE} > ${DATAD}/LV2/${NEW_NUM}_setlist_operation_${CREATE_DATE}
-cat ${DATAD}/LV1/${NEW_NUM}_setlist_parts_${CREATE_DATE} > ${DATAD}/LV2/${NEW_NUM}_setlist_parts_${CREATE_DATE}
-#LV3
-cat ${DATAD}/LV2/${NEW_NUM}_setlist_base_${CREATE_DATE} > ${DATAD}/LV3/${NEW_NUM}_setlist_base_${CREATE_DATE}
-cat ${DATAD}/LV2/${NEW_NUM}_setlist_operation_${CREATE_DATE} > ${DATAD}/LV3/${NEW_NUM}_setlist_operation_${CREATE_DATE}
-cat ${DATAD}/LV2/${NEW_NUM}_setlist_parts_${CREATE_DATE} > ${DATAD}/LV3/${NEW_NUM}_setlist_parts_${CREATE_DATE}
+#LV1:原始データとして、ファイル追加のみを行う
+mv $tmp-set-list ${DATAD_NEW}/LV1/${NUM}_setlist_base_${UPDATE_DATE}
 
-#######################################
-#仮登録セットリストを削除
-rm -rf ${TEMPD}
+#カテゴリを変更した場合
+if [ "${SET_CAYEGORY_NO}" != "${SET_CATEGORY_NX}" ]; then
+    #旧カテゴリにあるLV1のパーツを論理削除
+    ls ${DATAD_OLD}/LV1/${NUM}_setlist_base_* | sort -nk1 | tail -n 1 > $tmp-delete-lv1
+    cp $(cat $tmp-delete-lv1) ${DATAD_OLD}/LV1/${NUM}_setlist_base_${UPDATE_DATE}_d
+    #旧カテゴリにあるLV2、LV3のパーツを論理削除ファイルと入れ替える
+    rm -f ${DATAD_OLD}/LV2/${NUM}_setlist_base_*
+    cp ${DATAD_OLD}/LV1/${NUM}_setlist_base_${UPDATE_DATE}_d ${DATAD_OLD}/LV2/   
+    rm -f ${DATAD_OLD}/LV3/${NUM}_setlist_base_*
+    cp ${DATAD_OLD}/LV2/${NUM}_setlist_base_* ${DATAD_OLD}/LV3/   
+fi
+
+#LV3:LV2を更新ファイルと入れ替え
+rm -f ${DATAD_NEW}/LV2/${NUM}_setlist_base_*
+cp -fp ${DATAD_NEW}/LV1/${NUM}_setlist_base_${UPDATE_DATE} ${DATAD_NEW}/LV2/
+rm -f ${DATAD_NEW}/LV3/${NUM}_setlist_base_*
+cp -fp ${DATAD_NEW}/LV2/${NUM}_setlist_base_${UPDATE_DATE} ${DATAD_NEW}/LV3/
+
+########################################
+#データ操作ロックを解除
+UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'SET_LIST' ${NUM}`
+[ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
 
 ########################################
 #ending

@@ -82,7 +82,7 @@
         var set_category_no = $('#SET_CATEGORY_NO_HID_' + row).val();
         var set_category_nx = $('#SET_CATEGORY_NX_HID_' + row).val();
         var set_category_nm = $('#SET_CATEGORY_NM_' + row).val();
-        var set_no = $('#SET_NO_' + row).val();
+        var set_no = $('#SET_NO_HID_' + row).val();
         var set_nm = $('#SET_NM_' + row).val();
         var set_nm_nx = $('#SET_NM_NX_HID_' + row).val();
         var set_price = $('#SET_PRICE_' + row).val();
@@ -131,6 +131,7 @@
               SET_CATEGORY_NM: set_category_nm,
               SET_NO: set_no,
               SET_NM: set_nm,
+              SET_NM_NX: set_nm_nx,
               SET_PRICE: set_price,
               SET_REMARKS: set_remarks
             }
@@ -141,43 +142,11 @@
             } else {
                 $('intput[type="text"]').each(function() {
                 });
-                alert("セット名を仮登録しました。");
+                alert("セット:" + set_no + "を更新しました。");
             }
         });
         jqXHR.fail(function(data) {
-            alert("セット" + row + "の" + action + "に失敗しました。");
-        });
-    });
-
-    //DELETEボタン
-    $(document).on('click', 'a.btn-set', function() {
-
-        //イベント基本情報
-        //selecter id format: kind_action_row
-        var idname = $(this).attr("id"); 
-        var list_id = idname.split("_");
-        var action = list_id[1];
-        var row = list_id[2];
-
-        //セット名を仮登録
-        var jqXHR = $.ajax({
-            type: 'POST',
-            url: '/APP/SET_LIST/DELETE/COMPLETE',
-            data: {
-              ROW: row
-            }
-        });
-        jqXHR.done(function(data) {
-            if (data == 2222) {
-                alert("セット;#" + row + " の削除に失敗しました。");
-            } else {
-                $('intput[type="text"]').each(function() {
-                });
-                alert("セット;#" + row + " を削除しました。");
-            }
-        });
-        jqXHR.fail(function(data) {
-            alert("セット;#" + row + " の削除に失敗しました。");
+            alert("セット:" + set_no + "の更新に失敗しました。");
         });
     });
 

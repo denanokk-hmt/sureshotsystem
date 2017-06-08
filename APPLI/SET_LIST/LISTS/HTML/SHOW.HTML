@@ -131,26 +131,28 @@
         var list_id = idname.split("_");
         var action = list_id[1];
         var set_no = list_id[2];
+        var set_category_no = $('#SET_CATEGORY_NO_HID_' + set_no).val();
   
         //セット名を仮登録
         var jqXHR = $.ajax({
             type: 'POST',
             url: '/APP/SET_LIST/DELETE/COMPLETE',
             data: {
+              SET_CATEGORY_NO: set_category_no,
               SET_NO: set_no
             }
         });
         jqXHR.done(function(data) {
             if (data == 2222) {
-                alert("セット" + set_no + "の削除に失敗しました。");
+                alert("セット:" + set_no + "の削除に失敗しました。");
             } else {
-                $('intput[type="text"]').each(function() {
-                });
-                alert("セット" + set_no + "を削除しました。");
+                var sel = '#edit-row-' + set_no;
+                $(sel).remove();
+                alert("セット:" + set_no + "を削除しました。");
             }
         });
         jqXHR.fail(function(data) {
-            alert("セット" + set_no + "の削除に失敗しました。");
+            alert("セット:" + set_no + "の削除に失敗しました。");
         });
     });
 
