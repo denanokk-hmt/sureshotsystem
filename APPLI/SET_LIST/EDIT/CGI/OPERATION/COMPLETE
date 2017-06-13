@@ -2,7 +2,7 @@
 #
 
 ########################################
-#	SET_LIST/NEW/OPERATION/COMPLETE.CGI
+#	SET_LIST/EDIT/OPERATION/COMPLETE.CGI
 #
 #   引数
 #       $1:プロセスID
@@ -33,113 +33,119 @@ FIN
 }
 
 ########################################
-#パーツカテゴリ更新中は、処理をさせない
+#セットカテゴリ更新中は、処理をさせない
 #ls ${SYSD}/LOCK/PARTS_CATEGORY/* > $tmp-checker 2> /dev/null
 #if [ -n cat $tmp-checker ] ; then
 #    echo "333" > $tmp-ajax-html
 #    exit 0
 #fi
 
-########################################
-#仮登録ディレクトリ
-SESSION=$(session_get 'sureshot_stuff_session_id') 
-STUFF_ID=$(cat ${SYSD}/SESSION/${SESSION})
-TEMPD=${SYSD}/TMP/${STUFF_ID}/SET_LIST
-
 #######################################
 #フォームの入力値を取得
 ACTION=$(nameread ACTION $tmp-post)
 ROW=$(nameread ROW $tmp-post)
-OPERATION_CATEGORY_NO=$(nameread OPERATION_CATEGORY_NO $tmp-post)
-OPERATION_CATEGORY_NM=$(nameread OPERATION_CATEGORY_NM $tmp-post)
-OPERATION_NO=$(nameread OPERATION_NO $tmp-post)
+NUM=$(nameread SET_NO $tmp-post)
+SET_CATEGORY_NO=$(nameread SET_CATEGORY_NO $tmp-post)
+OPERATION_CATEGORY_NO=$(nameread OPERATION_CATEGROY_NO $tmp-post)
+OPERATION_CATEGORY_NM=$(nameread OPERATION_CATEGROY_NM $tmp-post)
 OPERATION_NM=$(nameread OPERATION_NM $tmp-post)
+OPERATION_NM_NX=$(nameread OPERATION_NM_NX $tmp-post)
 OPERATION_PRICE=$(nameread OPERATION_PRICE $tmp-post)
 OPERATION_QTY=$(nameread OPERATION_QTY $tmp-post)
 
-######################################t#
+########################################
+#DATAディレクトリ
+DATAD=${SYSD}/DATA/${CATEGORY}/LISTS/${SET_CATEGORY_NO}
+
+########################################
+#重複確認
+if [ "${OPERATION_NM}" != "${OPERATION_NM_NX}" ] ; then
+  cat ${DATAD}/LV3/${NUM}_setlist_operation_* | 
+  awk -v nm=${OPERATION_NM} '$6==nm{print $1}' > $tmp-valid1
+  if [ -n "$(cat $tmp-valid1)" ] ; then
+    echo 2222 > $tmp-ajax-html
+    exit 0
+  fi
+fi
+
+########################################
+#LV1の最新の作業を取得
+#セット番号、セットカテゴリ番号、作業カテゴリ番号、作業カテゴリ名、作業番号、作業名、作業価格、作成日、更新日
+  cat $( ls ${DATAD}/LV1/${NUM}_setlist_operation_*[^_d] | sort | tail -n 1) > $tmp-lv1-set-operation
+
+########################################
+#既存データから作成日時取得、現在日時を更新日時とする
+ls $tmp-set-operation | cut -d'_' -f4 | sort -nk1,1 | head -n 1 > $tmp-create
+CREATE_DATE=$(cat $tmp-create)
+UPDATE_DATE=$(date +%Y%m%d%H%M%S)
+
+########################################
 #ACTIONで振り分け
 case ${ACTION} in
-ADD)    #追加
-  #重複確認
-  cat ${TEMPD}/set_list_operation | awk -v pid=${OPERATION_NO} '$3==pid {print}' > $tmp-valid1
-  if [ -n "$(cat $tmp-valid1)" ] ; then
-      echo 2222 > $tmp-ajax-html
-      exit 0
-  fi
-  #1:カテゴリ番号、2:カテゴリ名、3:作業番号、4:作業名、5:価格、6:数量
-  echo ${OPERATION_CATEGORY_NO} ${OPERATION_CATEGORY_NM} ${OPERATION_NO} ${OPERATION_NM} ${OPERATION_PRICE} ${OPERATION_QTY} >> ${TEMPD}/set_list_operation
-  #空行を削除
-  cat ${TEMPD}/set_list_operation | awk /./ > $tmp-set-list-operation
+ADD)    
+  #追加
+  echo ${NUM} ${SET_CATEGORY_NO} ${OPERATION_CATEGORY_NO} ${OPERATION_CATEGORY_NM} ${OPERATION_NO} ${OPERATION_NM} ${OPERATION_PRICE} ${OPERATION_QTY} ${CREATE_DATE} ${UPDATE_DATE} >> $tmp-lv1-set-operation
+  cat $tmp-set-operation
   ;;
 EDIT)   #変更
-  cat ${TEMPD}/set_list_operation | 
+  cat $tmp-lv1-set-operation  | 
   awk \
       -v row=${ROW} \
-      -v category_no=${OPERATION_CATEGORY_NO} \
-      -v category_nm=${OPERATION_CATEGORY_NM} \
-      -v operation_no=${OPERATION_NO} \
-      -v operation_nm=${OPERATION_NM} \
+      -v set_no=${NUM} \
+      -v set_cate_no=${SET_CATEGORY_NO} \
+      -v op_cate_no=${OPERATION_CATEGORY_NO} \ 
+      -v op_cate_nm=${OPERATION_CATEGORY_NM} \
+      -v op_no=${OPERATION_NO} \ 
+      -v op_nm=${OPERATION_NM} \ 
+      -v parts_nm=${PARTS_NM} \
       -v price=${OPERATION_PRICE} \
       -v qty=${OPERATION_QTY} \
+      -v cdt=${CREATE_DATE} \
+      -v udt=${UPDATE_DATE} \
       'NR!=row{print} \
-      NR==row{print(category_no, category_nm, operation_no, operation_nm, price, qty)}' \
-      > $tmp-set-list-operation
+      NR==row{print(set_no, set_cate_no, op_cate_no, op_cate_nm, op_no, op_nm, price, qty, cdt, udt)}' \
+      > $tmp-set-operation
   ;;
 DELETE) #削除
-  cat ${TEMPD}/set_list_operation | awk -v d=${ROW} 'NR!=d{print}' > $tmp-set-list-operation
+  cat $tmp-lv1-set-operation      | 
+  awk -v d=${ROW} 'NR!=d{print}'  > $tmp-set-operation
   ;;
 esac
-
-#######################################
-#入力値を仮登録
-#作業カテゴリ番号、作業カテゴリ名、作業番号、作業名、作業価格、作業数量
-cat $tmp-set-list-operation > ${TEMPD}/set_list_operation
 
 ########################################
 #作業カテゴリを取得
 cat ${SYSD}/DATA/OPERATION_CATEGORY/LISTS/LV3/*[^_d]    |
-LANG=C sort -nk1,1                                      > $tmp-operation-category
+LANG=C sort -nk1,1                                      > $tmp-category
 
 ########################################
-#作業新規登録用の作業カテゴリ
+#登録済パーツ用のパーツカテゴリ
 # 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/OPERATION/OPERATION_CATEGORY_NEW.HTML $tmp-operation-category > $tmp-operation-category-new
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/OPERATION/CATEGORY_LIST.HTML $tmp-category > $tmp-operation-category-list
 
-########################################
-#カテゴリの改行文字を「\\n」という3文字の文字列に置換
-CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-operation-category-new`
-
-########################################
-#作業レコード用の作業カテゴリ
-# 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/OPERATION/OPERATION_CATEGORY_LIST.HTML $tmp-operation-category > $tmp-operation-category-list
-
-########################################
-#作業カテゴリの改行文字を「\\n」という3文字の文字列に置換
+#######################################
+# 改行文字を「\\n」という3文字の文字列に置換
 CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-operation-category-list`
 
 ########################################
-#仮登録の作業リストを取得
-cat ${TEMPD}/set_list_operation      |
-juni                                |                
-LANG=C sort -nk1,1                  > $tmp-records
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/NEW/HTML/OPERATION/RECORDS.HTML $tmp-records > $tmp-table-records
+#該当のデータ操作をロック
+LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'SET_LIST' ${NUM}`
+LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
+[ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
+
+#######################################
+#データ格納
+#LV1:原始データとして、ファイル追加のみを行う
+mv $tmp-set-operation ${DATAD}/LV1/${NUM}_setlist_operation_${UPDATE_DATE}
+#LV3:LV2を更新ファイルと入れ替え
+rm -f ${DATAD}/LV2/${NUM}_setlist_operation_*
+cp -fp ${DATAD}/LV1/${NUM}_setlist_operation_${UPDATE_DATE} ${DATAD}/LV2/
+rm -f ${DATAD}/LV3/${NUM}_setlist_operation_*
+cp -fp ${DATAD}/LV2/${NUM}_setlist_operation_${UPDATE_DATE} ${DATAD}/LV3/
 
 ########################################
-#登録済レコードに作業カテゴリリストを嵌め込む
-cat $tmp-table-records                         |
-sed -e "s|###CATEGORY###|${CATEGORY_LIST}|g"   > $tmp-table
-
-########################################
-# 改行文字を「\\n」という3文字の文字列に置換
-TABLE_RECORDS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table`
-
-########################################
-#tableにrecordsを嵌め込む
-cat ${SYSD}/APPLI/${CATEGORY}/NEW/HTML/OPERATION/TABLE.HTML |
-sed -e "s|###CATEGORY###|${CATEGORY_NEW}|g"                 |
-sed -e "s|###TABLE_RECORDS###|${TABLE_RECORDS}|g"           > $tmp-ajax-html
+#データ操作ロックを解除
+UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'SET_LIST' ${NUM}`
+[ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
 
 ########################################
 #ending

@@ -96,9 +96,9 @@ UPDATE_DATE=$CREATE_DATE
 #SET_LIST/LIST/LV*/[id]_setlist_parts_[yyyymmddhhmmss]
 #セット番号、セットカテゴリ番号、セットカテゴリ名、セット名、セット価格、備考、作成日、更新日
 cat ${TEMPD}/set_list | awk -v id=${NEW_NUM} -v cdt=${CREATE_DATE} -v udt=${UPDATE_DATE} '{print id, $0, cdt, udt}' > $tmp-set-list
-#セット番号、セットカテゴリ番号、作業カテゴリ番号、作業名、作業数量、作業価格、作成日、更新日
+#セット番号、セットカテゴリ番号、作業カテゴリ番号、作業カテゴリ名、作業番号、作業名、作業価格、作業数量、作成日、更新日
 cat ${TEMPD}/set_list_operation | awk -v id=${NEW_NUM} -v cat=${SET_CATEGORY_NO} -v cdt=${CREATE_DATE} -v udt=${UPDATE_DATE} '{print id, cat, $0, cdt, udt}' > $tmp-set-list_operation
-#セット番号、セットカテゴリ番号、部品カテゴリ番号、部品名、部品数量、部品価格、作成日、更新日
+#セット番号、セットカテゴリ番号、部品カテゴリ番号、部品カテゴリ名、部品番号、部品名、部品価格、部品数量、作成日、更新日
 cat ${TEMPD}/set_list_parts | awk -v id=${NEW_NUM} -v cat=${SET_CATEGORY_NO} -v cdt=${CREATE_DATE} -v udt=${UPDATE_DATE} '{print id, cat, $0, cdt, udt}' > $tmp-set-list_parts
 
 ########################################

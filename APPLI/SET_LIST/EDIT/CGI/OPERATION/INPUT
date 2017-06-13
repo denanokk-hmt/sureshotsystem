@@ -2,7 +2,7 @@
 #
 
 ########################################
-# SET_LIST/NEW/OPERATION INPUT.CGI
+# SET_LIST/EDIT/OPERATION INPUT.CGI
 #
 #   $1:必須 $$
 #
@@ -43,12 +43,9 @@ FIN
 #fi
 
 ########################################
-#仮登録を削除
-#SESSION=$(session_get 'sureshot_stuff_session_id') 
-#STUFF_ID=$(cat ${SYSD}/SESSION/${SESSION}
-#TEMPD=${SYSD}/TMP/${STUFF_ID}
-TEMPD=${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/SET_LIST
-#rm -f ${TEMPD}/set_list_operation
+#GETパラメータを取得
+SET_CATEGORY_NO=$( cat $tmp-get | cut -d'&' -f2 | sed -e 's/SET_CATEGORY_NO_HID_EDIT\=//' | ruby -r uri -ne 'print URI.unescape $_')
+SET_NO=$( cat $tmp-get | cut -d'&' -f1 | sed -e 's/SET_NO_HID_EDIT\=//' | ruby -r uri -ne 'print URI.unescape $_')
 
 ########################################
 #作業カテゴリを取得
@@ -61,48 +58,52 @@ LANG=C sort -nk1,1                                      > $tmp-operation-categor
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/OPERATION/OPERATION_CATEGORY_NEW.HTML $tmp-operation-category > $tmp-operation-category-new
 
 ########################################
-# セットカテゴリの改行文字を「\\n」という3文字の文字列に置換
-CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-operation-category-new`
+#作業カテゴリの改行文字を「\\n」という3文字の文字列に置換
+CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-set-operation-category-new`
 
 ########################################
-#作業レコード用の作業カテゴリ
+#作業登録済用の作業カテゴリ
 # 1;カテゴリ番号 2;カテゴリ名
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/OPERATION/OPERATION_CATEGORY_LIST.HTML $tmp-operation-category > $tmp-operation-category-list
 
 ########################################
 #作業カテゴリの改行文字を「\\n」という3文字の文字列に置換
-CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-operation-category-list`
+CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-set-operation-category-list`
 
+#######################################
+#セットの作業を取得
 ########################################
 #Get records
-cat ${TEMPD}/set_list_operation     |
-juni                                |
-LANG=C sort -nk1,1                  > $tmp-records
+#順位、セット番号、セットカテゴリ番号、作業カテゴリ番号、作業カテゴリ名、作業番号、作業名、作業価格、作成日、更新日
+cat ${DATAD}/${SET_CATEGORY_NO}/LV3/${SET_NO}_setlist_operation_*[^_d]  |
+juni                                                                    |
+LANG=C sort -nk1,1                                                      > $tmp-records
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/OPERATION/RECORDS.HTML $tmp-records > $tmp-table-records
+cat $tmp-table-records | sed -e "s|###CATEGORY###|${CATEGORY_LIST}|g" > $tmp-table-records2
 
 ########################################
 # 改行文字を「\\n」という3文字の文字列に置換
-TABLE_RECORDS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-records`
+TABLE_RECORDS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-records2`
 
 ########################################
 #tableにrecordsを嵌め込む
-cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/OPERATION/TABLE.HTML           |
-sed -e "s|###TABLE_RECORDS###|${TABLE_RECORDS}|g"                         |
-sed -e "s|###CATEGORY###|${CATEGORY_NEW}|g"                               > $tmp-table-html
+cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/OPERATION/TABLE.HTML |
+sed -e "s|###CATEGORY###|${CATEGORY_NEW}|g"                     |
+sed -e "s|###TABLE_RECORDS###|${TABLE_RECORDS}|g"               > $tmp-table-html
 
 ########################################
 # 改行文字を「\\n」という3文字の文字列に置換
 TABLE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-html`
 
 ########################################
-#tableをはめ込む、ページャーを差し込む
-cat ${SYSD}/APPLI/${CATEGORY}/NEW/HTML/OPERATION/INPUT.HTML               |
-sed -e "s|###INFO_MSG###|"セットに登録する作業を追加してください。"|g"    |
-sed -e "s|###TABLE###|${TABLE}|g"                                         > $tmp-html
+#tableをはめ込む
+cat ${SYSD}/APPLI/${CATEGORY}/EDIT/HTML/OPERATION/INPUT.HTML            |
+sed -e "s|###INFO_MSG###|"セットに登録する作業を更新してください。"|g"  |
+sed -e "s|###TABLE###|${TABLE}|g"                                       > $tmp-html
 
 ########################################
 #page name
-echo "Set Operation input" > $tmp-pagename
+echo "Set Operation edit" > $tmp-pagename
 
 ########################################
 echo "OK"
