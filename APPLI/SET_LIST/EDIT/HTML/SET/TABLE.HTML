@@ -21,9 +21,23 @@
             
             <!--セットカテゴリ-->
             <td>
-                <input type="text" name="SET_CATEGORY_NM_EDIT" id="SET_CATEGORY_NM_EDIT" value="###SET_CATEGORY_NM###" class="form-control input-sm" disabled=disabled placeholder="セットカテゴリ"/>
-                <input type="hidden" name="SET_CATEGORY_NO_HID_EDIT" id="SET_CATEGORY_NO_HID_EDIT" value="###SET_CATEGORY_NO###" class="form-control" />
-                <input type="hidden" name="SET_CATEGORY_NX_HID_EDIT" id="SET_CATEGORY_NX_HID_EDIT" value="###SET_CATEGORY_NO###" class="form-control" />
+                <div class="form-group">
+                    <div class="btn-group">
+                        <div class="btn-group">
+                            <button type="button" class="btn dropdown-toggle input-sm" id="set_categogy_edit" data-toggle="dropdown" aria-expended="false">
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu SET" role="menu" name="EDIT">
+                                ###CATEGORY###
+                            </ul>
+                        </div>
+                        <div class="btn-group">
+                            <input type="text" name="SET_CATEGORY_NM_EDIT" id="SET_CATEGORY_NM_EDIT" value="###SET_CATEGORY_NM###" class="form-control input-sm" disabled placeholder="セットカテゴリ"/>
+                        </div>
+                    </div>
+                    <input type="hidden" name="SET_CATEGORY_NO_HID_EDIT" id="SET_CATEGORY_NO_HID_EDIT" value="###SET_CATEGORY_NO###" class="form-control" />
+                    <input type="hidden" name="SET_CATEGORY_NX_HID_EDIT" id="SET_CATEGORY_NX_HID_EDIT" value="###SET_CATEGORY_NO###" class="form-control" />
+                </div>
             </td>
             <!--セット名-->
             <td>

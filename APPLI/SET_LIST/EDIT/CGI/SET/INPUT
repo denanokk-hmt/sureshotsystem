@@ -35,15 +35,10 @@ FIN
 }
 
 ########################################
-#GETパラメータを取得
-SET_CATEGORY_NO=$( cat $tmp-get | cut -d'&' -f1 | sed -e 's/SET_CATEGORY_NO_HID_EDIT\=//' | ruby -r uri -ne 'print URI.unescape $_')
-SET_NO=$( cat $tmp-get | cut -d'&' -f2 | sed -e 's/SET_NO_HID_EDIT\=//' | ruby -r uri -ne 'print URI.unescape $_')
-
-########################################
 #仮登録を削除
 SESSION=$(session_get 'sureshot_stuff_session_id') 
-STUFF_ID=$(cat ${sysd}/session/${session})
-TEMPD=${SYSD}/tmp/${STUFF_ID}/set_list
+STUFF_ID=$(cat ${SYSD}/SESSION/${SESSION})
+TEMPD=${SYSD}/TMP/${STUFF_ID}/SET_LIST
 
 ########################################
 #SET_LISTディレクトリを作成
@@ -54,27 +49,30 @@ else
   chmod 770 -R ${TEMPD}
 fi
 
+########################################
+#GETパラメータを取得
+SET_CATEGORY_NO=$( cat $tmp-get | cut -d'&' -f1 | sed -e 's/SET_CATEGORY_NO_HID_EDIT\=//' | ruby -r uri -ne 'print URI.unescape $_')
+SET_NO=$( cat $tmp-get | cut -d'&' -f2 | sed -e 's/SET_NO_HID_EDIT\=//' | ruby -r uri -ne 'print URI.unescape $_')
 
-#######################################
-#セットを取得
-cat ${DATAD}/${SET_CATEGORY_NO}/LV3/${SET_NO}_setlist_base_*[^_d]   |
-LA1NG=C sort -nk1,1                                                 > $tmp-set-list
+########################################
+#該当のセットリストを取得＆仮登録
+cat ${DATAD}/${SET_CATEGORY_NO}/LV3/${SET_NO}_setlist_base_* > ${TEMPD}/setlist_base > $tmp-setlist-base
 
 #######################################
 #セット情報を取得
 #52 1 オイル交換 Oil_Filter交換 12000 S1 20170531173834 20170531173834
-SET_CATEGORY_NM=$(cat $tmp-set-list | cut -d' ' -f3)  
-SET_NM=$(cat $tmp-set-list | cut -d' ' -f4)  
-SET_PRICE=$(cat $tmp-set-list | cut -d' ' -f5)
-SET_REMARKS=$(cat $tmp-set-list | cut -d' ' -f6)
+SET_CATEGORY_NM=$(cat $tmp-setlist-base | cut -d' ' -f3)  
+SET_NM=$(cat $tmp-setlist-base          | cut -d' ' -f4)  
+SET_PRICE=$(cat $tmp-setlist-base       | cut -d' ' -f5)
+SET_REMARKS=$(cat $tmp-setlist-base     | cut -d' ' -f6)
 
 #######################################
 #セットカテゴリを取得
-cat ${SYSD}/DATA/SET_CATEGORY/LISTS/LV3/*_set_category_*[^_d]  |
-LA1NG=C sort -nk1,1                                                       > $tmp-set-category
+cat ${SYSD}/DATA/SET_CATEGORY/LISTS/LV3/*_set_category_*  |
+LA1NG=C sort -nk1,1                                       > $tmp-set-category
 
 ########################################
-#セットカテゴリ
+#セットカテゴリをHTML
 # 1;カテゴリ番号 2;カテゴリ名
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/NEW/HTML/SET/SET_CATEGORY_NEW.HTML $tmp-set-category > $tmp-set-category-new
 

@@ -51,7 +51,8 @@ SET_REMARKS=$(nameread SET_REMARKS $tmp-post)
 #バリデーション(重複確認)
 #ファイル名の先頭にセット番号
 #カテゴリ番号、カテゴリ名、セット番号、セット名、セット価格、備考
-cat ${SYSD}/DATA/SET_LIST/LIST/${SET_CATEGORY_NO}/LV3/*_setlist_[^_d] | awk '$4=="${SET_NM}" {print}' > $tmp-dup-valid
+cat ${SYSD}/DATA/SET_LIST/LIST/${SET_CATEGORY_NO}/LV3/*_setlist_base_* | 
+awk '$4=="${SET_NM}" {print}' > $tmp-dup-valid
 if [ -n "$(cat $tmp-dup-valid)" ] ; then
     echo 2222 > $tmp-ajax-html
     exit 0
