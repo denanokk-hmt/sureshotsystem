@@ -37,9 +37,8 @@ FIN
 ########################################
 #仮登録を削除
 SESSION=$(session_get 'sureshot_stuff_session_id') 
-STUFF_ID=$(cat ${SYSD}/SESSION/${SESSION})
-TEMPD=${SYSD}/TMP/${STUFF_ID}/SET_LIST
-#[ -e "${TEMPD}" ] && rm -rf ${TEMPD} || mkdir ${TEMPD}
+STUFF_ID=$(cat ${sysd}/session/${session})
+TEMPD=${SYSD}/tmp/${STUFF_ID}/set_list
 
 ########################################
 #SET_LISTディレクトリを作成
