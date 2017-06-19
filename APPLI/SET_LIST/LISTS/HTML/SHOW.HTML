@@ -68,8 +68,8 @@
     <!--Contents Records/Pagination-->
     <div class="header-under-contents">
         <form name="form_set_list" class="form-inline form-horizontal"  action="" method="">
-	          <input type="hidden" name="SET_CATEGORY_NO_HID_EDIT" id="SET_CATEGORY_NO_HID_EDIT" value="" class="form-control input-sm" />
-	          <input type="hidden" name="SET_NO_HID_EDIT" id="SET_NO_HID_EDIT" value="" class="form-control input-sm" />
+	          <input type="hidden" name="SET_CATEGORY_NO_HID" id="SET_CATEGORY_NO_HID" value="" class="form-control input-sm" />
+	          <input type="hidden" name="SET_NO_HID" id="SET_NO_HID" value="" class="form-control input-sm" />
   
             <div class="contents-table">
                 ###TABLE###
@@ -114,8 +114,8 @@
         var frm = document.forms['form_set_list'];
 
         //パラメータを設定
-        $('#SET_CATEGORY_NO_HID_EDIT').val(cat_no); 
-        $('#SET_NO_HID_EDIT').val(set_no); 
+        $('#SET_CATEGORY_NO_HID').val(cat_no); 
+        $('#SET_NO_HID').val(set_no); 
 
         //submit
         frm.method = 'GET';

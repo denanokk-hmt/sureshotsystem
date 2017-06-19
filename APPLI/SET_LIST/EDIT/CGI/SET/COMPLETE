@@ -61,11 +61,19 @@ if [ "${SET_NM}" != "${SET_NM_NX}" ] ; then
 fi
 
 ########################################
-#仮登録
+#セットの仮登録
 #セット番号、セットカテゴリ番号、セットカテゴリ名、セット名、セット価格、備考
 rm -f ${TEMPD}/setlist_base
 echo ${NUM} ${SET_CATEGORY_NO} ${SET_CATEGORY_NM} ${SET_NM} ${SET_PRICE} ${SET_REMARKS} > ${TEMPD}/setlist_base
 
+########################################
+#セットのカテゴリを変更した場合
+if [ "${SET_CATEGORY_NO}" = "${SET_CATEGORY_NX}"]; then
+  :
+else
+  echo ${SET_CATEGORY_NX} > ${TEMPD}/setlist_category_nx
+  echo ${SET_CATEGORY_NO} > ${TEMPD}/setlist_category_no
+fi
 
 #completeで以下を使用する
 #

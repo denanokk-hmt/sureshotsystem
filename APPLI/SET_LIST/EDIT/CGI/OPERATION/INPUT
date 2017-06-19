@@ -43,13 +43,17 @@ FIN
 #fi
 
 ########################################
+#仮登録を削除
+TEMPD=${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/SET_LIST
+
+########################################
 #GETパラメータを取得
-SET_CATEGORY_NO=$( cat $tmp-get | cut -d'&' -f2 | sed -e 's/SET_CATEGORY_NO_HID_EDIT\=//' | ruby -r uri -ne 'print URI.unescape $_')
-SET_NO=$( cat $tmp-get | cut -d'&' -f1 | sed -e 's/SET_NO_HID_EDIT\=//' | ruby -r uri -ne 'print URI.unescape $_')
+SET_CATEGORY_NO_ORG=$( cat $tmp-get | cut -d'&' -f1 | sed -e 's/SET_CATEGORY_NO_HID\=//' | ruby -r uri -ne 'print URI.unescape $_')
+SET_NO=$( cat $tmp-get | cut -d'&' -f2 | sed -e 's/SET_NO_HID\=//' | ruby -r uri -ne 'print URI.unescape $_')
 
 ########################################
 #作業カテゴリを取得
-cat ${SYSD}/DATA/OPERATION_CATEGORY/LISTS/LV3/*[^_d]    |
+cat ${SYSD}/DATA/OPERATION_CATEGORY/LISTS/LV3/*         |
 LANG=C sort -nk1,1                                      > $tmp-operation-category
 
 ########################################
@@ -62,22 +66,28 @@ mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/OPERATION/OPERATION_CA
 CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-set-operation-category-new`
 
 ########################################
-#作業登録済用の作業カテゴリ
+#作業新規登録用の作業カテゴリ
 # 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/OPERATION/OPERATION_CATEGORY_LIST.HTML $tmp-operation-category > $tmp-operation-category-list
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/OPERATION/OPERATION_CATEGORY_NEW.HTML $tmp-operation-category > $tmp-operation-category-list
 
 ########################################
 #作業カテゴリの改行文字を「\\n」という3文字の文字列に置換
 CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-set-operation-category-list`
 
-#######################################
-#セットの作業を取得
 ########################################
 #Get records
+if [ -e "${TEMPD}/setlist_operation" ]; then
+  cat ${TEMPD}/setlist_operation > $tmp-set-operaion
+else
+  cat ${DATAD}/${SET_CATEGORY_NO_ORG}/LV3/${SET_NO}_setlist_operation_* > $tmp-set-operation
+fi
+
+########################################
+#作業をテーブルへ
 #順位、セット番号、セットカテゴリ番号、作業カテゴリ番号、作業カテゴリ名、作業番号、作業名、作業価格、作成日、更新日
-cat ${DATAD}/${SET_CATEGORY_NO}/LV3/${SET_NO}_setlist_operation_*[^_d]  |
-juni                                                                    |
-LANG=C sort -nk1,1                                                      > $tmp-records
+cat $tmp-set-operation      |
+juni                        |
+LANG=C sort -nk1,1          > $tmp-records
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/OPERATION/RECORDS.HTML $tmp-records > $tmp-table-records
 cat $tmp-table-records | sed -e "s|###CATEGORY###|${CATEGORY_LIST}|g" > $tmp-table-records2
 
@@ -99,6 +109,8 @@ TABLE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-html`
 #tableをはめ込む
 cat ${SYSD}/APPLI/${CATEGORY}/EDIT/HTML/OPERATION/INPUT.HTML            |
 sed -e "s|###INFO_MSG###|"セットに登録する作業を更新してください。"|g"  |
+sed -e "s|###SET_CATEGORY_NO_ORG###|${SET_CATEGORY_NO_ORG}|g"           |
+sed -e "s|###SET_NO###|${SET_NO}|g"                                     |
 sed -e "s|###TABLE###|${TABLE}|g"                                       > $tmp-html
 
 ########################################

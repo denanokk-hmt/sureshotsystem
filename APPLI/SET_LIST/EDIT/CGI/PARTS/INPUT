@@ -2,7 +2,7 @@
 #
 
 ########################################
-# SET_LIST/NEW/PARTS INPUT.CGI
+# SET_LIST/EDIT/PARTS INPUT.CGI
 #
 #   $1:必須 $$
 #
@@ -36,11 +36,12 @@ FIN
 
 ########################################
 #仮登録を削除
-#SESSION=$(session_get 'sureshot_stuff_session_id') 
-#STUFF_ID=$(cat ${SYSD}/SESSION/${SESSION}
-#TEMPD=${SYSD}/TMP/${STUFF_ID}
 TEMPD=${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/SET_LIST
-#rm -f ${TEMPD}/set_list_parts
+
+########################################
+#GETパラメータを取得
+SET_CATEGORY_NO_ORG=$( cat $tmp-get | cut -d'&' -f1 | sed -e 's/SET_CATEGORY_NO_HID\=//' | ruby -r uri -ne 'print URI.unescape $_')
+SET_NO=$( cat $tmp-get | cut -d'&' -f2 | sed -e 's/SET_NO_HID\=//' | ruby -r uri -ne 'print URI.unescape $_')
 
 ########################################
 #部品カテゴリを取得
@@ -67,9 +68,18 @@ CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-list`
 
 ########################################
 #Get records
-cat ${TEMPD}/set_list_parts         |
-juni                                |
-LANG=C sort -nk1,1                  > $tmp-records
+if [ -e "${TEMPD}/setlist_parts" ]; then
+  cat ${TEMPD}/setlist_parts > $tmp-set-parts
+else
+  #82 1 5 オイル 5 oil1 4000 2 20170613193650 20170613193650
+  cat ${DATAD}/${SET_CATEGORY_NO_ORG}/LV3/${SET_NO}_setlist_parts_* > $tmp-set-parts
+fi
+
+########################################
+#部品をテーブルへ
+cat $tmp-set-parts    |
+juni                  |
+LANG=C sort -nk1,1    > $tmp-records
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/PARTS/RECORDS.HTML $tmp-records > $tmp-table-records
 
 ########################################
@@ -88,13 +98,15 @@ TABLE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-html`
 
 ########################################
 #tableをはめ込む、ページャーを差し込む
-cat ${SYSD}/APPLI/${CATEGORY}/NEW/HTML/PARTS/INPUT.HTML                 |
+cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/PARTS/INPUT.HTML             |
 sed -e "s|###INFO_MSG###|"セットに登録する部品を追加してください。"|g"  |
+sed -e "s|###SET_CATEGORY_NO_ORG###|${SET_CATEGORY_NO_ORG}|g"           |
+sed -e "s|###SET_NO###|${SET_NO}|g"                                     |
 sed -e "s|###TABLE###|${TABLE}|g"                                       > $tmp-html
 
 ########################################
 #page name
-echo "Set Parts input" > $tmp-pagename
+echo "Set Parts edit" > $tmp-pagename
 
 ########################################
 echo "OK"

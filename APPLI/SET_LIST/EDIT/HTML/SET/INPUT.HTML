@@ -34,10 +34,12 @@
     <!--Contents Records/Pagination-->
     <div class="header-under-contents">
         <form id="set_list" class="form-inline form-horizontal"  action="" method="">
-            <div class="contents-table">
-                ###TABLE###
-            </div>
-       </form>
+            <input type="hidden" name="SET_CATEGORY_NO_HID" id="SET_CATEGORY_NO_HID" value="###SET_CATEGORY_NO_ORG###" class="form-control" />
+            <input type="hidden" name="SET_NO_HID" id="SET_NO_HID" value="###SET_NO###" class="form-control" />
+        </form>
+        <div class="contents-table">
+            ###TABLE###
+        </div>
     </div>
 </div>
 
@@ -142,11 +144,11 @@
             } else {
                 $('intput[type="text"]').each(function() {
                 });
-                alert("セット:" + set_no + "を更新しました。");
+                alert("セット:" + set_no + "の変更を仮登録しました。");
             }
         });
         jqXHR.fail(function(data) {
-            alert("セット:" + set_no + "の更新に失敗しました。");
+            alert("セット:" + set_no + "の仮登録に失敗しました。");
         });
     });
 

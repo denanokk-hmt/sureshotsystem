@@ -51,16 +51,21 @@ fi
 
 ########################################
 #GETパラメータを取得
-SET_CATEGORY_NO=$( cat $tmp-get | cut -d'&' -f1 | sed -e 's/SET_CATEGORY_NO_HID_EDIT\=//' | ruby -r uri -ne 'print URI.unescape $_')
-SET_NO=$( cat $tmp-get | cut -d'&' -f2 | sed -e 's/SET_NO_HID_EDIT\=//' | ruby -r uri -ne 'print URI.unescape $_')
+SET_CATEGORY_NO_ORG=$( cat $tmp-get | cut -d'&' -f1 | sed -e 's/SET_CATEGORY_NO_HID\=//' | ruby -r uri -ne 'print URI.unescape $_')
+SET_NO=$( cat $tmp-get | cut -d'&' -f2 | sed -e 's/SET_NO_HID\=//' | ruby -r uri -ne 'print URI.unescape $_')
 
 ########################################
 #該当のセットリストを取得＆仮登録
-cat ${DATAD}/${SET_CATEGORY_NO}/LV3/${SET_NO}_setlist_base_* > ${TEMPD}/setlist_base > $tmp-setlist-base
+if [ -e "${TEMPD}/setlist_base" ]; then
+  cat ${TEMPD}/setlist_base > $tmp-setlist-base
+else
+  cat ${DATAD}/${SET_CATEGORY_NO_ORG}/LV3/${SET_NO}_setlist_base_* > $tmp-setlist-base
+fi
 
 #######################################
 #セット情報を取得
 #52 1 オイル交換 Oil_Filter交換 12000 S1 20170531173834 20170531173834
+SET_CATEGORY_NO=$(cat $tmp-setlist-base | cut -d' ' -f2)  
 SET_CATEGORY_NM=$(cat $tmp-setlist-base | cut -d' ' -f3)  
 SET_NM=$(cat $tmp-setlist-base          | cut -d' ' -f4)  
 SET_PRICE=$(cat $tmp-setlist-base       | cut -d' ' -f5)
@@ -83,11 +88,11 @@ CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-set-category-new`
 ########################################
 #tableにrecordsを嵌め込む
 cat ${SYSD}/APPLI/${CATEGORY}/EDIT/HTML/SET/TABLE.HTML  |
-sed -e "s|###SET_CATEGORY_NM###|${SET_CATEGORY_NM}|g"   |
 sed -e "s|###SET_CATEGORY_NO###|${SET_CATEGORY_NO}|g"   |
 sed -e "s|###SET_CATEGORY_NX###|${SET_CATEGORY_NO}|g"   |
-sed -e "s|###SET_NO###|${SET_NO}|g"                     |
+sed -e "s|###SET_CATEGORY_NM###|${SET_CATEGORY_NM}|g"   |
 sed -e "s|###SET_NM###|${SET_NM}|g"                     |
+sed -e "s|###SET_NO###|${SET_NO}|g"                     |
 sed -e "s|###SET_PRICE###|${SET_PRICE}|g"               |
 sed -e "s|###SET_REMARKS###|${SET_REMARKS}|g"           |
 sed -e "s|###CATEGORY###|${CATEGORY_NEW}|g"             > $tmp-table-html
@@ -97,13 +102,15 @@ sed -e "s|###CATEGORY###|${CATEGORY_NEW}|g"             > $tmp-table-html
 TABLE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-html`
 
 #tableをはめ込む、ページャーを差し込む
-cat ${SYSD}/APPLI/${CATEGORY}/EDIT/HTML/SET/INPUT.HTML              |
-sed -e "s|###INFO_MSG###|"登録するセット名を入力してください。"|g"  |
+cat ${SYSD}/APPLI/${CATEGORY}/EDIT/HTML/SET/INPUT.HTML            |
+sed -e "s|###INFO_MSG###|"セット${SET_NO}を更新してください。"|g" |
+sed -e "s|###SET_CATEGORY_NO_ORG###|${SET_CATEGORY_NO_ORG}|g"     |
+sed -e "s|###SET_NO###|${SET_NO}|g"                               |
 sed -e "s|###TABLE###|${TABLE}|g"                                   > $tmp-html
 
 ########################################
 #page name
-echo "Set Name input" > $tmp-pagename
+echo "Set edit" > $tmp-pagename
 
 ########################################
 echo "OK"

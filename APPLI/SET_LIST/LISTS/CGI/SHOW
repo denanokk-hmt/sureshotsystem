@@ -35,6 +35,16 @@ FIN
 }
 
 ########################################
+#仮登録を削除
+SESSION=$(session_get 'sureshot_stuff_session_id') 
+STUFF_ID=$(cat ${SYSD}/SESSION/${SESSION})
+TEMPD=${SYSD}/TMP/${STUFF_ID}/SET_LIST
+
+########################################
+#仮登録を削除
+rm -rf ${TEMPD}
+
+########################################
 #GETパラメーターを取得
 #ページを取得(初期はなし、絞込の場合は、page=1
 QRY_PAGE=$( cat $tmp-get | sed -e 's/^.*\(page\=[0-9]*\).*$/\1/' | sed -e 's/page\=//')

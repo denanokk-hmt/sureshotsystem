@@ -34,10 +34,12 @@
     <!--Contents Records/Pagination-->
     <div class="header-under-contents">
         <form id="set_list" class="form-inline form-horizontal"  action="" method="">
-            <div class="contents-table">
-                ###TABLE###
-            </div>
-       </form>
+            <input type="hidden" name="SET_CATEGORY_NO_HID" id="SET_CATEGORY_NO_HID" value="###SET_CATEGORY_NO_ORG###" class="form-control" />
+            <input type="hidden" name="SET_NO_HID" id="SET_NO_HID" value="###SET_NO###" class="form-control" />
+        </form>
+        <div class="contents-table">
+            ###TABLE###
+        </div>
     </div>
 </div>
 
@@ -54,7 +56,7 @@
         var func = $(this).html().toUpperCase();
         var frm = document.forms['set_list'];
         frm.method = 'GET';
-        frm.action = '/APP/SET_LIST/NEW/' + func + '/INPUT';
+        frm.action = '/APP/SET_LIST/EDIT/' + func + '/INPUT';
         frm.submit();
     });
 
