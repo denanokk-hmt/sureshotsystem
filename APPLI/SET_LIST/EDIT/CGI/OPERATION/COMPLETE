@@ -40,16 +40,20 @@ FIN
 #    exit 0
 #fi
 
+########################################
+#仮登録を削除
+TEMPD=${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/SET_LIST
+
 #######################################
 #フォームの入力値を取得
 ACTION=$(nameread ACTION $tmp-post)
 ROW=$(nameread ROW $tmp-post)
 NUM=$(nameread SET_NO $tmp-post)
 SET_CATEGORY_NO=$(nameread SET_CATEGORY_NO $tmp-post)
-OPERATION_CATEGORY_NO=$(nameread OPERATION_CATEGROY_NO $tmp-post)
-OPERATION_CATEGORY_NM=$(nameread OPERATION_CATEGROY_NM $tmp-post)
+OPERATION_CATEGORY_NO=$(nameread OPERATION_CATEGORY_NO $tmp-post)
+OPERATION_CATEGORY_NM=$(nameread OPERATION_CATEGORY_NM $tmp-post)
+OPERATION_NO=$(nameread OPERATION_NO $tmp-post)
 OPERATION_NM=$(nameread OPERATION_NM $tmp-post)
-OPERATION_NM_NX=$(nameread OPERATION_NM_NX $tmp-post)
 OPERATION_PRICE=$(nameread OPERATION_PRICE $tmp-post)
 OPERATION_QTY=$(nameread OPERATION_QTY $tmp-post)
 
@@ -69,13 +73,13 @@ if [ "${OPERATION_NM}" != "${OPERATION_NM_NX}" ] ; then
 fi
 
 ########################################
-#LV1の最新の作業を取得
+#作業を取得
 #セット番号、セットカテゴリ番号、作業カテゴリ番号、作業カテゴリ名、作業番号、作業名、作業価格、作成日、更新日
-  cat $( ls ${DATAD}/LV1/${NUM}_setlist_operation_*[^_d] | sort | tail -n 1) > $tmp-lv1-set-operation
+cat ${DATAD}/LV3/${NUM}_setlist_operation_*  > $tmp-lv3-set-operation
 
 ########################################
 #既存データから作成日時取得、現在日時を更新日時とする
-ls $tmp-set-operation | cut -d'_' -f4 | sort -nk1,1 | head -n 1 > $tmp-create
+ls ${DATAD}/LV1/${NUM}_setlist_operation_* | sort -nk1,1 | head -n 1 | cut -d'_' -f4 > $tmp-create
 CREATE_DATE=$(cat $tmp-create)
 UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 
@@ -84,11 +88,17 @@ UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 case ${ACTION} in
 ADD)    
   #追加
-  echo ${NUM} ${SET_CATEGORY_NO} ${OPERATION_CATEGORY_NO} ${OPERATION_CATEGORY_NM} ${OPERATION_NO} ${OPERATION_NM} ${OPERATION_PRICE} ${OPERATION_QTY} ${CREATE_DATE} ${UPDATE_DATE} >> $tmp-lv1-set-operation
-  cat $tmp-set-operation
+  #82 1 1 オイル交換 2 oil1 3000 1 20170613193650 20170613193650
+  echo  ${NUM} ${SET_CATEGORY_NO} \
+        ${OPERATION_CATEGORY_NO} ${OPERATION_CATEGORY_NM} \
+        ${OPERATION_NO} ${OPERATION_NM} \
+        ${OPERATION_PRICE} ${OPERATION_QTY} \
+        ${CREATE_DATE} ${UPDATE_DATE} \
+        >> $tmp-lv3-set-operation
+  cat $tmp-lv3-set-operation > $tmp-set-operation
   ;;
 EDIT)   #変更
-  cat $tmp-lv1-set-operation  | 
+  cat $tmp-lv3-set-operation  | 
   awk \
       -v row=${ROW} \
       -v set_no=${NUM} \
@@ -103,49 +113,69 @@ EDIT)   #変更
       -v cdt=${CREATE_DATE} \
       -v udt=${UPDATE_DATE} \
       'NR!=row{print} \
-      NR==row{print(set_no, set_cate_no, op_cate_no, op_cate_nm, op_no, op_nm, price, qty, cdt, udt)}' \
+      NR==row{print(set_no, set_cate_no, \
+                    op_cate_no, op_cate_nm, \
+                    op_no, op_nm, \
+                    price, qty, \
+                    cdt, udt)}' \
       > $tmp-set-operation
   ;;
 DELETE) #削除
-  cat $tmp-lv1-set-operation      | 
+  cat $tmp-lv3-set-operation      | 
   awk -v d=${ROW} 'NR!=d{print}'  > $tmp-set-operation
   ;;
 esac
 
 ########################################
+#仮登録を作成
+rm -f ${TEMPD}/setlist_operation
+cat $tmp-set-operation > ${TEMPD}/setlist_operation
+
+########################################
 #作業カテゴリを取得
-cat ${SYSD}/DATA/OPERATION_CATEGORY/LISTS/LV3/*[^_d]    |
-LANG=C sort -nk1,1                                      > $tmp-category
+cat ${SYSD}/DATA/OPERATION_CATEGORY/LISTS/LV3/*         |
+LANG=C sort -nk1,1                                      > $tmp-operation-category
 
 ########################################
 #登録済パーツ用のパーツカテゴリ
 # 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/OPERATION/CATEGORY_LIST.HTML $tmp-category > $tmp-operation-category-list
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/OPERATION/OPERATION_CATEGORY_NEW.HTML $tmp-operation-category > $tmp-set-operation-category-list
 
 #######################################
 # 改行文字を「\\n」という3文字の文字列に置換
-CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-operation-category-list`
+CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-set-operation-category-list`
 
 ########################################
-#該当のデータ操作をロック
-LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'SET_LIST' ${NUM}`
-LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
-[ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
-
-#######################################
-#データ格納
-#LV1:原始データとして、ファイル追加のみを行う
-mv $tmp-set-operation ${DATAD}/LV1/${NUM}_setlist_operation_${UPDATE_DATE}
-#LV3:LV2を更新ファイルと入れ替え
-rm -f ${DATAD}/LV2/${NUM}_setlist_operation_*
-cp -fp ${DATAD}/LV1/${NUM}_setlist_operation_${UPDATE_DATE} ${DATAD}/LV2/
-rm -f ${DATAD}/LV3/${NUM}_setlist_operation_*
-cp -fp ${DATAD}/LV2/${NUM}_setlist_operation_${UPDATE_DATE} ${DATAD}/LV3/
+#作業をテーブルへ
+#順位、セット番号、セットカテゴリ番号、作業カテゴリ番号、作業カテゴリ名、作業番号、作業名、作業価格、作成日、更新日
+cat $tmp-set-operation      |
+juni                        |
+LANG=C sort -nk1,1          > $tmp-records
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/OPERATION/RECORDS.HTML $tmp-records > $tmp-table-records
+cat $tmp-table-records | sed -e "s|###CATEGORY###|${CATEGORY_LIST}|g" > $tmp-table-records2
 
 ########################################
-#データ操作ロックを解除
-UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'SET_LIST' ${NUM}`
-[ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
+# 改行文字を「\\n」という3文字の文字列に置換
+TABLE_RECORDS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-records2`
+
+########################################
+#tableにrecordsを嵌め込む
+cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/OPERATION/TABLE.HTML |
+sed -e "s|###CATEGORY###|${CATEGORY_NEW}|g"                     |
+sed -e "s|###TABLE_RECORDS###|${TABLE_RECORDS}|g"               > $tmp-ajax-html
+
+#completで使用
+#
+########################################
+##データ格納
+##LV1:原始データとして、ファイル追加のみを行う
+#mv $tmp-set-operation ${DATAD}/LV1/${NUM}_setlist_operation_${UPDATE_DATE}
+##LV3:LV2を更新ファイルと入れ替え
+#rm -f ${DATAD}/LV2/${NUM}_setlist_operation_*
+#cp -fp ${DATAD}/LV1/${NUM}_setlist_operation_${UPDATE_DATE} ${DATAD}/LV2/
+#rm -f ${DATAD}/LV3/${NUM}_setlist_operation_*
+#cp -fp ${DATAD}/LV2/${NUM}_setlist_operation_${UPDATE_DATE} ${DATAD}/LV3/
+#
 
 ########################################
 #ending

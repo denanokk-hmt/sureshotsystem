@@ -224,8 +224,10 @@
         }
       
         //値
+        var set_no  = $('#SET_NO_HID').val();
+        var set_category_no  = $('#SET_CATEGORY_NO_HID').val();
         var operation_category_no = $('#OPERATION_CATEGORY_NO_HID_' + row).val();
-        var operation_category_nm = $('#OPERATION_CATEGORY_NM_' + row).val();
+        var operation_category_nm = $('#OPERATION_CATEGORY_NM_HID_' + row).val();
         var operation_no = $('#OPERATION_NO_HID_' + row).val();
         var operation_nm = $('#OPERATION_NM_' + row).val();
         var operation_price = $('#OPERATION_PRICE_' + row).val();
@@ -245,10 +247,12 @@
         //仮登録の登録・更新・削除
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/SET_LIST/NEW/OPERATION/COMPLETE',
+            url: '/APP/SET_LIST/EDIT/OPERATION/COMPLETE',
             data: {
               ACTION: action,
               ROW: row,
+              SET_NO: set_no,
+              SET_CATEGORY_NO: set_category_no,
               OPERATION_CATEGORY_NO: operation_category_no,
               OPERATION_CATEGORY_NM: operation_category_nm,
               OPERATION_NO: operation_no,
