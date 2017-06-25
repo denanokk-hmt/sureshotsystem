@@ -166,7 +166,7 @@ sed -e "s|###SET_CATEGORY_NM_PAGE###|${SET_PAGE_CATEGORY}|g"    |
 sed -e "s|###SET_CATEGORY_NO_PAGE###|${SET_PAGE_CATEGORY_NO}|g" |
 sed -e "s|###SET_CATEGORY###|${SET_CATEGORY_PAGE}|g"            |
 sed -e "s|###TABLE###|${TABLE}|g"                               |
-sed -e "s|###INFO_MSG###||g"                                    |
+sed -e "s|###INFO_MSG###|"変更するセットのEDITボタンを押してください。"|g"  |
 sed -e "s|###PAGER###|$(cat $tmp-pager-html)|g"                 > $tmp-html
 
 ########################################

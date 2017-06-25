@@ -21,7 +21,7 @@
         <!--Goto Subpage-->
         <div class="btn-toolbar">
             <button class="btn btn-subpage btn-default col-smx-3 " />Set</button>
-            <button class="btn btn-subpage btn-info col-smx-3 " />Operation</button>
+            <button class="btn btn-subpage btn-default col-smx-3 " />Operation</button>
             <button class="btn btn-subpage btn-default col-smx-3 " />Parts</button>
             <button class="btn btn-subpage btn-success col-smx-3 disabled" />Confirm</button>
         </div>
@@ -62,17 +62,18 @@
     //COMPLETEボタン
     $(document).on('click', 'a.btn-set', function() {
 
+        var set_no = $('#SET_NO_HID').val();
+
         //仮登録の登録・更新・削除
         var jqXHR = $.ajax({
             type: 'POST',
             url: '/APP/SET_LIST/EDIT/COMPLETE'
-           }
         });
         jqXHR.done(function(data) {
             if (data == 2222) {
-                alert("セットの変更が出来ませんでした。");
+                alert("セット:" + set_no + "の変更点がありません。");
             } else {
-                alert("セット:" + "を変更しました。");
+                alert("セット:" + set_no + "を変更しました。");
                 location.href = '/APP/SET_LIST/LISTS/SHOW';
             }
         });

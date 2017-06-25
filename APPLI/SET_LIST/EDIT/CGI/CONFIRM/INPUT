@@ -55,9 +55,11 @@ SET_NO=$( cat $tmp-get | cut -d'&' -f2 | sed -e 's/SET_NO_HID\=//' | ruby -r uri
 #セットを取得
 if [ -e "${TEMPD}/setlist_base" ] ; then
   SET_EDIT_INFO="変更あり"
+  SET_LABEL="label-warning"
   ${TEMPD}/setlist_base > $tmp-setlist-base
 else
   SET_EDIT_INFO="変更なし"
+  SET_LABEL="label-default"
   cat ${DATAD}/${SET_CATEGORY_NO_ORG}/LV3/${SET_NO}_setlist_base_* > $tmp-setlist-base 
 fi
 SET_CATEGORY_NO=$(cat $tmp-setlist-base | cut -d' ' -f2)
@@ -71,9 +73,11 @@ SET_REMARKS=$(cat $tmp-setlist-base | cut -d' ' -f6)
 #82 1 1 オイル交換 2 oil1 3000 1 20170613193650 20170613193650
 if [ -e "${TEMPD}/setlist_operation" ] ; then
   OPE_EDIT_INFO="変更あり"
+  OPE_LABEL="label-warning"
   cat ${TEMPD}/set_list_operation > $tmp-setlist-operation
 else  
   OPE_EDIT_INFO="変更なし"
+  OPE_LABEL="label-default"
   cat ${DATAD}/${SET_CATEGORY_NO_ORG}/LV3/${SET_NO}_setlist_operation_* > $tmp-setlist-operation 
 fi
 cat $tmp-setlist-operation          |
@@ -90,9 +94,11 @@ TABLE_RECORDS_OPERATION=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-records-op
 #82 1 5 オイル 5 oil1 4000 2 20170613193650 20170613193650
 if [ -e "${TEMPD}/setlist_parts" ] ; then
   PARTS_EDIT_INFO="変更あり"
+  PARTS_LABEL="label-warning"
   cat ${TEMPD}/set_list_parts > $tmp-setlist-parts
 else  
   PARTS_EDIT_INFO="変更なし"
+  PARTS_LABEL="label-default"
   cat ${DATAD}/${SET_CATEGORY_NO_ORG}/LV3/${SET_NO}_setlist_parts_* > $tmp-setlist-parts
 fi
 cat $tmp-setlist-parts              |
@@ -110,6 +116,9 @@ cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/CONFIRM/TABLE.HTML         |
 sed -e "s|###SET_EDIT_INFO###|${SET_EDIT_INFO}|g"                     |
 sed -e "s|###OPE_EDIT_INFO###|${OPE_EDIT_INFO}|g"                     |
 sed -e "s|###PARTS_EDIT_INFO###|${PARTS_EDIT_INFO}|g"                 |
+sed -e "s|###LABEL_SET###|${SET_LABEL}|g"                             |
+sed -e "s|###LABEL_OPE###|${OPE_LABEL}|g"                             |
+sed -e "s|###LABEL_PARTS###|${PARTS_LABEL}|g"                         |
 sed -e "s|###SET_CATEGORY_NM###|${SET_CATEGORY_NM}|g"                 |
 sed -e "s|###SET_CATEGORY_NO###|${SET_CATEGORY_N0}|g"                 |
 sed -e "s|###SET_NO###|${SET_NO}|g"                                   |
@@ -125,7 +134,7 @@ TABLE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-html`
 
 ########################################
 #tableをはめ込む、ページャーを差し込む
-cat ${SYSD}/APPLI/${CATEGORY}/NEW/HTML/PARTS/INPUT.HTML                 |
+cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/CONFIRM/INPUT.HTML           |
 sed -e "s|###INFO_MSG###|"セットに登録する内容を確認してください。"|g"  |
 sed -e "s|###SET_CATEGORY_NO_ORG###|${SET_CATEGORY_NO_ORG}|g"           |
 sed -e "s|###SET_NO###|${SET_NO}|g"                                     |

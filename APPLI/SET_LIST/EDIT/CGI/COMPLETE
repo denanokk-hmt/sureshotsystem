@@ -40,6 +40,19 @@ FIN
 #    exit 0
 #fi
 
+########################################
+#仮登録を削除
+TEMPD=${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/SET_LIST
+
+########################################
+#変更確認
+if [ -e "${TEMPD}/setlist_*" ]; then
+  :
+else
+  echo 2222 > $tmp-ajax-html
+  exit 0
+fi
+
 #######################################
 #フォームの入力値を取得
 SET_CATEGORY_NO=$(nameread SET_CATEGORY_NO $tmp-post)
@@ -54,14 +67,6 @@ SET_REMARKS=$(nameread SET_REMARKS $tmp-post)
 #DATAディレクトリ
 DATAD_OLD=${SYSD}/DATA/${CATEGORY}/${SET_CATEGORY_NX}/LISTS
 DATAD_NEW=${SYSD}/DATA/${CATEGORY}/${SET_CATEGORY_NO}/LISTS
-
-########################################
-#重複確認
-cat ${DATAD_OLD}/LV3/* | awk -v nm=${SET_NM} '$4==nm{print $1}' > $tmp-valid1
-if [ -n "$(cat $tmp-valid1)" ] ; then
-    echo 2222 > $tmp-ajax-html
-    exit 0
-fi
 
 ########################################
 #既存データから作成日時取得、現在日時を更新日時とする
