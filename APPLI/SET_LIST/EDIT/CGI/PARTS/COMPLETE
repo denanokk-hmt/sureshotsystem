@@ -42,60 +42,101 @@ FIN
 
 ########################################
 #仮登録ディレクトリ
-SESSION=$(session_get 'sureshot_stuff_session_id') 
-STUFF_ID=$(cat ${SYSD}/SESSION/${SESSION})
-TEMPD=${SYSD}/TMP/${STUFF_ID}/SET_LIST
+TEMPD=${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/SET_LIST
 
 #######################################
 #フォームの入力値を取得
-cat $tmp-post
 ACTION=$(nameread ACTION $tmp-post)
 ROW=$(nameread ROW $tmp-post)
+NUM=$(nameread SET_NO $tmp-post)
+SET_CATEGORY_NO=$(nameread SET_CATEGORY_NO $tmp-post)
 PARTS_CATEGORY_NO=$(nameread PARTS_CATEGORY_NO $tmp-post)
 PARTS_CATEGORY_NM=$(nameread PARTS_CATEGORY_NM $tmp-post)
 PARTS_NO=$(nameread PARTS_NO $tmp-post)
 PARTS_NM=$(nameread PARTS_NM $tmp-post)
+PARTS_NM_NX=$(nameread PARTS_NM_NX $tmp-post)
 PARTS_PRICE=$(nameread PARTS_PRICE $tmp-post)
 PARTS_QTY=$(nameread PARTS_QTY $tmp-post)
+
+########################################
+#DATAディレクトリ
+DATAD=${SYSD}/DATA/${CATEGORY}/LISTS/${SET_CATEGORY_NO}
+
+########################################
+#重複確認
+if [ "${PARTS_NM}" != "${PARTS_NM_NX}" ] ; then
+  cat ${DATAD}/LV3/${NUM}_setlist_parts_* | 
+  awk -v nm=${PARTS_NM} '$6==nm{print $1}' > $tmp-valid1
+  if [ -n "$(cat $tmp-valid1)" ] ; then
+    echo 2222 > $tmp-ajax-html
+    exit 0
+  fi
+fi
+
+########################################
+#部品を取得
+#セット番号、セットカテゴリ番号、部品カテゴリ番号、部品カテゴリ名、部品番号、部品名、部品価格、作成日、更新日
+cat ${DATAD}/LV3/${NUM}_setlist_parts_*  > $tmp-lv3-set-parts
+
+########################################
+#既存データから作成日時取得、現在日時を更新日時とする
+ls ${DATAD}/LV1/${NUM}_setlist_parts_* | sort -nk1,1 | head -n 1 | cut -d'_' -f5 > $tmp-create
+CREATE_DATE=$(cat $tmp-create)
+UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 
 ######################################t#
 #ACTIONで振り分け
 case ${ACTION} in
-ADD)    #追加
-  #重複確認
-  cat ${TEMPD}/set_list_parts | awk -v pid=${PARTS_NO} '$3==pid {print}' > $tmp-valid1
-  if [ -n "$(cat $tmp-valid1)" ] ; then
-      echo 2222 > $tmp-ajax-html
-      exit 0
-  fi
-  #1:カテゴリ番号、2:カテゴリ名、3:部品番号、4:部品名、5:価格、6:数量
-  echo ${PARTS_CATEGORY_NO} ${PARTS_CATEGORY_NM} ${PARTS_NO} ${PARTS_NM} ${PARTS_PRICE} ${PARTS_QTY} >> ${TEMPD}/set_list_parts
-  #空行を削除
-  cat ${TEMPD}/set_list_parts | awk /./ > $tmp-set-list-parts
-  ;;
+ADD)
+  #追加
+  #82 1 5 オイル 5 oil1 4000 2 20170613193650 20170613193650
+  echo  ${NUM} ${SET_CATEGORY_NO} \
+        ${PARTS_CATEGORY_NO} ${PARTS_CATEGORY_NM} \
+        ${PARTS_NO} ${PARTS_NM} \
+        ${PARTS_PRICE} ${PARTS_QTY} \
+        ${CREATE_DATE} ${UPDATE_DATE} \
+        >> $tmp-lv3-set-parts
+  cat $tmp-lv3-set-parts > $tmp-set-parts
+ ;;
 EDIT)   #変更
-  cat ${TEMPD}/set_list_parts | 
+  cat $tmp-lv3-set-parts  | 
   awk \
       -v row=${ROW} \
-      -v category_no=${PARTS_CATEGORY_NO} \
-      -v category_nm=${PARTS_CATEGORY_NM} \
-      -v parts_no=${PARTS_NO} \
-      -v parts_nm=${PARTS_NM} \
+      -v set_no=${NUM} \
+      -v set_cate_no=${SET_CATEGORY_NO} \
+      -v ps_cate_no=${PARTS_CATEGORY_NO} \
+      -v ps_cate_nm=${PARTS_CATEGORY_NM} \
+      -v ps_no=${PARTS_NO} \
+      -v ps_nm=${PARTS_NM} \
       -v price=${PARTS_PRICE} \
       -v qty=${PARTS_QTY} \
+      -v cdt=${CREATE_DATE} \
+      -v udt=${UPDATE_DATE} \
       'NR!=row{print} \
-      NR==row{print(category_no, category_nm, parts_no, parts_nm, price, qty)}' \
-      > $tmp-set-list-parts
+      NR==row{print( \
+          set_no, \
+          set_cate_no, \
+          ps_cate_no, \
+          ps_cate_nm, \
+          ps_no, \
+          ps_nm, \
+          price, \
+          qty, \
+          cdt, \
+          udt \
+      )}' \
+      > $tmp-set-parts
   ;;
 DELETE) #削除
-  cat ${TEMPD}/set_list_parts | awk -v d=${ROW} 'NR!=d{print}' > $tmp-set-list-parts
+  cat $tmp-lv3-set-parts      | 
+  awk -v d=${ROW} 'NR!=d{print}'  > $tmp-set-parts
   ;;
 esac
 
-#######################################
-#入力値を仮登録
-#部品カテゴリ番号、部品カテゴリ名、部品番号、部品名、部品価格、部品数量
-cat $tmp-set-list-parts > ${TEMPD}/set_list_parts
+########################################
+#仮登録を作成
+rm -f ${TEMPD}/setlist_parts
+cat $tmp-set-parts > ${TEMPD}/setlist_parts
 
 ########################################
 #部品カテゴリを取得
@@ -122,23 +163,19 @@ CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-list`
 
 ########################################
 #仮登録の部品リストを取得
-cat ${TEMPD}/set_list_parts         |
-juni                                |                
-LANG=C sort -nk1,1                  > $tmp-records
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/NEW/HTML/PARTS/RECORDS.HTML $tmp-records > $tmp-table-records
-
-########################################
-#登録済レコードに部品カテゴリリストを嵌め込む
-cat $tmp-table-records                         |
-sed -e "s|###CATEGORY###|${CATEGORY_LIST}|g"   > $tmp-table
+cat $tmp-set-parts         |
+juni                       |                
+LANG=C sort -nk1,1         > $tmp-records
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/PARTS/RECORDS.HTML $tmp-records > $tmp-table-records
+cat $tmp-table-records | sed -e "s|###CATEGORY###|${CATEGORY_LIST}|g" > $tmp-table-records2
 
 ########################################
 # 改行文字を「\\n」という3文字の文字列に置換
-TABLE_RECORDS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table`
+TABLE_RECORDS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-records2`
 
 ########################################
 #tableにrecordsを嵌め込む
-cat ${SYSD}/APPLI/${CATEGORY}/NEW/HTML/PARTS/TABLE.HTML     |
+cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/PARTS/TABLE.HTML |
 sed -e "s|###CATEGORY###|${CATEGORY_NEW}|g"                 |
 sed -e "s|###TABLE_RECORDS###|${TABLE_RECORDS}|g"           > $tmp-ajax-html
 

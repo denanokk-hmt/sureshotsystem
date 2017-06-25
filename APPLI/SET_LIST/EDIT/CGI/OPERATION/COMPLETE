@@ -54,6 +54,7 @@ OPERATION_CATEGORY_NO=$(nameread OPERATION_CATEGORY_NO $tmp-post)
 OPERATION_CATEGORY_NM=$(nameread OPERATION_CATEGORY_NM $tmp-post)
 OPERATION_NO=$(nameread OPERATION_NO $tmp-post)
 OPERATION_NM=$(nameread OPERATION_NM $tmp-post)
+OPERATION_NM_NX=$(nameread OPERATION_NM_NX $tmp-post)
 OPERATION_PRICE=$(nameread OPERATION_PRICE $tmp-post)
 OPERATION_QTY=$(nameread OPERATION_QTY $tmp-post)
 
@@ -79,7 +80,7 @@ cat ${DATAD}/LV3/${NUM}_setlist_operation_*  > $tmp-lv3-set-operation
 
 ########################################
 #既存データから作成日時取得、現在日時を更新日時とする
-ls ${DATAD}/LV1/${NUM}_setlist_operation_* | sort -nk1,1 | head -n 1 | cut -d'_' -f4 > $tmp-create
+ls ${DATAD}/LV1/${NUM}_setlist_operation_* | sort -nk1,1 | head -n 1 | cut -d'_' -f5 > $tmp-create
 CREATE_DATE=$(cat $tmp-create)
 UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 
@@ -103,21 +104,27 @@ EDIT)   #変更
       -v row=${ROW} \
       -v set_no=${NUM} \
       -v set_cate_no=${SET_CATEGORY_NO} \
-      -v op_cate_no=${OPERATION_CATEGORY_NO} \ 
+      -v op_cate_no=${OPERATION_CATEGORY_NO} \
       -v op_cate_nm=${OPERATION_CATEGORY_NM} \
-      -v op_no=${OPERATION_NO} \ 
-      -v op_nm=${OPERATION_NM} \ 
-      -v parts_nm=${PARTS_NM} \
+      -v op_no=${OPERATION_NO} \
+      -v op_nm=${OPERATION_NM} \
       -v price=${OPERATION_PRICE} \
       -v qty=${OPERATION_QTY} \
       -v cdt=${CREATE_DATE} \
       -v udt=${UPDATE_DATE} \
       'NR!=row{print} \
-      NR==row{print(set_no, set_cate_no, \
-                    op_cate_no, op_cate_nm, \
-                    op_no, op_nm, \
-                    price, qty, \
-                    cdt, udt)}' \
+      NR==row{print( \
+          set_no, \
+          set_cate_no, \
+          op_cate_no, \
+          op_cate_nm, \
+          op_no, \
+          op_nm, \
+          price, \
+          qty, \
+          cdt, \
+          udt \
+      )}' \
       > $tmp-set-operation
   ;;
 DELETE) #削除
@@ -135,6 +142,15 @@ cat $tmp-set-operation > ${TEMPD}/setlist_operation
 #作業カテゴリを取得
 cat ${SYSD}/DATA/OPERATION_CATEGORY/LISTS/LV3/*         |
 LANG=C sort -nk1,1                                      > $tmp-operation-category
+
+########################################
+#作業新規登録用の作業カテゴリ
+# 1;カテゴリ番号 2;カテゴリ名
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/OPERATION/OPERATION_CATEGORY_NEW.HTML $tmp-operation-category > $tmp-set-operation-category-new
+
+########################################
+#作業カテゴリの改行文字を「\\n」という3文字の文字列に置換
+CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-set-operation-category-new`
 
 ########################################
 #登録済パーツ用のパーツカテゴリ

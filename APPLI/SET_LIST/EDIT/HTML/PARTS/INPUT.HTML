@@ -224,10 +224,13 @@
         }
       
         //値
+        var set_no  = $('#SET_NO_HID').val();
+        var set_category_no  = $('#SET_CATEGORY_NO_HID').val();
         var parts_category_no = $('#PARTS_CATEGORY_NO_HID_' + row).val();
         var parts_category_nm = $('#PARTS_CATEGORY_NM_' + row).val();
         var parts_no = $('#PARTS_NO_HID_' + row).val();
         var parts_nm = $('#PARTS_NM_' + row).val();
+        var parts_nm_nx = $('#PARTS_NM_HID_' + row).val();
         var parts_price = $('#PARTS_PRICE_' + row).val();
         var parts_qty = $('#PARTS_QTY_' + row).val();
 
@@ -245,14 +248,17 @@
         //仮登録の登録・更新・削除
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/SET_LIST/NEW/PARTS/COMPLETE',
+            url: '/APP/SET_LIST/EDIT/PARTS/COMPLETE',
             data: {
               ACTION: action,
               ROW: row,
+              SET_NO: set_no,
+              SET_CATEGORY_NO: set_category_no,
               PARTS_CATEGORY_NO: parts_category_no,
               PARTS_CATEGORY_NM: parts_category_nm,
               PARTS_NO: parts_no,
               PARTS_NM: parts_nm,
+              PARTS_NM_NX: parts_nm_nx,
               PARTS_PRICE: parts_price,
               PARTS_QTY: parts_qty
             }
@@ -264,26 +270,11 @@
                 $('intput[type="text"]').each(function() {
                 });
                 $('table').html(data);
+                alert("部品" + row + "の" + action + "を行いました。");
             }
         });
         jqXHR.fail(function(data) {
             alert("部品" + row + "の" + action + "に失敗しました。");
-        });
-    });
-
-    //SETボタン
-    $(document).on('click', 'a.btn-set', function() {
-
-        var jqXHR = $.ajax({
-            type: 'POST',
-            url: '/APP/SET_LIST/NEW/COMPLETE',
-       });
-        jqXHR.done(function(data) {
-            alert("セットを登録しました。");
-            location.href = '/APP/SET_LIST/LISTS/SHOW';
-        });
-        jqXHR.fail(function(data) {
-            alert("セットの登録が出来ませんでした。");
         });
     });
 

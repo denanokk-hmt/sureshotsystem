@@ -230,6 +230,7 @@
         var operation_category_nm = $('#OPERATION_CATEGORY_NM_HID_' + row).val();
         var operation_no = $('#OPERATION_NO_HID_' + row).val();
         var operation_nm = $('#OPERATION_NM_' + row).val();
+        var operation_nm_nx = $('#OPERATION_NM_HID_' + row).val();
         var operation_price = $('#OPERATION_PRICE_' + row).val();
         var operation_qty = $('#OPERATION_QTY_' + row).val();
 
@@ -257,6 +258,7 @@
               OPERATION_CATEGORY_NM: operation_category_nm,
               OPERATION_NO: operation_no,
               OPERATION_NM: operation_nm,
+              OPERATION_NM_NX: operation_nm_nx,
               OPERATION_PRICE: operation_price,
               OPERATION_QTY: operation_qty
             }
@@ -268,6 +270,7 @@
                 $('intput[type="text"]').each(function() {
                 });
                 $('table').html(data);
+                alert("作業" + row + "の" + action + "を行いました。");
             }
         });
         jqXHR.fail(function(data) {
@@ -275,11 +278,5 @@
         });
     });
 
-
-    //SETボタン
-    $(document).on('click', 'a.btn-set', function() {
-        alert("作業をセットに仮登録しました。");
-        $('#set_list').submit();      
-    });
 </script>
 <!--</html>-->

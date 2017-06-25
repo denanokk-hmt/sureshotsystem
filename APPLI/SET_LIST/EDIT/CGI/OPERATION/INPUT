@@ -66,9 +66,9 @@ mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/OPERATION/OPERATION_CA
 CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-set-operation-category-new`
 
 ########################################
-#作業新規登録用の作業カテゴリ
+#作業登録済用の作業カテゴリ
 # 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/OPERATION/OPERATION_CATEGORY_NEW.HTML $tmp-operation-category > $tmp-set-operation-category-list
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/OPERATION/OPERATION_CATEGORY_LIST.HTML $tmp-operation-category > $tmp-set-operation-category-list
 
 ########################################
 #作業カテゴリの改行文字を「\\n」という3文字の文字列に置換
@@ -77,7 +77,7 @@ CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-set-operation-category-lis
 ########################################
 #Get records
 if [ -e "${TEMPD}/setlist_operation" ]; then
-  cat ${TEMPD}/setlist_operation > $tmp-set-operaion
+  cat ${TEMPD}/setlist_operation > $tmp-set-operation
 else
   cat ${DATAD}/${SET_CATEGORY_NO_ORG}/LV3/${SET_NO}_setlist_operation_* > $tmp-set-operation
 fi

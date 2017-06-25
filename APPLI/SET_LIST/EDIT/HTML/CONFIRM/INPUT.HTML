@@ -21,9 +21,9 @@
         <!--Goto Subpage-->
         <div class="btn-toolbar">
             <button class="btn btn-subpage btn-default col-smx-3 " />Set</button>
-            <button class="btn btn-subpage btn-info col-smx-3 disabled" />Operation</button>
+            <button class="btn btn-subpage btn-info col-smx-3 " />Operation</button>
             <button class="btn btn-subpage btn-default col-smx-3 " />Parts</button>
-            <button class="btn btn-subpage btn-success col-smx-3 " />Confirm</button>
+            <button class="btn btn-subpage btn-success col-smx-3 disabled" />Confirm</button>
         </div>
 
     </div>
@@ -33,11 +33,13 @@
 
     <!--Contents Records/Pagination-->
     <div class="header-under-contents">
-        <form id="set_list" class="form-inline form-horizontal"  action="/APP/SET_LIST/NEW/PARTS/INPUT" method="POST">
-            <div class="contents-table">
-                ###TABLE###
-            </div>
-       </form>
+        <form id="set_list" class="form-inline form-horizontal"  action="" method="">
+            <input type="hidden" name="SET_CATEGORY_NO_HID" id="SET_CATEGORY_NO_HID" value="###SET_CATEGORY_NO_ORG###" class="form-control" />
+            <input type="hidden" name="SET_NO_HID" id="SET_NO_HID" value="###SET_NO###" class="form-control" />
+        </form>
+        <div class="contents-table">
+            ###TABLE###
+        </div>
     </div>
 </div>
 
@@ -53,7 +55,7 @@
         var func = $(this).html().toUpperCase();
         var frm = document.forms['set_list'];
         frm.method = 'GET';
-        frm.action = '/APP/SET_LIST/NEW/' + func + '/INPUT';
+        frm.action = '/APP/SET_LIST/EDIT/' + func + '/INPUT';
         frm.submit();
     });
 
@@ -63,14 +65,14 @@
         //仮登録の登録・更新・削除
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/SET_LIST/NEW/COMPLETE'
+            url: '/APP/SET_LIST/EDIT/COMPLETE'
            }
         });
         jqXHR.done(function(data) {
             if (data == 2222) {
-                alert("セットの登録が出来ませんでした。");
+                alert("セットの変更が出来ませんでした。");
             } else {
-                alert("セットを登録しました。");
+                alert("セット:" + "を変更しました。");
                 location.href = '/APP/SET_LIST/LISTS/SHOW';
             }
         });
