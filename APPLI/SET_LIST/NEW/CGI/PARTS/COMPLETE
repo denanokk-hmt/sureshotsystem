@@ -63,18 +63,18 @@ PARTS_QTY=$(nameread PARTS_QTY $tmp-post)
 case ${ACTION} in
 ADD)    #追加
   #重複確認
-  cat ${TEMPD}/set_list_parts | awk -v pid=${PARTS_NO} '$3==pid {print}' > $tmp-valid1
+  cat ${TEMPD}/setlist_parts | awk -v pid=${PARTS_NO} '$3==pid {print}' > $tmp-valid1
   if [ -n "$(cat $tmp-valid1)" ] ; then
       echo 2222 > $tmp-ajax-html
       exit 0
   fi
   #1:カテゴリ番号、2:カテゴリ名、3:部品番号、4:部品名、5:価格、6:数量
-  echo ${PARTS_CATEGORY_NO} ${PARTS_CATEGORY_NM} ${PARTS_NO} ${PARTS_NM} ${PARTS_PRICE} ${PARTS_QTY} >> ${TEMPD}/set_list_parts
+  echo ${PARTS_CATEGORY_NO} ${PARTS_CATEGORY_NM} ${PARTS_NO} ${PARTS_NM} ${PARTS_PRICE} ${PARTS_QTY} >> ${TEMPD}/setlist_parts
   #空行を削除
-  cat ${TEMPD}/set_list_parts | awk /./ > $tmp-set-list-parts
+  cat ${TEMPD}/setlist_parts | awk /./ > $tmp-set-list-parts
   ;;
 EDIT)   #変更
-  cat ${TEMPD}/set_list_parts | 
+  cat ${TEMPD}/setlist_parts | 
   awk \
       -v row=${ROW} \
       -v category_no=${PARTS_CATEGORY_NO} \
@@ -88,14 +88,14 @@ EDIT)   #変更
       > $tmp-set-list-parts
   ;;
 DELETE) #削除
-  cat ${TEMPD}/set_list_parts | awk -v d=${ROW} 'NR!=d{print}' > $tmp-set-list-parts
+  cat ${TEMPD}/setlist_parts | awk -v d=${ROW} 'NR!=d{print}' > $tmp-set-list-parts
   ;;
 esac
 
 #######################################
 #入力値を仮登録
 #部品カテゴリ番号、部品カテゴリ名、部品番号、部品名、部品価格、部品数量
-cat $tmp-set-list-parts > ${TEMPD}/set_list_parts
+cat $tmp-set-list-parts > ${TEMPD}/setlist_parts
 
 ########################################
 #部品カテゴリを取得
@@ -122,7 +122,7 @@ CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-list`
 
 ########################################
 #仮登録の部品リストを取得
-cat ${TEMPD}/set_list_parts         |
+cat ${TEMPD}/setlist_parts          |
 juni                                |                
 LANG=C sort -nk1,1                  > $tmp-records
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/NEW/HTML/PARTS/RECORDS.HTML $tmp-records > $tmp-table-records

@@ -62,18 +62,18 @@ OPERATION_QTY=$(nameread OPERATION_QTY $tmp-post)
 case ${ACTION} in
 ADD)    #追加
   #重複確認
-  cat ${TEMPD}/set_list_operation | awk -v pid=${OPERATION_NO} '$3==pid {print}' > $tmp-valid1
+  cat ${TEMPD}/setlist_operation | awk -v pid=${OPERATION_NO} '$3==pid {print}' > $tmp-valid1
   if [ -n "$(cat $tmp-valid1)" ] ; then
       echo 2222 > $tmp-ajax-html
       exit 0
   fi
   #1:カテゴリ番号、2:カテゴリ名、3:作業番号、4:作業名、5:価格、6:数量
-  echo ${OPERATION_CATEGORY_NO} ${OPERATION_CATEGORY_NM} ${OPERATION_NO} ${OPERATION_NM} ${OPERATION_PRICE} ${OPERATION_QTY} >> ${TEMPD}/set_list_operation
+  echo ${OPERATION_CATEGORY_NO} ${OPERATION_CATEGORY_NM} ${OPERATION_NO} ${OPERATION_NM} ${OPERATION_PRICE} ${OPERATION_QTY} >> ${TEMPD}/setlist_operation
   #空行を削除
-  cat ${TEMPD}/set_list_operation | awk /./ > $tmp-set-list-operation
+  cat ${TEMPD}/setlist_operation | awk /./ > $tmp-set-list-operation
   ;;
 EDIT)   #変更
-  cat ${TEMPD}/set_list_operation | 
+  cat ${TEMPD}/setlist_operation | 
   awk \
       -v row=${ROW} \
       -v category_no=${OPERATION_CATEGORY_NO} \
@@ -87,14 +87,14 @@ EDIT)   #変更
       > $tmp-set-list-operation
   ;;
 DELETE) #削除
-  cat ${TEMPD}/set_list_operation | awk -v d=${ROW} 'NR!=d{print}' > $tmp-set-list-operation
+  cat ${TEMPD}/setlist_operation | awk -v d=${ROW} 'NR!=d{print}' > $tmp-set-list-operation
   ;;
 esac
 
 #######################################
 #入力値を仮登録
 #作業カテゴリ番号、作業カテゴリ名、作業番号、作業名、作業価格、作業数量
-cat $tmp-set-list-operation > ${TEMPD}/set_list_operation
+cat $tmp-set-list-operation > ${TEMPD}/setlist_operation
 
 ########################################
 #作業カテゴリを取得
@@ -121,7 +121,7 @@ CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-operation-category-list`
 
 ########################################
 #仮登録の作業リストを取得
-cat ${TEMPD}/set_list_operation      |
+cat ${TEMPD}/setlist_operation      |
 juni                                |                
 LANG=C sort -nk1,1                  > $tmp-records
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/NEW/HTML/OPERATION/RECORDS.HTML $tmp-records > $tmp-table-records

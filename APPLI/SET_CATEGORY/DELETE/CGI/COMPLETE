@@ -85,6 +85,16 @@ UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'SET_CATEGORY' ${NUM}`
 #　　セットのデータ操作
 ########################################
 SETD=${SYSD}/DATA/SET_LIST/LISTS
+
+########################################
+#待避用999Dirの作成
+if [ -e "${SETD}/999" ]; then
+  :
+else
+  mkdir ${SETD}/999
+  chmod -R 770 ${SETD}/999
+fi
+
 #削除するカテゴリーで登録されているセットに対して、
 # 1.カテゴリを999 未選択、更新日を現在にして999ディレクトリにコピー
 for file in `find ${SETD}/${NUM}/LV3/*[^_d] -maxdepth 1 -type f`; do

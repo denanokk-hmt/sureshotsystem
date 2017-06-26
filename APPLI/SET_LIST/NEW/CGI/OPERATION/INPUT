@@ -75,7 +75,7 @@ CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-operation-category-list`
 
 ########################################
 #Get records
-cat ${TEMPD}/set_list_operation     |
+cat ${TEMPD}/setlist_operation      |
 juni                                |
 LANG=C sort -nk1,1                  > $tmp-records
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/OPERATION/RECORDS.HTML $tmp-records > $tmp-table-records

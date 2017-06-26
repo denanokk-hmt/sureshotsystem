@@ -52,15 +52,15 @@ TEMPD=${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id
 ########################################
 #仮登録を取得
 #SET_ARRY=(`cat ${TEMPD}/set_list`)
-SET_CATEGORY_NO=$(cat ${TEMPD}/set_list | cut -d' ' -f1)
-SET_CATEGORY_NM=$(cat ${TEMPD}/set_list | cut -d' ' -f2)
-SET_NM=$(cat ${TEMPD}/set_list | cut -d' ' -f3)
-SET_PRICE=$(cat ${TEMPD}/set_list | cut -d' ' -f4)
-SET_REMARKS=$(cat ${TEMPD}/set_list | cut -d' ' -f5)
+SET_CATEGORY_NO=$(cat ${TEMPD}/setlist_base | cut -d' ' -f1)
+SET_CATEGORY_NM=$(cat ${TEMPD}/setlist_base | cut -d' ' -f2)
+SET_NM=$(cat ${TEMPD}/setlist_base | cut -d' ' -f3)
+SET_PRICE=$(cat ${TEMPD}/setlist_base | cut -d' ' -f4)
+SET_REMARKS=$(cat ${TEMPD}/setlist_base | cut -d' ' -f5)
 
 ########################################
 #Get records
-cat ${TEMPD}/set_list_operation     |
+cat ${TEMPD}/setlist_operation      |
 juni                                |
 LANG=C sort -nk1,1                  > $tmp-records
 mojihame -lRECORDS_OPERATION ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/CONFIRM/OPERATION_RECORDS.HTML $tmp-records > $tmp-table-records-operaion
@@ -71,7 +71,7 @@ TABLE_RECORDS_OPERATION=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-records-op
 
 ########################################
 #Get records
-cat ${TEMPD}/set_list_parts         |
+cat ${TEMPD}/setlist_parts          |
 juni                                |
 LANG=C sort -nk1,1                  > $tmp-records
 mojihame -lRECORDS_PARTS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/CONFIRM/PARTS_RECORDS.HTML $tmp-records > $tmp-table-records-parts

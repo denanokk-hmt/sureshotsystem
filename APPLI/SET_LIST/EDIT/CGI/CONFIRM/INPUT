@@ -56,7 +56,7 @@ SET_NO=$( cat $tmp-get | cut -d'&' -f2 | sed -e 's/SET_NO_HID\=//' | ruby -r uri
 if [ -e "${TEMPD}/setlist_base" ] ; then
   SET_EDIT_INFO="変更あり"
   SET_LABEL="label-warning"
-  ${TEMPD}/setlist_base > $tmp-setlist-base
+  cat ${TEMPD}/setlist_base > $tmp-setlist-base
 else
   SET_EDIT_INFO="変更なし"
   SET_LABEL="label-default"
@@ -74,7 +74,7 @@ SET_REMARKS=$(cat $tmp-setlist-base | cut -d' ' -f6)
 if [ -e "${TEMPD}/setlist_operation" ] ; then
   OPE_EDIT_INFO="変更あり"
   OPE_LABEL="label-warning"
-  cat ${TEMPD}/set_list_operation > $tmp-setlist-operation
+  cat ${TEMPD}/setlist_operation | sort > $tmp-setlist-operation
 else  
   OPE_EDIT_INFO="変更なし"
   OPE_LABEL="label-default"
@@ -95,7 +95,7 @@ TABLE_RECORDS_OPERATION=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-records-op
 if [ -e "${TEMPD}/setlist_parts" ] ; then
   PARTS_EDIT_INFO="変更あり"
   PARTS_LABEL="label-warning"
-  cat ${TEMPD}/set_list_parts > $tmp-setlist-parts
+  cat ${TEMPD}/setlist_parts | sort > $tmp-setlist-parts
 else  
   PARTS_EDIT_INFO="変更なし"
   PARTS_LABEL="label-default"
@@ -120,7 +120,7 @@ sed -e "s|###LABEL_SET###|${SET_LABEL}|g"                             |
 sed -e "s|###LABEL_OPE###|${OPE_LABEL}|g"                             |
 sed -e "s|###LABEL_PARTS###|${PARTS_LABEL}|g"                         |
 sed -e "s|###SET_CATEGORY_NM###|${SET_CATEGORY_NM}|g"                 |
-sed -e "s|###SET_CATEGORY_NO###|${SET_CATEGORY_N0}|g"                 |
+sed -e "s|###SET_CATEGORY_NO###|${SET_CATEGORY_NO}|g"                 |
 sed -e "s|###SET_NO###|${SET_NO}|g"                                   |
 sed -e "s|###SET_NM###|${SET_NM}|g"                                   |
 sed -e "s|###SET_PRICE###|${SET_PRICE}|g"                             |

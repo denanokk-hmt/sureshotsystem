@@ -46,7 +46,7 @@ TEMPD=${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id
 
 ########################################
 #変更確認
-if [ -e "${TEMPD}/setlist_*" ]; then
+if [ -n "$(cat ${TEMPD}/setlist_*)" ]; then
   :
 else
   echo 2222 > $tmp-ajax-html
@@ -55,18 +55,48 @@ fi
 
 #######################################
 #フォームの入力値を取得
-SET_CATEGORY_NO=$(nameread SET_CATEGORY_NO $tmp-post)
+ROW=$(nameread ROW $tmp-post)
+NUM=$(nameread SET_NO $tmp-post)
 SET_CATEGORY_NX=$(nameread SET_CATEGORY_NX $tmp-post)
-SET_CATEGORY_NM=$(nameread SET_CATEGORY_NM $tmp-post)
-SET_NO=$(nameread SET_NO $tmp-post)
-SET_NM=$(nameread SET_NM $tmp-post)
-SET_PRICE=$(nameread SET_PRICE $tmp-post)
-SET_REMARKS=$(nameread SET_REMARKS $tmp-post)
+SET_CATEGORY_NO=$(nameread SET_CATEGORY_NO $tmp-post)
 
 ########################################
 #DATAディレクトリ
-DATAD_OLD=${SYSD}/DATA/${CATEGORY}/${SET_CATEGORY_NX}/LISTS
-DATAD_NEW=${SYSD}/DATA/${CATEGORY}/${SET_CATEGORY_NO}/LISTS
+DATAD_OLD=${SYSD}/DATA/${CATEGORY}/LISTS/${SET_CATEGORY_NX}
+DATAD_NEW=${SYSD}/DATA/${CATEGORY}/LISTS/${SET_CATEGORY_NO}
+[ "${DATAD_OLD}" = "${DATAD_NEW}" ] && DATAD=${DATAD_OLD} || DATAD=${DATAD_NEW} 
+
+#######################################
+#セット変更内容を取得
+if [ -e "${TEMPD}/setlist_base" ] ; then
+  #82 2 タイヤ交換 Oil_Filter交換-TTT 30000 S123 
+  SET_CATEGORY_NM=$( cat ${TEMPD}/setlist_base | cut -d' ' -f3)
+  SET_NM=$( cat ${TEMPD}/setlist_base | cut -d' ' -f4)
+  SET_PRICE=$( cat ${TEMPD}/setlist_base | cut -d' ' -f5)
+  SET_REMARKS=$( cat ${TEMPD}/setlist_base | cut -d' ' -f6)
+  echo ${NUM} ${SET_CATEGORY_NO} ${SET_CATEGORY_NM} ${SET_NM} ${SET_PRICE} ${SET_REMARKS} > $tmp-setlist-base
+else
+  #最新LV1データ
+  cat `ls ${DATAD_OLD}/LV1/${NUM}_setlist_base_*[^_d] | sort -nr | head -n1` > $tmp-setlist-base
+fi
+
+#######################################
+#作業変更内容を取得
+if [ -e "${TEMPD}/setlist_operation" ] ; then
+  cat ${TEMPD}/setlist_operation > $tmp-setlist-operation
+else
+  #既存最新LV1データ
+  cat `ls ${DATAD_OLD}/LV1/${NUM}_setlist_operation_*[^_d] | sort -nr | head -n1` > $tmp-setlist-operation
+fi
+
+#######################################
+#部品変更内容を取得
+if [ -e "${TEMPD}/setlist_parts" ] ; then
+  cat ${TEMPD}/setlist_parts > $tmp-setlist-parts
+else
+  #既存最新LV1データ
+  cat `ls ${DATAD_OLD}/LV1/${NUM}_setlist_parts_*[^_d] | sort -nr | head -n1` > $tmp-setlist-parts
+fi
 
 ########################################
 #既存データから作成日時取得、現在日時を更新日時とする
@@ -75,42 +105,28 @@ CREATE_DATE=$(cat $tmp-create)
 UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 
 ########################################
-#ディレクトリを作成する
+#未使用のセットカテゴリが選択された場合、ディレクトリを作成する
 if [ -e "${DATAD_NEW}"  ]; then
     :
 else
-    mkdir ${SYSD}/DATA/${CATEGORY}/${SET_CATEGORY_NO} 
-    mkdir ${DATAD_NEW}/LISTS
-    cp -rp ${SYSD}/DATA/ORG_LV1-3 ${DATAD_NEW}/
+    mkdir ${DATAD_NEW}
+    cp -rp ${SYSD}/DATA/ORG_LV1-3/* ${DATAD_NEW}/
     chmod -R 770 ${DATAD_NEW} #オーナーと権限を再帰的に設定
     ERROR_CHECK
 fi
 
 #######################################
-#セットカテゴリに変更がない場合
-#セット番号、セットカテゴリ番号、セットカテゴリ名、セット名、セット価格、備考、作成日、更新日
-cat ${DATAD_OLD}/LV3
-
-cat ${TEMPD}/set_list | awk -v id=${NEW_NUM} -v cdt=${CREATE_DATE} -v udt=${UPDATE_DATE} '{print id, $0, cdt, udt}' > $tmp-set-list
-#セット番号、セットカテゴリ番号、作業カテゴリ番号、作業名、作業数量、作業価格、作成日、更新日
-cat ${TEMPD}/set_list_operation | awk -v id=${NEW_NUM} -v cat=${SET_CATEGORY_NO} -v cdt=${CREATE_DATE} -v udt=${UPDATE_DATE} '{print id, cat, $0, cdt, udt}' > $tmp-set-list_operation
-#セット番号、セットカテゴリ番号、部品カテゴリ番号、部品名、部品数量、部品価格、作成日、更新日
-cat ${TEMPD}/set_list_parts | awk -v id=${NEW_NUM} -v cat=${SET_CATEGORY_NO} -v cdt=${CREATE_DATE} -v udt=${UPDATE_DATE} '{print id, cat, $0, cdt, udt}' > $tmp-set-list_parts
-
-########################################
 #データ格納
-#LV1
-mv $tmp-set-list ${DATAD}/LV1/${NEW_NUM}_setlist_base_${CREATE_DATE}
-mv $tmp-set-list_operation ${DATAD}/LV1/${NEW_NUM}_setlist_operation_${CREATE_DATE}
-mv $tmp-set-list_parts ${DATAD}/LV1/${NEW_NUM}_setlist_parts_${CREATE_DATE}
-#LV2
-cat ${DATAD}/LV1/${NEW_NUM}_setlist_base_${CREATE_DATE} > ${DATAD}/LV2/${NEW_NUM}_setlist_base_${CREATE_DATE}
-cat ${DATAD}/LV1/${NEW_NUM}_setlist_operation_${CREATE_DATE} > ${DATAD}/LV2/${NEW_NUM}_setlist_operation_${CREATE_DATE}
-cat ${DATAD}/LV1/${NEW_NUM}_setlist_parts_${CREATE_DATE} > ${DATAD}/LV2/${NEW_NUM}_setlist_parts_${CREATE_DATE}
-#LV3
-cat ${DATAD}/LV2/${NEW_NUM}_setlist_base_${CREATE_DATE} > ${DATAD}/LV3/${NEW_NUM}_setlist_base_${CREATE_DATE}
-cat ${DATAD}/LV2/${NEW_NUM}_setlist_operation_${CREATE_DATE} > ${DATAD}/LV3/${NEW_NUM}_setlist_operation_${CREATE_DATE}
-cat ${DATAD}/LV2/${NEW_NUM}_setlist_parts_${CREATE_DATE} > ${DATAD}/LV3/${NEW_NUM}_setlist_parts_${CREATE_DATE}
+#LV1:原始データとして、ファイル追加のみを行う
+mv $tmp-setlist-base      ${DATAD}/LV1/${NUM}_setlist_base_${UPDATE_DATE}
+mv $tmp-setlist-operation ${DATAD}/LV1/${NUM}_setlist_operation_${UPDATE_DATE}
+mv $tmp-setlist-parts     ${DATAD}/LV1/${NUM}_setlist_parts_${UPDATE_DATE}
+#LV2:LV1更新ファイルと入れ替え
+rm -f ${DATAD_OLD}/LV2/${NUM}_setlist_*
+cp -fp ${DATAD}/LV1/${NUM}_setlist_*_${UPDATE_DATE} ${DATAD}/LV2/
+#LV3:LV2更新ファイルと入れ替え
+rm -f ${DATAD_OLD}/LV3/${NUM}_setlist_base_*
+cp -fp ${DATAD}/LV2/${NUM}_setlist_*_${UPDATE_DATE} ${DATAD}/LV3/
 
 #######################################
 #仮登録セットリストを削除

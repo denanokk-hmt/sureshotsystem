@@ -37,8 +37,8 @@ FIN
 ########################################
 #仮登録を削除
 SESSION=$(session_get 'sureshot_stuff_session_id') 
-STUFF_ID=$(cat ${sysd}/session/${session})
-TEMPD=${SYSD}/tmp/${STUFF_ID}/set_list
+STUFF_ID=$(cat ${SYSD}/SESSION/${SESSION})
+TEMPD=${SYSD}/TMP/${STUFF_ID}/SET_LIST
 
 ########################################
 #SET_LISTディレクトリを作成
@@ -52,11 +52,11 @@ fi
 ########################################
 #仮登録を取得
 #SET_ARRY=(`cat ${TEMPD}/set_list`)
-SET_CATEGORY_NO=$(cat ${TEMPD}/set_list | cut -d' ' -f1)
-SET_CATEGORY_NM=$(cat ${TEMPD}/set_list | cut -d' ' -f2)
-SET_NM=$(cat ${TEMPD}/set_list | cut -d' ' -f3)
-SET_PRICE=$(cat ${TEMPD}/set_list | cut -d' ' -f4)
-SET_REMARKS=$(cat ${TEMPD}/set_list | cut -d' ' -f5)
+SET_CATEGORY_NO=$(cat ${TEMPD}/setlist_base | cut -d' ' -f1)
+SET_CATEGORY_NM=$(cat ${TEMPD}/setlist_base | cut -d' ' -f2)
+SET_NM=$(cat ${TEMPD}/setlist_base | cut -d' ' -f3)
+SET_PRICE=$(cat ${TEMPD}/setlist_base | cut -d' ' -f4)
+SET_REMARKS=$(cat ${TEMPD}/setlist_base | cut -d' ' -f5)
 
 ########################################
 #セットカテゴリを取得
@@ -93,7 +93,7 @@ sed -e "s|###TABLE###|${TABLE}|g"                                   > $tmp-html
 
 ########################################
 #page name
-echo "Set Name input" > $tmp-pagename
+echo "New Set input" > $tmp-pagename
 
 ########################################
 echo "OK"

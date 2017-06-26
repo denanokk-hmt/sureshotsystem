@@ -63,20 +63,24 @@ PARTS_QTY=$(nameread PARTS_QTY $tmp-post)
 DATAD=${SYSD}/DATA/${CATEGORY}/LISTS/${SET_CATEGORY_NO}
 
 ########################################
+#部品を取得
+#セット番号、セットカテゴリ番号、部品カテゴリ番号、部品カテゴリ名、部品番号、部品名、部品価格、作成日、更新日
+if [ -e "${TEMPD}/setlist_parts" ]; then
+  cat ${TEMPD}/setlist_parts > $tmp-set-parts-tmp
+else
+  cat ${DATAD}/LV3/${NUM}_setlist_parts_*  > $tmp-set-parts-tmp
+fi
+
+########################################
 #重複確認
 if [ "${PARTS_NM}" != "${PARTS_NM_NX}" ] ; then
-  cat ${DATAD}/LV3/${NUM}_setlist_parts_* | 
-  awk -v nm=${PARTS_NM} '$6==nm{print $1}' > $tmp-valid1
+  cat $tmp-set-parts-tmp                    | 
+  awk -v nm=${PARTS_NM} '$6==nm{print $1}'  > $tmp-valid1
   if [ -n "$(cat $tmp-valid1)" ] ; then
     echo 2222 > $tmp-ajax-html
     exit 0
   fi
 fi
-
-########################################
-#部品を取得
-#セット番号、セットカテゴリ番号、部品カテゴリ番号、部品カテゴリ名、部品番号、部品名、部品価格、作成日、更新日
-cat ${DATAD}/LV3/${NUM}_setlist_parts_*  > $tmp-lv3-set-parts
 
 ########################################
 #既存データから作成日時取得、現在日時を更新日時とする
@@ -95,11 +99,11 @@ ADD)
         ${PARTS_NO} ${PARTS_NM} \
         ${PARTS_PRICE} ${PARTS_QTY} \
         ${CREATE_DATE} ${UPDATE_DATE} \
-        >> $tmp-lv3-set-parts
-  cat $tmp-lv3-set-parts > $tmp-set-parts
+        >> $tmp-set-parts-tmp
+  cat $tmp-set-parts-tmp > $tmp-set-parts
  ;;
 EDIT)   #変更
-  cat $tmp-lv3-set-parts  | 
+  cat $tmp-set-parts-tmp  | 
   awk \
       -v row=${ROW} \
       -v set_no=${NUM} \
@@ -128,7 +132,7 @@ EDIT)   #変更
       > $tmp-set-parts
   ;;
 DELETE) #削除
-  cat $tmp-lv3-set-parts      | 
+  cat $tmp-set-parts-tmp          | 
   awk -v d=${ROW} 'NR!=d{print}'  > $tmp-set-parts
   ;;
 esac

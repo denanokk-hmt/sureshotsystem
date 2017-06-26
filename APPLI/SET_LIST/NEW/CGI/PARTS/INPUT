@@ -36,11 +36,7 @@ FIN
 
 ########################################
 #仮登録を削除
-#SESSION=$(session_get 'sureshot_stuff_session_id') 
-#STUFF_ID=$(cat ${SYSD}/SESSION/${SESSION}
-#TEMPD=${SYSD}/TMP/${STUFF_ID}
 TEMPD=${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/SET_LIST
-#rm -f ${TEMPD}/set_list_parts
 
 ########################################
 #部品カテゴリを取得
@@ -67,7 +63,7 @@ CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-list`
 
 ########################################
 #Get records
-cat ${TEMPD}/set_list_parts         |
+cat ${TEMPD}/setlist_parts          |
 juni                                |
 LANG=C sort -nk1,1                  > $tmp-records
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/PARTS/RECORDS.HTML $tmp-records > $tmp-table-records

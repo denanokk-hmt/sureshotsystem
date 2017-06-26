@@ -81,10 +81,8 @@ cat $tmp-latest | awk -v ud=${UPDATE_DATE} '{print $1, $2, $3, $4, $5, $6, $7, u
 mv $tmp-set-list ${DATAD}/LV1/${NUM}_setlist_base_${UPDATE_DATE}_d
 
 #LV3:LV2を更新ファイルと入れ替え
-rm -f ${DATAD}/LV2/${NUM}_setlist_base_*
-cp -fp ${DATAD}/LV1/${NUM}_setlist_base_${UPDATE_DATE}_d ${DATAD}/LV2/
-rm -f ${DATAD}/LV3/${NUM}_setlist_base_*
-cp -fp ${DATAD}/LV2/${NUM}_setlist_base_${UPDATE_DATE}_d ${DATAD}/LV3/
+rm -f ${DATAD}/LV2/${NUM}_setlist_*
+rm -f ${DATAD}/LV3/${NUM}_setlist_*
 
 ########################################
 #データ操作ロックを解除

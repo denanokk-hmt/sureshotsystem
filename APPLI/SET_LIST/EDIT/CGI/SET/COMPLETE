@@ -68,7 +68,7 @@ echo ${NUM} ${SET_CATEGORY_NO} ${SET_CATEGORY_NM} ${SET_NM} ${SET_PRICE} ${SET_R
 
 ########################################
 #セットのカテゴリを変更した場合
-if [ "${SET_CATEGORY_NO}" = "${SET_CATEGORY_NX}"]; then
+if [ "${SET_CATEGORY_NO}" = "${SET_CATEGORY_NX}" ]; then
   :
 else
   echo ${SET_CATEGORY_NX} > ${TEMPD}/setlist_category_nx
