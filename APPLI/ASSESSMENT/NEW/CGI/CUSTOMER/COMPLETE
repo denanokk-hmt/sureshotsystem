@@ -34,6 +34,10 @@ FIN
 }
 
 ########################################
+#仮登録Dir :/TMP/{stuffid}/ASSESSMENT/
+TEMPD=${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/ASSESSMENT
+
+########################################
 #フォーム値の設定
 nameread CUSTOMER_NO $tmp-post  | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value1
 nameread CUSTOMER_NM $tmp-post  | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value2
@@ -49,7 +53,7 @@ cat $tmp-post | awk '$2=="_" && $1=="CUSTOMER_PH"{print $1}' > $tmp-need-VALID3
 cat $tmp-post | awk '$2=="_" && $1=="TEMP_NO"{print $1}' > $tmp-need-VALID4
 
 ########################################
-#バリデーションエラー項目の確定
+#バリデーション
 if [ -n "$(cat $tmp-need-VALID1)$(cat $tmp-need-VALID2)$(cat $tmp-need-VALID3)$(cat $tmp-need-VALID4)" ] ; then 
     echo 222 > $tmp-ajax-html
 else
@@ -59,11 +63,7 @@ fi
 ########################################
 #顧客情報の仮登録
 if [ "$(cat $tmp-ajax-html)" = 111 ]; then
-    VALUE1=$(cat $tmp-value1)
-    VALUE2=$(cat $tmp-value2)
-    VALUE3=$(cat $tmp-value3)
-    TEMPD=${SYSD}/TMP/${CATEGORY}/$(cat $tmp-value4)
-    echo ${VALUE1} ${VALUE2} ${VALUE3} > ${TEMPD}/customer
+    echo $(cat $tmp-value1) $(cat $tmp-value2) $(cat $tmp-value3) > ${TEMPD}/$(cat $tmp-value4)/customer
 fi
 
 ###############################################################################

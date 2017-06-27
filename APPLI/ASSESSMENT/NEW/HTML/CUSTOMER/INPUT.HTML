@@ -18,11 +18,11 @@
 
         <!--Goto Another Function-->
         <div class="btn-toolbar">
-            <button class="btn btn-info col-smx-3 disabled" />customer</button>
-            <button class="btn btn-default col-smx-3 " />parts</button>
-            <button class="btn btn-default col-smx-3 " />operation</button>
-            <button class="btn btn-default col-smx-3 " />set</button>
-            <button class="btn btn-default col-smx-3 " />check</button>
+            <button class="btn btn-info col-smx-3 disabled" />Customer</button>
+            <button class="btn btn-default col-smx-3 " />Operation</button>
+            <button class="btn btn-default col-smx-3 " />Parts</button>
+            <button class="btn btn-default col-smx-3 " />Set</button>
+            <button class="btn btn-success col-smx-3 " />Comfirm</button>
         </div>
 
     </div>
@@ -132,11 +132,10 @@
     //ページ移動
     $(".btn-toolbar .btn").on('click', function() {
         var temp_no = $("#TEMP_NO").val();
-        alert(temp_no);
         var func = $(this).html().toUpperCase();
         var frm = document.forms['assessment'];
         frm.method = 'GET';
-        frm.action = '/APP/ASSESSMENT/NEW/' + func + '/INPUT' + '?temp_no=' + temp_no;
+        frm.action = '/APP/ASSESSMENT/NEW/' + func + '/INPUT';
         frm.submit();
     });
 

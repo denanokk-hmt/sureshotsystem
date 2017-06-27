@@ -19,6 +19,7 @@ LANG=ja_JP.UTF-8
 #PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
 CATEGORY=`cat $tmp-category`
 FUNC=`cat $tmp-func`
+SUBACTION=`cat $tmp-sub-action`
 
 ########################################
 #Check error
@@ -53,8 +54,8 @@ PRICE=$(nameread PARTS_PRICE $tmp-post)     #プライス
 QTY=$(nameread PARTS_QTY $tmp-post)         #数量
 
 ########################################
-#仮番号ディレクトリ
-TEMPD=${SYSD}/TMP/ASSESSMENT/${TEMP_NO}
+#仮登録Dir :/TMP/{stuffid}/ASSESSMENT/
+TEMPD=${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/ASSESSMENT/${TEMP_NO}
 
 ########################################
 #ACTIONで振り分け

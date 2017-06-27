@@ -31,11 +31,11 @@
             <!--Goto Another Function-->
 
             <div class="btn-toolbar">
-                <button class="btn btn-default col-smx-3" />customer</button>
-                <button class="btn btn-info col-smx-3 disabled" />parts</button>
-                <button class="btn btn-default col-smx-3" />operation</button>
-                <button class="btn btn-default col-smx-3" />set</button>
-                <button class="btn btn-default col-smx-3" />check</button>
+                <button class="btn btn-default col-smx-3" />Customer</button>
+                <button class="btn btn-default col-smx-3" />Operation</button>
+                <button class="btn btn-info col-smx-3 disabled" />Parts</button>
+                <button class="btn btn-default col-smx-3" />Set</button>
+                <button class="btn btn-success col-smx-3" />Confirm</button>
             </div>
 
         </div>
@@ -199,11 +199,12 @@
 
     //パーツ追加
     $(document).on('click', 'a.btn-parts', function() {
+
         var idname = $(this).attr("id"); 
         var list_id = idname.split("_");
         var action = list_id[1];
         var row = list_id[2];
-        alert(action+ ":"+row);
+
         var temp_no = $('#TEMP_NO').val();
         var category_no = $('#CATEGORY_NO_HID_' + row).val();
         var category_nm = $('#CATEGORY_NM_' + row).val();
@@ -211,6 +212,7 @@
         var parts_nm = $('#PARTS_NM_' + row).val();
         var parts_price = $('#PARTS_PRICE_' + row).val();
         var parts_qty = $('#PARTS_QTY_' + row).val();
+
         var jqXHR = $.ajax({
             type: 'POST',
             url: '/APP/ASSESSMENT/NEW/PARTS/COMPLETE',

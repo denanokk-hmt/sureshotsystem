@@ -20,7 +20,7 @@ LANG=ja_JP.UTF-8
 CATEGORY=`cat $tmp-category`
 FUNC=`cat $tmp-func`
 ACTION=`cat $tmp-action`
-SUB_ACTION=`cat $tmp-sub-action`
+SUBACTION=`cat $tmp-sub-action`
 
 ########################################
 #Check error
@@ -43,27 +43,37 @@ FIN
 MM=$REQUEST_METHOD
 TEMP_NO=$(cat $tmp-get | cut -d'&' -f1 | sed s/TEMP_NO=// )
 
+########################################
+#仮登録Dir :/TMP/{stuffid}/ASSESSMENT/
+TEMPD=${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/ASSESSMENT
+
+########################################
+#ディレクトリを作成する
+if [ -e "${TEMPD}"  ]; then
+    :
+else
+    mkdir ${TEMPD}
+    chmod -R 770 ${TEMPD}
+    ERROR_CHECK
+fi
+
 #######################################
 #TEMP_NOが取得出来なかった場合、
 # 1.TEMP_NOを設定
-# 2./LOG/ASSESSMENT/配下にTEMP_NO/を作成
+# 2./TMP/ASSESSMENT/配下にTEMP_NO/を作成
 # 3.customer,parts,operationの空ファイルを作成
 if [ -z ${TEMP_NO} ]; then
     TEMP_NO=$(date +%Y%m%d)_$(date +%H%M%S)_$RANDOM
-    mkdir ${SYSD}/TMP/ASSESSMENT/${TEMP_NO}
-    chmod 775 ${SYSD}/TMP/ASSESSMENT/${TEMP_NO}
-    echo "" > ${SYSD}/TMP/ASSESSMENT/${TEMP_NO}/customer
-    echo "" > ${SYSD}/TMP/ASSESSMENT/${TEMP_NO}/parts
-    echo "" > ${SYSD}/TMP/ASSESSMENT/${TEMP_NO}/operation
+    mkdir ${TEMPD}/${TEMP_NO}
+    touch ${TEMPD}/${TEMP_NO}/customer
+    touch ${TEMPD}/${TEMP_NO}/parts
+    touch ${TEMPD}/${TEMP_NO}/operation
+    chmod 770 ${TEMPD}/${TEMP_NO}
 fi
-
-########################################
-#仮番号ディレクトリ
-TEMPD=${SYSD}/TMP/ASSESSMENT/${TEMP_NO}
 
 #######################################
 #顧客情報を取得
-CUSTOMER_NM=$(cat ${TEMPD}/customer | cut -d' ' -f 2)
+CUSTOMER_NM=$(cat ${TEMPD}/${TEMP_NO}/customer | cut -d' ' -f 2)
 
 #######################################
 #パーツカテゴリを取得
@@ -87,11 +97,9 @@ CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-new`
 
 #######################################
 #仮登録部品情報を取得
-if [ -n "$(cat ${TEMPD}/parts)" ]; then
-  cat ${TEMPD}/parts  |
-  juni                > $tmp-juni
-  mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/RECORDS.HTML $tmp-juni  > $tmp-records
-fi
+cat ${TEMPD}/${TEMP_NO}/parts   |
+juni                            > $tmp-juni
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/RECORDS.HTML $tmp-juni  > $tmp-records
 
 ########################################
 # 改行文字を「\\n」という3文字の文字列に置換
@@ -109,10 +117,10 @@ TABLE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-html`
 
 ########################################
 #Making viweing body HTML filw path
-cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/${SUB_ACTION}.HTML |
+cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/${SUBACTION}.HTML  |
 sed -e "s|###INFO_MSG###|部品を選択してください。|"                     |
-sed -e "s|###ASSESSMENT_NO###|${TEMP_NO}|"                              |
-sed -e "s|###TEMP_NO###|${TEMP_NO}|"                                    |
+sed -e "s|###ASSESSMENT_NO###|${TEMP_NO}|"                               |
+sed -e "s|###TEMP_NO###|${TEMP_NO}|"                                     |
 sed -e "s|###CUSTOMER_NM###|${CUSTOMER_NM}|"                            |
 sed -e "s|###PARTS_CATEGORY###|${PARTS_CATEGORY}|"                      |
 sed -e "s|###TABLE###|${TABLE}|g"                                       > $tmp-html|

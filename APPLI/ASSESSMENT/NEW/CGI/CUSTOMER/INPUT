@@ -38,16 +38,19 @@ MM=$REQUEST_METHOD
 TEMP_NO=$(cat $tmp-get | cut -d'&' -f1 | sed s/TEMP_NO=// )
 
 ########################################
+#仮登録Dir :/TMP/{stuffid}/ASSESSMENT/
+TEMPD=${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/ASSESSMENT
+
+########################################
 #ディレクトリを作成する
-if [ -e ${SYSD}/TMP/ASSESSMENT  ]; then
+if [ -e "${TEMPD}"  ]; then
     :
 else
-    mkdir ${SYSD}/TMP/ASSESSMENT
-    #オーナーと権限を再帰的に設定
-    chmod -R 775 ${SYSD}/TMP/ASSESSMENT
-    #chown -R root:apache ${SYSD}/DATA/NUMBERS/${CATEGORY}
+    mkdir ${TEMPD}
+    chmod -R 770 ${TEMPD}
     ERROR_CHECK
 fi
+
 #######################################
 #TEMP_NOが取得出来なかった場合、
 # 1.TEMP_NOを設定
@@ -55,26 +58,22 @@ fi
 # 3.customer,parts,operationの空ファイルを作成
 if [ -z ${TEMP_NO} ]; then
     TEMP_NO=$(date +%Y%m%d)_$(date +%H%M%S)_$RANDOM
-    mkdir ${SYSD}/TMP/ASSESSMENT/${TEMP_NO}
-    chmod 775 ${SYSD}/TMP/ASSESSMENT/${TEMP_NO}
-    echo "" > ${SYSD}/TMP/ASSESSMENT/${TEMP_NO}/customer
-    echo "" > ${SYSD}/TMP/ASSESSMENT/${TEMP_NO}/parts
-    echo "" > ${SYSD}/TMP/ASSESSMENT/${TEMP_NO}/operation
+    mkdir ${TEMPD}/${TEMP_NO}
+    touch ${TEMPD}/${TEMP_NO}/customer
+    touch ${TEMPD}/${TEMP_NO}/parts
+    touch ${TEMPD}/${TEMP_NO}/operation
+    chmod 770 ${TEMPD}/${TEMP_NO}
 fi
 
 ########################################
-#仮番号ディレクトリ
-TEMPD=${SYSD}/TMP/ASSESSMENT/${TEMP_NO}
-
-########################################
 #顧客情報取得
-CUSTOMER_NO=$(cat ${TEMPD}/customer | cut -d' ' -f1)
-FAMILY_NAME=$(cat ${TEMPD}/customer | cut -d' ' -f2)
-GIVEN_NAME=$(cat ${TEMPD}/customer | cut -d' ' -f3)
-PHONE=$(cat ${TEMPD}/customer | cut -d' ' -f4)
+CUSTOMER_NO=$(cat ${TEMPD}/${TEMP_NO}/customer | cut -d' ' -f1)
+FAMILY_NAME=$(cat ${TEMPD}/${TEMP_NO}/customer | cut -d' ' -f2)
+GIVEN_NAME=$(cat ${TEMPD}/${TEMP_NO}/customer | cut -d' ' -f3)
+PHONE=$(cat ${TEMPD}/${TEMP_NO}/customer | cut -d' ' -f4)
 
 ########################################
-#画面情報設定
+#画面情報設定:SETボタン、削除ボタン
 [ -z "${CUSTOMER_NO}" ] && DISABLED_SET="" || DISABLED_SET='disabled'
 [ -z "${CUSTOMER_NO}" ] && DISABLED_DEL="" || DISABLED_DEL='disabled'
 
@@ -89,7 +88,7 @@ sed -e "s/###DISABLED_DEL###/${DISABLED_DEL}/"                          |
 sed -e "s/###CUSTOMER_NO###/${CUSTOMER_NO}/"                            |
 sed -e "s/###CUSTOMER_NM###/${FAMILI_NAME} ${GIVEN_NAME}/"              |
 sed -e "s/###CUSTOMER_PH###/${CUSTOMER_PH}/"                            |
-sed -e "s/###TEMP_NO###/${TEMP_NO}/"                                    |
+sed -e "s/###TEMP_NO###/${TEMP_NO}/"                                     |
 sed -e "s/###DUMMY###//"                                                > $tmp-html
 
 #########################################
