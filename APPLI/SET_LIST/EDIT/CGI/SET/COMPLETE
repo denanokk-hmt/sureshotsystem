@@ -21,7 +21,7 @@ CATEGORY=`cat $tmp-category`
 FUNC=`cat $tmp-func`
 
 ########################################
-#仮登録ディレクトリ
+#仮登録Dir
 SESSION=$(session_get 'sureshot_stuff_session_id') 
 STUFF_ID=$(cat ${SYSD}/SESSION/${SESSION})
 TEMPD=${SYSD}/TMP/${STUFF_ID}/SET_LIST

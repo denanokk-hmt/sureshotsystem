@@ -20,7 +20,7 @@ LANG=ja_JP.UTF-8
 CATEGORY=`cat $tmp-category`
 FUNC=`cat $tmp-func`
 ACTION=`cat $tmp-action`
-SUB_ACTION=`cat $tmp-sub-action`
+SUBACTION=`cat $tmp-sub-action`
 
 ########################################
 #Check error
@@ -109,7 +109,7 @@ TABLE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-html`
 
 ########################################
 #Making viweing body HTML filw path
-cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/${SUB_ACTION}.HTML |
+cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/${SUBACTION}.HTML |
 sed -e "s|###INFO_MSG###|セットを選択してください。|"                     |
 sed -e "s|###ASSESSMENT_NO###|${TEMP_NO}|"                              |
 sed -e "s|###TEMP_NO###|${TEMP_NO}|"                                    |

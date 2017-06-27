@@ -41,7 +41,7 @@ FIN
 #fi
 
 ########################################
-#仮登録ディレクトリ
+#仮登録Dir
 TEMPD=${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/SET_LIST
 
 #######################################
