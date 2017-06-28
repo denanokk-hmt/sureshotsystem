@@ -1,6 +1,3 @@
-#!/bin/bash -vx
-##
-
 
 # ===引数 sec session_id session_value
 expire_sec=$1

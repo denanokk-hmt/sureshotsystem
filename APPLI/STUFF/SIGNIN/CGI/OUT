@@ -48,8 +48,12 @@ ERROR_CHECK
 
 ########################################
 #Delete session file
-rm -f "${SESSION_FILED}/${SESS}"
-ERROR_CHECK
+if [ -z "${SESS}" ]; then
+  :
+else
+  rm -f "${SESSION_FILED}/${SESS}"
+  ERROR_CHECK
+fi
 
 #######################################
 #HTMLの設定
