@@ -6,66 +6,68 @@
 
         <!--Header Info-->
         <div class="row">
-            <label class="control-label col-sm-1">
-                <h3><i class="glyphicon glyphicon-info-sign"></i></h3>
-            </label>
             <div class="col-sm-6 lbl-header-info">
                 <span id="info-msg" class="label label-lg ">
                     ###INFO_MSG###
                 </span>
+                <span id="appraisal-info" class="label label-lg ">
+                    ###APPRAISAL_INFO###
+                </span>
+                <span id="customer-info" class="label label-lg ">
+                    ###CUSTOMER_INFO###
+                </span>
             </div>
         </div>
-
+        <br>
         <!--Goto Another Function-->
         <div class="btn-toolbar">
             <button class="btn btn-info col-smx-3 disabled" />Customer</button>
             <button class="btn btn-default col-smx-3 " />Operation</button>
             <button class="btn btn-default col-smx-3 " />Parts</button>
             <button class="btn btn-default col-smx-3 " />Set</button>
-            <button class="btn btn-success col-smx-3 " />Comfirm</button>
+            <button class="btn btn-success col-smx-3 " />Confirm</button>
         </div>
 
     </div>
 </div>
 
-    <!--Spacer-->
-    <div class="header-dummy" style="height:9.0em; background-color:piiink;"></div>
+<!--Spacer-->
+<div class="header-dummy" style="height:9.0em; background-color:piiink;"></div>
 
-    <!--Search-->
-    <!--CUSTOMER Search-->
-    <div class="container">
-        <div class="row">
-            <div class="col-sm-4">
-                <div class="input-group">
-                    <input type="text" name="CUSTOMER_NAME" id="CUSTOMER_NAME" value="" class="form-control" placeholder="Custome name"/>
-                    <span class="input-group-btn">
-                        <button type="submit" id="customer_search" class="btn btn-primary col-smx-3" />Search</button>
-                    </span>
-                </div>
+<!--Search-->
+<!--CUSTOMER Search-->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="input-group">
+                <input type="text" name="CUSTOMER_NAME" id="CUSTOMER_NAME" value="" class="form-control" placeholder="Custome name"/>
+                <span class="input-group-btn">
+                    <button type="submit" id="customer_search" class="btn btn-primary col-smx-3" />Search</button>
+                </span>
             </div>
-    
-            <!--CUSTOMER Search result dropdown-->
-            <div id="customer-result" class="col-sm-4">
-                <div id="dropdown-customer-search" class="dropdown">
-                    <button type="button" id="customer-search-result-dropdown" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                        Result
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu" id="customer-search-result-list">
-                        <li class="list-customer" value="Guest"><a>Guest</a></li>
-                    </ul>
-                </div>
-            </div>
-            <!--Spacer-->
-            <div class="col-sm-1 hidden-xs"></div>
         </div>
+
+        <!--CUSTOMER Search result dropdown-->
+        <div id="customer-result" class="col-sm-4">
+            <div id="dropdown-customer-search" class="dropdown">
+                <button type="button" id="customer-search-result-dropdown" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                    Result
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" id="customer-search-result-list">
+                    <li class="list-customer" value="Guest"><a>Guest</a></li>
+                </ul>
+            </div>
+        </div>
+        <!--Spacer-->
+        <div class="col-sm-1 hidden-xs"></div>
     </div>
+</div>
 
-    <!--Csutomer Search Result choice-->
-    <div class="container">
-        <div class="gray-trans-over">
+<!--Csutomer Search Result choice-->
+<div class="container">
+    <div class="gray-trans-over">
         <h3>
-
             <div class="row">
                 <div class="col-md-8 ">
                     <div class="alert alert-success green-trans-over">
@@ -93,39 +95,37 @@
             <div class="row">
                 <div class="col-md-8 ">
                     <div class="alert alert-success blue-trans-over">
-                        <strong>Appraisal TempNo &nbsp&nbsp : </strong><span id="assessment-temp-no">###TEMP_NO###</span>
+                        <strong>Appraisal TempNo &nbsp&nbsp : </strong><span id="appraisal-temp-no">###TEMP_NO###</span>
                     </div>
                 </div>
             </div>
         </h3>
-        </div>
     </div>
+</div>
 
-    <div class="container">
-        <div class="row">
-            <!--Contents-->
-            <div class="col-md-4">
-                <div class="contents">
-                		<input type="hidden" name="STATUS" value="INPUT" />
-                		<input type="hidden" id="CUSTOMER_NO" name="CUSTOMER_NO" value="###CUSTOMER_NO###" />
-                		<input type="hidden" id="CUSTOMER_NM" name="CUSTOMER_NM" value="###CUSTOMER_NM###" />
-                		<input type="hidden" id="CUSTOMER_PH" name="CUSTOMER_PH" value="###CUSTOMER_PH###" />
-                    <form name="assessment" action="" method="">
-                		    <input type="hidden" id="TEMP_NO" name="TEMP_NO" value="###TEMP_NO###" />
-                    </form>
-                    <button type="submit" id="Set" class="btn btn-primary btn-lg ###DISABLED_SET###" />
-                        Set
-                    </button>
-                	<button type="submit" id="Delete" class="btn btn-warning btn-lg ###DISABLED_DEL###" />
-                        Delete
-                    </button>
-                </div>
+<div class="container">
+    <div class="row">
+        <!--Contents-->
+        <div class="col-md-4">
+            <div class="contents">
+            		<input type="hidden" name="STATUS" value="INPUT" />
+            		<input type="hidden" id="CUSTOMER_NO" name="CUSTOMER_NO" value="###CUSTOMER_NO###" />
+            		<input type="hidden" id="CUSTOMER_NM" name="CUSTOMER_NM" value="###CUSTOMER_NM###" />
+            		<input type="hidden" id="CUSTOMER_PH" name="CUSTOMER_PH" value="###CUSTOMER_PH###" />
+                <form name="appraisal" action="" method="">
+            		    <input type="hidden" id="TEMP_NO" name="TEMP_NO" value="###TEMP_NO###" />
+                </form>
+                <button type="submit" id="Set" class="btn btn-primary btn-lg ###DISABLED_SET###" />
+                    Set
+                </button>
+            	<button type="submit" id="Delete" class="btn btn-warning btn-lg ###DISABLED_DEL###" />
+                    Delete
+                </button>
             </div>
         </div>
     </div>
-
-<div class="container">
 </div>
+
 
 <script>
 
@@ -133,7 +133,7 @@
     $(".btn-toolbar .btn").on('click', function() {
         var temp_no = $("#TEMP_NO").val();
         var func = $(this).html().toUpperCase();
-        var frm = document.forms['assessment'];
+        var frm = document.forms['appraisal'];
         frm.method = 'GET';
         frm.action = '/APP/APPRAISAL/NEW/' + func + '/INPUT';
         frm.submit();
@@ -170,7 +170,7 @@
         if (index == 0) { 
             var jqXHR = $.ajax({
                 type: 'POST',
-                url: '/APP/APPRAISAL/NEW/GUEST_CUSTOMER_NO',
+                url: '/APP/APPRAISAL/NEW/CUSTOMER/GUEST_NO',
             });
             jqXHR.done(function(data) {
                 customer_no = 'guest_' + data;
@@ -227,12 +227,17 @@
             }
         });
         jqXHR.done(function(data) {
-            //バリデーションがOK；111
+            //バリデーションがOK；査定番号
             //バリデーションがNG；222
-            if (data == 111) {
+            if (data != 222) {
                 $('#info-msg').removeClass('label-danger');
                 $('#info-msg').addClass('label-success');
-                $('#info-msg').html('顧客を設定しました。');
+                $('#info-msg').html('査定番号:' + data);
+                //改行を削除
+                $('#TEMP_NO').val(data.replace(/\r?\n/g,""));
+                $('#appraisal-temp-no').text(data);
+                alert("査定番号を取得しました。");
+          
             } else {
                 $('#info-msg').removeClass('label-success');
                 $('#info-msg').addClass('label-danger');
@@ -246,7 +251,7 @@
 
     //Delete
     $(document).on('click', '#Delete', function() {
-        var frm = document.forms['assessment-customer'];
+        var frm = document.forms['appraisal-customer'];
         frm.metho = 'POST';
         frm.action = '/APP/APPRAISAL/NEW/DELETE';
         frm.submit();

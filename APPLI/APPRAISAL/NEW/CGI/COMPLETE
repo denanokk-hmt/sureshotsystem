@@ -2,7 +2,7 @@
 #
 
 ########################################
-#	CUSTOMER NEW COMPLETE.CGI
+#	APPRAISAL/NEW COMPLETE.CGI
 #
 #   引数
 #       $1:プロセスID
@@ -16,7 +16,7 @@ SYSD=$(cd $(dirname $0) && pwd | awk '{print substr($0, 0, index($0, "sureshotsy
 #exec 2> ${SYSD}/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
 tmp=/tmp/tmp_$1
 LANG=ja_JP.UTF-8
-PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
+#PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
 CATEGORY=`cat $tmp-category`
 FUNC=`cat $tmp-func`
 DATAD=${SYSD}/DATA/${CATEGORY}/LISTS
@@ -33,62 +33,59 @@ FIN
 	exit 1
 }
 
-########################################
-#顧客番号の次のロットを追加する
-LATEST_NUM=$(ls ${SYSD}/DATA/NUMBERS/${CATEGORY}/ORIGIN | sort -nr | head -n 1)
-START=$((LATEST_NUM + 1))
-END=$((START + 1))
-SEQ_STATUS=`${SYSD}/CGI/NUMBER_SEQ $1 ${CATEGORY} ${START} ${END} `
-[[ ${SEQ_STATUS} != 'SUCCESS' ]] && exit 0
-
-########################################
-#新規顧客番号を確定する
-NEW_NUM=`${SYSD}/CGI/NUMBERS $1 ${CATEGORY} `
-[ ${NEW_NUM} = 'ERROR' ] && exit 0 || :
-
 #######################################
 #フォーム入力値を取得
-VALUE1=$(nameread FAMILY_NAME $tmp-post)
-VALUE2=$(nameread GIVEN_NAME $tmp-post)
-VALUE3=$(nameread EMAIL $tmp-post)
-VALUE4=$(nameread PASSWORD $tmp-post)
-#VALUE5=$(nameread ADMIN_FLAG $tmp-post)
-VALUE5=0
+TEMP_NO=$(nameread TEMP_NO $tmp-post)
+
+########################################
+#仮登録Dir
+TEMPD=${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/APPRAISAL/${TEMP_NO}
+
+########################################
+#ディレクトリを作成する
+if [ -e "${SYSD}/DATA/${CATEGORY}"  ]; then
+    :
+else
+    mkdir ${SYSD}/DATA/${CATEGORY}
+    cp -rp ${SYSD}/DATA/ORG_LV1-3 ${SYSD}/DATA/${CATEGORY}/LISTS
+    chmod -R 770 ${SYSD}/DATA/${CATEGORY}
+    ERROR_CHECK
+fi
 
 ########################################
 #日付を設定
 CREATE_DATE=$(date +%Y%m%d%H%M%S)
 UPDATE_DATE=$CREATE_DATE
 
-########################################
-#入力値を一時ファイル
-#1.顧客番号 2.姓 3.名 4.EMAIL 5.TEL 6.作成日時 7.更新日時 8.ADMINフラグ 9.削除フラグ
-echo ${NEW_NUM}" "${VALUE1}" "${VALUE2}" "${VALUE3}" - "${CREATE_DATE}" "${UPDATE_DATE}" "${VALUE5}" "0 > $tmp-customer
+#######################################
+#仮登録を取得
+#顧客
+cat ${TEMPD}/customer | awk -v id=${TEMP_NO} -v cdt=${CREATE_DATE} -v udt=${UPDATE_DATE} '{print id, $0, cdt, udt}' > $tmp-customer
+#作業
+cat ${TEMPD}/operation | awk -v id=${TEMP_NO} -v cdt=${CREATE_DATE} -v udt=${UPDATE_DATE} '{print id, $0, cdt, udt}' > $tmp-operation
+#部品#
+cat ${TEMPD}/parts | awk -v id=${TEMP_NO} -v cdt=${CREATE_DATE} -v udt=${UPDATE_DATE} '{print id, $0, cdt, udt}' > $tmp-parts
 
 ########################################
 #データ格納
 #LV1
-$(mv $tmp-customer ${DATAD}/LV1/${NEW_NUM}_customer_${CREATE_DATE})
+mv $tmp-customer  ${DATAD}/LV1/${TEMP_NO}_appraisal_customer_${CREATE_DATE}
+mv $tmp-operation ${DATAD}/LV1/${TEMP_NO}_appraisal_operation_${CREATE_DATE}
+mv $tmp-parts     ${DATAD}/LV1/${TEMP_NO}_appraisal_parts_${CREATE_DATE}
 #LV2
-cat ${DATAD}/LV1/${NEW_NUM}_customer_${CREATE_DATE} > ${DATAD}/LV2/${NEW_NUM}_customer_${CREATE_DATE}
+cat ${DATAD}/LV1/${TEMP_NO}_appraisal_customer_${CREATE_DATE} > ${DATAD}/LV2/${TEMP_NO}_appraisal_customer_${CREATE_DATE}
+cat ${DATAD}/LV1/${TEMP_NO}_appraisal_operation_${CREATE_DATE} > ${DATAD}/LV2/${TEMP_NO}_appraisal_operation_${CREATE_DATE}
+cat ${DATAD}/LV1/${TEMP_NO}_appraisal_parts_${CREATE_DATE} > ${DATAD}/LV2/${TEMP_NO}_appraisal_parts_${CREATE_DATE}
 #LV3
-cat ${DATAD}/LV2/${NEW_NUM}_customer_${CREATE_DATE} |
-awk '{print sprintf("%d %s %s %s %s %s %s %d %d /APP/STUFF/USERS/SHOW/?id=%d /APP/CUSTOMER/EDIT/INPUT/?id=%d /APP/CUSTOMER/DELETE/CONFIRM/?id=%d",$1,$2,$3,$4,$5,$6,$7,$8,$9,$1,$1,$1)}'  >   ${DATAD}/LV3/${NEW_NUM}_customer_${CREATE_DATE}
+cat ${DATAD}/LV2/${TEMP_NO}_appraisal_customer_${CREATE_DATE} > ${DATAD}/LV3/${TEMP_NO}_appraisal_customer_${CREATE_DATE}
+cat ${DATAD}/LV2/${TEMP_NO}_appraisal_operation_${CREATE_DATE} > ${DATAD}/LV3/${TEMP_NO}_appraisal_operation_${CREATE_DATE}
+cat ${DATAD}/LV2/${TEMP_NO}_appraisal_parts_${CREATE_DATE} > ${DATAD}/LV3/${TEMP_NO}_appraisal_parts_${CREATE_DATE}
+
+#######################################
+#仮登録セットリストを削除
+rm -rf ${TEMPD}
 
 ########################################
-#HTMLの設定
-ACTION=`cat $tmp-action`
-cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML   |
-sed -e "s/###FAMILY_NAME_LABEL###/${VALUE1}/"               |
-sed -e "s/###GIVEN_NAME_LABEL###/${VALUE2}/"                |
-sed -e "s/###EMAIL_LABEL###/${VALUE3}/"                     > $tmp-html
-
-#########################################
-#page name
-echo "Customer entry" > $tmp-pagename
-
-###############################################################################
 #ending
 echo "OK"
-#echo $COOK_SET
 exit 0

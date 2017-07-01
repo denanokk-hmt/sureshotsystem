@@ -48,7 +48,7 @@
         <!--Contents-->
         <div class="col-md-4">
             <div class="contents">
-                <form name="appraisal" action="" method="">
+                <form name="assessment" action="" method="">
             		    <input type="hidden" id="TEMP_NO" name="TEMP_NO" value="###TEMP_NO###" />
                 </form>
            </div>
@@ -73,7 +73,7 @@
     $(".btn-toolbar .btn").on('click', function() {
         var temp_no = $("#TEMP_NO").val();
         var func = $(this).html().toUpperCase();
-        var frm = document.forms['appraisal'];
+        var frm = document.forms['assessment'];
         frm.method = 'GET';
         frm.action = '/APP/APPRAISAL/NEW/' + func + '/INPUT' + '?temp_no=' + temp_no;
         frm.submit();

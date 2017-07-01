@@ -40,40 +40,28 @@ FIN
 
 #######################################
 #フォーム入力値を取得
-MM=$REQUEST_METHOD
 TEMP_NO=$(cat $tmp-get | cut -d'&' -f1 | sed s/TEMP_NO=// )
 
 ########################################
 #仮登録Dir :/TMP/{stuffid}/APPRAISAL/
-TEMPD=${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/APPRAISAL
-
-########################################
-#ディレクトリを作成する
-if [ -e "${TEMPD}"  ]; then
-    :
-else
-    mkdir ${TEMPD}
-    chmod -R 770 ${TEMPD}
-    ERROR_CHECK
-fi
-
-#######################################
-#TEMP_NOが取得出来なかった場合、
-# 1.TEMP_NOを設定
-# 2./TMP/APPRAISAL/配下にTEMP_NO/を作成
-# 3.customer,parts,operationの空ファイルを作成
-if [ -z ${TEMP_NO} ]; then
-    TEMP_NO=$(date +%Y%m%d)_$(date +%H%M%S)_$RANDOM
-    mkdir ${TEMPD}/${TEMP_NO}
-    touch ${TEMPD}/${TEMP_NO}/customer
-    touch ${TEMPD}/${TEMP_NO}/parts
-    touch ${TEMPD}/${TEMP_NO}/operation
-    chmod 770 ${TEMPD}/${TEMP_NO}
-fi
+TEMPD=${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/APPRAISAL/${TEMP_NO}
 
 #######################################
 #顧客情報を取得
-CUSTOMER_NM=$(cat ${TEMPD}/${TEMP_NO}/customer | cut -d' ' -f 2)
+CUSTOMER_NO=$(cat ${TEMPD}/customer | cut -d' ' -f1)
+CUSTOMER_NM=$(cat ${TEMPD}/customer | cut -d' ' -f2)
+
+#######################################
+#TEMP_NOが取得出来なかった場合-->異常
+if [ -z ${TEMP_NO} ]; then
+  #CUSTOMER INPUTへ戻す
+  REDIRECT_FORCE="/APP/APPRAISAL/NEW/CUSTOMER/INPUT"
+else
+  #ヘッダーインフォ設定
+  INFO_MSG="部品を登録してください。"    
+  APPRAISAL_INFO="査定番号 : "${TEMP_NO}  
+  CUSTOMER_INFO="お客様 : "`echo ${CUSTOMER_NO}  ${CUSTOMER_NM}`
+fi
 
 #######################################
 #パーツカテゴリを取得
@@ -97,8 +85,8 @@ CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-new`
 
 #######################################
 #仮登録部品情報を取得
-cat ${TEMPD}/${TEMP_NO}/parts   |
-juni                            > $tmp-juni
+cat ${TEMPD}/parts   |
+juni                 > $tmp-juni
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/RECORDS.HTML $tmp-juni  > $tmp-records
 
 ########################################
@@ -118,9 +106,11 @@ TABLE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-html`
 ########################################
 #Making viweing body HTML filw path
 cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/${SUBACTION}.HTML  |
-sed -e "s|###INFO_MSG###|部品を選択してください。|"                     |
-sed -e "s|###APPRAISAL_NO###|${TEMP_NO}|"                               |
-sed -e "s|###TEMP_NO###|${TEMP_NO}|"                                     |
+sed -e "s|###REDIRECT_FORCE###|${REDIRECT_FORCE}|"                      |
+sed -e "s|###INFO_MSG###|${INFO_MSG}|"                                  |
+sed -e "s/###APPRAISAL_INFO###/${APPRAISAL_INFO}/"                      |
+sed -e "s/###CUSTOMER_INFO###/${CUSTOMER_INFO}/"                        |
+sed -e "s|###TEMP_NO###|${TEMP_NO}|"                                    |
 sed -e "s|###CUSTOMER_NM###|${CUSTOMER_NM}|"                            |
 sed -e "s|###PARTS_CATEGORY###|${PARTS_CATEGORY}|"                      |
 sed -e "s|###TABLE###|${TABLE}|g"                                       > $tmp-html|

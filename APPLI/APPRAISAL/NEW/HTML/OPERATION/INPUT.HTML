@@ -4,77 +4,69 @@
     
     <div class="fixed gray-trans-over z-index-3" style="padding:10px;">
 
+        <!--Header Info-->
         <div class="row">
-            <!--INFOMATION MSG-->
-            <div class="control-label col-sm-1" style="margin-bottom:0.5em;">
-                <i class="glyphicon glyphicon-info-sign"></i>
-            </div>
-            <div class="row">
-                <div id="info-msg" class="col-sm-6 label label-lg label-###INFO_LV###">
+            <div class="col-sm-6 lbl-header-info">
+                <span id="info-msg" class="label label-lg ">
                     ###INFO_MSG###
-                </div>
-            </div>
-            <div class="row">
-            <!--CUSTOMER INFO--->
-                <div id="info-msg" class="col-sm-6 label label-md">
-                    ###APPRAISAL_NO###
-                </div>
-                <div id="info-msg" class="col-sm-5 label label-md">
-                    ###CUSTOMER_NM###
-                </div>
+                </span>
+                 <span id="appraisal-info" class="label label-lg ">
+                    ###APPRAISAL_INFO###
+                </span>
+                <span id="customer-info" class="label label-lg ">
+                    ###CUSTOMER_INFO###
+                </span>
             </div>
         </div>
-
-        <!--Spacer-->
-        <div class="header-dummy" style="height:1.0em; background-color:piiink;"></div>
-
-            <!--Goto Another Function-->
-
-            <div class="btn-toolbar">
-                <button class="btn btn-default col-smx-3" />Customer</button>
-                <button class="btn btn-info col-smx-3 disabled" />Operation</button>
-                <button class="btn btn-default col-smx-3 " />Parts</button>
-                <button class="btn btn-default col-smx-3" />Set</button>
-                <button class="btn btn-success col-smx-3" />Confirm</button>
-            </div>
-
+        <br>
+       <!--Goto Another Function-->
+        <div class="btn-toolbar">
+            <button class="btn btn-default col-smx-3" />Customer</button>
+            <button class="btn btn-info col-smx-3 disabled" />Operation</button>
+            <button class="btn btn-default col-smx-3 " />Parts</button>
+            <button class="btn btn-default col-smx-3" />Set</button>
+            <button class="btn btn-success col-smx-3" />Confirm</button>
         </div>
     </div>
+</div>
 
-    <!--Spacer-->
-    <div class="header-dummy" style="height:9.0em; background-color:piiink;"></div>
+<!--Spacer-->
+<div class="header-dummy" style="height:9.0em; background-color:piiink;"></div>
 
-    <!--Contents Records-->
-    <div class="container">
-        <div class="row">
-            <div class="contents-table">
-                ###TABLE###
-            </div>
+<!--Contents Records-->
+<div class="container">
+    <div class="row">
+        <div class="contents-table">
+            ###TABLE###
         </div>
     </div>
+</div>
 
-    <div class="container">
-        <div class="row">
-            <!--Contents-->
-            <div class="col-md-4">
-                <div class="contents">
-                    <form name="assessment" action="" method="">
-                		    <input type="hidden" id="TEMP_NO" name="TEMP_NO" value="###TEMP_NO###" />
-                    </form>
-                    <button type="submit" id="Set" class="btn btn-primary btn-lg ###DISABLED_SET###" />
-                        Set
-                    </button>
-                	<button type="submit" id="Delete" class="btn btn-warning btn-lg ###DISABLED_DEL###" />
-                        Delete
-                    </button>
-                </div>
+<div class="container">
+    <div class="row">
+        <!--Contents-->
+        <div class="col-md-4">
+            <div class="contents">
+                <form name="assessment" action="" method="">
+            		    <input type="hidden" id="TEMP_NO" name="TEMP_NO" value="###TEMP_NO###" />
+                </form>
             </div>
         </div>
     </div>
 
+    <!--強制リダイレクト指示-->
+    <input type="hidden" id="redirect-force" name="redirect-force" value="###REDIRECT_FORCE###" />
 </div>
 
 <script>
+
+    //エラーによる強制リダイレクト指示
+    $(document).ready(function(){
+        redirect = $('#redirect-force').val();
+        if (redirect) {
+          location.href = redirect;
+        }
+    });
 
     //HEADページ移動
     $(".btn-toolbar .btn").on('click', function() {
