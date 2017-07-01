@@ -1,196 +1,161 @@
-<!--PARTS LISTS Contents-->
-    
-    <div class="col-md-9">
+<!--<!DOCTYPE html>-->
+<!--<html>-->
 
-         <!--Contents Header Title-->
-        <div class="container" style="margin-bottom:15px;">
-            <div class="row">
-                <h1 class="">
-                    <p>Parts Lists</p>
-                </h1>
+<div class="container">
+    
+    <div class="container">
+    <div class="fixed gray-trans-over">
+
+        <!--Header Info-->
+        <div class="row">
+            <label class="control-label col-sm-1">
+                <h3><i class="glyphicon glyphicon-info-sign"></i></h3>
+            </label>
+            <div class="col-sm-6 lbl-header-info">
+                <span id="info-msg" class="label label-lg label-###INFO_LV###">
+                    ###INFO_MSG###
+                </span>
             </div>
         </div>
 
-        <!--Contents Header Information-->
-        <div class="container" style="margin-bottom:15px;">
-            <div class="row">
-                <form class="form-horizontal header-info">
-                    <div class="form-group">
-                        <h3>
-                            <label class="control-label col-sm-1" for="">
-                                <i class="glyphicon glyphicon-info-sign"></i>
-                            </label>
-                        </h3>
-                        <h4>
-                            <div class="col-sm-5" style="text-align:left;">
-                                <p><span id="info-msg" class="label label-lg label-###INFO_LV###">###INFO_MSG###</span></p>
-                            </div>
-                        </h4>
+        <!--Set Category Filter-->
+        <div class="row">
+            <form action="/APP/SET_LIST/LISTS/SHOW" method="GET">    
+
+                <div class="form-group">
+                    <div class="btn-group">
+                        
+                        <!--Set Category Dropdown list-->
                         <div class="btn-group">
-                             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" id="parts_category" aria-expended="false">
-                                 Part Category <span class="caret"></span>
-                             </button>
-                             <ul class="dropdown-menu" role="menu" name="PAGE">
-                                <li name="PARTS_CATEGORY_PAGE">
-                                    <a id="cat-list-0" onclick="categoryChoice(0,this); return false;" >ALL</a>
-                                </li>
-                             ###PARTS_CATEGORY###
-                             </ul>
-                            <input type="text" name="PARTS_CATEGORY_NAME_PAGE" id="PARTS_CATEGORY_NAME_PAGE" value="" class="form-control" disabled />
-                            <input type="hidden" name="PARTS_CATEGORY_NAME_HIDDEN_PAGE" id="PARTS_CATEGORY_NAME_HIDDEN_PAGE" value="" class="form-control" />
+                            <button type="submit" class="btn btn-info dropdown-toggle" data-toggle="dropdown" id="set_category" aria-expended="false">
+                                &nbsp<span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu SET" role="menu" name="PAGE">
+                               <li name="CATEGORY_PAGE">
+                                   <a class="category-list" id="cat_list_0" >ALL</a>
+                               </li>
+                               ###SET_CATEGORY###
+                            </ul>
+                        </div>
+                        <div class="btn-group">
+                            <input type="text" name="CATEGORY_NM_PAGE" id="CATEGORY_NM_PAGE" value="" class="form-control" disabled />
+                        </div>
+
+                        <!--Search Submit button-->
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-info" />
+                                <span clss="glyphicon glyphicon-eye-open">Search</span>
+                            </button>
                         </div>
                     </div>
-                </form>
-            </div>
-        </div>
 
-        <!--Contents-->
-        <div class="container" style="padding;20px;">
-            <form class="form-inline form-horizontal" style="margin-bottom:15px;" action="/APP/PARTS_CATEGORY/LISTS/SHOW" method="GET">
-###TABLE###
-###PAGER###
+                    <input type="hidden" name="SET_CATEGORY_NM_HID_PAGE" id="SET_CATEGORY_NM_HID_PAGE" value="###SET_CATEGORY_NM_PAGE###" class="form-control" />
+                    <input type="hidden" name="SET_CATEGORY_NO_HID_PAGE" id="SET_CATEGORY_NO_HID_PAGE" value="###SET_CATEGORY_NO_PAGE###" class="form-control" />
+                    <input type="hidden" name="SEARCH" id="SEARCH" value="1" class="form-control" />
+                    <input type="hidden" name="page" id="page" value="1" class="form-control" />
+                </div>
+
+                <!--Spacer-->
+                <div class="col-sm-1 hidden-xs"></div>
             </form>
         </div>
+        </div>
     </div>
-<!--</html>-->
+
+    <!--Spacer-->
+    <div class="header-dummy" style="height:9.0em; background-color:piink;"></div>
+
+    <!--Contents Records/Pagination-->
+    <div class="header-under-contents">
+        <form name="form_set_list" class="form-inline form-horizontal"  action="" method="">
+	          <input type="hidden" name="SET_CATEGORY_NO_HID" id="SET_CATEGORY_NO_HID" value="" class="form-control input-sm" />
+	          <input type="hidden" name="SET_NO_HID" id="SET_NO_HID" value="" class="form-control input-sm" />
+  
+            <div class="contents-table">
+                ###TABLE###
+            </div>
+
+            <div id="pager" class="pagination-foot">
+                ###PAGER###
+            </div>
+        </form>
+    </div>
+</div>
 
 <script>
 
-    //カテゴリを選択
-    /* 
-        jQueryバージョン問題により、ajaxで要素追加後にイベント(.on記述も無効)が
-        発火しない事象により、個別のJSへ切り替え
-        →時間のあるときに出来ればリファクタリングしたい点
-        jQuery(function () {
-            $(".dropdown-menu li a").click(function() {
-                console.log($(this).html());
-                $(this).parents('.form-group').find('[name^="PARTS_CATEGORY_NAME_"]').val($(this).html());
-            });
-        });
-    */
-    function categoryChoice(id,obj) {
+    $(document).ready(function() {
+        $("#pager").sticky({topSpacing:0});
+    });
 
-        //選択したカテゴリ名
-        var e = document.getElementById("cat-list-" + id);
-        var choice = e.innerHTML;
+    //NEWボタン
+    $(document).on('click', 'a.btn-set-new', function() {
 
-        //親の親(ulタグのnameにParts_noが指定されている、これを取得
-        var pe = obj.parentNode;
-        var ppe = pe.parentNode;
-        var nodes = ppe.attributes;
-        var parts_no = nodes.name.nodeValue;
+        //イベント基本情報
+        var idname = $(this).attr("id"); 
+        var list_id = idname.split("_");
+        var action = list_id[1];
+        var set_no = list_id[2];
+        var frm = document.forms['form_set_list'];
 
-        //該当のtextとhiddenのinputに選択したカテゴリ名を設定
-        var input_text = document.getElementById('PARTS_CATEGORY_NAME_' + parts_no);
-        input_text.value = choice;
-        var input_hidden = document.getElementById('PARTS_CATEGORY_NAME_HIDDEN_' + parts_no);
-        input_hidden.value = choice;
+        frm.method = 'GET';
+        frm.action = '/APP/SET_LIST/NEW/SET/INPUT';
+        frm.submit();
+    });
 
-        //PageFilterのカテゴリを選択した場合
-        if (parts_no == 'PAGE') {
-            pageFilter();
-        }
-    }
+    //EDITボタン
+    $(document).on('click', 'a.btn-set-edit', function() {
 
-    //絞り込み
-    function pageFilter(choice) {
-        var params = $('form').serialize();
+        //イベント基本情報
+        var idname = $(this).attr("id"); 
+        var list_id = idname.split("_");
+        var action = list_id[1];
+        var set_no = list_id[2];
+        var cat_no = $('#SET_CATEGORY_NO_HID_' + set_no).val(); 
+        var frm = document.forms['form_set_list'];
+
+        //パラメータを設定
+        $('#SET_CATEGORY_NO_HID').val(cat_no); 
+        $('#SET_NO_HID').val(set_no); 
+
+        //submit
+        frm.method = 'GET';
+        frm.action = '/APP/SET_LIST/EDIT/SET/INPUT';
+        frm.submit();
+    });
+
+    //DELETEボタン
+    $(document).on('click', 'a.btn-set-delete', function() {
+
+        //イベント基本情報
+        var idname = $(this).attr("id"); 
+        var list_id = idname.split("_");
+        var action = list_id[1];
+        var set_no = list_id[2];
+        var set_category_no = $('#SET_CATEGORY_NO_HID_' + set_no).val();
+  
+        //セット名を仮登録
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/PARTS_LIST/LISTS/SHOW',
-            data: params
+            url: '/APP/SET_LIST/DELETE/COMPLETE',
+            data: {
+              SET_CATEGORY_NO: set_category_no,
+              SET_NO: set_no
+            }
         });
         jqXHR.done(function(data) {
-            $('table').html(data);
+            if (data == 2222) {
+                alert("セット:" + set_no + "の削除に失敗しました。");
+            } else {
+                var sel = '#edit-row-' + set_no;
+                $(sel).remove();
+                alert("セット:" + set_no + "を削除しました。");
+            }
         });
         jqXHR.fail(function(data) {
-            alert("新規登録処理に失敗しました。");
+            alert("セット:" + set_no + "の削除に失敗しました。");
         });
-    }
-
-    //パーツ追加
-    function newParts() {
-        var new_parts_name = $('#NEW_PARTS_NAME').val();
-        var params = $('form').serialize();
-        var jqXHR = $.ajax({
-            type: 'POST',
-            url: '/APP/PARTS_LIST/NEW/COMPLETE',
-            data: params
-        });
-        jqXHR.done(function(data) {
-            if (data == 2222) {
-                alert(new_parts_name + "は、既に使われています。");
-            } else {
-                $('table').html(data);
-                $('#info-msg').html(new_parts_name + "を追加しました。");
-            }
-        });
-        jqXHR.fail(function(data) {
-            alert("新規登録処理に失敗しました。");
-        });
-    }
-
-    //パーツ変更
-    function editParts(id) {
-        var page_filter = $('#PARTS_CATEGORY_NAME_HIDDEN_PAGE').val();
-        var edit_category_name = $('#PARTS_CATEGORY_NAME_HIDDEN_' + id).val();
-        var edit_parts_name = $('#PARTS_NAME_' + id).val();
-        var edit_parts_price = $('#PARTS_PRICE_' + id).val();
-        var jqXHR = $.ajax({
-            type: 'POST',
-            url: '/APP/PARTS_LIST/EDIT/COMPLETE',
-            data: {
-                PAGE_FILTER: page_filter,
-                EDIT_PARTS_NO: id,
-                EDIT_PARTS_CATEGORY_NAME: edit_category_name,
-                EDIT_PARTS_NAME: edit_parts_name,
-                EDIT_PARTS_PRICE: edit_parts_price
-            }
-        });
-        jqXHR.done(function(data) {
-            if (data == 2222) {
-                alert(edit_parts_name + "は、既に使われています。");
-            } else {
-                $('table').html(data);
-                $('#info-msg').html(edit_parts_name + "を変更しました。");
-            }
-        });
-        jqXHR.fail(function() {
-            alert("更新処理に失敗しました。");
-        });
-    }
-
-    //パーツ削除
-    function deleteParts(id) {
-        var page_filter = $('#PARTS_CATEGORY_NAME_HIDDEN_PAGE').val();
-        var delete_category_name = $('#PARTS_CATEGORY_NAME_HIDDEN_' + id).val();
-        var delete_parts_name = $('#PARTS_NAME_' + id).val();
-        var delete_parts_price = $('#PARTS_PRICE_' + id).val();
-        var jqXHR = $.ajax({
-            type: 'POST',
-            url: '/APP/PARTS_LIST/DELETE/COMPLETE',
-            data: {
-                PAGE_FILTER: page_filter,
-                DELETE_PARTS_NO: id,
-                DELETE_PARTS_CATEGORY_NAME: delete_category_name,
-                DELETE_PARTS_NAME: delete_parts_name,
-                DELETE_PARTS_PRICE: delete_parts_price
-            }
-       });
-        jqXHR.done(function(data) {
-            if (data == 2222) {
-                alert(edit_parts_name + "は、使用されていませんでした。");
-            } else {
-                $('table').html(data);
-                $('#info-msg').html(delete_parts_name + "を削除しました。");
-            }
- 
-            $('table').html(data);
-        });
-        jqXHR.fail(function() {
-            alert("削除処理に失敗しました。");
-        });
- 
-    }
+    });
 
 </script>
+<!--</html>-->

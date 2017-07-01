@@ -1,48 +1,24 @@
-<table class="table">
+<!--<!DOCTYPE html>-->
+<!--<html>-->
+<table class="table" style="font-size:12px;">
     <thead>
         <tr>
             <th>#</th>
-            <th>PARTS NO</th>
-            <th>CATEGORY</th>
-            <th>PARTS NAME</th>
-            <th>PRICE</th>
-            <th></th>
-            <th></th>
+            <th>見積番号</th>
+            <th>顧客番号</th>
+            <th>顧客名</th>
+            <th>電話</th>
+            <th>
+                <a class="btn btn-success btn-sm btn-set-new" id="SET_NEW">NEW</a>
+            </th>
         </tr>
     </thead>
     <tbody>
-        <!--登録済パーツの表示-->
+
+        <!--LIST 登録済の表示-->
         ###TABLE_RECORDS###
 
-        <!--パーツ新規追加-->
-        <tr>
-            <td>--</td>
-            <td>
-                <span class="label label-default">NEW</span>
-            </td>
-            <td>
-                <div class="form-group">
-                    <div class="btn-group">
-                        <button type="button" class="btn dropdown-toggle" id="new_parts_categogy" data-toggle="dropdown" aria-expended="false">
-                            <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu" role="menu" name="NEW">
-                            ###PARTS_CATEGORY###
-                        </ul>
-                    </div>
-                    <input type="text" name="PARTS_CATEGORY_NAME_NEW" id="PARTS_CATEGORY_NAME_NEW" value="" class="form-control" disabled />
-                    <input type="hidden" name="PARTS_CATEGORY_NAME_HIDDEN_NEW" id="PARTS_CATEGORY_NAME_HIDDEN_NEW" value="" class="form-control" />
-                </div>
-            </td>
-            <td>
-                <input type="text" id="NEW_PARTS_NAME" name="NEW_PARTS_NAME" value="" class="form-control" style="" placeholder="Parts name" >
-            </td>
-            <td>
-                <input type="number" id="NEW_PARTS_PRICE" name="NEW_PARTS_PRICE" value="" class="form-control" style="" placeholder="Parts price" >
-            </td>
-            <td>
-                <a href="" class="btn btn-primary" onclick="newParts(); return false;">NEW</a>
-            </td>
-       </tr>
    </tbody>
 </table>
+
+<!--</html>-->

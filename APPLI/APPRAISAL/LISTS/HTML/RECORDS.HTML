@@ -1,43 +1,55 @@
-<!--PARTS LISTS Records-->
+<!--<!DOCTYPE html>-->
+<!--<html>-->
+<!--SET LISTS Records-->
 
 <!--RECORDS-->
 <tr id="edit-row-%2">
-    <td>%1</td>
+
+    <!--順位-->
+		<td>
+        <h4><span id="info-msg" class="label label-lg ">%1</span></h4>
+    </dt> 
+    <!--見積番号-->
+		<td>
+        <h4><span id="info-msg" class="label label-lg ">%2</span></h4>
+    </dt> 
+    <!--顧客番号-->
+		<td>
+        <h4><span id="info-msg" class="label label-lg ">%3</span></h4>
+    </dt> 
+		<!--顧客名-->
+		<td>
+        <h4><span id="info-msg" class="label label-lg ">%4</span></h4>
+    </dt> 
+    <!--電話-->
+		<td>
+        <h4><span id="info-msg" class="label label-lg ">%5</span></h4>
+    </dt> 
+<!--
+		<td>
+		    <div class="form-group">
+	          <input type="text" name="CSUTOMER_NO-%2" id="CUSTOMER_NO-%2" value="%3" class="form-control input-sm" disabled=disabled/>
+		    </div>
+		</td>
+		<td>
+		    <div class="form-group">
+	          <input type="text" name="CUSTOMER_NM-%2" id="CUSTOMER_NM-%2" value="%4" class="form-control input-sm" disabled=disabled />
+		    </div>
+    </td>
+		<td>
+		    <div class="form-group">
+	          <input type="text" name="PHONE-%2" id="PHONE-%2" value="%5" class="form-control input-sm" disabled=disabled />
+		    </div>
+    </td>
+-->
     <td>
-        <span class="label label-default">%2</span>
+        <a class="btn btn-warning btn-sm btn-set-edit" id="APPRAISAL_EDIT_%2" >EDIT</a>
     </td>
     <td>
-        <div class="edit">
-            <div class="form-group">
-                <div class="btn-group">
-                
-                <div class="btn-group">
-                    
-                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" id="parts_category" aria-expended="false">
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu" role="menu" name="%2">
-                        ###PARTS_CATEGORY###
-                    </ul>
-                    <input type="text" name="PARTS_CATEGORY_NAME_%2" id="PARTS_CATEGORY_NAME_%2" value="%3" class="form-control" disabled />
-                    <input type="hidden" name="PARTS_CATEGORY_NAME_HIDDEN_%2" id="PARTS_CATEGORY_NAME_HIDDEN_%2" value="%3" class="form-control" />
-                </div>
-                </div>
-            </div>
-        </div>
-    </td>
-    <td>
-        <input type="text" name="PARTS_NAME_%2" id="PARTS_NAME_%2" value="%4" class="form-control" />
-    </td>
-    <td>
-        <input type="text" name="PARTS_PRICE_%2" id="PARTS_PRICE_%2" value="%5" class="form-control" />
-    </td>
-    <td>
-        <a href="" class="btn btn-default" id="PARTS_EDIT_%2" onclick="editParts(%2); return false;" >EDIT</a>
-    </td>
-    <td>
-        <a class="btn btn-default" id="PARTS_DELETE_%2" onclick="deleteParts(%2); return false;" >DELETE</a>
+        <a class="btn btn-danger btn-sm btn-set-delete" id="APPRAISAL_DELETE_%2" >DEL</a>
     </td>
 </tr>
+          
 <!--RECORDS-->
 
+<!--</html>-->
