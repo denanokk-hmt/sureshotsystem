@@ -124,10 +124,20 @@
             </div>
         </div>
     </div>
+
+    <!--強制リダイレクト指示-->
+    <input type="hidden" id="redirect-force" name="redirect-force" value="###REDIRECT_FORCE###" />
 </div>
 
-
 <script>
+
+    //エラーによる強制リダイレクト指示
+    $(document).ready(function(){
+        redirect = $('#redirect-force').val();
+        if (redirect) {
+          location.href = redirect;
+        }
+    });
 
     //ページ移動
     $(".btn-toolbar .btn").on('click', function() {
@@ -135,7 +145,7 @@
         var func = $(this).html().toUpperCase();
         var frm = document.forms['appraisal'];
         frm.method = 'GET';
-        frm.action = '/APP/APPRAISAL/NEW/' + func + '/INPUT';
+        frm.action = '/APP/APPRAISAL/EDIT/' + func + '/INPUT';
         frm.submit();
     });
 
@@ -170,7 +180,7 @@
         if (index == 0) { 
             var jqXHR = $.ajax({
                 type: 'POST',
-                url: '/APP/APPRAISAL/NEW/CUSTOMER/GUEST_NO',
+                url: '/APP/APPRAISAL/EDIT/CUSTOMER/GUEST_NO',
             });
             jqXHR.done(function(data) {
                 customer_no = 'guest_' + data;
@@ -218,7 +228,7 @@
         var temp_no = $('#TEMP_NO').val();
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/APPRAISAL/NEW/CUSTOMER/COMPLETE',
+            url: '/APP/APPRAISAL/EDIT/CUSTOMER/COMPLETE',
             data: {
                 CUSTOMER_NO: cust_no,
                 CUSTOMER_NM: cust_nm,
@@ -262,7 +272,7 @@
 
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/APPRAISAL/NEW/CUSTOMER/DELETE',
+            url: '/APP/APPRAISAL/EDIT/CUSTOMER/DELETE',
             data: {
                 TEMP_NO: temp_no
             }

@@ -2,7 +2,7 @@
 #
 
 ########################################
-#	APPRAISAL NEW PARTS INPUT.CGI
+#	APPRAISAL NEW OPERATION INPUT.CGI
 #
 #   Arg
 #       $1:$$   necessary
@@ -20,7 +20,7 @@ LANG=ja_JP.UTF-8
 CATEGORY=`cat $tmp-category`
 FUNC=`cat $tmp-func`
 ACTION=`cat $tmp-action`
-SUBACTION=`cat $tmp-sub-action`
+SUB_ACTION=`cat $tmp-sub-action`
 
 ########################################
 #Check error
@@ -58,36 +58,38 @@ if [ -z ${TEMP_NO} ]; then
   REDIRECT_FORCE="/APP/APPRAISAL/NEW/CUSTOMER/INPUT"
 else
   #ヘッダーインフォ設定
-  INFO_MSG="部品を登録してください。"    
+  INFO_MSG="作業を登録してください。"    
   APPRAISAL_INFO="査定番号 : "${TEMP_NO}  
   CUSTOMER_INFO="お客様 : "`echo ${CUSTOMER_NO}  ${CUSTOMER_NM}`
 fi
 
 #######################################
-#パーツカテゴリを取得
-cat ${SYSD}/DATA/PARTS_CATEGORY/LISTS/LV3/*[^_d]    |
+#作業カテゴリを取得
+cat ${SYSD}/DATA/OPERATION_CATEGORY/LISTS/LV3/*[^_d]    |
 LANG=C sort -nk1,1                                  > $tmp-category
 
 ########################################
-#入力済みパーツリストのパーツカテゴリ
+#入力済み作業リストの作業カテゴリ
 # 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/CATEGORY_LIST.HTML $tmp-category > $tmp-parts-category-list
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/CATEGORY_LIST.HTML $tmp-category > $tmp-operation-category-list
 
 ########################################
-#新規登録パーツ用のパーツカテゴリ
+#新規登録作業用の作業カテゴリ
 # 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/CATEGORY_NEW.HTML $tmp-category > $tmp-parts-category-new
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/CATEGORY_NEW.HTML $tmp-category > $tmp-operation-category-new
 
 ########################################
 # 改行文字を「\\n」という3文字の文字列に置換
-CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-list`
-CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-new`
+CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-operation-category-list`
+CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-operation-category-new`
 
 #######################################
-#仮登録部品情報を取得
-cat ${TEMPD}/parts   |
-juni                 > $tmp-juni
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/RECORDS.HTML $tmp-juni  > $tmp-records
+#仮登録作業情報を取得
+if [ -n "$(cat ${TEMPD}/operation)" ]; then
+  cat ${TEMPD}/operation  |
+  juni                > $tmp-juni
+  mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/RECORDS.HTML $tmp-juni  > $tmp-records
+fi
 
 ########################################
 # 改行文字を「\\n」という3文字の文字列に置換
@@ -105,19 +107,19 @@ TABLE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-html`
 
 ########################################
 #Making viweing body HTML filw path
-cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/${SUBACTION}.HTML  |
+cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/${SUB_ACTION}.HTML |
 sed -e "s|###REDIRECT_FORCE###|${REDIRECT_FORCE}|"                      |
-sed -e "s|###INFO_MSG###|${INFO_MSG}|"                                  |
+sed -e "s|###INFO_MSG###|作業を選択してください。|"                     |
 sed -e "s/###APPRAISAL_INFO###/${APPRAISAL_INFO}/"                      |
 sed -e "s/###CUSTOMER_INFO###/${CUSTOMER_INFO}/"                        |
 sed -e "s|###TEMP_NO###|${TEMP_NO}|"                                    |
 sed -e "s|###CUSTOMER_NM###|${CUSTOMER_NM}|"                            |
-sed -e "s|###PARTS_CATEGORY###|${PARTS_CATEGORY}|"                      |
+sed -e "s|###OPERATION_CATEGORY###|${OPERATION_CATEGORY}|"              |
 sed -e "s|###TABLE###|${TABLE}|g"                                       > $tmp-html|
 
 #########################################
 #page name
-echo "査定-部品登録" > $tmp-pagename
+echo "Appraisal operation entry" > $tmp-pagename
 
 ########################################
 ##ending

@@ -1,0 +1,91 @@
+<!--<!DOCTYPE html>-->
+<!--<html>-->
+
+
+<table class="table" style="font-size:12px;">
+    <thead>
+        <tr>
+            <th class="col-sm-1">#</th>
+            <th class="col-sm-3">CATEGORY</th>
+            <th class="col-sm-3">OPERATION</th>
+            <th class="col-sm-2">PRICE</th>
+            <th class="col-sm-2">QTY</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+
+    <!--新規追加作業の表示-->
+        <tr id="row-new">
+            <td>NEW</td>
+            <!--Category-->
+            <td>
+                <div class="form-group">
+                    <div class="btn-group">
+                        <div class="btn-group">
+                            <button type="button" class="btn dropdown-toggle input-sm category" id="operation_categogy_new" data-toggle="dropdown" aria-expended="false">
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu" name="NEW" id="category_ul_NEW">
+                                ###CATEGORY###
+                            </ul>
+                        </div>
+                        <div class="btn-group">
+                            <input type="text" name="CATEGORY_NM_NEW" id="CATEGORY_NM_NEW" value="" class="form-control input-sm" disabled placeholder="作業カテゴリ"/>
+                        </div>
+                    </div>
+                    <input type="hidden" name="CATEGORY_NM_HID_NEW" id="CATEGORY_NM_HID_NEW" value="" class="form-control" />
+                    <input type="hidden" name="CATEGORY_NO_HID_NEW" id="CATEGORY_NO_HID_NEW" value="" class="form-control" />
+                </div>
+            </td>
+            <!--作業-->
+            <td>
+                <div class="form-group">
+                    <div class="btn-group">
+                        <div class="btn-group">
+                            <div id="dropdown-operation-NEW" class="btn-group">
+                                <button type="button" class="btn dropdown-toggle input-sm" id="operation_new" data-toggle="dropdown" aria-expended="false">
+                                    <span class="caret"></span>
+                                </button>
+                                <ul id="dropdown-operation-list-NEW" class="dropdown-menu" role="menu" name="NEW">
+                                </ul>
+                            </div>
+                            <div class="btn-group">
+                                <input type="text" name="OPERATION_NM_NEW" id="OPERATION_NM_NEW" value="" class="form-control input-sm" disabled placeholder="作業"/>
+                            </div>
+                       </div>
+                    </div>
+                    <input type="hidden" name="OPERATION_HID_NO_NEW" id="OPERATION_NO_HID_NEW" value="" class="form-control" />
+                </div>
+            </td>
+            <!--PRICE-->
+            <td>
+                <input type="text" id="OPERATION_PRICE_NEW" name="OPERATION_PRICE_NEW" value="" class="form-control input-sm" style="" placeholder="税抜価格" disabled >
+            </td>
+            <!--QTY-->
+            <td>
+                <div class="btn-group">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-md input-sm btn-plus" id="qty_plus_NEW" name="OPERATION">+</button>
+                    </div>
+                    <div class="btn-group">
+                        <input type="text" name="OPERATION_QTY_NEW" id="OPERATION_QTY_NEW" value="0" class="form-control input-sm" disabled placeholder="数量" style="width:3em"/>
+                    </div>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-md input-sm btn-minus" id="qty_minus_NEW" name="OPERATION">-</button>
+                    </div>
+                </div>
+            </td>
+            <!--button-->
+            <td>
+                <a class="btn btn-primary btn-sm btn-operation" id="OPERATION_ADD_NEW" >ADD</a>
+            </td>
+       </tr>
+
+    <!--入力済作業の表示-->
+        ###TABLE_RECORDS###
+
+    </tbody>
+</table>
+
+<!--</html>-->

@@ -1,0 +1,105 @@
+#!/bin/bash -vx
+#
+
+########################################
+#	APPRAISAL EDIT CUSTOMER INPUT.CGI
+#
+#   Arg
+#       $1:$$
+#
+#	Written by hiramatsu
+
+
+########################################
+#基本設定
+SYSD=$(cd $(dirname $0) && pwd | awk '{print substr($0, 0, index($0, "sureshotsystem")+13)}')
+#exec 2> $SYSD/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
+tmp=/tmp/tmp_$1
+LANG=ja_JP.UTF-8
+#PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
+CATEGORY=`cat $tmp-category`
+FUNC=`cat $tmp-func`
+DATAD=${SYSD}/DATA/${CATEGORY}/LISTS
+
+########################################
+#Check error
+ERROR_CHECK(){
+	[ $(plus ${PIPESTATUS[@]}) -eq 0 ] && return
+cat <<- FIN
+	Context-type: text/html
+	NG input
+FIN
+	cat $tmp-result
+	exit 1
+}
+
+#######################################
+#フォーム入力値を取得
+TEMP_NO=$(cat $tmp-get | cut -d'&' -f1 | sed s/TEMP_NO=// )
+
+########################################
+#仮登録Dir :/TMP/{stuffid}/APPRAISAL/
+TEMPD=${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/APPRAISAL
+rm -rf ${TEMPD}
+mkdir ${TEMPD}
+mkdir ${TEMPD}/${TEMP_NO}
+chmod -R 770 ${TEMPD}
+ERROR_CHECK
+
+#査定済のファイルの仮ファイル作成する
+ls ${DATAD}/LV1/${TEMP_NO}_appraisal_customer_*[^_d] | cut -d'_' -f6 | sort -nk1,1 | head -n 1 > $tmp-create  
+CREATE_DATE=`cat $tmp-create`
+echo ${CREATE_DATE}
+cp -fp ${DATAD}/LV1/${TEMP_NO}_appraisal_customer_${CREATE_DATE} ${TEMPD}/${TEMP_NO}/customer
+cp -fp ${DATAD}/LV1/${TEMP_NO}_appraisal_operation_${CREATE_DATE} ${TEMPD}/${TEMP_NO}/operation
+cp -fp ${DATAD}/LV1/${TEMP_NO}_appraisal_parts_${CREATE_DATE} ${TEMPD}/${TEMP_NO}/parts
+
+########################################
+#顧客情報取得
+#20170701_172259_3387 guest_167 Guest nothing 20170701173352 20170701173352
+CUSTOMER_NO=$(cat ${TEMPD}/${TEMP_NO}/customer | cut -d' ' -f2)
+CUSTOMER_NM=$(cat ${TEMPD}/${TEMP_NO}/customer | cut -d' ' -f3)
+PHONE=$(cat ${TEMPD}/${TEMP_NO}/customer | cut -d' ' -f4)
+
+#######################################
+#ヘッダーインフォ設定
+if [ -z ${TEMP_NO} ]; then
+  #CUSTOMER LISTへ戻す
+  REDIRECT_FORCE="/APP/APPRAISAL/LIST/SHOW"
+else
+    INFO_MSG="　"
+    APPRAISAL_INFO="査定番号 : "${TEMP_NO}  
+    CUSTOMER_INFO="お客様 : "`echo ${CUSTOMER_NO}  ${CUSTOMER_NM}`
+fi
+
+########################################
+#画面情報設定:SETボタン、削除ボタン
+[ -z "${CUSTOMER_NO}" ] && DISABLED_SET="" || DISABLED_SET='disabled'
+[ -z "${CUSTOMER_NO}" ] && DISABLED_DEL="" || DISABLED_DEL='disabled'
+
+########################################
+#Making viweing body HTML file path
+ACTION=`cat $tmp-action`
+SUB_ACTION=`cat $tmp-sub-action`
+cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/${SUB_ACTION}.HTML |
+sed -e "s|###REDIRECT_FORCE###|${REDIRECT_FORCE}|"                      |
+sed -e "s/###INFO_MSG###/${INFO_MSG}/"                                  |
+sed -e "s/###APPRAISAL_INFO###/${APPRAISAL_INFO}/"                      |
+sed -e "s/###CUSTOMER_INFO###/${CUSTOMER_INFO}/"                        |
+sed -e "s/###DISABLED_SET###/${DISABLED_SET}/"                          |
+sed -e "s/###DISABLED_DEL###/${DISABLED_DEL}/"                          |
+sed -e "s/###CUSTOMER_NO###/${CUSTOMER_NO}/"                            |
+sed -e "s/###CUSTOMER_NM###/${CUSTOMER_NM}/"                            |
+sed -e "s/###CUSTOMER_PH###/${CUSTOMER_PH}/"                            |
+sed -e "s/###TEMP_NO###/${TEMP_NO}/"                                    |
+sed -e "s/###DUMMY###//"                                                > $tmp-html
+
+#########################################
+#page name
+echo "Appraisal customer edit" > $tmp-pagename
+
+#########################################
+##ending
+echo "OK"
+exit 0
+

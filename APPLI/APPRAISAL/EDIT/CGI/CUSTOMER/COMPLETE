@@ -2,7 +2,7 @@
 #
 
 ########################################
-#	APPRAISAL NEW CUSTOMER COMPLETE.CGI
+#	APPRAISAL EDIT CUSTOMER COMPLETE.CGI
 #
 #   Arg
 #       $1:$$
@@ -56,18 +56,9 @@ fi
 
 #######################################
 #TEMP_NOが取得出来なかった場合、
-# 1.TEMP_NOを設定
-# 2./TMP/APPRAISAL/配下にTEMP_NO/を作成
-# 3.customer,parts,operationの空ファイルを作成
-# 4.info msg に初期MSGを登録
-# 4.customer info は空を登録
 if [ -z ${TEMP_NO} ]; then
-    TEMP_NO=$(date +%Y%m%d)_$(date +%H%M%S)_$RANDOM
-    mkdir ${TEMPD}/${TEMP_NO}
-    touch ${TEMPD}/${TEMP_NO}/customer
-    touch ${TEMPD}/${TEMP_NO}/parts
-    touch ${TEMPD}/${TEMP_NO}/operation
-    chmod 770 ${TEMPD}/${TEMP_NO}
+    echo 222 > $tmp-ajax-html
+    exit 0
 fi
 
 ########################################

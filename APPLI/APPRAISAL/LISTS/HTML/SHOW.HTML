@@ -20,7 +20,7 @@
 
         <!--Set Category Filter-->
         <div class="row">
-            <form action="/APP/SET_LIST/LISTS/SHOW" method="GET">    
+            <form action="/APP/APPRAISAL/LISTS/SHOW" method="GET">    
 
                 <div class="form-group">
                     <div class="btn-group">
@@ -67,10 +67,8 @@
 
     <!--Contents Records/Pagination-->
     <div class="header-under-contents">
-        <form name="form_set_list" class="form-inline form-horizontal"  action="" method="">
-	          <input type="hidden" name="SET_CATEGORY_NO_HID" id="SET_CATEGORY_NO_HID" value="" class="form-control input-sm" />
-	          <input type="hidden" name="SET_NO_HID" id="SET_NO_HID" value="" class="form-control input-sm" />
-  
+        <form name="form_appraisal_list" class="form-inline form-horizontal"  action="" method="">
+	          <input type="hidden" name="TEMP_NO" id="TEMP_NO" value="" class="form-control input-sm" />
             <div class="contents-table">
                 ###TABLE###
             </div>
@@ -89,71 +87,69 @@
     });
 
     //NEWボタン
-    $(document).on('click', 'a.btn-set-new', function() {
+    $(document).on('click', 'a.btn-appraisal-new', function() {
 
         //イベント基本情報
         var idname = $(this).attr("id"); 
         var list_id = idname.split("_");
         var action = list_id[1];
-        var set_no = list_id[2];
-        var frm = document.forms['form_set_list'];
+        var appraisal_no = list_id[2];
+        var frm = document.forms['form_appraisal_list'];
 
         frm.method = 'GET';
-        frm.action = '/APP/SET_LIST/NEW/SET/INPUT';
+        frm.action = '/APP/APPRAISAL/NEW/CUSTOMER/INPUT';
         frm.submit();
     });
 
     //EDITボタン
-    $(document).on('click', 'a.btn-set-edit', function() {
+    $(document).on('click', 'a.btn-appraisal-edit', function() {
 
         //イベント基本情報
         var idname = $(this).attr("id"); 
         var list_id = idname.split("_");
         var action = list_id[1];
-        var set_no = list_id[2];
-        var cat_no = $('#SET_CATEGORY_NO_HID_' + set_no).val(); 
-        var frm = document.forms['form_set_list'];
+        var appraisal_no = list_id[2].replace(/ /g,"_"); 
+        var frm = document.forms['form_appraisal_list'];
 
         //パラメータを設定
-        $('#SET_CATEGORY_NO_HID').val(cat_no); 
-        $('#SET_NO_HID').val(set_no); 
+        $('#TEMP_NO').val(appraisal_no); 
 
         //submit
         frm.method = 'GET';
-        frm.action = '/APP/SET_LIST/EDIT/SET/INPUT';
+        frm.action = '/APP/APPRAISAL/EDIT/CUSTOMER/INPUT';
         frm.submit();
     });
 
     //DELETEボタン
-    $(document).on('click', 'a.btn-set-delete', function() {
+    $(document).on('click', 'a.btn-appraisal-delete', function() {
 
         //イベント基本情報
         var idname = $(this).attr("id"); 
         var list_id = idname.split("_");
         var action = list_id[1];
-        var set_no = list_id[2];
-        var set_category_no = $('#SET_CATEGORY_NO_HID_' + set_no).val();
+        var appraisal_no = list_id[2];
+        var set_category_no = $('#SET_CATEGORY_NO_HID_' + appraisal_no).val();
   
         //セット名を仮登録
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/SET_LIST/DELETE/COMPLETE',
+            url: '/APP/APPRAISAL/DELETE/COMPLETE',
             data: {
               SET_CATEGORY_NO: set_category_no,
-              SET_NO: set_no
+              SET_NO: appraisal_no
             }
         });
         jqXHR.done(function(data) {
             if (data == 2222) {
-                alert("セット:" + set_no + "の削除に失敗しました。");
+                alert("セット:" + appraisal_no + "の削除に失敗しました。");
             } else {
-                var sel = '#edit-row-' + set_no;
+                var sel = '#edit-row-' + appraisal_no;
                 $(sel).remove();
-                alert("セット:" + set_no + "を削除しました。");
+                alert("セット:" + appraisal_no + "を削除しました。");
             }
         });
         jqXHR.fail(function(data) {
-            alert("セット:" + set_no + "の削除に失敗しました。");
+            alert("セット:" + appraisal_no + "の削除に失敗しました。");
         });
     });
 

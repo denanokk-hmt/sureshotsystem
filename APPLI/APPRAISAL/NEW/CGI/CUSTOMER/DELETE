@@ -1,0 +1,50 @@
+#!/bin/bash -vx
+#
+
+########################################
+#	APPRAISAL NEW CUSTOMER DELETE.CGI
+#
+#   Arg
+#       $1:$$
+#
+#	Written by hiramatsu
+
+
+########################################
+#基本設定
+SYSD=$(cd $(dirname $0) && pwd | awk '{print substr($0, 0, index($0, "sureshotsystem")+13)}')
+#exec 2> $SYSD/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
+tmp=/tmp/tmp_$1
+LANG=ja_JP.UTF-8
+#PATH=/home/:/home/UTL:/usr/local/bin:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
+CATEGORY=`cat $tmp-category`
+FUNC=`cat $tmp-func`
+ACTION=`cat $tmp-action`
+
+########################################
+#Check error
+ERROR_CHECK(){
+	[ $(plus ${PIPESTATUS[@]}) -eq 0 ] && return
+  echo 222 > $tmp-ajax-html
+	exit 1
+}
+
+########################################
+#フォーム値の設定
+TEMP_NO=$(nameread TEMP_NO $tmp-post      | awk '{gsub(/^\_$/,"",$1);print}')
+
+########################################
+#仮登録Dir :/TMP/{stuffid}/APPRAISAL/
+TEMPD=${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/APPRAISAL/${TEMP_NO}
+
+########################################
+#TEMP_NOからすべて削除
+rm -rf ${TEMPD}
+ERROR_CHECK
+
+echo 111 > $tmp-ajax-html
+
+###############################################################################
+#ending
+echo "OK"
+exit 0

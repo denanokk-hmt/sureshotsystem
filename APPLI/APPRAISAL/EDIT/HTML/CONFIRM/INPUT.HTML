@@ -86,7 +86,7 @@
         var func = $(this).html().toUpperCase();
         var frm = document.forms['appraisal'];
         frm.method = 'GET';
-        frm.action = '/APP/APPRAISAL/NEW/' + func + '/INPUT' + '?temp_no=' + temp_no;
+        frm.action = '/APP/APPRAISAL/EDIT/' + func + '/INPUT';
         frm.submit();
     });
 
@@ -108,7 +108,7 @@
         //仮登録の登録・更新・削除
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/APPRAISAL/NEW/COMPLETE',
+            url: '/APP/APPRAISAL/EDIT/COMPLETE',
             data: {
               TEMP_NO: temp_no
             }

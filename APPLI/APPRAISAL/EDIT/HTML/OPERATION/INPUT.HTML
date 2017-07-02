@@ -1,7 +1,7 @@
 <!--<!DOCTYPE html>-->
 <!--<html>-->
 <div class="container">
-     
+    
     <div class="fixed gray-trans-over z-index-3" style="padding:10px;">
 
         <!--Header Info-->
@@ -19,15 +19,14 @@
             </div>
         </div>
         <br>
-        <!--Goto Another Function-->
+       <!--Goto Another Function-->
         <div class="btn-toolbar">
             <button class="btn btn-default col-smx-3" />Customer</button>
-            <button class="btn btn-default col-smx-3" />Operation</button>
-            <button class="btn btn-default col-smx-3" />Parts</button>
-            <button class="btn btn-info col-smx-3 disabled" />Set</button>
+            <button class="btn btn-info col-smx-3 disabled" />Operation</button>
+            <button class="btn btn-default col-smx-3 " />Parts</button>
+            <button class="btn btn-default col-smx-3" />Set</button>
             <button class="btn btn-success col-smx-3" />Confirm</button>
         </div>
-
     </div>
 </div>
 
@@ -48,15 +47,9 @@
         <!--Contents-->
         <div class="col-md-4">
             <div class="contents">
-                <form name="appraisal" action="" method="">
+                <form name="assessment" action="" method="">
             		    <input type="hidden" id="TEMP_NO" name="TEMP_NO" value="###TEMP_NO###" />
                 </form>
-                <button type="submit" id="Set" class="btn btn-primary btn-lg ###DISABLED_SET###" />
-                    Set
-                </button>
-            	<button type="submit" id="Delete" class="btn btn-warning btn-lg ###DISABLED_DEL###" />
-                    Delete
-                </button>
             </div>
         </div>
     </div>
@@ -79,16 +72,16 @@
     $(".btn-toolbar .btn").on('click', function() {
         var temp_no = $("#TEMP_NO").val();
         var func = $(this).html().toUpperCase();
-        var frm = document.forms['appraisal'];
+        var frm = document.forms['assessment'];
         frm.method = 'GET';
-        frm.action = '/APP/APPRAISAL/NEW/' + func + '/INPUT';
+        frm.action = '/APP/APPRAISAL/EDIT/' + func + '/INPUT'
         frm.submit();
     });
 
     //カテゴリを選択
     $(document).on('click', 'a.category-list', function() {
 
-        //選択したセットのidから行を取得する
+        //選択した作業のidから行を取得する
         var idname = $(this).attr("id"); 
         var list_id = idname.split("_");
         var row = $(this).parent().parent().attr("name");
@@ -103,10 +96,10 @@
         var input_hidden = document.getElementById('CATEGORY_NO_HID_' + row);
         input_hidden.value = cat_no;
 
-        //セットリストを選択したカテゴリで抽出
+        //作業リストを選択したカテゴリで抽出
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/SET_LIST/SEARCH/INPUT',
+            url: '/APP/OPERATION_LIST/SEARCH/INPUT',
             data: {
                 CATEGORY_NO: cat_no,
                 ROW: row
@@ -114,21 +107,21 @@
         });
         jqXHR.done(function(data) {
             search_result = data;
-            $('#dropdown-set-' + row).addClass('open');
-            $('#dropdown-set-list-' + row).html(data);
-            //セットをクリア
-            $('#SET_NM_' + row).val('');
-            $('#SET_NO_HID_' + row).val('');
-            $('#SET_PRICE_' + row).val('');
-            $('#SET_QTY_' + row).val('0');
+            $('#dropdown-operation-' + row).addClass('open');
+            $('#dropdown-operation-list-' + row).html(data);
+            //作業をクリア
+            $('#OPERATION_NM_' + row).val('');
+            $('#OPERATION_NO_HID_' + row).val('');
+            $('#OPERATION_PRICE_' + row).val('');
+            $('#OPERATION_QTY_' + row).val('0');
         });
         jqXHR.fail(function() {
-            search_result = '一致するセットがありません。';
+            search_result = '一致する作業がありません。';
         });
     });
 
-    //登録済のセットリストの取得
-    $(document).on('click', ':button.btn-set', function() {
+    //登録済の作業リストの取得
+    $(document).on('click', ':button.btn-operation', function() {
         var row = $(this).attr("name");
         var cat_no = $('#CATEGORY_NO_HID_' + row).val();
         var deferred = ajax_func();
@@ -136,22 +129,22 @@
           //done!!
         });
 
-        //セットリストを選択したカテゴリで抽出
+        //作業リストを選択したカテゴリで抽出
         function ajax_func() {
             var deferred = new $.Deferred();
             $.ajax({
                 type: 'POST',
-                url: '/APP/SET_LIST/SEARCH/INPUT',
+                url: '/APP/OPERATION_LIST/SEARCH/INPUT',
                 data: {
                     CATEGORY_NO: cat_no,
                     ROW: row
                 }
             }).done(function(data) {
                 search_result = data;
-                $('#dropdown-set-' + row).addClass('open');
-                $('#dropdown-set-list-' + row).html(data);
+                $('#dropdown-operation-' + row).addClass('open');
+                $('#dropdown-operation-list-' + row).html(data);
             }).fail(function() {
-                search_result = '一致するセットがありません。';
+                search_result = '一致する作業がありません。';
             }).always(function() {
                 deferred.resolve();
             });
@@ -160,59 +153,73 @@
     });
 
 
-    //セット選択
-    $(document).on('click', 'li.list-set', function() {
+    //作業選択
+    $(document).on('click', 'li.list-operation', function() {
 
-        //選択したリストのidから行を取得する:list-行-セット番号
+        //選択したリストのidから行を取得する:list-行-作業番号
         var idname = $(this).attr("id"); 
         var list_id = idname.split("-");
         var row = list_id[1];
-        var setNo = $(this).val();
-        var setNm = $(this).text();
-        var setPrice = $('#SET_PRICE_' + row + '_' + setNo).val();
-        $('#SET_NM_' + row).val(setNm);
-        $('#SET_PRICE_' + row).val(setPrice);
-        $('#SET_QTY_' + row).val('1');
-        $('#SET_NO_HID_' + row).val(setNo);
+        var operationNo = $(this).val();
+        var operationNm = $(this).text();
+        var operationPrice = $('#OPERATION_PRICE_' + row + '_' + operationNo).val();
+        $('#OPERATION_NM_' + row).val(operationNm);
+        $('#OPERATION_PRICE_' + row).val(operationPrice);
+        $('#OPERATION_QTY_' + row).val('1');
+        $('#OPERATION_NO_HID_' + row).val(operationNo);
     });
 
-    //数量PLUS
+    //作業 数量PLUS
     $(document).on('click', ':button.btn-plus', function() {
+        var kind = $(this).attr("name");
         var idname = $(this).attr("id"); 
         var list_id = idname.split("_");
         var row = list_id[2];
-        var qty = $('#SET_QTY_' + row).val();
-        $('#SET_QTY_' + row).val(parseInt(qty) + parseInt(1));
+        var qty = $('#' + kind + '_QTY_' + row).val();
+        if (!qty) return;
+        var subTTL = $('#' + kind + '_PRICE_' + row).val();
+        var each = parseInt(subTTL) / parseInt(qty);
+        $('#' + kind + '_QTY_' + row).val(parseInt(qty) + parseInt(1));
+        qty = $('#' + kind + '_QTY_' + row).val();
+        $('#' + kind + '_PRICE_' + row).val(parseInt(each) * parseInt(qty));
     });
 
-    //数量MINUS
+    //作業 数量MINUS
     $(document).on('click', ':button.btn-minus', function() {
+        var kind = $(this).attr("name");
         var idname = $(this).attr("id"); 
         var list_id = idname.split("_");
         var row = list_id[2];
-        var qty = $('#SET_QTY_' + row).val();
-        if (parseInt(qty) > 0) {
-            $('#SET_QTY_' + row).val(parseInt(qty) - parseInt(1));
+        var qty = $('#' + kind + '_QTY_' + row).val();
+        if (!qty) return;
+        var subTTL = $('#' + kind + '_PRICE_' + row).val();
+        var each = parseInt(subTTL) / parseInt(qty);
+        if (parseInt(qty) > 1) {
+            $('#' + kind + '_QTY_' + row).val(parseInt(qty) - parseInt(1));
+            qty = $('#' + kind + '_QTY_' + row).val();
         }
+        $('#' + kind + '_PRICE_' + row).val(parseInt(each) * parseInt(qty));
     });
 
-    //セット追加
-    $(document).on('click', 'a.btn-set', function() {
+    //作業追加
+    $(document).on('click', 'a.btn-operation', function() {
+        //基本情報
         var idname = $(this).attr("id"); 
         var list_id = idname.split("_");
         var action = list_id[1];
         var row = list_id[2];
-        alert(action+ ":"+row);
+        //入力情報
         var temp_no = $('#TEMP_NO').val();
         var category_no = $('#CATEGORY_NO_HID_' + row).val();
         var category_nm = $('#CATEGORY_NM_' + row).val();
-        var set_no = $('#SET_NO_HID_' + row).val();
-        var set_nm = $('#SET_NM_' + row).val();
-        var set_price = $('#SET_PRICE_' + row).val();
-        var set_qty = $('#SET_QTY_' + row).val();
+        var operation_no = $('#OPERATION_NO_HID_' + row).val();
+        var operation_nm = $('#OPERATION_NM_' + row).val();
+        var operation_price = $('#OPERATION_PRICE_' + row).val();
+        var operation_qty = $('#OPERATION_QTY_' + row).val();
+
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/APPRAISAL/NEW/SET/COMPLETE',
+            url: '/APP/APPRAISAL/EDIT/OPERATION/COMPLETE',
             /*
             data: { 
               params,
@@ -225,19 +232,20 @@
               TEMP_NO: temp_no,
               CATEGORY_NO: category_no,
               CATEGORY_NM: category_nm,
-              SET_NO: set_no,
-              SET_NM: set_nm,
-              SET_PRICE: set_price,
-              SET_QTY: set_qty
+              OPERATION_NO: operation_no,
+              OPERATION_NM: operation_nm,
+              OPERATION_PRICE: operation_price,
+              OPERATION_QTY: operation_qty
             }
         });
         jqXHR.done(function(data) {
             if (data == 2222) {
-                alert("セットの追加が出来ませんでした。");
+                alert("作業の追加が出来ませんでした。");
             } else {
                 $('intput[type="text"]').each(function() {
                 });
                 $('table').html(data);
+                alert(temp_no + "に作業を仮登録しました。");
             }
         });
         jqXHR.fail(function(data) {
