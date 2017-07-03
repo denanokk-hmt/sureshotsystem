@@ -85,6 +85,7 @@ CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-operation-category-new`
 
 #######################################
 #仮登録作業情報を取得
+#20170701_172259_3387 1 オイル交換 2 oil1 3000 1 20170701173352 20170701173352
 if [ -n "$(cat ${TEMPD}/operation)" ]; then
   cat ${TEMPD}/operation  |
   juni                > $tmp-juni

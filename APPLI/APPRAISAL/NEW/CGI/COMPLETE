@@ -33,6 +33,19 @@ FIN
 	exit 1
 }
 
+########################################
+#パーツ番号の次のロットを追加する
+LATEST_NUM=$(ls ${SYSD}/DATA/NUMBERS/${CATEGORY}/ORIGIN | sort -nr | head -n 1)
+START=$((LATEST_NUM + 1))
+END=$((START + 1))
+SEQ_STATUS=`${SYSD}/CGI/NUMBER_SEQ $1 ${CATEGORY} ${START} ${END} `
+[[ ${SEQ_STATUS} != 'SUCCESS' ]] && exit 0
+
+########################################
+#新規パーツ番号を確定する
+NEW_NUM=`${SYSD}/CGI/NUMBERS $1 'APPRAISAL' `
+[ ${NEW_NUM} = 'ERROR' ] && exit 0 || :
+
 #######################################
 #フォーム入力値を取得
 TEMP_NO=$(nameread TEMP_NO $tmp-post)
@@ -60,26 +73,26 @@ UPDATE_DATE=$CREATE_DATE
 #######################################
 #仮登録を取得
 #顧客
-cat ${TEMPD}/customer | awk -v id=${TEMP_NO} -v cdt=${CREATE_DATE} -v udt=${UPDATE_DATE} '{print id, $0, cdt, udt}' > $tmp-customer
+cat ${TEMPD}/customer   | awk -v id=${NEW_NUM} -v tmp=${TEMP_NO} -v cdt=${CREATE_DATE} -v udt=${UPDATE_DATE} '{print id, tmp, $0, cdt, udt}' > $tmp-customer
 #作業
-cat ${TEMPD}/operation | awk -v id=${TEMP_NO} -v cdt=${CREATE_DATE} -v udt=${UPDATE_DATE} '{print id, $0, cdt, udt}' > $tmp-operation
+cat ${TEMPD}/operation  | awk -v id=${NEW_NUM} -v tmp=${TEMP_NO} -v cdt=${CREATE_DATE} -v udt=${UPDATE_DATE} '{print id, tmp, $0, cdt, udt}' > $tmp-operation
 #部品#
-cat ${TEMPD}/parts | awk -v id=${TEMP_NO} -v cdt=${CREATE_DATE} -v udt=${UPDATE_DATE} '{print id, $0, cdt, udt}' > $tmp-parts
+cat ${TEMPD}/parts      | awk -v id=${NEW_NUM} -v tmp=${TEMP_NO} -v cdt=${CREATE_DATE} -v udt=${UPDATE_DATE} '{print id, tmp, $0, cdt, udt}' > $tmp-parts
 
 ########################################
 #データ格納
 #LV1
-mv $tmp-customer  ${DATAD}/LV1/${TEMP_NO}_appraisal_customer_${CREATE_DATE}
-mv $tmp-operation ${DATAD}/LV1/${TEMP_NO}_appraisal_operation_${CREATE_DATE}
-mv $tmp-parts     ${DATAD}/LV1/${TEMP_NO}_appraisal_parts_${CREATE_DATE}
+mv $tmp-customer  ${DATAD}/LV1/${NEW_NUM}_appraisal_customer_${CREATE_DATE}
+mv $tmp-operation ${DATAD}/LV1/${NEW_NUM}_appraisal_operation_${CREATE_DATE}
+mv $tmp-parts     ${DATAD}/LV1/${NEW_NUM}_appraisal_parts_${CREATE_DATE}
 #LV2
-cat ${DATAD}/LV1/${TEMP_NO}_appraisal_customer_${CREATE_DATE} > ${DATAD}/LV2/${TEMP_NO}_appraisal_customer_${CREATE_DATE}
-cat ${DATAD}/LV1/${TEMP_NO}_appraisal_operation_${CREATE_DATE} > ${DATAD}/LV2/${TEMP_NO}_appraisal_operation_${CREATE_DATE}
-cat ${DATAD}/LV1/${TEMP_NO}_appraisal_parts_${CREATE_DATE} > ${DATAD}/LV2/${TEMP_NO}_appraisal_parts_${CREATE_DATE}
+cat ${DATAD}/LV1/${NEW_NUM}_appraisal_customer_${CREATE_DATE} > ${DATAD}/LV2/${NEW_NUM}_appraisal_customer_${CREATE_DATE}
+cat ${DATAD}/LV1/${NEW_NUM}_appraisal_operation_${CREATE_DATE} > ${DATAD}/LV2/${NEW_NUM}_appraisal_operation_${CREATE_DATE}
+cat ${DATAD}/LV1/${NEW_NUM}_appraisal_parts_${CREATE_DATE} > ${DATAD}/LV2/${NEW_NUM}_appraisal_parts_${CREATE_DATE}
 #LV3
-cat ${DATAD}/LV2/${TEMP_NO}_appraisal_customer_${CREATE_DATE} > ${DATAD}/LV3/${TEMP_NO}_appraisal_customer_${CREATE_DATE}
-cat ${DATAD}/LV2/${TEMP_NO}_appraisal_operation_${CREATE_DATE} > ${DATAD}/LV3/${TEMP_NO}_appraisal_operation_${CREATE_DATE}
-cat ${DATAD}/LV2/${TEMP_NO}_appraisal_parts_${CREATE_DATE} > ${DATAD}/LV3/${TEMP_NO}_appraisal_parts_${CREATE_DATE}
+cat ${DATAD}/LV2/${NEW_NUM}_appraisal_customer_${CREATE_DATE} > ${DATAD}/LV3/${NEW_NUM}_appraisal_customer_${CREATE_DATE}
+cat ${DATAD}/LV2/${NEW_NUM}_appraisal_operation_${CREATE_DATE} > ${DATAD}/LV3/${NEW_NUM}_appraisal_operation_${CREATE_DATE}
+cat ${DATAD}/LV2/${NEW_NUM}_appraisal_parts_${CREATE_DATE} > ${DATAD}/LV3/${NEW_NUM}_appraisal_parts_${CREATE_DATE}
 
 #######################################
 #仮登録セットリストを削除
