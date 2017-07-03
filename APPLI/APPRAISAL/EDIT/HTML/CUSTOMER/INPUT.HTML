@@ -113,7 +113,7 @@
             		<input type="hidden" id="CUSTOMER_NM" name="CUSTOMER_NM" value="###CUSTOMER_NM###" />
             		<input type="hidden" id="CUSTOMER_PH" name="CUSTOMER_PH" value="###CUSTOMER_PH###" />
                 <form name="appraisal" action="" method="">
-            		    <input type="hidden" id="TEMP_NO" name="TEMP_NO" value="###TEMP_NO###" />
+            		    <input type="hidden" id="APPRAISAL_NO" name="APPRAISAL_NO" value="###APPRAISAL_NO###" />
                 </form>
                 <button type="submit" id="Set" class="btn btn-primary btn-lg ###DISABLED_SET###" />
                     Set
@@ -225,7 +225,7 @@
         var cust_no = $('#CUSTOMER_NO').val();
         var cust_nm = $('#CUSTOMER_NM').val();
         var cust_ph = $('#CUSTOMER_PH').val();
-        var temp_no = $('#TEMP_NO').val();
+        var appraisal_no = $('#APPRAISAL_NO').val();
         var jqXHR = $.ajax({
             type: 'POST',
             url: '/APP/APPRAISAL/EDIT/CUSTOMER/COMPLETE',
@@ -233,61 +233,18 @@
                 CUSTOMER_NO: cust_no,
                 CUSTOMER_NM: cust_nm,
                 CUSTOMER_PH: cust_ph,
-                TEMP_NO: temp_no
+                APPRAISAL_NO: appraisal_no
             }
         });
         jqXHR.done(function(data) {
             //バリデーションがOK；査定番号
             //バリデーションがNG；222
             if (data != 222) {
-                $('#info-msg').removeClass('label-danger');
-                $('#info-msg').addClass('label-success');
-                $('#info-msg').html('査定番号:' + data);
+                //$('#info-msg').removeClass('label-danger');
+                //$('#info-msg').addClass('label-success');
+                $('#customer-info').html('お客様:' + data);
                 //改行を削除
-                $('#TEMP_NO').val(data.replace(/\r?\n/g,""));
-                $('#appraisal-temp-no').text(data);
-                alert("査定番号を取得しました。");
-          
-            } else {
-                $('#info-msg').removeClass('label-success');
-                $('#info-msg').addClass('label-danger');
-                $('#info-msg').html('顧客が設定されていません。');
-            }
-        });
-        jqXHR.fail(function() {
-            search_result = '一致する顧客名がありません。';
-        });
-    });
-
-    //Delete
-    $(document).on('click', '#Delete', function() {
-        var temp_no = $('#TEMP_NO').val();
-
-        if (!temp_no) {
-          $('#info-msg').removeClass('label-success');
-          $('#info-msg').addClass('label-danger');
-          $('#info-msg').html('顧客が設定されていません。');
-          return;
-        }
-
-        var jqXHR = $.ajax({
-            type: 'POST',
-            url: '/APP/APPRAISAL/EDIT/CUSTOMER/DELETE',
-            data: {
-                TEMP_NO: temp_no
-            }
-        });
-        jqXHR.done(function(data) {
-            //OK；111
-            //NG；222
-            if (data == 111) {
-                $('#info-msg').removeClass('label-danger');
-                $('#info-msg').addClass('label-success');
-                $('#info-msg').html("");
-                //改行を削除
-                $('#TEMP_NO').val("");
-                $('#appraisal-temp-no').text("");
-                alert("査定:" + temp_no + "を削除しました。");
+                alert("顧客情報を更新しました。");
           
             } else {
                 $('#info-msg').removeClass('label-success');

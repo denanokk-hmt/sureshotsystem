@@ -2,7 +2,7 @@
 #
 
 ########################################
-#	APPRAISAL NEW OPERATION INPUT.CGI
+#	APPRAISAL EDIT OPERATION INPUT.CGI
 #
 #   Arg
 #       $1:$$   necessary
@@ -21,6 +21,7 @@ CATEGORY=`cat $tmp-category`
 FUNC=`cat $tmp-func`
 ACTION=`cat $tmp-action`
 SUB_ACTION=`cat $tmp-sub-action`
+DATAD=${SYSD}/DATA/${CATEGORY}/LISTS
 
 ########################################
 #Check error
@@ -40,7 +41,11 @@ FIN
 
 #######################################
 #フォーム入力値を取得
-TEMP_NO=$(cat $tmp-get | cut -d'&' -f1 | sed s/TEMP_NO=// )
+APPRAISAL_NO=$(cat $tmp-get | cut -d'&' -f1 | sed s/APPRAISAL_NO=// )
+
+########################################
+#査定済のファイルの仮ファイル作成する
+TEMP_NO=$(cat $(ls ${DATAD}/LV3/${APPRAISAL_NO}_appraisal_customer_*) | cut -d' ' -f2) 
 
 ########################################
 #仮登録Dir :/TMP/{stuffid}/APPRAISAL/
@@ -48,17 +53,17 @@ TEMPD=${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id
 
 #######################################
 #顧客情報を取得
-CUSTOMER_NO=$(cat ${TEMPD}/customer | cut -d' ' -f1)
-CUSTOMER_NM=$(cat ${TEMPD}/customer | cut -d' ' -f2)
+CUSTOMER_NO=$(cat ${TEMPD}/customer | cut -d' ' -f3)
+CUSTOMER_NM=$(cat ${TEMPD}/customer | cut -d' ' -f4)
 
 #######################################
 #TEMP_NOが取得出来なかった場合-->異常
-if [ -z ${TEMP_NO} ]; then
+if [ -z ${APPRAISAL_NO} ]; then
   #CUSTOMER INPUTへ戻す
-  REDIRECT_FORCE="/APP/APPRAISAL/NEW/CUSTOMER/INPUT"
+  REDIRECT_FORCE="/APP/APPRAISAL/LIST/SHOW"
 else
   #ヘッダーインフォ設定
-  INFO_MSG="作業を登録してください。"    
+  INFO_MSG="見積番号 : ${APPRAISAL_NO}"
   APPRAISAL_INFO="査定番号 : "${TEMP_NO}  
   CUSTOMER_INFO="お客様 : "`echo ${CUSTOMER_NO}  ${CUSTOMER_NM}`
 fi
@@ -84,11 +89,11 @@ CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-operation-category-list`
 CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-operation-category-new`
 
 #######################################
-#仮登録作業情報を取得
-#20170701_172259_3387 1 オイル交換 2 oil1 3000 1 20170701173352 20170701173352
+#登録作業情報を取得
+#1 20170701_172259_3387 1 オイル交換 2 oil1 3000 1 20170701173352 20170701173352
 if [ -n "$(cat ${TEMPD}/operation)" ]; then
   cat ${TEMPD}/operation  |
-  juni                > $tmp-juni
+  juni                    > $tmp-juni
   mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/RECORDS.HTML $tmp-juni  > $tmp-records
 fi
 
@@ -113,14 +118,14 @@ sed -e "s|###REDIRECT_FORCE###|${REDIRECT_FORCE}|"                      |
 sed -e "s|###INFO_MSG###|作業を選択してください。|"                     |
 sed -e "s/###APPRAISAL_INFO###/${APPRAISAL_INFO}/"                      |
 sed -e "s/###CUSTOMER_INFO###/${CUSTOMER_INFO}/"                        |
-sed -e "s|###TEMP_NO###|${TEMP_NO}|"                                    |
+sed -e "s/###APPRAISAL_NO###/${APPRAISAL_NO}/"                          |
 sed -e "s|###CUSTOMER_NM###|${CUSTOMER_NM}|"                            |
 sed -e "s|###OPERATION_CATEGORY###|${OPERATION_CATEGORY}|"              |
 sed -e "s|###TABLE###|${TABLE}|g"                                       > $tmp-html|
 
 #########################################
 #page name
-echo "Appraisal operation entry" > $tmp-pagename
+echo "Appraisal operation edit" > $tmp-pagename
 
 ########################################
 ##ending

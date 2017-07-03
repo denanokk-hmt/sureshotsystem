@@ -2,7 +2,7 @@
 #
 
 ########################################
-#   APPRAISAL/NEW/OPERATION/COMPLETE.CGI
+#   APPRAISAL/EDIT/OPERATION/COMPLETE.CGI
 #
 #   引数
 #       $1:プロセスID

@@ -33,33 +33,23 @@ FIN
 	exit 1
 }
 
+#######################################
+#フォーム入力値を取得
+APPRAISAL_NO=$(cat $tmp-get | cut -d'&' -f1 | sed s/APPRAISAL_NO=// )
+
+########################################
+#査定済のファイルの仮ファイル作成する
+TEMP_NO=$(cat $(ls ${DATAD}/LV3/${APPRAISAL_NO}_appraisal_customer_*) | cut -d' ' -f2) 
+
 ########################################
 #仮登録Dir :/TMP/{stuffid}/APPRAISAL/
-TEMPD=${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/APPRAISAL
+TEMPD=${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/APPRAISAL/${TEMP_NO}
 
 ########################################
 #フォーム値の設定
 nameread CUSTOMER_NO $tmp-post  | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value1
 nameread CUSTOMER_NM $tmp-post  | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value2
 nameread CUSTOMER_PH $tmp-post  | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value3
-TEMP_NO=$(nameread TEMP_NO $tmp-post      | awk '{gsub(/^\_$/,"",$1);print}')
-
-########################################
-#ディレクトリを作成する
-if [ -e "${TEMPD}"  ]; then
-    :
-else
-    mkdir ${TEMPD}
-    chmod -R 770 ${TEMPD}
-    ERROR_CHECK
-fi
-
-#######################################
-#TEMP_NOが取得出来なかった場合、
-if [ -z ${TEMP_NO} ]; then
-    echo 222 > $tmp-ajax-html
-    exit 0
-fi
 
 ########################################
 #バリデーション(必須入力確認)
@@ -79,8 +69,8 @@ fi
 ########################################
 #顧客情報の仮登録
 if [ "$(cat $tmp-ajax-html)" != 222 ]; then
-    #顧客番号、顧客名、電話
-    echo $(cat $tmp-value1) $(cat $tmp-value2) $(cat $tmp-value3) > ${TEMPD}/${TEMP_NO}/customer
+    #見積ID、査定番号、顧客番号、顧客名、電話
+    echo ${APPRAISAL} ${TEMP_NO} $(cat $tmp-value1) $(cat $tmp-value2) $(cat $tmp-value3) > ${TEMPD}/customer
 fi
 
 ###############################################################################

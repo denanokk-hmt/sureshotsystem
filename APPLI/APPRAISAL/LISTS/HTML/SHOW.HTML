@@ -68,7 +68,7 @@
     <!--Contents Records/Pagination-->
     <div class="header-under-contents">
         <form name="form_appraisal_list" class="form-inline form-horizontal"  action="" method="">
-	          <input type="hidden" name="TEMP_NO" id="TEMP_NO" value="" class="form-control input-sm" />
+	          <input type="hidden" name="APPRAISAL_NO" id="APPRAISAL_NO" value="" class="form-control input-sm" />
             <div class="contents-table">
                 ###TABLE###
             </div>
@@ -112,7 +112,7 @@
         var frm = document.forms['form_appraisal_list'];
 
         //パラメータを設定
-        $('#TEMP_NO').val(appraisal_no); 
+        $('#APPRAISAL_NO').val(appraisal_no); 
 
         //submit
         frm.method = 'GET';
@@ -135,8 +135,7 @@
             type: 'POST',
             url: '/APP/APPRAISAL/DELETE/COMPLETE',
             data: {
-              SET_CATEGORY_NO: set_category_no,
-              SET_NO: appraisal_no
+              APPRAISAL_NO: appraisal_no
             }
         });
         jqXHR.done(function(data) {
