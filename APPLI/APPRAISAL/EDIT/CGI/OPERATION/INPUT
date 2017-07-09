@@ -35,10 +35,6 @@ FIN
 	exit 1
 }
 
-########################################
-#第二引数を取得
-#ASS=${2:-0}
-
 #######################################
 #フォーム入力値を取得
 APPRAISAL_NO=$(cat $tmp-get | cut -d'&' -f1 | sed s/APPRAISAL_NO=// )
@@ -115,10 +111,11 @@ TABLE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-html`
 #Making viweing body HTML filw path
 cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/${SUB_ACTION}.HTML |
 sed -e "s|###REDIRECT_FORCE###|${REDIRECT_FORCE}|"                      |
-sed -e "s|###INFO_MSG###|作業を選択してください。|"                     |
+sed -e "s/###INFO_MSG###/${INFO_MSG}/"                                  |
 sed -e "s/###APPRAISAL_INFO###/${APPRAISAL_INFO}/"                      |
 sed -e "s/###CUSTOMER_INFO###/${CUSTOMER_INFO}/"                        |
 sed -e "s/###APPRAISAL_NO###/${APPRAISAL_NO}/"                          |
+sed -e "s/###TEMP_NO###/${TEMP_NO}/"                                    |
 sed -e "s|###CUSTOMER_NM###|${CUSTOMER_NM}|"                            |
 sed -e "s|###OPERATION_CATEGORY###|${OPERATION_CATEGORY}|"              |
 sed -e "s|###TABLE###|${TABLE}|g"                                       > $tmp-html|

@@ -48,8 +48,9 @@
         <div class="col-md-4">
             <div class="contents">
                 <form name="assessment" action="" method="">
-            		    <input type="hidden" id="TEMP_NO" name="TEMP_NO" value="###TEMP_NO###" />
+            		    <input type="hidden" id="APPRAISAL_NO" name="APPRAISAL_NO" value="###APPRAISAL_NO###" />
                 </form>
+            		<input type="hidden" id="TEMP_NO" name="TEMP_NO" value="###TEMP_NO###" />
             </div>
         </div>
     </div>
@@ -201,7 +202,7 @@
         $('#' + kind + '_PRICE_' + row).val(parseInt(each) * parseInt(qty));
     });
 
-    //作業追加
+    //作業追加・変更・削除
     $(document).on('click', 'a.btn-operation', function() {
         //基本情報
         var idname = $(this).attr("id"); 
@@ -209,6 +210,7 @@
         var action = list_id[1];
         var row = list_id[2];
         //入力情報
+        var appraisal_no = $('#APPRAISAL_NO').val();
         var temp_no = $('#TEMP_NO').val();
         var category_no = $('#CATEGORY_NO_HID_' + row).val();
         var category_nm = $('#CATEGORY_NM_' + row).val();
@@ -220,15 +222,10 @@
         var jqXHR = $.ajax({
             type: 'POST',
             url: '/APP/APPRAISAL/EDIT/OPERATION/COMPLETE',
-            /*
-            data: { 
-              params,
-              TEMP_NO: temp_no
-            }
-            */
             data: {
               ACTION: action,
               ROW: row,
+              APPRAISAL_NO: appraisal_no,
               TEMP_NO: temp_no,
               CATEGORY_NO: category_no,
               CATEGORY_NM: category_nm,
@@ -240,16 +237,16 @@
         });
         jqXHR.done(function(data) {
             if (data == 2222) {
-                alert("作業の追加が出来ませんでした。");
+                alert("作業:" + row + "の" + action + "が出来ませんでした。");
             } else {
                 $('intput[type="text"]').each(function() {
                 });
                 $('table').html(data);
-                alert(temp_no + "に作業を仮登録しました。");
+                alert("作業: " + row + "を" + action + "しました。");
             }
         });
         jqXHR.fail(function(data) {
-            alert("新規登録処理に失敗しました。");
+            alert(action + "処理に失敗しました。");
         });
     });
 
