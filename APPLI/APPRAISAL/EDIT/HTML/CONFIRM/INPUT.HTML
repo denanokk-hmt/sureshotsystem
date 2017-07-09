@@ -49,8 +49,9 @@
         <div class="col-md-4">
             <div class="contents">
                 <form name="appraisal" action="" method="">
-            		    <input type="hidden" id="TEMP_NO" name="TEMP_NO" value="###TEMP_NO###" />
+            		    <input type="hidden" id="APPRAISAL_NO" name="APPRAISAL_NO" value="###APPRAISAL_NO###" />
                 </form>
+            	  <input type="hidden" id="TEMP_NO" name="TEMP_NO" value="###TEMP_NO###" />
            </div>
         </div>
     </div>
@@ -95,6 +96,7 @@
 
 
         //基本情報
+        var appr_no = $('#APPRAISAL_NO').val();
         var temp_no = $('#TEMP_NO').val();
         
         //バリデーション
@@ -110,6 +112,7 @@
             type: 'POST',
             url: '/APP/APPRAISAL/EDIT/COMPLETE',
             data: {
+              APPRAISAL_NO: appr_no,
               TEMP_NO: temp_no
             }
         });

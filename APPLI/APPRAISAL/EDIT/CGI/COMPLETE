@@ -2,7 +2,7 @@
 #
 
 ########################################
-#	APPRAISAL/NEW COMPLETE.CGI
+#	APPRAISAL/EDIT COMPLETE.CGI
 #
 #   引数
 #       $1:プロセスID
@@ -35,6 +35,7 @@ FIN
 
 #######################################
 #フォーム入力値を取得
+APPR_NO=$(nameread APPRAISAL_NO $tmp-post)
 TEMP_NO=$(nameread TEMP_NO $tmp-post)
 
 ########################################
@@ -42,44 +43,40 @@ TEMP_NO=$(nameread TEMP_NO $tmp-post)
 TEMPD=${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/APPRAISAL/${TEMP_NO}
 
 ########################################
-#ディレクトリを作成する
-if [ -e "${SYSD}/DATA/${CATEGORY}"  ]; then
-    :
-else
-    mkdir ${SYSD}/DATA/${CATEGORY}
-    cp -rp ${SYSD}/DATA/ORG_LV1-3 ${SYSD}/DATA/${CATEGORY}/LISTS
-    chmod -R 770 ${SYSD}/DATA/${CATEGORY}
-    ERROR_CHECK
-fi
-
-########################################
 #日付を設定
-CREATE_DATE=$(date +%Y%m%d%H%M%S)
-UPDATE_DATE=$CREATE_DATE
+ls ${DATAD}/LV1/${APPR_NO}_appraisal_customer_* | sort -nk1,1 | head -n 1 | cut -d'_' -f4 > $tmp-create
+CREATE_DATE=$(cat $tmp-create)
+UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 
 #######################################
 #仮登録を取得
 #顧客
-cat ${TEMPD}/customer | awk -v id=${TEMP_NO} -v cdt=${CREATE_DATE} -v udt=${UPDATE_DATE} '{print id, $0, cdt, udt}' > $tmp-customer
+cat ${TEMPD}/customer | awk -v cdt=${CREATE_DATE} -v udt=${UPDATE_DATE} '{print $0, cdt, udt}' > $tmp-customer
 #作業
-cat ${TEMPD}/operation | awk -v id=${TEMP_NO} -v cdt=${CREATE_DATE} -v udt=${UPDATE_DATE} '{print id, $0, cdt, udt}' > $tmp-operation
+cat ${TEMPD}/operation | awk -v cdt=${CREATE_DATE} -v udt=${UPDATE_DATE} '{print $0, cdt, udt}' > $tmp-operation
 #部品#
-cat ${TEMPD}/parts | awk -v id=${TEMP_NO} -v cdt=${CREATE_DATE} -v udt=${UPDATE_DATE} '{print id, $0, cdt, udt}' > $tmp-parts
+cat ${TEMPD}/parts | awk -v cdt=${CREATE_DATE} -v udt=${UPDATE_DATE} '{print $0, cdt, udt}' > $tmp-parts
 
 ########################################
 #データ格納
 #LV1
-mv $tmp-customer  ${DATAD}/LV1/${TEMP_NO}_appraisal_customer_${CREATE_DATE}
-mv $tmp-operation ${DATAD}/LV1/${TEMP_NO}_appraisal_operation_${CREATE_DATE}
-mv $tmp-parts     ${DATAD}/LV1/${TEMP_NO}_appraisal_parts_${CREATE_DATE}
+mv $tmp-customer  ${DATAD}/LV1/${APPR_NO}_appraisal_customer_${UPDATE_DATE}
+mv $tmp-operation ${DATAD}/LV1/${APPR_NO}_appraisal_operation_${UPDATE_DATE}
+mv $tmp-parts     ${DATAD}/LV1/${APPR_NO}_appraisal_parts_${UPDATE_DATE}
 #LV2
-cat ${DATAD}/LV1/${TEMP_NO}_appraisal_customer_${CREATE_DATE} > ${DATAD}/LV2/${TEMP_NO}_appraisal_customer_${CREATE_DATE}
-cat ${DATAD}/LV1/${TEMP_NO}_appraisal_operation_${CREATE_DATE} > ${DATAD}/LV2/${TEMP_NO}_appraisal_operation_${CREATE_DATE}
-cat ${DATAD}/LV1/${TEMP_NO}_appraisal_parts_${CREATE_DATE} > ${DATAD}/LV2/${TEMP_NO}_appraisal_parts_${CREATE_DATE}
+rm -f ${DATAD}/LV2/${APPR_NO}_appraisal_customer*
+rm -f ${DATAD}/LV2/${APPR_NO}_appraisal_operation*
+rm -f ${DATAD}/LV2/${APPR_NO}_appraisal_parts*
+cat ${DATAD}/LV1/${APPR_NO}_appraisal_customer_${UPDATE_DATE} > ${DATAD}/LV2/${APPR_NO}_appraisal_customer_${UPDATE_DATE}
+cat ${DATAD}/LV1/${APPR_NO}_appraisal_operation_${UPDATE_DATE} > ${DATAD}/LV2/${APPR_NO}_appraisal_operation_${UPDATE_DATE}
+cat ${DATAD}/LV1/${APPR_NO}_appraisal_parts_${UPDATE_DATE} > ${DATAD}/LV2/${APPR_NO}_appraisal_parts_${UPDATE_DATE}
 #LV3
-cat ${DATAD}/LV2/${TEMP_NO}_appraisal_customer_${CREATE_DATE} > ${DATAD}/LV3/${TEMP_NO}_appraisal_customer_${CREATE_DATE}
-cat ${DATAD}/LV2/${TEMP_NO}_appraisal_operation_${CREATE_DATE} > ${DATAD}/LV3/${TEMP_NO}_appraisal_operation_${CREATE_DATE}
-cat ${DATAD}/LV2/${TEMP_NO}_appraisal_parts_${CREATE_DATE} > ${DATAD}/LV3/${TEMP_NO}_appraisal_parts_${CREATE_DATE}
+rm -f ${DATAD}/LV3/${APPR_NO}_appraisal_customer*
+rm -f ${DATAD}/LV3/${APPR_NO}_appraisal_operation*
+rm -f ${DATAD}/LV3/${APPR_NO}_appraisal_parts*
+cat ${DATAD}/LV2/${APPR_NO}_appraisal_customer_${UPDATE_DATE} > ${DATAD}/LV3/${APPR_NO}_appraisal_customer_${UPDATE_DATE}
+cat ${DATAD}/LV2/${APPR_NO}_appraisal_operation_${UPDATE_DATE} > ${DATAD}/LV3/${APPR_NO}_appraisal_operation_${UPDATE_DATE}
+cat ${DATAD}/LV2/${APPR_NO}_appraisal_parts_${UPDATE_DATE} > ${DATAD}/LV3/${APPR_NO}_appraisal_parts_${UPDATE_DATE}
 
 #######################################
 #仮登録セットリストを削除

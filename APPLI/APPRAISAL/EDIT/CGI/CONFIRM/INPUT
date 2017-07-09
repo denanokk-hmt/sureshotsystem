@@ -2,7 +2,7 @@
 #
 
 ########################################
-#	CUSTOMER NEW CONFIRM.CGI
+#	CUSTOMER EDIT CONFIRM.CGI
 #
 #   Arg
 #       $1:$$
@@ -35,28 +35,32 @@ FIN
 
 #######################################
 #フォーム入力値を取得
-TEMP_NO=$(cat $tmp-get | cut -d'&' -f1 | sed s/TEMP_NO=// )
+APPRAISAL_NO=$(cat $tmp-get | cut -d'&' -f1 | sed s/APPRAISAL_NO=// )
 
 ########################################
-#仮登録Dir
+#査定済のファイルの仮ファイル作成する
+TEMP_NO=$(cat $(ls ${DATAD}/LV3/${APPRAISAL_NO}_appraisal_customer_*) | cut -d' ' -f2) 
+
+########################################
+#仮登録Dir :/TMP/{stuffid}/APPRAISAL/
 TEMPD=${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/APPRAISAL/${TEMP_NO}
 
-########################################
-#Customerを取得
-CUSTOMER_NO=$(cat ${TEMPD}/customer | cut -d' ' -f1)
-CUSTOMER_NM=$(cat ${TEMPD}/customer | cut -d' ' -f2)
-CUSTOMER_PH=$(cat ${TEMPD}/customer | cut -d' ' -f3)
+#######################################
+#顧客情報を取得
+CUSTOMER_NO=$(cat ${TEMPD}/customer | cut -d' ' -f3)
+CUSTOMER_NM=$(cat ${TEMPD}/customer | cut -d' ' -f4)
+CUSTOMER_PH=$(cat ${TEMPD}/customer | cut -d' ' -f5)
 
 #######################################
 #TEMP_NOが取得出来なかった場合-->異常
-if [ -z ${TEMP_NO} ]; then
+if [ -z ${APPRAISAL_NO} ]; then
   #CUSTOMER INPUTへ戻す
-  REDIRECT_FORCE="/APP/APPRAISAL/NEW/CUSTOMER/INPUT"
+  REDIRECT_FORCE="/APP/APPRAISAL/LIST/SHOW"
 else
   #ヘッダーインフォ設定
-  INFO_MSG="見積内容を確認してください。"    
+  INFO_MSG="見積番号 : ${APPRAISAL_NO}"
   APPRAISAL_INFO="査定番号 : "${TEMP_NO}  
-  CUSTOMER_INFO="お客様 : "`echo ${CUSTOMER_NO} / ${CUSTOMER_NM} / ${CUSTOMER_PH}`
+  CUSTOMER_INFO="お客様 : "`echo ${CUSTOMER_NO}  ${CUSTOMER_NM}`
 fi
 
 ########################################
@@ -120,12 +124,13 @@ sed -e "s|###REDIRECT_FORCE###|${REDIRECT_FORCE}|"                    |
 sed -e "s|###INFO_MSG###|${INFO_MSG}|"                                |
 sed -e "s/###APPRAISAL_INFO###/${APPRAISAL_INFO}/"                    |
 sed -e "s|###CUSTOMER_INFO###|${CUSTOMER_INFO}|"                      |
+sed -e "s/###APPRAISAL_NO###/${APPRAISAL_NO}/"                        |
 sed -e "s|###TEMP_NO###|${TEMP_NO}|g"                                 |
 sed -e "s|###TABLE###|${TABLE}|g"                                     > $tmp-html
 
 ########################################
 #page name
-echo "Appraisal Confirm" > $tmp-pagename
+echo "Appraisal edit confirm" > $tmp-pagename
 
 ###############################################################################
 #ending
