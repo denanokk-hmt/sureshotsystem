@@ -21,6 +21,7 @@ CATEGORY=`cat $tmp-category`
 FUNC=`cat $tmp-func`
 ACTION=`cat $tmp-action`
 SUBACTION=`cat $tmp-sub-action`
+DATAD=${SYSD}/DATA/${CATEGORY}/LISTS
 
 ########################################
 #Check error
@@ -34,13 +35,13 @@ FIN
 	exit 1
 }
 
-########################################
-#第二引数を取得
-#ASS=${2:-0}
-
 #######################################
 #フォーム入力値を取得
-TEMP_NO=$(cat $tmp-get | cut -d'&' -f1 | sed s/TEMP_NO=// )
+APPRAISAL_NO=$(cat $tmp-get | cut -d'&' -f1 | sed s/APPRAISAL_NO=// )
+
+########################################
+#査定済のファイルの仮ファイル作成する
+TEMP_NO=$(cat $(ls ${DATAD}/LV3/${APPRAISAL_NO}_appraisal_customer_*) | cut -d' ' -f2) 
 
 ########################################
 #仮登録Dir :/TMP/{stuffid}/APPRAISAL/
@@ -48,17 +49,17 @@ TEMPD=${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id
 
 #######################################
 #顧客情報を取得
-CUSTOMER_NO=$(cat ${TEMPD}/customer | cut -d' ' -f1)
-CUSTOMER_NM=$(cat ${TEMPD}/customer | cut -d' ' -f2)
+CUSTOMER_NO=$(cat ${TEMPD}/customer | cut -d' ' -f3)
+CUSTOMER_NM=$(cat ${TEMPD}/customer | cut -d' ' -f4)
 
 #######################################
 #TEMP_NOが取得出来なかった場合-->異常
-if [ -z ${TEMP_NO} ]; then
+if [ -z ${APPRAISAL_NO} ]; then
   #CUSTOMER INPUTへ戻す
-  REDIRECT_FORCE="/APP/APPRAISAL/NEW/CUSTOMER/INPUT"
+  REDIRECT_FORCE="/APP/APPRAISAL/LIST/SHOW"
 else
   #ヘッダーインフォ設定
-  INFO_MSG="部品を登録してください。"    
+  INFO_MSG="見積番号 : ${APPRAISAL_NO}"
   APPRAISAL_INFO="査定番号 : "${TEMP_NO}  
   CUSTOMER_INFO="お客様 : "`echo ${CUSTOMER_NO}  ${CUSTOMER_NM}`
 fi
@@ -84,10 +85,12 @@ CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-list`
 CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-new`
 
 #######################################
-#仮登録部品情報を取得
-cat ${TEMPD}/parts   |
-juni                 > $tmp-juni
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/RECORDS.HTML $tmp-juni  > $tmp-records
+#登録部品情報を取得
+if [ -n "$(cat ${TEMPD}/parts)" ]; then
+  cat ${TEMPD}/parts   |
+  juni                 > $tmp-juni
+  mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}/RECORDS.HTML $tmp-juni  > $tmp-records
+fi
 
 ########################################
 # 改行文字を「\\n」という3文字の文字列に置換
@@ -110,6 +113,7 @@ sed -e "s|###REDIRECT_FORCE###|${REDIRECT_FORCE}|"                      |
 sed -e "s|###INFO_MSG###|${INFO_MSG}|"                                  |
 sed -e "s/###APPRAISAL_INFO###/${APPRAISAL_INFO}/"                      |
 sed -e "s/###CUSTOMER_INFO###/${CUSTOMER_INFO}/"                        |
+sed -e "s/###APPRAISAL_NO###/${APPRAISAL_NO}/"                          |
 sed -e "s|###TEMP_NO###|${TEMP_NO}|"                                    |
 sed -e "s|###CUSTOMER_NM###|${CUSTOMER_NM}|"                            |
 sed -e "s|###PARTS_CATEGORY###|${PARTS_CATEGORY}|"                      |
@@ -117,7 +121,7 @@ sed -e "s|###TABLE###|${TABLE}|g"                                       > $tmp-h
 
 #########################################
 #page name
-echo "査定-部品登録" > $tmp-pagename
+echo "Appraisal parts edit" > $tmp-pagename
 
 ########################################
 ##ending

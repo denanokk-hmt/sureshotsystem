@@ -117,7 +117,7 @@ sed -e "s|###TABLE###|${TABLE}|g"                                       > $tmp-h
 
 #########################################
 #page name
-echo "査定-部品登録" > $tmp-pagename
+echo "Appraisal parts entry" > $tmp-pagename
 
 ########################################
 ##ending
