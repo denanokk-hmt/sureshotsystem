@@ -79,6 +79,8 @@ STUFF_SESS_ID='sureshot_stuff_session_id'    #社員用ログインセッショ�
 
 #ログインセッションを確認
 SESS_STATUS=`${SYSD}/CGI/SESSION/SESSION_CHECK ${STUFF_SESS_ID} `
+
+#ログイン状態によってサイドスライダーのログインアウトの表示を変更
 case $SESS_STATUS in
     live)
         echo "hidden" > $tmp-side-signin
