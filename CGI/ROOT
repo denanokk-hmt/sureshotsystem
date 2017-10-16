@@ -31,7 +31,6 @@ FIN
 
 ########################################
 #Get Parameters
-METHOD=$REQUEST_METHOD
 case $REQUEST_METHOD in
 GET)
     if [ ! -z $QUERY_STRING ]; then
@@ -39,7 +38,7 @@ GET)
     else
         touch $tmp-get
     fi
-	echo "GET" > $tmp-rest
+	  echo "GET" > $tmp-rest
     ;;
 POST)
     if [ ! -z $CONTENT_LENGTH ]; then
@@ -48,23 +47,31 @@ POST)
     else
 	    touch $tmp-post
     fi
-	#PUT,DELETEは、残念ながらSHELLでは、GET扱い
-	#よって、POSTで対応し、パラメーターに仕込む
-	
-	#RESTを取得
-	nameread REST $tmp-post	|	awk '{gsub(/^\_$/,"",$1);print}' > $tmp-rest
+  
+    #PUT,DELETEは、残念ながらSHELLでは、GET扱い
+	  #よって、POSTで対応し、パラメーターに仕込む
+	  #RESTを取得
+	  REST=$(nameread REST $tmp-post	|	awk '{gsub(/^\_$/,"",$1);print}')
     ;;
 esac
 
 #######################################
 #ルーティング要素の取得
 #URLを分解し、カテゴリと処理とアクションを取得する
-ARR=( `echo $REQUEST_URI | tr -s '/' ' '`)
+ARR=( `echo $REQUEST_URI | cut -d'?' -f1 | tr -s '/' ' '`)
 APP=${ARR[0]}
 CATEGORY=${ARR[1]}
 FUNC=${ARR[2]}
-ACTION=$(echo ${ARR[3]} | cut -d'?' -f1)
-SUB_ACTION=$(echo ${ARR[4]} | cut -d'?' -f1)
+case $REQUEST_METHOD in
+GET)
+  #GETの場合、最初のパラメーターは必ずactionであることが前提
+  ACTION=$(echo $QUERY_STRING | cut -d'&' -f1 | sed -e 's/^.*\(INPUT\=[0-9]*\).*$/\1/' | sed -e 's/action\=//')
+  ;;
+POST)
+	ACTION=$(nameread ACTION $tmp-post	|	awk '{gsub(/^\_$/,"",$1);print}')
+  SUB_ACTION=$(echo ${ARR[4]} | cut -d'?' -f1)
+  ;;
+esac
 
 ARR_COUNT=${#ARR[*]}
 echo $APP > $tmp-uri_ap
@@ -72,6 +79,7 @@ echo $CATEGORY > $tmp-category
 echo $FUNC > $tmp-func
 echo $ACTION > $tmp-action
 echo $SUB_ACTION > $tmp-sub-action
+echo $REST > $tmp-rest
 
 ########################################
 #ログインセッションの確認と設定
