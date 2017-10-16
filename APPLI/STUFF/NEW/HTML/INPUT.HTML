@@ -26,7 +26,9 @@
     <br> 
 
     <!--INPUT-->
-    <form action="/APP/STUFF/NEW/CONFIRM" method="POST">
+    <form action="/APP/STUFF/NEW" method="POST">
+	      <input type="hidden" name="ACTION" value="CONFIRM" />
+	      <input type="hidden" name="REST" value="POST" />
         <div class="row">
             <div class="col-md-1 hidden-xs">
                 <label class="control-label ###FAMILY_NAME_LBL_COLOR###">
@@ -113,8 +115,6 @@
                 </div>
             </div>
         </div>
-
-	    <input type="hidden" name="STATUS" value="INPUT" />
 
     </form>
     </div>

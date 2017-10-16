@@ -38,6 +38,7 @@ GET)
     else
         touch $tmp-get
     fi
+	  #RESTを取得
 	  echo "GET" > $tmp-rest
     ;;
 POST)
@@ -48,9 +49,9 @@ POST)
 	    touch $tmp-post
     fi
   
+	  #RESTを取得
     #PUT,DELETEは、残念ながらSHELLでは、GET扱い
 	  #よって、POSTで対応し、パラメーターに仕込む
-	  #RESTを取得
 	  REST=$(nameread REST $tmp-post	|	awk '{gsub(/^\_$/,"",$1);print}')
     ;;
 esac
@@ -65,7 +66,7 @@ FUNC=${ARR[2]}
 case $REQUEST_METHOD in
 GET)
   #GETの場合、最初のパラメーターは必ずactionであることが前提
-  ACTION=$(echo $QUERY_STRING | cut -d'&' -f1 | sed -e 's/^.*\(INPUT\=[0-9]*\).*$/\1/' | sed -e 's/action\=//')
+  ACTION=$(echo $QUERY_STRING | cut -d'&' -f1 | sed -e 's/action\=//')
   ;;
 POST)
 	ACTION=$(nameread ACTION $tmp-post	|	awk '{gsub(/^\_$/,"",$1);print}')
