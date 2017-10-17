@@ -46,7 +46,7 @@ nameread PASSWORD_CONFIRMATION $tmp-post    | awk '{gsub(/^\_$/,"",$1);print}' >
 
 ########################################
 #社員番号を復元
-ID=$(cat ${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/${ENC_ID})
+ID=$(cat ${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/${CATEGORY}/${ENC_ID})
 
 ########################################
 #バリデーション(必須入力確認)

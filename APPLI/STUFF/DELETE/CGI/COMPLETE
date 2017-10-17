@@ -46,8 +46,8 @@ ENC_ID=$(nameread STUFF_ID $tmp-post)
 ######################################
 #INPUT表示時点で作成した暗号化スタッフ番号を取得し、整合性の確認を行う
 #暗号化の一時ファイルは削除
-STUFF_NUM=$(cat ${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/${ENC_ID})
-rm -f ${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/${ENC_ID}
+STUFF_NUM=$(cat ${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/${CATEGORY}/${ENC_ID})
+rm -f ${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/${CATEGORY}/${ENC_ID}
 
 ######################################
 #スタッフIDの整合性が取れない場合、CONFIRM画面に戻す

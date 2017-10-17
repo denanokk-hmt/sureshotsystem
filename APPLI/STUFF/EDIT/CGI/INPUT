@@ -41,7 +41,7 @@ ID=$(cat $tmp-id)
 ENC_ID=$(sha1 $RANDOM$ID)
 #修正するスタッフIDをスタッフIDを暗号化したフィル名に書き込み、
 #サインインしたスタッフIDのTMPディレクトリに配置する
-echo $ID > ${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/${ENC_ID}
+echo $ID > ${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/${CATEGORY}/${ENC_ID}
 
 ########################################
 #Get Own users data
