@@ -20,7 +20,11 @@
         <br>
 
         <!--Contents-->
-        <form action="/APP/STUFF/EDIT/COMPLETE" method="POST">
+        <form action="/APP/STUFF/EDIT" method="POST">
+			    <input type="hidden" name="ACTION" value="COMPLETE" />
+			    <input type="hidden" name="REST" value="PUT" />
+			    <input type="hidden" name="STUFF_ID" value="###STUFF_ID###" />
+			    <input type="hidden" name="ID" value="###ID###" />
 
             <!---->
 	        <div class="row">
@@ -75,9 +79,6 @@
                 <input type="hidden" name="PASSWORD" value="###PASSWORD_VALUE###" />
             </div>
 	        <br />
-
-			<input type="hidden" name="STATUS" value="CONFIRM" />
-			<input type="hidden" name="STUFF_ID" value="###STUFF_ID###" />
 
             <div class="row">
                 <div class="col-md-1 hidden-xs">

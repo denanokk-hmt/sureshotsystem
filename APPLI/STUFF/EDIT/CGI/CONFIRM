@@ -34,8 +34,7 @@ FIN
 
 ########################################
 #暗号化された社員IDを取得(暗号化されフォームに埋め込まれた社員ID)
-nameread STUFF_ID $tmp-post              | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-stuff
-STUFF_ID=$(cat $tmp-stuff)
+ENC_ID=$(nameread STUFF_ID $tmp-post | awk '{gsub(/^\_$/,"",$1);print}')
 
 ########################################
 #フォーム値の設定
@@ -47,7 +46,7 @@ nameread PASSWORD_CONFIRMATION $tmp-post    | awk '{gsub(/^\_$/,"",$1);print}' >
 
 ########################################
 #社員番号を復元
-ID=$(cat ${SYSD}/DATA/${CATEGORY}/TMP/${STUFF_ID})
+ID=$(cat ${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/${ENC_ID})
 
 ########################################
 #バリデーション(必須入力確認)
@@ -62,17 +61,22 @@ cat $tmp-post | awk '$2=="_" && $1=="PASSWORD_CONFIRMATION"{print $1}' > $tmp-ne
 #バリデーション(データ属性)
 #FAMILY NAME length <=2 =>20
 VALID1=$(cat $tmp-value1)
-if [ "${#VALID1}" -lt 2 ] || [ "${#VALID1}" -gt 20 ] ; then
+if [ "${VALID1}" -lt 2 ] || [ "${VALID1}" -gt 20 ] ; then
     echo "legth NG" > $tmp-attr-VALID1
 fi
 #GIVEN NAME length <=2 =>20
 VALID2=$(cat $tmp-value2)
-if [ "${#VALID2}" -lt 2 ] || [ "${#VALID2}" -gt 20 ] ; then
+if [ "${VALID2}" -lt 2 ] || [ "${VALID2}" -gt 20 ] ; then
     echo "legth NG" > $tmp-attr-VALID2
+fi
+#EMAIL is
+VALID3=$(cat $tmp-value3)
+if [ -z "${VALID3}" ] ; then
+    echo "NULL NG" > $tmp-attr-VALID3
 fi
 #PASSWORD length <=8 
 VALID4=$(cat $tmp-value4)
-if [ "${#VALID4}" -lt 8 ] ; then
+if [ "${VALID4}" -lt 8 ] ; then
     echo "legth NG" > $tmp-attr-VALID4
 fi
 #PASSWORD CONFIRMATION =PASSWORD 
@@ -84,10 +88,8 @@ fi
 ########################################
 #バリデーション(EMAIL重複確認)
 #1.社員番号 2.姓 3.名 4.EMAIL 5.TEL 6.作成日時 7.更新日時 8.削除フラグ
-NOW_EMAIL=$(cat ${SYSD}/DATA/STUFF/USERS/LV3/${ID}_* | awk '{print $4}')
-EMAIL=$(cat $tmp-value3)
-if [ "${NOW_EMAIL}" != ${EMAIL} ]; then
-    cat ${SYSD}/DATA/STUFF/USERS/LV3/*_stuff_* | awk '$4=="'"${EMAIL}"'"{print $0}' > $tmp-attr-VALID3
+if [ -n "$(cat ${SYSD}/DATA/STUFF/USERS/LV3/* | awk -v i=${ENC_ID} -v e=${VALID3} '$1!=i&&$4==e{print $4}')" ] ; then
+    echo "${VALID3} is duplicate" > $tmp-attr-VALID3
 fi
 
 ########################################
@@ -111,7 +113,7 @@ else
     VALID31_disp='hidden'
 fi
 #EMAIL Duplicate
-if [ -n "$(cat $tmp-attr-VALID3)" ] ; then
+if [ -n "$(cat $tmp-attr-VALID6)" ] ; then
     VALID32_disp='show'
 else
     VALID32_disp='hidden'
@@ -139,6 +141,7 @@ fi
 
 ########################################
 #アクションの設定
+#バリデーションエラー文言が1文字でもあればNG-->ActionをINPUTに設定
 echo ${VALID1_disp}${VALID2_disp}${VALID31_disp}${VALID32_disp}${VALID4_disp}${VALID5_disp} | awk '{gsub(/hidden/,"",$1);print}' | awk '{print length($1)}' > $tmp-VALID-result
 num=$(cat $tmp-VALID-result)
 if [ $num -gt 0 ]; then
@@ -150,7 +153,9 @@ fi
 ########################################
 #HTMLの設定
 if [ $ACTION = 'INPUT' ] ; then
+    #Validation NG
     cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML           |
+    sed -e "s/###STUFF_ID###/${ENC_ID}/"                                |
     sed -e "s/###FAMILY_NAME_ERR###/${VALID1_disp}/"                    |
     sed -e "s/###GIVEN_NAME_ERR###/${VALID2_disp}/"                     |
     sed -e "s/###EMAIL_ERR###/${VALID31_disp}/"                         |
@@ -161,10 +166,12 @@ if [ $ACTION = 'INPUT' ] ; then
     sed -e "s/###GIVEN_NAME_VALUE###/$(cat $tmp-value2)/"               |
     sed -e "s/###EMAIL_VALUE###/$(cat $tmp-value3)/"                    |
     sed -e "s/###PASSWORD_VALUE###/NOT_CHANGE/"                         |
-    sed -e "s/###STUFF_ID###/${STUFF_ID}/"                              |
     sed -e "s/###PASSWORD_CONFIRMATION_VALUE###/NOT_CHANGE/"            > $tmp-html
 else
+    #Validation OK
     cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML           |
+    sed -e "s/###STUFF_ID###/${ENC_ID}/"                                |
+    sed -e "s/###ID###/${ID}/"                                          |
     sed -e "s/###FAMILY_NAME_LABEL###/$(cat $tmp-value1)/"              |
     sed -e "s/###GIVEN_NAME_LABEL###/$(cat $tmp-value2)/"               |
     sed -e "s/###EMAIL_LABEL###/$(cat $tmp-value3)/"                    |
@@ -172,16 +179,15 @@ else
     sed -e "s/###FAMILY_NAME_VALUE###/$(cat $tmp-value1)/"              |
     sed -e "s/###GIVEN_NAME_VALUE###/$(cat $tmp-value2)/"               |
     sed -e "s/###EMAIL_VALUE###/$(cat $tmp-value3)/"                    |
-    sed -e "s/###STUFF_ID###/${STUFF_ID}/"                              |
     sed -e "s/###PASSWORD_VALUE###/$(cat $tmp-sha1)/"                   > $tmp-html
 fi
 
 #########################################
 #page name
 if [ $ACTION = 'INPUT' ] ; then
-    echo "Stuff info update update" > $tmp-pagename
+    echo "Stuff edit input" > $tmp-pagename
 else
-    echo "Stuff info update confirm" > $tmp-pagename
+    echo "Stuff edit confirm" > $tmp-pagename
 fi
 
 ###############################################################################

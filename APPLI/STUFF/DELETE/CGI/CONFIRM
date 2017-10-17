@@ -35,10 +35,13 @@ FIN
 ########################################
 #同一社員番号確認用にIDを暗号化し、ファイル保存
 #また、この暗号化したIDをフォームのhiddenタグに適用
-cat $tmp-get | sed -e "s/id\=//" > $tmp-id
+#GETパラメータの順番は、action,idの順番が前提
+cat $tmp-get | awk '{split($0,ary,"&"); print ary[2]}' | sed 's/id\=//' > $tmp-id
 ID=$(cat $tmp-id)
-STUFF_ID=$(sha1 $RANDOM$ID)
-echo $ID > ${SYSD}/DATA/${CATEGORY}/TMP/${STUFF_ID}
+ENC_ID=$(sha1 $RANDOM$ID)
+#修正するスタッフIDをスタッフIDを暗号化したフィル名に書き込み、
+#サインインしたスタッフIDのTMPディレクトリに配置する
+echo $ID > ${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/${ENC_ID}
 
 ########################################
 #スタッフ情報を取得
@@ -59,15 +62,16 @@ DEL_FLAG=${ARR[8]}
 #HTMLの設定
 cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/CONFIRM.HTML     |
 sed -e "s/###MSG###/このスタッフの情報を削除します。/"      |
-sed -e "s/###ID_###/${ID}/"                                 |
+sed -e "s/###ERROR_MSG###//"                                |
+sed -e "s/###STUFF_ID###/${ENC_ID}/"                        |
+sed -e "s/###ID###/${ID}/"                                  |
 sed -e "s/###FAMILY_NAME_###/${FAMILY_NAME}/"               |
 sed -e "s/###GIVEN_NAME_###/${GIVEN_NAME}/"                 |
-sed -e "s/###EMAIL_###/${EMAIL}/"                           |
-sed -e "s/###STUFF_ID###/${STUFF_ID}/"                      > $tmp-html
+sed -e "s/###EMAIL_###/${EMAIL}/"                           > $tmp-html 
 
 #########################################
 #page name
-echo "Stuff info delete confirm" > $tmp-pagename
+echo "Stuff delete confirm" > $tmp-pagename
 
 ########################################
 #ending

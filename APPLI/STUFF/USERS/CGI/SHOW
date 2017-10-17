@@ -58,7 +58,6 @@ VIEW_MAX_PAGES=$( cat $tmp-max-pages )
 ########################################
 #Get querystring
 #GETパラメータの順番は、action,pageの順番が前提
-cat $tmp-get
 QRY_PAGE=$(cat $tmp-get | awk '{split($0,ary,"&"); print ary[2]}' | sed 's/page\=//')
 #QRY_DISP=$(cat $tmp-get | awk '{split($0,ary,"&"); print ary[3]}' | sed 's/disp\=//')
 

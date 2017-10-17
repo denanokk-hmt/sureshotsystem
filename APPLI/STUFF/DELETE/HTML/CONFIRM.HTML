@@ -21,36 +21,40 @@
         <br>
 
         <!--Contents-->
-        <form action="/APP/STUFF/DELETE/COMPLETE" method="POST">
+        <form action="/APP/STUFF/DELETE" method="POST">
+            <input type="hidden" name="ACTION" value="COMPLETE" />
+            <input type="hidden" name="REST" value="DELETE" />
+			      <input type="hidden" name="STUFF_ID" value="###STUFF_ID###" />
+
 
             <!---->
-	        <div class="row">
+	          <div class="row">
                 <div class="col-md-1 hidden-xs">
                     <label class="control-label">
                         <i class="glyphicon ">#</i>
                     </label>
                 </div>
                 <div class="col-md-10 col-xs-11">
-                    <span class="text-info h3">###ID_###</span>
+                    <span class="text-info h3">###ID###</span>
                 </div>
                 <div class="col-md-1 col-xs-1"></div>
-	            <input type="hidden" name="ID" value="###ID_###" />
+	              <input type="hidden" name="ID" value="###ID###" />
             </div>
-	        <br />
+	          <br />
 
-	        <div class="row">
+	          <div class="row">
                 <div class="col-md-1 hidden-xs">
                     <label class="control-label">
                         <i class="glyphicon glyphicon-user"></i>
                     </label>
                 </div>
-                <div class="col-md-10 col-xs-11">
-                    <span class="text-info h3">###FAMILY_NAME_###</span>
-                </div>
+                    <div class="col-md-10 col-xs-11">
+                        <span class="text-info h3">###FAMILY_NAME_###</span>
+                    </div>
                 <div class="col-md-1 col-xs-1"></div>
-	            <input type="hidden" name="FAMILY_NAME" value="###FAMILY_NAME_###" />
+	              <input type="hidden" name="FAMILY_NAME" value="###FAMILY_NAME_###" />
             </div>
-	        <br />
+	          <br />
  
             <div class="row">
                 <div class="col-md-1 hidden-xs">
@@ -59,11 +63,11 @@
                     </label>
                 </div>
                 <div class="col-md-10 col-xs-11">
-	                <span class="text-info h3">###GIVEN_NAME_###</span>
+	                  <span class="text-info h3">###GIVEN_NAME_###</span>
                 </div>
                 <input type="hidden" name="GIVEN_NAME" value="###GIVEN_NAME_###" />
             </div>
-	        <br />
+	          <br />
 
             <div class="row">
                 <div class="col-md-1 hidden-xs">
@@ -72,15 +76,12 @@
                     </label>
                 </div>
                 <div class="col-md-10 col-xs-11">
-	                <span class="text-info h3">###EMAIL_###</span>
+	                  <span class="text-info h3">###EMAIL_###</span>
                 </div>
                 <input type="hidden" name="EMAIL" value="###EMAIL_###" />
             </div>
-	        <br />
+	          <br />
  
-            <input type="hidden" name="METHOD" value="DELETE" />
-			<input type="hidden" name="STUFF_ID" value="###STUFF_ID###" />
-
             <div class="row">
                 <div class="col-md-1 hidden-xs">
                 </div>
@@ -92,7 +93,7 @@
                     </div>
                 </div>
             </div>
-	    </form>
+	      </form>
     </div>
 </div>
 <!--</body>-->

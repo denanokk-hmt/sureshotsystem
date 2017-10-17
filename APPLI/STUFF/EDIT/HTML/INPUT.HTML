@@ -24,7 +24,11 @@
         <br> 
 
         <!--INPUT-->
-        <form action="/APP/STUFF/EDIT/CONFIRM" method="POST">
+        <form action="/APP/STUFF/EDIT" method="POST">
+	    	    <input type="hidden" name="ACTION" value="CONFIRM" />
+	    	    <input type="hidden" name="REST" value="PUT" />
+	    	    <input type="hidden" name="STUFF_ID" value="###STUFF_ID###" />
+            
             <div class="row">
                <div class="col-md-1 hidden-xs">
                     <label class="control-label">
@@ -112,8 +116,6 @@
                 </div>
             </div>
 
-	    	<input type="hidden" name="STATUS" value="INPUT" />
-	    	<input type="hidden" name="STUFF_ID" value="###STUFF_ID###" />
 	    </form>
     </div>
 </div>
