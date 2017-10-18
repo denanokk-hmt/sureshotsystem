@@ -91,7 +91,8 @@ UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'OPERATION_CATEGORY' ${NUM}`
 
 
 ########################################
-#　　作業のデータ操作
+#   作業のデータ操作
+#   変更する作業カテゴリに属している作業をすべて変更先に移動する操作
 ########################################
 
 #該当カテゴリで登録されている作業に対して、
@@ -112,8 +113,7 @@ for file in `find ${OPERATIOND}/LV3/*[^_d] -maxdepth 1 -type f`; do
     #LV1:原始データとして、ファイル追加のみを行う
     destiny=${OPERATIOND}/LV1/${num}_operation_${UPDATE_DATE}
     cat ${OPERATIOND}/LV1/${num}_operation_${update} | 
-    awk -v nm=${NAME} -v ud=${UPDATE_DATE} '{print $1, $2, nm, $4, $5, $6, $7, $8, ud, $10}' > $destiny
-
+    awk -v nm=${NAME} -v ud=${UPDATE_DATE} '{print $1, $2, nm, $4, $5, $6, $7, $8, ud, $10}' > $destinyL
     #LV2:変更されたデータとファイルを入れ替える
     cp -fp ${OPERATIOND}/LV1/${num}_operation_${UPDATE_DATE} ${OPERATIOND}/LV2/${num}_operation_${UPDATE_DATE}
     ls ${OPERATIOND}/LV2/${num}_* | sort -nk1 | head -n 1 > $tmp-delete
@@ -128,7 +128,6 @@ for file in `find ${OPERATIOND}/LV3/*[^_d] -maxdepth 1 -type f`; do
     UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'OPERATION_LIST' ${num}`
     [ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
 done
-
 
 ########################################
 #

@@ -28,7 +28,9 @@
 
     <!--Contents-->
     <div class="header-under-contents">
-        <form class="form-horizontal" action="/APP/OPERATION_CATEGORY/LISTS/SHOW" method="GET">
+        <form class="form-horizontal" action="" method="">
+            <input type="hidden" id="ACTION" name="ACTION" value="COMPLETE" >
+            <input type="hidden" id="REST" name="REST" value="" >
             <div class="contents-table">
                 ###TABLE###
             </div>
@@ -41,11 +43,12 @@
 
     //カテゴリ名新規追加
     function newOperationCategory() {
-        var new_category_name = $('#NEW_OPERATION_CATEGORY_NAME').val();
+        $('#REST').val('POST'); //REST
+        var new_category_name = $('#NEW_OPERATION_CATEGORY_NAME').val(); //MSG用
         var params = $('form').serialize();
-        var jqXHR = $.ajax({
+        jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/OPERATION_CATEGORY/NEW/COMPLETE',
+            url: '/APP/OPERATION_CATEGORY/NEW',
             data: params
         });
         jqXHR.done(function(data) {
@@ -63,18 +66,18 @@
 
     //カテゴリ名変更
     function editOperationCategory(id) {
-
         if (id == 999) {
             alert("更新対象です。");
             return false;
         }
-
         var edit_category_name = $('#OPERATION_CATEGORY_NAME_' + id).val();
         var params = $('form').serialize();
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/OPERATION_CATEGORY/EDIT/COMPLETE',
+            url: '/APP/OPERATION_CATEGORY/EDIT',
             data: {
+                REST: 'PUT',
+                ACTION: 'COMPLETE',
                 OPERATION_CATEGORY_ID: id,
                 OPERATION_CATEGORY_NAME: edit_category_name
             }
@@ -83,8 +86,8 @@
             if (data == 2222) {
                 alert(edit_category_name + "は、既に使われています。");
             } else {
-                alert(edit_category_name + "を変更しました。");
-                $('#info-msg').html(edit_category_name + "を変更しました。");
+                alert('No:' + id + 'を'+ edit_category_name + "に変更しました。");
+                $('#info-msg').html('No:' + id + 'を'+ edit_category_name + "に変更しました。");
             }
         });
         jqXHR.fail(function() {
@@ -94,18 +97,18 @@
 
     //カテゴリ名削除
     function deleteOperationCategory(id) {
-
         if (id == 999) {
             alert("削除対象外です。");
             return false;
         }
-
         var delete_category_name = $('#OPERATION_CATEGORY_NAME_' + id).val();
         var params = $('form').serialize();
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/OPERATION_CATEGORY/DELETE/COMPLETE',
+            url: '/APP/OPERATION_CATEGORY/DELETE',
             data: {
+                REST: 'DELETE',
+                ACTION: 'COMPLETE',
                 OPERATION_CATEGORY_ID: id,
                 OPERATION_CATEGORY_NAME: delete_category_name
             }
@@ -114,9 +117,10 @@
             if (data == 111) {
                 var sel = '#edit-row-' + id;
                 $(sel).remove();
-                $('#info-msg').html(delete_category_name + "を削除しました。");
+                alert('No:' + id + 'の'+ delete_category_name + "を削除しました。");
+                $('#info-msg').html('No:' + id + 'の' + delete_category_name + "を削除しました。");
             } else {
-                $('#info-msg').html(delete_category_name + "を削除出来ませんでした。");
+                $('#info-msg').html('No:' + id + 'の' +  delete_category_name + "を削除出来ませんでした。");
             }
         });
         jqXHR.fail(function() {

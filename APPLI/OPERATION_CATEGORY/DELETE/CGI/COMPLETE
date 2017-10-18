@@ -63,30 +63,30 @@ echo ${NUM}" "${NAME}" "${CREATE_DATE}" "${UPDATE_DATE}" "1 > $tmp-operation-cat
 ########################################
 #データ格納
 #LV1:原始データとして、ファイル追加のみを行う
-$(mv $tmp-operation-category ${DATAD}/LV1/${NUM}_operation_category_${UPDATE_DATE})
+#削除データなのでファイル名の末尾に_dを付ける
+mv $tmp-operation-category ${DATAD}/LV1/${NUM}_operation_category_${UPDATE_DATE}_d
 
-#LV2:変更されたデータとファイルを入れ替える
-cp -ip ${DATAD}/LV1/${NUM}_operation_category_${UPDATE_DATE} ${DATAD}/LV2/${NUM}_operation_category_${UPDATE_DATE}_d
-ls ${DATAD}/LV2/${NUM}_* | sort -nk1 | head -n 1 > $tmp-delete
-rm -f $(cat $tmp-delete)
+#LV2
+#ファイル名の末尾に_dを付ける
+mv $(ls ${DATAD}/LV2/${NUM}*) $(ls ${DATAD}/LV2/${NUM}*)_d
 
-#LV3:LV2のコピー
-cp -ip ${DATAD}/LV2/${NUM}_operation_category_${UPDATE_DATE}_d ${DATAD}/LV3/${NUM}_operation_category_${UPDATE_DATE}_d
-ls ${DATAD}/LV3/${NUM}_* | sort -nk1 | head -n 1 > $tmp-delete
-rm -f $(cat $tmp-delete)
+#LV3
+#ファイル名の末尾に_dを付ける
+mv $(ls ${DATAD}/LV3/${NUM}*) $(ls ${DATAD}/LV3/${NUM}*)_d
 
 ########################################
 #データ操作ロックを解除
 UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'OPERATION_CATEGORY' ${NUM}`
 [ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
 
+########################################
+#   作業のデータ操作
+#   削除する作業カテゴリに属している作業をすべて999に移動する操作
+########################################
 
-########################################
-#　　作業のデータ操作
-########################################
-OPERATIOND=${SYSD}/DATA/OPERATION_LIST/LISTS
 #削除するカテゴリーで登録されている作業に対して、
 # 1.カテゴリを999 未選択、更新日を現在にして999ディレクトリにコピー
+OPERATIOND=${SYSD}/DATA/OPERATION_LIST/LISTS
 for file in `find ${OPERATIOND}/${NUM}/LV3/*[^_d] -maxdepth 1 -type f`; do
 
     #作業番号取得
