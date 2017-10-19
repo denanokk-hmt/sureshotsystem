@@ -3,6 +3,7 @@
 
 <div class="container">
     
+
     <div class="container">
     <div class="fixed gray-trans-over">
 
@@ -20,11 +21,9 @@
 
         <!--Operation Category Filter-->
         <div class="row">
-            <form action="/APP/OPERATION_LIST/LISTS/SHOW" method="GET">    
-
+            <form action="/APP/OPERATION_LIST/LISTS" method="GET">    
                 <div class="form-group">
                     <div class="btn-group">
-                        
                         <!--Operation Category Dropdown list-->
                         <div class="btn-group">
                             <button type="submit" class="btn btn-info dropdown-toggle" data-toggle="dropdown" id="operation_category" aria-expended="false">
@@ -43,16 +42,17 @@
 
                         <!--Search Submit button-->
                         <div class="btn-group">
-                            <button type="submit" class="btn btn-info" />
-                                <span clss="glyphicon glyphicon-eye-open">Search</span>
+                            <button id="Search" type="submit" class="btn btn-info" />
+                                <span class="glyphicon glyphicon-eye-open">Search</span>
                             </button>
                         </div>
                     </div>
 
-                    <input type="hidden" name="CATEGORY_NM_HID_PAGE" id="CATEGORY_NM_HID_PAGE" value="###CATEGORY_NM_PAGE###" class="form-control" />
-                    <input type="hidden" name="CATEGORY_NO_HID_PAGE" id="CATEGORY_NO_HID_PAGE" value="###CATEGORY_NO_PAGE###" class="form-control" />
-                    <input type="hidden" name="SEARCH" id="SEARCH" value="1" class="form-control" />
-                    <input type="hidden" name="page" id="page" value="1" class="form-control" />
+                    <input type="hidden" id="action" name="action" value="SHOW" class="form-control" />
+                    <input type="hidden" id="page" name="page" value="1" class="form-control" />
+                    <input type="hidden" name="search" id="SEARCH" value="0" class="form-control" />
+                    <input type="hidden" name="category-nm" id="CATEGORY_NM_HID_PAGE" value="###CATEGORY_NM_PAGE###" class="form-control" />
+                    <input type="hidden" name="category-no" id="CATEGORY_NO_HID_PAGE" value="###CATEGORY_NO_PAGE###" class="form-control" />
                 </div>
 
                 <!--Spacer-->
@@ -101,6 +101,13 @@
 
         //該当のレコードに選択したカテゴリ番号を設定
         $('#CATEGORY_NO_HID_' + row).val(cat_no);
+
+        //GETパラメーターの検索フラグを設定
+        if (choice == 'ALL') {
+            $('#SEARCH').val(0);
+        } else {
+            $('#SEARCH').val(1);
+        }
     });
 
     //作業追加
