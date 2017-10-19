@@ -48,11 +48,11 @@
                         </div>
                     </div>
 
-                    <input type="hidden" id="action" name="action" value="SHOW" class="form-control" />
-                    <input type="hidden" id="page" name="page" value="1" class="form-control" />
-                    <input type="hidden" name="search" id="SEARCH" value="0" class="form-control" />
-                    <input type="hidden" name="category-nm" id="CATEGORY_NM_HID_PAGE" value="###CATEGORY_NM_PAGE###" class="form-control" />
-                    <input type="hidden" name="category-no" id="CATEGORY_NO_HID_PAGE" value="###CATEGORY_NO_PAGE###" class="form-control" />
+                    <input type="hidden" id="action" name="action" value="SHOW" />
+                    <input type="hidden" id="page" name="page" value="###PAGE###" />
+                    <input type="hidden" id="search" name="search" value="0" />
+                    <input type="hidden" name="category-nm" id="CATEGORY_NM_HID_PAGE" value="###CATEGORY_NM_PAGE###" />
+                    <input type="hidden" name="category-no" id="CATEGORY_NO_HID_PAGE" value="###CATEGORY_NO_PAGE###" />
                 </div>
 
                 <!--Spacer-->
@@ -67,15 +67,21 @@
 
     <!--Contents Records/Pagination-->
     <div class="header-under-contents">
-        <form class="form-inline form-horizontal"  action="/APP/OPERATION_CATEGORY/LISTS/SHOW" method="GET">
+        <form class="form-inline form-horizontal"  action="" method="">
+            <input type="hidden" id="ACTION" name="ACTION" value="COMPLETE" />
+            <input type="hidden" id="REST" name="REST" value="" />
+            <input type="hidden" id="PAGE" name="PAGE" value="###PAGE###" />
+            <input type="hidden" id="SEARCH" name="SEARH" value="0" />
+            <input type="hidden" id="CATEGORY_NM" name="CATEGORY_NM" value="###CATEGORY_NM_PAGE###" />
+            <input type="hidden" id="CATEGORY_NO" name="CATEGORY_NO" value="###CATEGORY_NO_PAGE###" />
             <div class="contents-table">
                 ###TABLE###
             </div>
 
-            <div id="pager" class="pagination-foot">
-                ###PAGER###
-            </div>
         </form>
+       <div id="pager" class="pagination-foot">
+           ###PAGER###
+       </div>
     </div>
 </div>
 
@@ -104,19 +110,26 @@
 
         //GETパラメーターの検索フラグを設定
         if (choice == 'ALL') {
+            $('#search').val(0);
             $('#SEARCH').val(0);
         } else {
+            $('#search').val(1);
             $('#SEARCH').val(1);
         }
+
+        //POST,PUT,DELETEパラメータようにhiddenに値を設定
+        $('#CATEGORY_NM').val(choice);
+        $('#CATEGORY_NO').val(cat_no);
     });
 
     //作業追加
     function newOperation() {
+        $('#REST').val('POST');
         var new_operation_name = $('#NEW_OPERATION_NAME').val();
         var params = $('form').serialize();
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/OPERATION_LIST/NEW/COMPLETE',
+            url: '/APP/OPERATION_LIST/NEW',
             data: params
         });
         jqXHR.done(function(data) {
@@ -145,8 +158,10 @@
         var edit_operation_remarks = $('#OPERATION_REMARKS_' + id).val();
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/OPERATION_LIST/EDIT/COMPLETE',
+            url: '/APP/OPERATION_LIST/EDIT',
             data: {
+                ACTION: 'COMPLETE',
+                REST: 'PUT',
                 PAGE_FILTER: page_filter,
                 CATEGORY_NO_HID_PAGE: page_category_no,
                 EDIT_OPERATION_NO: id,
@@ -175,12 +190,15 @@
 
     //作業削除
     function deleteOperation(id) {
+        $('#REST').val('DELETE');
         var delete_operation_name = $('#OPERATION_NAME_' + id).val();
         var delete_category_nx = $('#CATEGORY_NX_HID_' + id).val();
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/OPERATION_LIST/DELETE/COMPLETE',
+            url: '/APP/OPERATION_LIST/DELETE',
             data: {
+                ACTION: 'COMPLETE',
+                REST: 'DELETE',
                 DELETE_OPERATION_NO: id,
                 DELETE_CATEGORY_NX: delete_category_nx,
             }

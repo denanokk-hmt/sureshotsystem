@@ -37,7 +37,9 @@ FIN
 ########################################
 #GETパラメーターを取得
 #GETパラメーターの順番は、action,page,serach,category-nm,category-no が前提
-QRY_PAGE=$(cat $tmp-get | awk '{split($0,ary,"&"); print ary[2]}' | sed 's/page\=//')
+[ -n "$(cat $tmp-get | grep 'page=')" ] && \
+QRY_PAGE=$(cat $tmp-get | awk '{split($0,ary,"&"); print ary[2]}' | sed 's/page\=//') || \
+QRY_PAGE=1
 [ -n "$(cat $tmp-get | grep 'search=')" ] && \
 SEARCH=$(cat $tmp-get | awk '{split($0,ary,"&"); print ary[3]}') || \
 SEARCH='search=0'
@@ -48,48 +50,18 @@ SEARCH='search=0'
 cat $tmp-get | grep 'search' > $tmp-search
 if [ "${SEARCH}" = 'search=1' ] ; then
     #絞込のカテゴリを取得(urldecode)
-    PAGE_CATEGORY=$(cat $tmp-get | awk '{split($0,ary,"&"); print ary[4]}' | sed 's/category-nm\=//' | ruby -r uri -ne 'print URI.unescape $_')
+    PAGE_CATEGORY_NM=$(cat $tmp-get | awk '{split($0,ary,"&"); print ary[4]}' | sed 's/category-nm\=//' | ruby -r uri -ne 'print URI.unescape $_')
     PAGE_CATEGORY_NO=$(cat $tmp-get | awk '{split($0,ary,"&"); print ary[5]}' | sed 's/category-no\=//')
 fi
 
 #######################################
-#最大表示レコード数設定ファイルの確認
-if [ -e ${SYSD}/SYS/VIEW/${CATEGORY}/${FUNC}/VIEW_MAX_RECORDS ]; then
-    :
-else    
-    mkdir ${SYSD}/SYS/VIEW/${CATEGORY}    
-    mkdir ${SYSD}/SYS/VIEW/${CATEGORY}/${FUNC}
-    cp ${SYSD}/SYS/VIEW/ORG_VIEW_MAX/VIEW_MAX_RECORDS ${SYSD}/SYS/VIEW/${CATEGORY}/${FUNC}/
-    cp ${SYSD}/SYS/VIEW/ORG_VIEW_MAX/VIEW_MAX_PAGES ${SYSD}/SYS/VIEW/${CATEGORY}/${FUNC}/
-fi
+#ページャーを設定
+START_END=`${SYSD}/APPLI/${CATEGORY}/LISTS/CGI/PAGER $1 ${QRY_PAGE} ${SEARCH} ${PAGE_CATEGORY_NM} ${PAGE_CATEGORY_NO}`
 
 #######################################
-#最大表示レコード数
-VIEW_MAX_RECORDS=$(cat ${SYSD}/SYS/VIEW/${CATEGORY}/${FUNC}/VIEW_MAX_RECORDS | awk '{print $2}')
-
-########################################
-#最大表示ページ数
-VIEW_MAX_PAGES=$(cat ${SYSD}/SYS/VIEW/${CATEGORY}/${FUNC}/VIEW_MAX_PAGES | awk '{print $2}')
-
-#Set record start & end
-if [ -z $(echo ${QRY_PAGE}) ] || [ "${QRY_PAGE}" = 1 ]; then
-    SHOW_PAGE=1
-    START=1
-    END=${VIEW_MAX_RECORDS}
-else
-    SHOW_PAGE=${QRY_PAGE}
-    END=$(expr ${QRY_PAGE} \* ${VIEW_MAX_RECORDS} )
-    START=$(expr ${END} - ${VIEW_MAX_RECORDS} + 1 )
-fi
-
-########################################
-#ページャーを設定
-if [ "${PAGE_CATEGORY_NO}" -gt 0 ] ; then
-    RECORDS=$(cat ${DATAD}/${PAGE_CATEGORY_NO}/LV3/*[^_d] | wc -l)
-else
-    RECORDS=$( ls ${DATAD}/*/LV3/*[^_d] | wc -l )
-fi
-RESULT=`${SYSD}/CGI/PAGER $1 "/APP/OPERATION_LIST/LISTS" ${SHOW_PAGE} ${RECORDS} ${VIEW_MAX_RECORDS} ${VIEW_MAX_PAGES} "SHOW" "&"${SEARCH} "&category-nm=${PAGE_CATEGORY}" "&category-no=${PAGE_CATEGORY_NO}"`
+#表示するレコードの開始と終了
+START=$(cat $tmp-rec-start)
+END=$(cat $tmp-rec-end)
 
 ########################################
 #作業カテゴリを取得
@@ -131,14 +103,16 @@ else
     awk -v s=${START} -v e=${END} 'NR>=s&&NR<=e&&$9!=1'     |
     juni                                                    > $tmp-records
 fi
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/RECORDS.HTML $tmp-records > $tmp-table-records
 
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/RECORDS.HTML $tmp-records     > $tmp-table-records
-cat $tmp-table-records                                                                  |
-sed -e "s|###CATEGORY###|${CATEGORY_LIST}|g"                                            > $tmp-table-records2
+########################################
+#登録済レコードに作業カテゴリリストを嵌め込む
+cat $tmp-table-records                                      |
+sed -e "s|###CATEGORY###|${CATEGORY_LIST}|g"                > $tmp-table
 
 ########################################
 # 改行文字を「\\n」という3文字の文字列に置換
-TABLE_RECORDS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-records2`
+TABLE_RECORDS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table`
 
 ########################################
 #tableにrecordsを嵌め込む
@@ -153,9 +127,10 @@ TABLE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-html`
 ########################################
 #tableをはめ込む、ページャーを差し込む
 cat ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/SHOW.HTML          |
-sed -e "s|###CATEGORY_NM_PAGE###|${PAGE_CATEGORY}|g"        |
+sed -e "s|###CATEGORY_NM_PAGE###|${PAGE_CATEGORY_NM}|g"     |
 sed -e "s|###CATEGORY_NO_PAGE###|${PAGE_CATEGORY_NO}|g"     |
 sed -e "s|###CATEGORY###|${CATEGORY_PAGE}|g"                |
+sed -e "s|###PAGE###|${QRY_PAGE}|g"                         |
 sed -e "s|###TABLE###|${TABLE}|g"                           |
 sed -e "s|###INFO_MSG###||g"                                |
 sed -e "s|###PAGER###|$(cat $tmp-pager-html)|g"             > $tmp-html
