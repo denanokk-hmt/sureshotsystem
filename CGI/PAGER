@@ -15,7 +15,9 @@
 #       $8:任意　クエリパラメーター1(&aaa=1)
 #       $9:任意　クエリパラメーター1(&bbb=12)
 #       $10:任意　クエリパラメーター1(&aaa=ABC)
-#       クエリパラメーターは,必須以外3つまでに限定した
+#       $11:任意　クエリパラメーター1(&aaa=ABC)
+#       $12:任意　クエリパラメーター1(&aaa=ABC)
+#       クエリパラメーターは,必須以外5つまでに限定した
 #
 #	Written by hiramatsu
 
@@ -51,6 +53,8 @@ ACTION=${7:-SHOW}
 QRY1=${8:-''}
 QRY2=${9:-''}
 QRY3=${10:-''}
+QRY4=${11:-''}
+QRY5=${12:-''}
 
 ########################################
 #ページ総数をl
@@ -89,14 +93,14 @@ case "${SHOW_PAGE}" in
         PREV_ACTIVE='hidden'
         NEXT_ACTIVE=''
         PREV_URL='#'
-        NEXT_URL="${LINK_URL}?action=${ACTION}&page=$(expr ${SHOW_PAGE} + 1)${QRY1}${QRY2}${QRY3}"
+        NEXT_URL="${LINK_URL}?action=${ACTION}&page=$(expr ${SHOW_PAGE} + 1)${QRY1}${QRY2}${QRY3}${QRY4}${QRY5}"
         echo "min"
         ;;
     #最後(最大)のセットの場合、PREVは有効、NEXTは有効、レコード総数、PREVのURL=前のページ、NEXTのURL=#
     "${LAST_PAGE}")
         PREV_ACTIVE=''
         NEXT_ACTIVE='hidden'
-        PREV_URL="${LINK_URL}?action=${ACTION}&page=$(expr ${SHOW_PAGE} - 1)${QRY1}${QRY2}${QRY3}"
+        PREV_URL="${LINK_URL}?action=${ACTION}&page=$(expr ${SHOW_PAGE} - 1)${QRY1}${QRY2}${QRY3}${QRY4}${QRY5}"
         NEXT_URL='#'
         echo "max"
         ;;
@@ -104,8 +108,8 @@ case "${SHOW_PAGE}" in
     *)
         PREV_ACTIVE=''
         NEXT_ACTIVE=''
-        PREV_URL="${LINK_URL}?action=${ACTION}&page=$(expr ${SHOW_PAGE} - 1)${QRY1}${QRY2}${QRY3}"
-        NEXT_URL="${LINK_URL}?action=${ACTION}&page=$(expr ${SHOW_PAGE} + 1)${QRY1}${QRY2}${QRY3}"
+        PREV_URL="${LINK_URL}?action=${ACTION}&page=$(expr ${SHOW_PAGE} - 1)${QRY1}${QRY2}${QRY3}${QRY4}${QRY5}"
+        NEXT_URL="${LINK_URL}?action=${ACTION}&page=$(expr ${SHOW_PAGE} + 1)${QRY1}${QRY2}${QRY3}${QRY4}${QRY5}"
         echo "middle"
         ;;
 esac
@@ -133,7 +137,7 @@ echo $NEXT_URL | sed -e 's|&|\\&|g' > $tmp-pager-next
 #ページャの開始と終了からシーケンスを作成
 #Set Pagination VALUE
 cat $tmp-pager-seq | 
-awk -v now=$SHOW_PAGE -v url=$(cat $tmp-link-url) -v action=${ACTION} -v query=${QRY1}${QRY2}${QRY3}    \
+awk -v now=$SHOW_PAGE -v url=$(cat $tmp-link-url) -v action=${ACTION} -v query=${QRY1}${QRY2}${QRY3}${QRY4}${QRY5}    \
 '{print $1==now?"active":"-", sprintf("%s/?action=%s&page=%d%s",url,action,$1,query), $1}'           > $tmp-pager-value
 
 ########################################
@@ -156,5 +160,5 @@ echo ${TEXT} > $tmp-pager-text
 
 cat $tmp-pager-text | sed -e 's|&|\\&|g' > $tmp-pager-html
 
-
+########################################
 exit 0
