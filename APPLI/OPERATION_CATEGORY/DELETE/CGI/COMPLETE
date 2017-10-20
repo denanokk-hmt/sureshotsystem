@@ -68,11 +68,11 @@ mv $tmp-operation-category ${DATAD}/LV1/${NUM}_operation_category_${UPDATE_DATE}
 
 #LV2
 #ファイル名の末尾に_dを付ける
-mv $(ls ${DATAD}/LV2/${NUM}*) $(ls ${DATAD}/LV2/${NUM}*)_d
+mv $(ls ${DATAD}/LV2/${NUM}_*) $(ls ${DATAD}/LV2/${NUM}_*)_d
 
 #LV3
 #ファイル名の末尾に_dを付ける
-mv $(ls ${DATAD}/LV3/${NUM}*) $(ls ${DATAD}/LV3/${NUM}*)_d
+mv $(ls ${DATAD}/LV3/${NUM}_*) $(ls ${DATAD}/LV3/${NUM}_*)_d
 
 ########################################
 #データ操作ロックを解除

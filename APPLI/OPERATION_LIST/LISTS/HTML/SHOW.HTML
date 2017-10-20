@@ -147,31 +147,23 @@
 
     //作業変更
     function editOperation(id) {
-        var page_filter = $('#CATEGORY_NM_HID_PAGE').val();
-        var page_category_no = $('#CATEGORY_NO_HID_PAGE').val();
-        var edit_category_no = $('#CATEGORY_NO_HID_' + id).val();
-        var edit_category_nx = $('#CATEGORY_NX_HID_' + id).val();
-        var edit_category_name = $('#CATEGORY_NM_HID_' + id).val();
         var edit_operation_name = $('#OPERATION_NAME_' + id).val();
-        var edit_operation_name_jp = $('#OPERATION_NAME_JP_' + id).val();
-        var edit_operation_price = $('#OPERATION_PRICE_' + id).val();
-        var edit_operation_remarks = $('#OPERATION_REMARKS_' + id).val();
         var jqXHR = $.ajax({
             type: 'POST',
             url: '/APP/OPERATION_LIST/EDIT',
             data: {
                 ACTION: 'COMPLETE',
                 REST: 'PUT',
-                PAGE_FILTER: page_filter,
-                CATEGORY_NO_HID_PAGE: page_category_no,
+                PAGE_CATEGORY_NM: $('#CATEGORY_NM').val(),
+                PAGE_CATEGORY_NO: $('#CATEGORY_NO').val(),
                 EDIT_OPERATION_NO: id,
-                EDIT_OPERATION_CATEGORY_NO: edit_category_no,
-                EDIT_OPERATION_CATEGORY_NX: edit_category_nx,
-                EDIT_OPERATION_CATEGORY_NAME: edit_category_name,
-                EDIT_OPERATION_NAME: edit_operation_name,
-                EDIT_OPERATION_NAME_JP: edit_operation_name_jp,
-                EDIT_OPERATION_PRICE: edit_operation_price,
-                EDIT_OPERATION_REMARKS: edit_operation_remarks
+                EDIT_OPERATION_CATEGORY_NO: $('#CATEGORY_NO_HID_' + id).val(),
+                EDIT_OPERATION_CATEGORY_NX: $('#CATEGORY_NX_HID_' + id).val(),
+                EDIT_OPERATION_CATEGORY_NAME: $('#CATEGORY_NM_HID_' + id).val(),
+                EDIT_OPERATION_NAME: $('#OPERATION_NAME_' + id).val(),
+                EDIT_OPERATION_NAME_JP: $('#OPERATION_NAME_JP_' + id).val(),
+                EDIT_OPERATION_PRICE:$('#OPERATION_PRICE_' + id).val() ,
+                EDIT_OPERATION_REMARKS: $('#OPERATION_REMARKS_' + id).val()
             }
         });
         jqXHR.done(function(data) {
@@ -190,7 +182,6 @@
 
     //作業削除
     function deleteOperation(id) {
-        $('#REST').val('DELETE');
         var delete_operation_name = $('#OPERATION_NAME_' + id).val();
         var delete_category_nx = $('#CATEGORY_NX_HID_' + id).val();
         var jqXHR = $.ajax({
@@ -200,7 +191,7 @@
                 ACTION: 'COMPLETE',
                 REST: 'DELETE',
                 DELETE_OPERATION_NO: id,
-                DELETE_CATEGORY_NX: delete_category_nx,
+                DELETE_CATEGORY_NX: $('#CATEGORY_NX_HID_' + id).val(),
             }
        });
         jqXHR.done(function(data) {
