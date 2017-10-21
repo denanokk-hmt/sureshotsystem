@@ -29,6 +29,8 @@
     <!--Contents-->
     <div class="header-under-contents">
         <form class="form-horizontal" action="/APP/PARTS_CATEGORY/LISTS/SHOW" method="GET">
+            <input type="hidden" id="ACTION" name="ACTION" value="COMPLETE" >
+            <input type="hidden" id="REST" name="REST" value="" >
             <div class="contents-table">
                 ###TABLE###
             </div>
@@ -41,11 +43,12 @@
 
     //カテゴリ名新規追加
     function newPartsCategory() {
+        $('#REST').val('POST'); //REST
         var new_category_name = $('#NEW_PARTS_CATEGORY_NAME').val();
         var params = $('form').serialize();
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/PARTS_CATEGORY/NEW/COMPLETE',
+            url: '/APP/PARTS_CATEGORY/NEW',
             data: params
         });
         jqXHR.done(function(data) {
@@ -63,18 +66,18 @@
 
     //カテゴリ名変更
     function editPartsCategory(id) {
-
         if (id == 999) {
             alert("更新対象です。");
             return false;
         }
-
         var edit_category_name = $('#PARTS_CATEGORY_NAME_' + id).val();
         var params = $('form').serialize();
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/PARTS_CATEGORY/EDIT/COMPLETE',
+            url: '/APP/PARTS_CATEGORY/EDIT',
             data: {
+                REST: 'PUT',
+                ACTION: 'COMPLETE',
                 PARTS_CATEGORY_ID: id,
                 PARTS_CATEGORY_NAME: edit_category_name
             }
@@ -94,18 +97,18 @@
 
     //カテゴリ名削除
     function deletePartsCategory(id) {
-
         if (id == 999) {
             alert("削除対象外です。");
             return false;
         }
-
         var delete_category_name = $('#PARTS_CATEGORY_NAME_' + id).val();
         var params = $('form').serialize();
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/PARTS_CATEGORY/DELETE/COMPLETE',
+            url: '/APP/PARTS_CATEGORY/DELETE',
             data: {
+                REST: 'PUT',
+                ACTION: 'COMPLETE',
                 PARTS_CATEGORY_ID: id,
                 PARTS_CATEGORY_NAME: delete_category_name
             }
