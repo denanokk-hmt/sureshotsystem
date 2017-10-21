@@ -17,9 +17,6 @@
         </tr>
     </thead>
     <tbody>
-        <!--登録済パーツの表示-->
-        ###TABLE_RECORDS###
-
         <!--パーツ新規追加-->
         <tr>
             <td>--</td>
@@ -41,8 +38,8 @@
                             <input type="text" name="CATEGORY_NEW" id="CATEGORY_NEW" value="" class="form-control input-sm" disabled placeholder="部品カテゴリ"/>
                         </div>
                     </div>
-                    <input type="hidden" name="CATEGORY_NEW_HIDDEN" id="CATEGORY_NEW_HIDDEN" value="" class="form-control" />
-                    <input type="hidden" name="CATEGORY_NO_NEW_HIDDEN" id="CATEGORY_NO_NEW_HIDDEN" value="" class="form-control" />
+                    <input type="hidden" name="CATEGORY_NM_HID_NEW" id="CATEGORY_NM_HID_NEW" value="" class="form-control" />
+                    <input type="hidden" name="CATEGORY_NO_HID_NEW" id="CATEGORY_NO_HID_NEW" value="" class="form-control" />
                 </div>
             </td>
             <td>
@@ -61,6 +58,8 @@
                 <a href="" class="btn btn-primary btn-sm" onclick="newParts(); return false;">NEW</a>
             </td>
        </tr>
+       <!--登録済パーツの表示-->
+       ###TABLE_RECORDS###
    </tbody>
 </table>
 

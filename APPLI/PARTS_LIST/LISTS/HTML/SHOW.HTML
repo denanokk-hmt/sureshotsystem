@@ -21,24 +21,22 @@
         <!--Parts Category Filter-->
         <div class="row">
             <form action="/APP/PARTS_LIST/LISTS/SHOW" method="GET">    
-
                 <div class="form-group">
                     <div class="btn-group">
-                        
                         <!--Parts Category Dropdown list-->
                         <div class="btn-group">
                             <button type="submit" class="btn btn-info dropdown-toggle" data-toggle="dropdown" id="parts_category" aria-expended="false">
                                 &nbsp<span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" role="menu" name="PAGE">
-                               <li name="CATEGORY_PAGE">
-                                   <a id="cat-list-0" onclick="categoryChoice(0,this); return false;" >ALL</a>
-                               </li>
-                               ###CATEGORY###
+                                <li name="CATEGORY_PAGE">
+                                    <a class="category-list" id="cat_list_0" >ALL</a>
+                                </li>
+                                ###CATEGORY###
                             </ul>
                         </div>
                         <div class="btn-group">
-                            <input type="text" name="CATEGORY_PAGE" id="CATEGORY_PAGE" value="###CATEGORY_PAGE_HIDDEN###" class="form-control" disabled />
+                            <input type="text" name="CATEGORY_NM_PAGE" id="CATEGORY_NM_PAGE" value="###CATEGORY_NM_PAGE###" class="form-control" disabled />
                         </div>
 
                         <!--Search Submit button-->
@@ -49,10 +47,11 @@
                         </div>
                     </div>
 
-                    <input type="hidden" name="CATEGORY_PAGE_HIDDEN" id="CATEGORY_PAGE_HIDDEN" value="###CATEGORY_PAGE_HIDDEN###" class="form-control" />
-                    <input type="hidden" name="CATEGORY_NO_PAGE_HIDDEN" id="CATEGORY_NO_PAGE_HIDDEN" value="###CATEGORY_NO_PAGE_HIDDEN###" class="form-control" />
-                    <input type="hidden" name="SEARCH" id="SEARCH" value="1" class="form-control" />
-                    <input type="hidden" name="page" id="page" value="1" class="form-control" />
+                    <input type="hidden" id="action" name="action" value="SHOW" />
+                    <input type="hidden" id="page" name="page" value="###PAGE###" />
+                    <input type="hidden" id="search" name="search" value="0" />
+                    <input type="hidden" name="category-nm" id="CATEGORY_NM_HID_PAGE" value="###CATEGORY_NM_PAGE###" />
+                    <input type="hidden" name="category-no" id="CATEGORY_NO_HID_PAGE" value="###CATEGORY_NO_PAGE###" />
                 </div>
 
                 <!--Spacer-->
@@ -67,66 +66,70 @@
 
     <!--Contents Records/Pagination-->
     <div class="header-under-contents">
-        <form class="form-inline form-horizontal"  action="/APP/PARTS_CATEGORY/LISTS/SHOW" method="GET">
+        <form class="form-inline form-horizontal"  action="" method="">
+            <input type="hidden" id="ACTION" name="ACTION" value="COMPLETE" />
+            <input type="hidden" id="REST" name="REST" value="" />
+            <input type="hidden" id="PAGE" name="PAGE" value="###PAGE###" />
+            <input type="hidden" id="SEARCH" name="SEARH" value="0" />
+            <input type="hidden" id="CATEGORY_NM" name="CATEGORY_NM" value="###CATEGORY_NM_PAGE###" />
+            <input type="hidden" id="CATEGORY_NO" name="CATEGORY_NO" value="###CATEGORY_NO_PAGE###" />
+ 
             <div class="contents-table">
                 ###TABLE###
             </div>
 
-            <div id="pager" class="pagination-foot">
-                ###PAGER###
-            </div>
         </form>
+        <div id="pager" class="pagination-foot">
+            ###PAGER###
+        </div>
     </div>
 </div>
 
 <script>
 
-    //カテゴリを選択
-    /* 
-        jQueryバージョン問題により、ajaxで要素追加後にイベント(.on記述も無効)が
-        発火しない事象により、個別のJSへ切り替え
-        →時間のあるときに出来ればリファクタリングしたい点
-        jQuery(function () {
-            $(".dropdown-menu li a").click(function() {
-                console.log($(this).html());
-                $(this).parents('.form-group').find('[name^="CATEGORY_"]').val($(this).html());
-            });
-        });
-    */
-    function categoryChoice(id,obj) {
-
-        //選択したカテゴリ名
-        var e = document.getElementById("cat-list-" + id);
-        var choice = e.innerHTML;
-
-        //親の親(ulタグのnameにParts_noが指定されている、これを取得
-        var pe = obj.parentNode;
-        var ppe = pe.parentNode;
-        var nodes = ppe.attributes;
-        var cat_no = nodes.name.nodeValue;
-
-        //該当のレコードに選択したカテゴリ名を設定
-        var input_text = document.getElementById('CATEGORY_' + cat_no);
-        input_text.value = choice;
-        var input_hidden = document.getElementById('CATEGORY_' + cat_no + '_HIDDEN');
-        input_hidden.value = choice;
-
-        //該当のレコードに選択したカテゴリ番号を設定
-        var input_hidden = document.getElementById('CATEGORY_NO_' + cat_no + '_HIDDEN');
-        input_hidden.value = id;
-    }
-
     $(document).ready(function() {
         $("#pager").sticky({topSpacing:0});
     });
 
+    //カテゴリを選択
+    $(document).on('click', 'a.category-list', function() {
+
+        //選択した部品のidから行を取得する
+        var idname = $(this).attr("id"); 
+        var list_id = idname.split("_");
+        var row = $(this).parent().parent().attr("name");
+        var cat_no = list_id[2];
+        var choice = $(this).text();
+
+        //該当のレコードに選択したカテゴリ名を設定
+        $('#CATEGORY_NM_' + row).val(choice);
+        $('#CATEGORY_NM_HID_' + row).val(choice);
+
+        //該当のレコードに選択したカテゴリ番号を設定
+        $('#CATEGORY_NO_HID_' + row).val(cat_no);
+
+        //GETパラメーターの検索フラグを設定
+        if (choice == 'ALL') {
+            $('#search').val(0);
+            $('#SEARCH').val(0);
+        } else {
+            $('#search').val(1);
+            $('#SEARCH').val(1);
+        }
+
+        //POST,PUT,DELETEパラメータようにhiddenに値を設定
+        $('#CATEGORY_NM').val(choice);
+        $('#CATEGORY_NO').val(cat_no);
+    });
+
     //パーツ追加
     function newParts() {
+        $('#REST').val('POST');
         var new_parts_name = $('#NEW_PARTS_NAME').val();
         var params = $('form').serialize();
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/PARTS_LIST/NEW/COMPLETE',
+            url: '/APP/PARTS_LIST/NEW',
             data: params
         });
         jqXHR.done(function(data) {
