@@ -16,7 +16,7 @@ SYSD=$(cd $(dirname $0) && pwd | awk '{print substr($0, 0, index($0, "sureshotsy
 #exec 2> ${SYSD}/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
 tmp=/tmp/tmp_$1
 LANG=ja_JP.UTF-8
-PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
+#PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
 CATEGORY=`cat $tmp-category`
 FUNC=`cat $tmp-func`
 DATAD=${SYSD}/DATA/${CATEGORY}/LISTS
@@ -57,14 +57,16 @@ NEW_NUM=`${SYSD}/CGI/NUMBERS $1 'PARTS_LIST' `
 #######################################
 #フォームの入力値を取得
 cat $tmp-post
-PAGE_FILTER=$(nameread CATEGORY_PAGE_HIDDEN $tmp-post)
-PAGE_CATEGORY_NO=$(nameread CATEGORY_NO_PAGE_HIDDEN $tmp-post)
-VALUE1=$(nameread CATEGORY_NEW_HIDDEN $tmp-post)        #パーツカテゴリ名
+QRY_PAGE=$(nameread PAGE $tmp-post)
+SEARCH=$(nameread PAGE $tmp-post)
+PAGE_CATEGORY_NM=$(nameread CATEGORY_NM $tmp-post)
+PAGE_CATEGORY_NO=$(nameread CATEGORY_NO $tmp-post)
+VALUE1=$(nameread CATEGORY_NM_HID_NEW $tmp-post)        #パーツカテゴリ名
 VALUE2=$(nameread NEW_PARTS_NAME $tmp-post)             #パーツ名(EN)
 VALUE3=$(nameread NEW_PARTS_PRICE $tmp-post)            #プライス
 
 #新規追加
-VALUE4=$(nameread CATEGORY_NO_NEW_HIDDEN $tmp-post)     #パーツカテゴリ番号
+VALUE4=$(nameread CATEGORY_NO_HID_NEW $tmp-post)     #パーツカテゴリ番号
 VALUE5=$(nameread NEW_PARTS_NAME_JP $tmp-post)          #パーツ名(JP)
 VALUE6=$(nameread NEW_PARTS_REMARKS $tmp-post)          #備考
 
@@ -95,6 +97,15 @@ cat ${DATAD}/${VALUE4}/LV1/${NEW_NUM}_parts_${CREATE_DATE} > ${DATAD}/${VALUE4}/
 #LV3
 cat ${DATAD}/${VALUE4}/LV2/${NEW_NUM}_parts_${CREATE_DATE} > ${DATAD}/${VALUE4}/LV3/${NEW_NUM}_parts_${CREATE_DATE}
 
+#######################################
+#ページャーを設定
+START_END=`${SYSD}/APPLI/${CATEGORY}/LISTS/CGI/PAGER $1 ${QRY_PAGE} ${SEARCH} ${PAGE_CATEGORY_NM} ${PAGE_CATEGORY_NO}`
+
+#######################################
+#表示するレコードの開始と終了
+START=$(cat $tmp-rec-start)
+END=$(cat $tmp-rec-end)
+
 ########################################
 #パーツカテゴリを取得
 cat ${SYSD}/DATA/PARTS_CATEGORY/LISTS/LV3/*[^_d]    |
@@ -123,14 +134,17 @@ CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-new`
 
 ########################################
 #パーツリストを取得
+[ -z "${PAGE_CATEGORY_NO}" ] && ${PAGE_CATEGORY_NO}=0 || :
 if [ "${PAGE_CATEGORY_NO}" -gt 0 ] ; then
-    cat ${DATAD}/${PAGE_CATEGORY_NO}*[^_d]/LV3/*[^_d]   |
-    LANG=C sort -nk1,1                                  |
-    juni                                                > $tmp-records
+    cat ${DATAD}/${PAGE_CATEGORY_NO}*[^_d]/LV3/*[^_d]       |
+    LANG=C sort -nk1,1                                      |
+    awk -v s=${START} -v e=${END} 'NR>=s&&NR<=e&&$9!=1'     |
+    juni                                                    > $tmp-records
 else
-    cat ${DATAD}/*[^_d]/LV3/*[^_d]                      |
-    LANG=C sort -nk1,1                                  |
-    juni                                                > $tmp-records
+    cat ${DATAD}/*[^_d]/LV3/*[^_d]                          |
+    LANG=C sort -nk1,1                                      |
+    awk -v s=${START} -v e=${END} 'NR>=s&&NR<=e&&$9!=1'     |
+    juni                                                    > $tmp-records
 fi
 #
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/RECORDS.HTML $tmp-records > $tmp-table-records
@@ -138,7 +152,7 @@ mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/RECORDS.HTML $tmp-record
 ########################################
 #登録済レコードにパーツカテゴリリストを嵌め込む
 cat $tmp-table-records                                      |
-sed -e "s|###CATEGORY###|${CATEGORY_LIST}|g"   > $tmp-table
+sed -e "s|###CATEGORY###|${CATEGORY_LIST}|g"                > $tmp-table
 
 ########################################
 # 改行文字を「\\n」という3文字の文字列に置換

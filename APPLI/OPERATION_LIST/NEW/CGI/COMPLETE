@@ -147,7 +147,6 @@ else
     awk -v s=${START} -v e=${END} 'NR>=s&&NR<=e&&$9!=1'     |
     juni                                                    > $tmp-records
 fi
-cat $tmp-records > /tmp/vvvvvvvvv
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/RECORDS.HTML $tmp-records > $tmp-table-records
 
 ########################################
