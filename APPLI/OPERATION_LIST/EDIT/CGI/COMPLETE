@@ -82,33 +82,25 @@ echo ${NUM}" "${VALUE4}" "${VALUE1}" "${VALUE2}" "${VALUE5}" "${VALUE3}" "${VALU
 ########################################
 #データ格納
 #LV1:原始データとして、ファイル追加のみを行う
-$(mv $tmp-operation ${DATAD}/${VALUE4}/LV1/${NUM}_operation_${UPDATE_DATE})
+mv $tmp-operation ${DATAD}/${VALUE4}/LV1/${NUM}_operation_${UPDATE_DATE}
 
-#LV2:変更されたデータとファイルを入れ替える
-cp -fp ${DATAD}/${VALUE4}/LV1/${NUM}_operation_${UPDATE_DATE} ${DATAD}/${VALUE4}/LV2/${NUM}_operation_${UPDATE_DATE}
+#カテゴリを変更した場合
+if [ "${VALUE4}" != "${VALUE7}" ]; then
+    #旧カテゴリにあるLV1のパーツを論理削除
+    ls ${DATAD}/${VALUE7}/LV1/${NUM}_operation_* | sort -nk1 | tail -n 1 > $tmp-delete-lv1
+    cp $(cat $tmp-delete-lv1) ${DATAD}/${VALUE7}/LV1/${NUM}_operation_${UPDATE_DATE}_d
+    #旧カテゴリにあるLV2、LV3のパーツを論理削除ファイルと入れ替える
+    rm -f ${DATAD}/${VALUE7}/LV2/${NUM}_operation_*
+    cp ${DATAD}/${VALUE7}/LV1/${NUM}_operation_${UPDATE_DATE}_d ${DATAD}/${VALUE7}/LV2/   
+    rm -f ${DATAD}/${VALUE7}/LV3/${NUM}_operation_*
+    cp ${DATAD}/${VALUE7}/LV2/${NUM}_operation_* ${DATAD}/${VALUE7}/LV3/   
+fi
 
-#LV3:LV2のコピー
-cp -fp ${DATAD}/${VALUE4}/LV2/${NUM}_operation_${UPDATE_DATE} ${DATAD}/${VALUE4}/LV3/${NUM}_operation_${UPDATE_DATE}
-
-########################################
-#カテゴリ変更した場合、既存カテゴリDirにあるレコードを削除処理
-#1.作業番号 2.作業カテゴリ番号 3.作業カテゴリ名 4.作業名(EN) 5.作業名(JP) 6.価格 7.備考 8.作成日時 9.更新日時 10.削除フラグ=1
-echo ${NUM}" "${VALUE4}" "${VALUE1}" "${VALUE2}" "${VALUE5}" "${VALUE3}" "${VALUE6}" "${CREATE_DATE}" "${UPDATE_DATE}" "1 > $tmp-operation-delete
-
-########################################
-#データ格納
-#LV1:原始データとして、ファイル追加のみを行う
-$(mv $tmp-operation-delete ${DATAD}/${VALUE7}/LV1/${NUM}_operation_${UPDATE_DATE})
-
-#LV2:変更されたデータとファイルを入れ替える
-cp -ip ${DATAD}/${VALUE7}/LV1/${NUM}_operation_${UPDATE_DATE} ${DATAD}/${VALUE7}/LV2/${NUM}_operation_${UPDATE_DATE}_d
-ls ${DATAD}/${VALUE7}/LV2/${NUM}_* | sort -nk1 | head -n 1 > $tmp-delete
-rm -f $(cat $tmp-delete)
-
-#LV3:LV2のコピー
-cp -ip ${DATAD}/${VALUE7}/LV2/${NUM}_operation_${UPDATE_DATE}_d ${DATAD}/${VALUE7}/LV3/${NUM}_operation_${UPDATE_DATE}_d
-ls ${DATAD}/${VALUE7}/LV3/${NUM}_* | sort -nk1 | head -n 1 > $tmp-delete
-rm -f $(cat $tmp-delete)
+#LV3:LV2を更新ファイルと入れ替え
+rm -f ${DATAD}/${VALUE4}/LV2/${NUM}_operation_*
+cp -fp ${DATAD}/${VALUE4}/LV1/${NUM}_operation_${UPDATE_DATE} ${DATAD}/${VALUE4}/LV2/
+rm -f ${DATAD}/${VALUE4}/LV3/${NUM}_operation_*
+cp -fp ${DATAD}/${VALUE4}/LV2/${NUM}_operation_${UPDATE_DATE} ${DATAD}/${VALUE4}/LV3/
 
 ########################################
 #データ操作ロックを解除
