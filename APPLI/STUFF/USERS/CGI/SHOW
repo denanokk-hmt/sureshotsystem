@@ -59,7 +59,6 @@ VIEW_MAX_PAGES=$( cat $tmp-max-pages )
 #Get querystring
 #GETパラメータの順番は、action,pageの順番が前提
 QRY_PAGE=$(cat $tmp-get | awk '{split($0,ary,"&"); print ary[2]}' | sed 's/page\=//')
-#QRY_DISP=$(cat $tmp-get | awk '{split($0,ary,"&"); print ary[3]}' | sed 's/disp\=//')
 
 ########################################
 #Set record start & end
@@ -75,7 +74,8 @@ fi
 
 ########################################
 #Get stuff records
-cat ${SYSD}/DATA/${CATEGORY}/USERS/LV3/*[^_d]       |
+#dレコードとSystemユーザーは非表示
+cat ${SYSD}/DATA/${CATEGORY}/USERS/LV3/[^0]*[^_d]   |
 LANG=C sort -nk1,1                                  |
 awk -v s=${START} -v e=${END} 'NR>=s&&NR<=e&&$9!=1' |
 juni                                                > $tmp-records

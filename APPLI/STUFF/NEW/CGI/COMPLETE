@@ -51,12 +51,15 @@ STUFF_NUM=`${SYSD}/CGI/NUMBERS $1 'STUFF' `
 
 #######################################
 #Get Form Data
-VALUE1=$(nameread FAMILY_NAME $tmp-post)
-VALUE2=$(nameread GIVEN_NAME $tmp-post)
-VALUE3=$(nameread EMAIL $tmp-post)
-VALUE4=$(nameread PASSWORD $tmp-post)
-#VALUE5=$(nameread ADMIN_FLAG $tmp-post)
-VALUE5=0
+FAMILY_NAME=$(nameread FAMILY_NAME $tmp-post)
+GIVEN_NAME=$(nameread GIVEN_NAME $tmp-post)
+EMAIL=$(nameread EMAIL $tmp-post)
+PASSWORD=$(nameread PASSWORD $tmp-post)
+TEL1=$(nameread TEL1 $tmp-post)
+TEL2=$(nameread TEL2 $tmp-post)
+ADMIN_FLG=$(nameread ADMIN_VAL $tmp-post)
+[ "${ADMIN_FLG}" = "1" ] && ADMIN="管理者権限あり" || ADMIN='管理者権限なし'
+DEL_FLG=0
 
 ########################################
 #Set DATE
@@ -64,52 +67,71 @@ CREATE_DATE=$(date +%Y%m%d%H%M%S)
 UPDATE_DATE=$CREATE_DATE
 
 ########################################
-#Write login to tempolary file
+#更新者の取得
+CREATE_USER=$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
+UPDATE_USER=${CREATE_USER}
+
+########################################
+#       ログインデータ　
+########################################
+
+########################################
+#一時ファイルに書き込み
 #1.社員番号 3.EMAIL 2.PW 3.作成日時 4.更新日時 5.ADMINフラグ 6.削除フラグ
-echo ${STUFF_NUM}" "${VALUE3}" "${VALUE4}" "${CREATE_DATE}" "${UPDATE_DATE}" "${VALUE5}" "0 > $tmp-login
+echo ${STUFF_NUM} ${EMAIL} ${PASSWORD} ${CREATE_DATE} ${UPDATE_DATE} ${VALUE5} ${CREATE_USER} ${UPADTE_USER} > $tmp-login
 
 ########################################
-#Write data to tempolary file
-#1.社員番号 2.姓 3.名 4.EMAIL 5.TEL 6.作成日時 7.更新日時 8.ADMINフラグ 9.削除フラグ
-echo ${STUFF_NUM}" "${VALUE1}" "${VALUE2}" "${VALUE3}" - "${CREATE_DATE}" "${UPDATE_DATE}" "${VALUE5}" "0 > $tmp-stuff
-
-########################################
-#Data Saving for LOGIN
+#データ配置
 #LV1
-$(mv $tmp-login ${LOGIND}/LV1/${STUFF_NUM}_login_${CREATE_DATE})
+mv $tmp-login ${LOGIND}/LV1/${STUFF_NUM}_login_${CREATE_DATE}
 #LV2
 cat ${LOGIND}/LV1/${STUFF_NUM}_login_${CREATE_DATE}  > ${LOGIND}/LV2/${STUFF_NUM}_login_${CREATE_DATE}
 #LV3(LV2と同じ)
 cp -ip ${LOGIND}/LV2/${STUFF_NUM}_login_${CREATE_DATE} ${LOGIND}/LV3/${STUFF_NUM}_login_${CREATE_DATE}
 
+
 ########################################
-#Data Saving for STUFF
+#       スタッフデータ　
+########################################
+
+########################################
+#一時ファイルに書き込み
+#stuff_id	family_name	given_name	account_id	tel1	tel2	create_date	update_date	create_user	update_user	admin_flg	del_flg
+echo ${STUFF_NUM} ${FAMILY_NAME} ${GIVEN_NAME} ${EMAIL} ${TEL1} ${TEL2} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} ${ADMIN_FLG} ${DEL_FLG} > $tmp-stuff
+
+########################################
+#データ配置
 #LV1
-$(mv $tmp-stuff ${USERSD}/LV1/${STUFF_NUM}_stuff_${CREATE_DATE})
+#stuff_id	family_name	given_name	account_id	tel1	tel2	create_date	update_date	create_user	update_user	admin_flg	del_flg
+mv $tmp-stuff ${USERSD}/LV1/${STUFF_NUM}_stuff_${CREATE_DATE}
 #LV2
-cat ${USERSD}/LV1/${STUFF_NUM}_stuff_${CREATE_DATE} > ${USERSD}/LV2/${STUFF_NUM}_stuff_${CREATE_DATE}
+#stuff_id	family_name	given_name	account_id	tel1	tel2	create_date	update_date	create_user	update_user	admin_flg
+cat ${USERSD}/LV1/${STUFF_NUM}_stuff_${CREATE_DATE} | awk '{$NF=""; print $0}' > ${USERSD}/LV2/${STUFF_NUM}_stuff_${CREATE_DATE}
 #LV3
+#stuff_id	family_name	given_name	account_id	tel1	tel2	create_date	update_date	create_user	update_user	admin_flg	show_each_url	edit_each_url	delete_each_url
 cat ${USERSD}/LV2/${STUFF_NUM}_stuff_${CREATE_DATE} |
-awk '{print sprintf("%d %s %s %s %s %s %s %d %d \
+awk '{print sprintf("%s \
 /APP/STUFF/USERS?action=SHOW&id=%d \
 /APP/STUFF/EDIT?action=INPUT&id=%d \
 /APP/STUFF/DELETE?action=CONFIRM&id=%d"\
-,$1,$2,$3,$4,$5,$6,$7,$8,$9,$1,$1,$1)}'  >   ${USERSD}/LV3/${STUFF_NUM}_stuff_${CREATE_DATE}
+,$0,$1,$1,$1)}'  >   ${USERSD}/LV3/${STUFF_NUM}_stuff_${CREATE_DATE}
 
 ########################################
 #HTMLの設定
 ACTION=`cat $tmp-action`
 cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML   |
-sed -e "s/###FAMILY_NAME_LABEL###/${VALUE1}/"               |
-sed -e "s/###GIVEN_NAME_LABEL###/${VALUE2}/"                |
-sed -e "s/###EMAIL_LABEL###/${VALUE3}/"                     > $tmp-html
+sed -e "s/###FAMILY_NAME_LABEL###/${FAMILY_NAME}/"          |
+sed -e "s/###GIVEN_NAME_LABEL###/${GIVEN_NAME}/"            |
+sed -e "s/###EMAIL_LABEL###/${EMAIL}/"                      |
+sed -e "s/###TEL1_LABEL###/${TEL1}/"                        |
+sed -e "s/###TEL2_LABEL###/${TEL2}/"                        |
+sed -e "s/###ADMIN_LABEL###/${ADMIN}/"                      > $tmp-html
 
 #########################################
 #pege name
-echo "Stuff new entry complete" > $tmp-pagename
+echo "New stuff complete" > $tmp-pagename
 
 ###############################################################################
 #ending
-echo "stuff new user OK"
-#echo $COOK_SET
+echo "OK"
 exit 0

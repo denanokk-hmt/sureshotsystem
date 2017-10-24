@@ -39,6 +39,14 @@ nameread GIVEN_NAME $tmp-post               | awk '{gsub(/^\_$/,"",$1);print}' >
 nameread EMAIL $tmp-post                    | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value3
 nameread PASSWORD $tmp-post                 | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value4
 nameread PASSWORD_CONFIRMATION $tmp-post    | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value5
+nameread TEL1 $tmp-post                     | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value6
+nameread TEL2 $tmp-post                     | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value7
+nameread ADMIN $tmp-post                    | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value8
+
+########################################
+#管理者権限を取得
+[ "$(cat $tmp-value8)" = "1" ] && ADMIN_FLG="checked" || ADMIN_FLG=''
+[ "$(cat $tmp-value8)" = "1" ] && ADMIN="管理者権限あり" || ADMIN='管理者権限なし'
 
 ########################################
 #バリデーション(必須入力確認)
@@ -48,6 +56,7 @@ cat $tmp-post | awk '$2=="_" && $1=="GIVEN_NAME"{print $1}' > $tmp-need-VALID2
 cat $tmp-post | awk '$2=="_" && $1=="EMAIL"{print $1}' > $tmp-need-VALID3
 cat $tmp-post | awk '$2=="_" && $1=="PASSWORD"{print $1}' > $tmp-need-VALID4
 cat $tmp-post | awk '$2=="_" && $1=="PASSWORD_CONFIRMATION"{print $1}' > $tmp-need-VALID5
+cat $tmp-post | awk '$2=="_" && $1=="TEL1"{print $1}' > $tmp-need-VALID6
 
 ########################################
 #バリデーション(データ属性)
@@ -56,20 +65,49 @@ VALID1=$(cat $tmp-value1)
 if [ "${#VALID1}" -lt 2 ] || [ "${#VALID1}" -gt 20 ] ; then
     echo "legth NG" > $tmp-attr-VALID1
 fi
+
 #GIVEN NAME length <=2 =>20
 VALID2=$(cat $tmp-value2)
 if [ "${#VALID2}" -lt 2 ] || [ "${#VALID2}" -gt 20 ] ; then
     echo "legth NG" > $tmp-attr-VALID2
 fi
+
 #PASSWORD length <=8 
 VALID4=$(cat $tmp-value4)
 if [ "${#VALID4}" -lt 8 ] ; then
     echo "legth NG" > $tmp-attr-VALID4
 fi
+
 #PASSWORD CONFIRMATION =PASSWORD 
 VALID5=$(cat $tmp-value5)
 if [ "${VALID5}" != "${VALID4}" ] ; then
     echo "CONFIRMATION NG" > $tmp-attr-VALID5
+fi
+
+#TEL1
+VALID6=$(cat $tmp-value6)
+#ハイフン必須
+echo ${VALID6} | grep '-'
+if [ $? -ne 0 ] ; then
+    echo "no hifun NG" > $tmp-attr-VALID61
+fi
+#ハイフン覗いたら数字のみ
+expr $(echo ${VALID6} | sed 's/-//g') + 1 >/dev/null 2>&1
+if [ $? -eq 2 ] ; then
+    echo "Numeric NG" > $tmp-attr-VALID62
+fi
+
+#TEL2
+VALID7=$(cat $tmp-value7)
+#ハイフン必須
+echo ${VALID7} | grep '-'
+if [ $? -ne 0 ] ; then
+    echo "no hifun NG" > $tmp-attr-VALID71
+fi
+#ハイフン覗いたら数字のみ
+expr $(echo ${VALID7} | sed 's/-//g') + 1 >/dev/null 2>&1
+if [ $? -eq 2 ] ; then
+    echo "Numeric NG" > $tmp-attr-VALID72
 fi
 
 ########################################
@@ -123,6 +161,20 @@ if [ -n "$(cat $tmp-need-VALID5)$(cat $tmp-attr-VALID5)" ] ; then
 else
     VALID5_disp='hidden'
 fi
+#TEL1
+if [ -n "$(cat $tmp-need-VALID6)$(cat $tmp-attr-VALID61)$(cat $tmp-attr-VALID62)" ] ; then
+    VALID6_disp='show'
+    VALID6_lbl_color='label-danger'
+else
+    VALID6_disp='hidden'
+fi
+#TEL2
+if [ -n "$(cat $tmp-need-VALID7)$(cat $tmp-attr-VALID71)$(cat $tmp-attr-VALID72)" ] ; then
+    VALID7_disp='show'
+    VALID7_lbl_color='label-danger'
+else
+    VALID7_disp='hidden'
+fi
 
 ########################################
 #パスワードの暗号化
@@ -130,7 +182,14 @@ echo $(sha1 $(cat $tmp-value4)) > $tmp-sha1
 
 ########################################
 #バリデーションエラーの数をカウント
-echo ${VALID1_disp}${VALID2_disp}${VALID31_disp}${VALID32_disp}${VALID4_disp}${VALID5_disp} | 
+echo ${VALID1_disp}\
+${VALID2_disp}\
+${VALID31_disp}\
+${VALID32_disp}\
+${VALID4_disp}\
+${VALID5_disp}\
+${VALID6_disp}\
+${VALID7_disp} | 
 awk '{gsub(/hidden/,"",$1);print}' | 
 awk '{print length($1)}' > $tmp-VALID-result
 
@@ -141,47 +200,62 @@ awk '{print length($1)}' > $tmp-VALID-result
 ########################################
 #HTMLの設定
 if [ $ACTION = 'INPUT' ] ; then
-	#validation NG
+	#Validation NG
     cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML           |
-    sed -e "s/###INFO_TOP_MSG###/hidden/"                    			|
+    sed -e "s/###INFO_TOP_MSG###/hidden/"                    			      |
     sed -e "s/###FAMILY_NAME_ERR###/${VALID1_disp}/"                    |
     sed -e "s/###FAMILY_NAME_LBL_COLOR###/${VALID1_lbl_color}/"         |
     sed -e "s/###GIVEN_NAME_ERR###/${VALID2_disp}/"                     |
     sed -e "s/###GIVEN_NAME_LBL_COLOR###/${VALID2_lbl_color}/"         	|
     sed -e "s/###EMAIL_ERR###/${VALID31_disp}/"                         |
-    sed -e "s/###EMAIL_LBL_COLOR###/${VALID31_lbl_color}/"         		|
+    sed -e "s/###EMAIL_LBL_COLOR###/${VALID31_lbl_color}/"         		  |
     sed -e "s/###EMAIL_DUPLECATED###/${VALID32_disp}/"                  |
-    sed -e "s/###EMAIL_LBL_COLOR###/${VALID32_lbl_color}/"         		|
+    sed -e "s/###EMAIL_LBL_COLOR###/${VALID32_lbl_color}/"         		  |
     sed -e "s/###PASSWORD_ERR###/${VALID4_disp}/"                       |
-    sed -e "s/###PW_LBL_COLOR###/${VALID4_lbl_color}/"         			|
-    sed -e "s/###PASSWORD_CONFIRMATION_ERR###/${VALID4_disp}/"          |
-    sed -e "s/###PW_CONF_LBL_COLOR###/${VALID5_lbl_color}/"         	|
-    sed -e "s/###FAMILY_NAME_VALUE###/$(cat $tmp-value1)/"              |
-    sed -e "s/###GIVEN_NAME_VALUE###/$(cat $tmp-value2)/"               |
-    sed -e "s/###EMAIL_VALUE###/$(cat $tmp-value3)/"                    |
-    sed -e "s/###PASSWORD_VALUE###/$(cat $tmp-value4)/"                 |
-    sed -e "s/###PASSWORD_CONFIRMATION_VALUE###/$(cat $tmp-value5)/"    > $tmp-html
-else
-	#validation OK
-    cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML           |
-    sed -e "s/###FAMILY_NAME_LABEL###/$(cat $tmp-value1)/"              |
-    sed -e "s/###GIVEN_NAME_LABEL###/$(cat $tmp-value2)/"               |
-    sed -e "s/###EMAIL_LABEL###/$(cat $tmp-value3)/"                    |
-    sed -e "s/###PASSWORD_LABEL###/********/"                           |
-    sed -e "s/###FAMILY_NAME_VALUE###/$(cat $tmp-value1)/"              |
-    sed -e "s/###GIVEN_NAME_VALUE###/$(cat $tmp-value2)/"               |
-    sed -e "s/###EMAIL_VALUE###/$(cat $tmp-value3)/"                    |
-    sed -e "s/###PASSWORD_VALUE###/$(cat $tmp-sha1)/"                   > $tmp-html
-fi
+    sed -e "s/###PW_LBL_COLOR###/${VALID4_lbl_color}/"         			    |
+    sed -e "s/###PASSWORD_CONFIRMATION_ERR###/${VALID5_disp}/"          |
+    sed -e "s/###PW_CONF_LBL_COLOR###/${VALID5_lbl_color}/"         	  |
+    sed -e "s/###TEL1_ERR###/${VALID6_disp}/"                           |
+    sed -e "s/###TEL1_LBL_COLOR###/${VALID6_lbl_color}/"         		    |
+    sed -e "s/###TEL2_ERR###/${VALID7_disp}/"                           |
+    sed -e "s/###TEL2_LBL_COLOR###/${VALID7_lbl_color}/"         		    |
+    sed -e "s/###FAMILY_NAME###/$(cat $tmp-value1)/"                    |
+    sed -e "s/###GIVEN_NAME###/$(cat $tmp-value2)/"                     |
+    sed -e "s/###EMAIL###/$(cat $tmp-value3)/"                          |
+    sed -e "s/###TEL1###/$(cat $tmp-value6)/"                           |
+    sed -e "s/###TEL2###/$(cat $tmp-value7)/"                           |
+    sed -e "s/###PASSWORD###/$(cat $tmp-value4)/"                       |
+    sed -e "s/###PASSWORD_CONFIRMATION###/$(cat $tmp-value5)/"          |
+    sed -e "s/###ADMIN_CHK###/${ADMIN_FLG}/"                            | 
+    sed -e "s/###ADMIN_VAL###/$(cat $tmp-value8)/"                      > $tmp-html
 
-#########################################
-#pege name
-echo "Stuff new entry confirm" > $tmp-pagename
+    #########################################
+    #pege name
+    echo "New stuff input" > $tmp-pagename
+
+else
+	#Validation OK
+    cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML           |
+    sed -e "s/###FAMILY_NAME###/$(cat $tmp-value1)/g"                   |
+    sed -e "s/###GIVEN_NAME###/$(cat $tmp-value2)/g"                    |
+    sed -e "s/###EMAIL###/$(cat $tmp-value3)/g"                         |
+    sed -e "s/###PASSWORD###/********/g"                                |
+    sed -e "s/###GIVEN_NAME###/$(cat $tmp-value2)/g"                    |
+    sed -e "s/###EMAIL###/$(cat $tmp-value3)/g"                         |
+    sed -e "s/###TEL1###/$(cat $tmp-value6)/g"                          |
+    sed -e "s/###TEL2###/$(cat $tmp-value7)/g"                          |
+    sed -e "s/###PASSWORD_VAL###/$(cat $tmp-sha1)/"                     |
+    sed -e "s/###ADMIN###/${ADMIN}/"                                    | 
+    sed -e "s/###ADMIN_VAL###/$(cat $tmp-value8)/"                      > $tmp-html
+
+    #########################################
+    #pege name
+    echo "New stuff confirm" > $tmp-pagename
+fi
 
 ###############################################################################
 #ending
 echo "OK"
 exit 0
-
 
 

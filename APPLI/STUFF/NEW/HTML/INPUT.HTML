@@ -19,6 +19,8 @@
             <span class="label label-danger ###GIVEN_NAME_ERR###">GIVEN NAME was Invalid.</span>
             <span class="label label-danger ###EMAIL_ERR###">EMAIL was Invalid.</span>
             <span class="label label-danger ###EMAIL_DUPLECATED###">Duplicated EMAIL.</span>
+            <span class="label label-danger ###TEL1_ERR###">Tel1 Invailed.</span>
+            <span class="label label-danger ###TEL2_ERR###">Tel2 Invalid.</span>
             <span class="label label-danger ###PASSWORD_ERR###">PASSWORD was Invalid.</span>
             <span class="label label-danger ###PASSWORD_CONFIRMATION_ERR###">PASSWORD CONFIRMATION was Invalid.</span>
         </div>
@@ -37,7 +39,7 @@
             </div>
             <div class="col-md-10 col-xs-11">
                 <div class="form-group">
-	                <input type="text" name="FAMILY_NAME" value="###FAMILY_NAME_VALUE###" class="form-control" placeholder="Family Name" />
+	                <input type="text" name="FAMILY_NAME" value="###FAMILY_NAME###" class="form-control" placeholder="Family Name" />
                 </div>
             </div>
             <div class="col-md-1 col-xs-1"></div>
@@ -52,7 +54,7 @@
             </div>
             <div class="col-md-10 col-xs-11">
                 <div class="form-group">
-	                <input type="text" name="GIVEN_NAME" value="###GIVEN_NAME_VALUE###" class="form-control" placeholder="Given Name" />
+	                <input type="text" name="GIVEN_NAME" value="###GIVEN_NAME###" class="form-control" placeholder="Given Name" />
                 </div>
             </div>
             <div class="col-md-1 col-xs-1"></div>
@@ -67,7 +69,37 @@
             </div>
             <div class="col-md-10 col-xs-11">
                 <div class="form-group">
-                    <input type="email" name="EMAIL" id="EMAIL" value="###EMAIL_VALUE###" class="form-control" placeholder="ID (e-mail)" />
+                    <input type="email" name="EMAIL" id="EMAIL" value="###EMAIL###" class="form-control" placeholder="ID (e-mail)" />
+                </div>
+            </div>
+            <div class="col-md-1 col-xs-1"></div>
+        </div>
+        <br> 
+
+        <div class="row">
+            <div class="col-md-1 hidden-xs">
+                <label class="control-label ###TEL1_LBL_COLOR###">
+                    <i class="glyphicon glyphicon-envelope"></i>
+                </label>
+            </div>
+            <div class="col-md-10 col-xs-11">
+                <div class="form-group">
+                    <input type="text" name="TEL1" id="TEL1" value="###TEL1###" class="form-control" placeholder="mobile phone" />
+                </div>
+            </div>
+            <div class="col-md-1 col-xs-1"></div>
+        </div>
+        <br> 
+
+        <div class="row">
+            <div class="col-md-1 hidden-xs">
+                <label class="control-label ###TEL2_LBL_COLOR###">
+                    <i class="glyphicon glyphicon-envelope"></i>
+                </label>
+            </div>
+            <div class="col-md-10 col-xs-11">
+                <div class="form-group">
+                    <input type="text" name="TEL2" id="TEL2" value="###TEL2###" class="form-control" placeholder="another phone" />
                 </div>
             </div>
             <div class="col-md-1 col-xs-1"></div>
@@ -82,7 +114,7 @@
             </div>
             <div class="col-md-10 col-xs-11 ">
                 <div class="form-group">
-                    <input type="password" name="PASSWORD" id="PASSWORD" value="###PASSWORD_VALUE###" class="form-control" placeholder="Password" />
+                    <input type="password" name="PASSWORD" id="PASSWORD" value="###PASSWORD###" class="form-control" placeholder="Password" />
                 </div>
             </div>
             <div class="col-md-1 col-xs-1"></div>
@@ -97,7 +129,22 @@
             </div>
             <div class="col-md-10 col-xs-11">
                 <div class="form-group">
-                    <input type="password" name="PASSWORD_CONFIRMATION" id="PASSWORD_CONFIRMATION" value="###PASSWORD_CONFIRMATION_VALUE###" class="form-control" placeholder="Password Confirmation" />
+                    <input type="password" name="PASSWORD_CONFIRMATION" id="PASSWORD_CONFIRMATION" value="###PASSWORD_CONFIRMATION###" class="form-control" placeholder="Password Confirmation" />
+                </div>
+            </div>
+            <div class="col-md-1 col-xs-1"></div>
+        </div>
+        <br> 
+
+        <div class="row">
+            <div class="col-md-1 hidden-xs">
+                <label class="control-label">
+                    <i class="glyphicon glyphicon-envelope"></i>
+                </label>
+            </div>
+            <div class="col-md-10 col-xs-11">
+                <div class="form-group">
+                    <input type="checkbox" ###ADMIN_CHK### name="ADMIN" id="ADMIN" value="###ADMIN_VAL###" class="form-control" placeholder="管理権限" />
                 </div>
             </div>
             <div class="col-md-1 col-xs-1"></div>
@@ -110,7 +157,7 @@
             <div class="col-md-10 col-xs-11">
                 <div class="form-group">
 	                <button type="submit" class="btn btn-primary btn-md" />
-                        <span class="glyphicon glyphicon-eye-open"> Chek!!</span>
+                        <span class="glyphicon glyphicon-eye-open">NEW</span>
                     </button>
                 </div>
             </div>
@@ -119,5 +166,22 @@
     </form>
     </div>
 </div>
+
+<script>
+
+    $(function() {
+        $('#ADMIN').prop('checked',false);
+        $('#ADMIN').val(0);
+    });
+
+    //ADMINフラグのcheckBox ON/OFF
+    $('#ADMIN').on('click', function() {
+      if ($(this).prop('checked')) {
+          $('#ADMIN').val(1);
+      } else {
+          $('#ADMIN').val(0);
+      }
+    });
+</script>
 <!--</body>-->
 <!--</html>-->
