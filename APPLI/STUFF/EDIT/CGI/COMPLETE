@@ -37,28 +37,34 @@ FIN
 
 #######################################
 #Get Form Data
-ENC_ID=$(nameread STUFF_ID $tmp-post)
-ID=$(nameread ID $tmp-post)
-VALUE1=$(nameread FAMILY_NAME $tmp-post)
-VALUE2=$(nameread GIVEN_NAME $tmp-post)
-VALUE3=$(nameread EMAIL $tmp-post)
-PW=$(nameread PASSWORD $tmp-post)
+ENC_ID=$(nameread ENC_ID $tmp-post)
+STUFF_ID=$(nameread STUFF_ID $tmp-post)
+FAMILY_NAME=$(nameread FAMILY_NAME $tmp-post)
+GIVEN_NAME=$(nameread GIVEN_NAME $tmp-post)
+EMAIL=$(nameread EMAIL $tmp-post)
+PASSWORD=$(nameread PASSWORD $tmp-post)
+TEL1=$(nameread TEL1 $tmp-post)
+TEL2=$(nameread TEL2 $tmp-post)
+ADMIN_FLG=$(nameread ADMIN_VAL $tmp-post)
+[ "${ADMIN_FLG}" = "1" ] && ADMIN="管理者権限あり" || ADMIN='管理者権限なし'
+DEL_FLG=0
+
 
 ######################################
 #INPUT表示時点で作成した暗号化スタッフ番号を取得し、整合性の確認を行う
 #暗号化の一時ファイルは削除
-STUFF_NUM=$(cat ${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/${CATEGORY}/${ENC_ID})
-rm -f ${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/${CATEGORY}/${ENC_ID}
+STUFF_NUM=$(cat ${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/${ENC_ID})
+rm -f ${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/${ENC_ID}
 
 ######################################
 #スタッフIDの整合性が取れない場合、CONFIRM画面に戻す
-if [ "${ID}" -ne "${STUFF_NUM}" ]; then
-    cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/CONFIRM.HTML     |
+if [ "${STUFF_ID}" -ne "${STUFF_NUM}" ]; then
+    cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/CONFIRM.HTML                         |
     sed -e "s/###STUFF_ID_NOT_MATCH###/データ不整合により更新出来ませんでした。/"   |
-    sed -e "s/###FAMILY_NAME_LABEL###/${VALUE1}/"               |
-    sed -e "s/###GIVEN_NAME_LABEL###/${VALUE2}/"                |
-    sed -e "s/###EMAIL_LABEL###/${VALUE3}/"                     |
-    sed -e "s/###PASSWORD_LABEL###/********/"                   > $tmp-html
+    sed -e "s/###FAMILY_NAME_LABEL###/${FAMILY_NAME}/"                              |
+    sed -e "s/###GIVEN_NAME_LABEL###/${GIVEN_NAME}/"                                |
+    sed -e "s/###EMAIL_LABEL###/${EMAIL}/"                                          |
+    sed -e "s/###PASSWORD_LABEL###/********/"                                       > $tmp-html
     exit 0
 fi
 
@@ -70,7 +76,7 @@ LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
 
 ########################################
 #パスワードの値が"NOT_CHANGE"のままならば、変更が無いので、既存データを取得
-[[ "${PW}" = 'NOT_CHANGE' ]] && PW=$(cat ${LOGIND}/LV3/*_login_*   | 
+[[ "${PASSWORD}" = 'NOT_CHANGE' ]] && PASSWORD=$(cat ${LOGIND}/LV3/*_login_*   | 
 awk -v id=$STUFF_NUM '$1==id{print $3}')
 
 ########################################
@@ -81,73 +87,92 @@ CREATE_DATE=$(cat $tmp-create)
 UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 
 ########################################
-#ログインデータ用に一時ファイルに書き出し
-#1.社員番号 3.EMAIL 2.PW 3.作成日時 4.更新日時 5.ADMINフラグ 6.削除フラグ
-echo ${STUFF_NUM}" "${VALUE3}" "${PW}" "${CREATE_DATE}" "${UPDATE_DATE}" "${VALUE5}" "0 > $tmp-login
+#更新者の取得
+CREATE_USER=$(cat ${USERSD}/LV3/${STUFF_NUM}* | awk '{print $9}')
+UPDATE_USER=$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
 
 ########################################
-#ログイン用データの格納
-#LV1:原始データとして、ファイル追加のみを行う
+#       ログインデータ　
+########################################
+
+########################################
+#ログインデータ用に一時ファイルに書き出し
+echo ${STUFF_NUM} ${EMAIL} ${PASSWORD} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} 0 > $tmp-login
+
+########################################
+#データ配置
+#LV1
 mv $tmp-login ${LOGIND}/LV1/${STUFF_NUM}_login_${UPDATE_DATE}
 
 #LV2:変更されたデータとファイルを入れ替える
-cp -ip ${LOGIND}/LV1/${STUFF_NUM}_login_${UPDATE_DATE} ${LOGIND}/LV2/${STUFF_NUM}_login_${UPDATE_DATE}
+#削除フラグは含めない-->dファイルとして扱う
+cat ${LOGIND}/LV1/${STUFF_NUM}_login_${UPDATE_DATE} | awk '{$NF=""; print $0}' > ${LOGIND}/LV2/${STUFF_NUM}_login_${UPDATE_DATE}
 ls ${LOGIND}/LV2/${STUFF_NUM}* | sort -nk1 | head -n 1 > $tmp-delete
 rm -f $(cat $tmp-delete)
 
 #LV3:LV2のコピー
-cp -ip ${LOGIND}/LV2/${STUFF_NUM}_login_${UPDATE_DATE} ${LOGIND}/LV3/${STUFF_NUM}_login_${UPDATE_DATE}
+cp -p ${LOGIND}/LV2/${STUFF_NUM}_login_${UPDATE_DATE} ${LOGIND}/LV3/${STUFF_NUM}_login_${UPDATE_DATE}
 ls ${LOGIND}/LV3/${STUFF_NUM}* | sort -nk1 | head -n 1 > $tmp-delete
 rm -f $(cat $tmp-delete)
 
+
 ########################################
-#ユーザーデータ用に一時ファイルに書き出し
-#1.社員番号 2.姓 3.名 4.EMAIL 5.TEL 6.作成日時 7.更新日時 8.ADMINフラグ 9.削除フラグ
-echo ${STUFF_NUM}" "${VALUE1}" "${VALUE2}" "${VALUE3}" - "${CREATE_DATE}" "${UPDATE_DATE}" "${VALUE5}" "0 > $tmp-stuff
+#       スタッフデータ　
+########################################
+
+########################################
+#一時ファイルに書き込み
+#stuff_id	family_name	given_name	account_id	tel1	tel2	create_date	update_date	create_user	update_user	admin_flg	del_flg
+echo ${STUFF_NUM} ${FAMILY_NAME} ${GIVEN_NAME} ${EMAIL} ${TEL1} ${TEL2} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} ${ADMIN_FLG} ${DEL_FLG} > $tmp-stuff
 
 ########################################
 #スタッフ用データの格納
 #LV1:原始データとして、ファイル追加のみを行う
-$(mv $tmp-stuff ${USERSD}/LV1/${STUFF_NUM}_stuff_${UPDATE_DATE})
+mv $tmp-stuff ${USERSD}/LV1/${STUFF_NUM}_stuff_${UPDATE_DATE}
 
 #LV2:変更されたデータとファイルを入れ替える
-cp -ip ${USERSD}/LV1/${STUFF_NUM}_stuff_${UPDATE_DATE} ${USERSD}/LV2/${STUFF_NUM}_stuff_${UPDATE_DATE}
+#削除フラグはもたない-->dファイルにする
+cat ${USERSD}/LV1/${STUFF_NUM}_stuff_${UPDATE_DATE} | awk '{$NF=""; print $0}' > ${USERSD}/LV2/${STUFF_NUM}_stuff_${UPDATE_DATE}
 ls ${USERSD}/LV2/${STUFF_NUM}* | sort -nk1 | head -n 1 > $tmp-delete
 rm -f $(cat $tmp-delete)
 
 #LV3:リンク用のURLを追加,変更されたデータとファイルを入れ替える
-cat ${USERSD}/LV1/${STUFF_NUM}_stuff_${UPDATE_DATE} |
-awk '{print sprintf("%d %s %s %s %s %s %s %d %d \
+#削除フラグはもたない-->dファイルにする
+cat ${USERSD}/LV2/${STUFF_NUM}_stuff_${UPDATE_DATE} |
+awk '{print sprintf("%s\
 /APP/STUFF/USERS?action=SHOW&id=%d \
 /APP/STUFF/EDIT?action=INPUT&id=%d \
 /APP/STUFF/DELETE?action=CONFIRM&id=%d"\
-,$1,$2,$3,$4,$5,$6,$7,$8,$9,$1,$1,$1)}'  > ${USERSD}/LV3/${STUFF_NUM}_stuff_${UPDATE_DATE}
+,$0,$1,$1,$1)}'  > ${USERSD}/LV3/${STUFF_NUM}_stuff_${UPDATE_DATE}
 ls ${USERSD}/LV3/${STUFF_NUM}* | sort -nk1 | head -n 1 > $tmp-delete
 rm -f $(cat $tmp-delete)
 
 ########################################
 #STUFFのデータ操作ロックを解除
 UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'STUFF' ${STUFF_NUM}`
-[ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
+[ ${UNLOCK_STATUS} != 'UNLOCK' ] && exit 0 || :
 
 ########################################
 #SET SESSION
-COOK=`${SYSD}/CGI/SESSION/SESSION_SET ${STUFF_SESS_ID} `
+COOK=`${SYSD}/CGI/SESSION/SESSION_SET ${STUFF_SESS_ID} 15 ${UPDATE_USER}`
 echo $COOK > $tmp-cook
 
 ########################################
 #HTMLの設定
 ACTION=`cat $tmp-action`
 cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML   |
-sed -e "s/###FAMILY_NAME_LABEL###/${VALUE1}/"               |
-sed -e "s/###GIVEN_NAME_LABEL###/${VALUE2}/"                |
-sed -e "s/###EMAIL_LABEL###/${VALUE3}/"                     > $tmp-html
+sed -e "s/###FAMILY_NAME_LABEL###/${FAMILY_NAME}/"          |
+sed -e "s/###GIVEN_NAME_LABEL###/${GIVEN_NAME}/"            |
+sed -e "s/###EMAIL_LABEL###/${EMAIL}/"                      |
+sed -e "s/###TEL1_LABEL###/${TEL1}/"                        |
+sed -e "s/###TEL2_LABEL###/${TEL2}/"                        |
+sed -e "s/###ADMIN_LABEL###/${ADMIN}/"                      > $tmp-html
 
 #########################################
 #page name
-echo "Stuff info update complete" > $tmp-pagename
+echo "Update stuff complete" > $tmp-pagename
 
 #########################################
 #ending
-echo "stuff edit OK"
+echo "OK"
 exit 0

@@ -12,7 +12,7 @@
             </label>
         </div>
         <div class="col-md-10 lbl-header-info">
-		<span class="label label-default ###INFO_TOP_MSG###">Please input berow objects.</span>
+		        <span class="label label-default ###INFO_TOP_MSG###">Please input berow objects.</span>
         </div>
         <div class="col-md-10 lbl-header-info">
             <span class="label label-danger ###FAMILY_NAME_ERR###">FAMILY NAME was Invalid.</span>
@@ -157,8 +157,8 @@
             <div class="col-md-10 col-xs-11">
                 <div class="form-group">
 	                <button type="submit" class="btn btn-primary btn-md" />
-                        <span class="glyphicon glyphicon-eye-open">NEW</span>
-                    </button>
+                      <span class="glyphicon glyphicon-eye-open">CONFIRM</span>
+                  </button>
                 </div>
             </div>
         </div>
@@ -169,6 +169,7 @@
 
 <script>
 
+    //読み込み時、必ず管理者権限は初期化
     $(function() {
         $('#ADMIN').prop('checked',false);
         $('#ADMIN').val(0);

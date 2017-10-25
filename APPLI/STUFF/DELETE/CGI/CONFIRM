@@ -38,40 +38,45 @@ FIN
 #GETパラメータの順番は、action,idの順番が前提
 cat $tmp-get | awk '{split($0,ary,"&"); print ary[2]}' | sed 's/id\=//' > $tmp-id
 ID=$(cat $tmp-id)
-ENC_ID=$(sha1 $RANDOM$ID)
+ENC_ID=$(sha1 $RANDOM$(cat $tmp-id))
 #修正するスタッフIDをスタッフIDを暗号化したフィル名に書き込み、
 #サインインしたスタッフIDのTMPディレクトリに配置する
-echo $ID > ${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/${CATEGORY}/${ENC_ID}
+echo $ID > ${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/${ENC_ID}
 
 ########################################
 #スタッフ情報を取得
 ARR=( `cat ${SYSD}/DATA/${CATEGORY}/USERS/LV3/${ID}_stuff_* |
         awk -v id=$ID '$1==id{print}'                       |
         tr -s ' ' ' '`)
-ID=${ARR[0]}
+STUFF_ID=${ARR[0]}
 FAMILY_NAME=${ARR[1]}
 GIVEN_NAME=${ARR[2]}
 EMAIL=${ARR[3]}
-TEL=${ARR[4]}
-CREATE_DATE=${ARR[5]}
-UPDATE_DATE=${ARR[6]}
-ADMIN_FLAG=${ARR[7]}
-DEL_FLAG=${ARR[8]}
+TEL1=${ARR[4]}
+TEL2=${ARR[5]}
+ADMIN_FLG=${ARR[10]}
+
+########################################
+#管理者権限を取得
+[ "${ADMIN_FLG}" = "1" ] && ADMIN="管理者権限あり" || ADMIN='管理者権限なし'
 
 ########################################
 #HTMLの設定
 cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/CONFIRM.HTML     |
 sed -e "s/###MSG###/このスタッフの情報を削除します。/"      |
 sed -e "s/###ERROR_MSG###//"                                |
-sed -e "s/###STUFF_ID###/${ENC_ID}/"                        |
-sed -e "s/###ID###/${ID}/"                                  |
-sed -e "s/###FAMILY_NAME_###/${FAMILY_NAME}/"               |
-sed -e "s/###GIVEN_NAME_###/${GIVEN_NAME}/"                 |
-sed -e "s/###EMAIL_###/${EMAIL}/"                           > $tmp-html 
+sed -e "s/###ENC_ID###/${ENC_ID}/"                          |
+sed -e "s/###STUFF_ID###/${STUFF_ID}/"                      |
+sed -e "s/###FAMILY_NAME###/${FAMILY_NAME}/"                |
+sed -e "s/###GIVEN_NAME###/${GIVEN_NAME}/"                  |
+sed -e "s/###EMAIL###/${EMAIL}/"                            |
+sed -e "s/###TEL1###/${TEL1}/"                              |
+sed -e "s/###TEL2###/${TEL2}/"                              |
+sed -e "s/###ADMIN###/${ADMIN}/"                            > $tmp-html
 
 #########################################
 #page name
-echo "Stuff delete confirm" > $tmp-pagename
+echo "Delete stuff confirm" > $tmp-pagename
 
 ########################################
 #ending

@@ -77,17 +77,16 @@ UPDATE_USER=${CREATE_USER}
 
 ########################################
 #一時ファイルに書き込み
-#1.社員番号 3.EMAIL 2.PW 3.作成日時 4.更新日時 5.ADMINフラグ 6.削除フラグ
-echo ${STUFF_NUM} ${EMAIL} ${PASSWORD} ${CREATE_DATE} ${UPDATE_DATE} ${VALUE5} ${CREATE_USER} ${UPADTE_USER} > $tmp-login
+echo ${STUFF_NUM} ${EMAIL} ${PASSWORD} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} 0 > $tmp-login
 
 ########################################
 #データ配置
 #LV1
 mv $tmp-login ${LOGIND}/LV1/${STUFF_NUM}_login_${CREATE_DATE}
 #LV2
-cat ${LOGIND}/LV1/${STUFF_NUM}_login_${CREATE_DATE}  > ${LOGIND}/LV2/${STUFF_NUM}_login_${CREATE_DATE}
+cat ${LOGIND}/LV1/${STUFF_NUM}_login_${CREATE_DATE} | awk '{$NF=""; print $0}' > ${LOGIND}/LV2/${STUFF_NUM}_login_${CREATE_DATE}
 #LV3(LV2と同じ)
-cp -ip ${LOGIND}/LV2/${STUFF_NUM}_login_${CREATE_DATE} ${LOGIND}/LV3/${STUFF_NUM}_login_${CREATE_DATE}
+cp -p ${LOGIND}/LV2/${STUFF_NUM}_login_${CREATE_DATE} ${LOGIND}/LV3/${STUFF_NUM}_login_${CREATE_DATE}
 
 
 ########################################
@@ -106,11 +105,12 @@ echo ${STUFF_NUM} ${FAMILY_NAME} ${GIVEN_NAME} ${EMAIL} ${TEL1} ${TEL2} ${CREATE
 mv $tmp-stuff ${USERSD}/LV1/${STUFF_NUM}_stuff_${CREATE_DATE}
 #LV2
 #stuff_id	family_name	given_name	account_id	tel1	tel2	create_date	update_date	create_user	update_user	admin_flg
+#削除フラグはもたない-->dファイルにする
 cat ${USERSD}/LV1/${STUFF_NUM}_stuff_${CREATE_DATE} | awk '{$NF=""; print $0}' > ${USERSD}/LV2/${STUFF_NUM}_stuff_${CREATE_DATE}
 #LV3
 #stuff_id	family_name	given_name	account_id	tel1	tel2	create_date	update_date	create_user	update_user	admin_flg	show_each_url	edit_each_url	delete_each_url
 cat ${USERSD}/LV2/${STUFF_NUM}_stuff_${CREATE_DATE} |
-awk '{print sprintf("%s \
+awk '{print sprintf("%s\
 /APP/STUFF/USERS?action=SHOW&id=%d \
 /APP/STUFF/EDIT?action=INPUT&id=%d \
 /APP/STUFF/DELETE?action=CONFIRM&id=%d"\
