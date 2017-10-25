@@ -38,7 +38,7 @@ ERROR_CHECK(){
 ########################################
 #新規採番番号を確定
 #指定されたカテゴリのNUMBERS/ORIGINの最小値ファイル名を/USEDへ移動
-echo `ls ${NUMBERSD}/ORIGIN/ | head -n1` | xargs -I{} mv -v ${NUMBERSD}/ORIGIN/{} ${NUMBERSD}/USED/ > $tmp-numbers
+echo `ls ${NUMBERSD}/ORIGIN/ | sort -n | head -n1` | xargs -I{} mv -v ${NUMBERSD}/ORIGIN/{} ${NUMBERSD}/USED/ > $tmp-numbers
 ERROR_CHECK
 
 ########################################
