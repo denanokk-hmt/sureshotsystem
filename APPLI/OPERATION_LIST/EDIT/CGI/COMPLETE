@@ -98,7 +98,7 @@ echo ${NUM} ${OPE_NM_EN} ${OPE_NM_JP} ${OPE_PRICE} ${OPE_REMARKS} ${CREATE_DATE}
 #すでにdファイル化されているデータについては画面操作がないので範疇にいれない
 if [ "${OPE_CATEGORY_NO}" != "${OPE_CATEGORY_NX}" ]; then
     #LV1の該当オペデータの最終更新日を取得
-    LAST_UPDATE=$(ls ${DATAD}/${OPE_CATEGORY_NX}/LV1/${NUM}_operation_* | sort -k1 | tail -n1 | cut -d'_' -f3)
+    LAST_UPDATE=$(ls ${DATAD}/${OPE_CATEGORY_NX}/LV3/${NUM}_operation_* | awk 'BEGIN{FS="/"}{print $NF}'| cut -d'_' -f3)
     #LV1 dファイル追加
     cp ${DATAD}/${OPE_CATEGORY_NX}/LV1/${NUM}_operation_${LAST_UPDATE}* ${DATAD}/${OPE_CATEGORY_NX}/LV1/${NUM}_operation_${UPDATE_DATE}_d
     #LV2 dファイル化

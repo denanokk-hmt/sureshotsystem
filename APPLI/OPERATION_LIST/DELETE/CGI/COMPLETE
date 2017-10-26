@@ -16,7 +16,7 @@ SYSD=$(cd $(dirname $0) && pwd | awk '{print substr($0, 0, index($0, "sureshotsy
 #exec 2> ${SYSD}/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
 tmp=/tmp/tmp_$1
 LANG=ja_JP.UTF-8
-PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
+#PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
 CATEGORY=`cat $tmp-category`
 FUNC=`cat $tmp-func`
 DATAD=${SYSD}/DATA/${CATEGORY}/LISTS
@@ -61,6 +61,15 @@ CREATE_DATE=$(cat $tmp-create)
 UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 
 ########################################
+#更新者の取得
+CREATE_USER=$(cat ${DATAD}/${CATE_NO}/LV3/${NUM}* | awk '{print $8}')
+UPDATE_USER=$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
+
+########################################
+#最終更新日時
+LAST_UPDATE=$(ls ${DATAD}/${CATE_NO}/LV3/${NUM}* | awk 'BEGIN{FS="/"}{print $NF}' | cut -d'_' -f3)
+
+########################################
 #該当のデータ操作をロック
 LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'OPERATION_LIST' ${NUM}`
 LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
@@ -68,8 +77,10 @@ LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
 
 #########################################
 #一時ファイル化
-ls ${DATAD}/${CATE_NO}/LV1/${NUM}_operation_* | sort -nk1,1 | tail -n 1 > $tmp-latest
-cat $tmp-latest | awk -v ud=${UPDATE_DATE} '{print $1, $2, $3, $4, $5, $6, $7, $8, ud, "1"}' > $tmp-operation
+#operation_id	operation_nm_en	operation_nm_jp	price	remarks	create_date	update_date	create_user	update_user	del_flg
+cat ${DATAD}/${CATE_NO}/LV1/${NUM}_operation_${LAST_UPDATE} |
+awk -v ud=${UPDATE_DATE} -v uu=${UPDATE_USER}               \
+'{print $1,$2,$3,$4,$5,$6,ud,$8,uu,1}' > $tmp-operation
 
 ########################################
 #データ格納
@@ -78,11 +89,41 @@ mv $tmp-operation ${DATAD}/${CATE_NO}/LV1/${NUM}_operation_${UPDATE_DATE}_d
 
 #LV2
 #ファイル名の末尾に_dを付ける
-mv $(ls ${DATAD}/${CATE_NO}/LV2/${NUM}_*) $(${DATAD}/${CATE_NO}/LV2/${NUM}_*)_d
+mv ${DATAD}/${CATE_NO}/LV2/${NUM}_operation_${LAST_UPDATE} ${DATAD}/${CATE_NO}/LV2/${NUM}_operation_${LAST_UPDATE}_d
 
 #LV3
 #ファイル名の末尾に_dを付ける
-mv $(ls ${DATAD}/${CATE_NO}/LV3/${NUM}_*) $(ls ${DATAD}/${CATE_NO}/LV3/${NUM}_*)_d
+mv ${DATAD}/${CATE_NO}/LV3/${NUM}_operation_${LAST_UPDATE} ${DATAD}/${CATE_NO}/LV3/${NUM}_operation_${LAST_UPDATE}_d
+
+########################################
+#正規データ配置
+#なにがしかのカテゴリNoの下にあるLV3データをかき集め、ファイルパスからカテゴリNoを、ファイルデータからオペ番号を
+#紐付けたマップを作成
+ls ${DATAD}/*/LV3/*[^_d] | awk '{split($0,ary,"/"); print ary[7], ary[9]}' | cut -d'_' -f1 | LANG=C sort -k1 > $tmp-cate-list-map
+#cp $tmp-cate-list-map /tmp/tmp-cate-list-map
+
+#オペカテゴリ一覧
+cat ${SYSD}/DATA/OPERATION_CATEGORY/LISTS/LV3/*[^_d] | awk '{print $1,$2}' | 
+LANG=C sort -k1 > $tmp-cate-all
+#cp $tmp-cate-all /tmp/tmp-cate-all
+
+#オペ一覧
+cat ${DATAD}/*/LV3/*[^_d] | LANG=C sort -k1 > $tmp-ope-all
+#cp $tmp-ope-all /tmp/tmp-ope-all
+
+#JOIN
+#マップとカテゴリ
+#ソートは二番目のオペ番号を数値昇順
+LANG=C join -1 1 -2 1 $tmp-cate-list-map $tmp-cate-all | LANG=C sort -k2 > $tmp-ope-category
+#cp $tmp-ope-category /tmp/tmp-ope-category 
+
+#カテゴリとオペ一覧
+LANG=C join -1 2 -2 1 $tmp-ope-category $tmp-ope-all > $tmp-operations
+#cp $tmp-operations /tmp/tmp-operations
+
+#カテゴリ情報とマッピングしたオペ一覧をLISTS/LV3へ配置
+rm -f ${DATAD}/LV3/operations_*
+mv $tmp-operations ${DATAD}/LV3/operations_${CREATE_DATE}
 
 ########################################
 #データ操作ロックを解除
