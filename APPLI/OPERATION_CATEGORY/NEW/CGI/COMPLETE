@@ -52,7 +52,6 @@ else
     ERROR_CHECK
 fi
 
-
 ########################################
 #カテゴリ番号の次のロットを追加する
 LATEST_NUM=$(ls ${SYSD}/DATA/NUMBERS/${CATEGORY}/ORIGIN | sort -nr | head -n 1)
@@ -84,22 +83,29 @@ CREATE_DATE=$(date +%Y%m%d%H%M%S)
 UPDATE_DATE=$CREATE_DATE
 
 ########################################
+#更新者の取得
+CREATE_USER=$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
+UPDATE_USER=${CREATE_USER}
+
+########################################
 #入力値を一時ファイル化
-#1.パーツカテゴリ番号 2.パーツカテゴリ名 3.作成日時 4.更新日時 5.削除フラグ
-echo ${NEW_NUM}" "${VALUE1}" "${CREATE_DATE}" "${UPDATE_DATE}" "0 > $tmp-operation-category
+#operation_category_id	operation_category_name	create_date	update_date	create_user	update_user	del_flg
+echo ${NEW_NUM} ${VALUE1} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} 0 > $tmp-operation-category
 
 ########################################
 #データ格納
-#LV1
-$(mv $tmp-operation-category ${DATAD}/LV1/${NEW_NUM}_operation_category_${CREATE_DATE})
-#LV2
-cat ${DATAD}/LV1/${NEW_NUM}_operation_category_${CREATE_DATE} > ${DATAD}/LV2/${NEW_NUM}_operation_category_${CREATE_DATE}
-#LV3
-cat ${DATAD}/LV2/${NEW_NUM}_operation_category_${CREATE_DATE} > ${DATAD}/LV3/${NEW_NUM}_operation_category_${CREATE_DATE}
+#LV1:原始データとして、ファイル追加のみを行う
+mv $tmp-operation-category ${DATAD}/LV1/${NEW_NUM}_operation_category_${CREATE_DATE}
+
+#LV2:変更されたデータとファイルを入れ替える
+cat ${DATAD}/LV1/${NEW_NUM}_operation_category_${CREATE_DATE} | awk '{$NF=""; print $0}' > ${DATAD}/LV2/${NEW_NUM}_operation_category_${CREATE_DATE}
+
+#LV3:LV2のコピー
+cp -p ${DATAD}/LV2/${NEW_NUM}_operation_category_${CREATE_DATE} ${DATAD}/LV3/${NEW_NUM}_operation_category_${CREATE_DATE}
 
 ########################################
 #パーツ格納用カテゴリDirを作成
-cp -irp ${SYSD}/DATA/ORG_LV1-3/ ${SYSD}/DATA/OPERATION_LIST/LISTS/${NEW_NUM}
+cp -rp ${SYSD}/DATA/ORG_LV1-3/ ${SYSD}/DATA/OPERATION_LIST/LISTS/${NEW_NUM}
 
 ########################################
 #Get records

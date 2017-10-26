@@ -52,11 +52,14 @@ ls ${DATAD}/LV1/${NUM}_operation_category_* | cut -d'_' -f5 | sort -nk1,1 | head
 CREATE_DATE=$(cat $tmp-create)
 UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 
+########################################
+#更新者の取得
+CREATE_USER=$(cat ${DATAD}/LV3/${NUM}* | awk '{print $5}')
+UPDATE_USER=$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
 
 ########################################
 #　　作業カテゴリのデータ操作
 ########################################
-
 
 ########################################
 #該当のデータ操作をロック
@@ -66,21 +69,21 @@ LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
 
 ########################################
 #入力値を一時ファイル化
-#1.作業カテゴリ番号 2.作業カテゴリ名 3.作成日時 4.更新日時 5.削除フラグ
-echo ${NUM}" "${NAME}" "${CREATE_DATE}" "${UPDATE_DATE}" "0 > $tmp-operation-category
+#operation_category_id	operation_category_name	create_date	update_date	create_user	update_user	del_flg
+echo ${NUM} ${NAME} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} 0 > $tmp-operation-category
 
 ########################################
 #データ格納
 #LV1:原始データとして、ファイル追加のみを行う
-$(mv $tmp-operation-category ${DATAD}/LV1/${NUM}_operation_category_${UPDATE_DATE})
+mv $tmp-operation-category ${DATAD}/LV1/${NUM}_operation_category_${UPDATE_DATE}
 
 #LV2:変更されたデータとファイルを入れ替える
-cp -ip ${DATAD}/LV1/${NUM}_operation_category_${UPDATE_DATE} ${DATAD}/LV2/${NUM}_operation_category_${UPDATE_DATE}
+cat ${DATAD}/LV1/${NUM}_operation_category_${UPDATE_DATE} | awk '{$NF=""; print $0}' > ${DATAD}/LV2/${NUM}_operation_category_${UPDATE_DATE}
 ls ${DATAD}/LV2/${NUM}_* | sort -nk1 | head -n 1 > $tmp-delete
 rm -f $(cat $tmp-delete)
 
 #LV3:LV2のコピー
-cp -ip ${DATAD}/LV2/${NUM}_operation_category_${UPDATE_DATE} ${DATAD}/LV3/${NUM}_operation_category_${UPDATE_DATE}
+cp -p ${DATAD}/LV2/${NUM}_operation_category_${UPDATE_DATE} ${DATAD}/LV3/${NUM}_operation_category_${UPDATE_DATE}
 ls ${DATAD}/LV3/${NUM}_* | sort -nk1 | head -n 1 > $tmp-delete
 rm -f $(cat $tmp-delete)
 
@@ -113,9 +116,10 @@ for file in `find ${OPERATIOND}/LV3/*[^_d] -maxdepth 1 -type f`; do
     #LV1:原始データとして、ファイル追加のみを行う
     destiny=${OPERATIOND}/LV1/${num}_operation_${UPDATE_DATE}
     cat ${OPERATIOND}/LV1/${num}_operation_${update} | 
-    awk -v nm=${NAME} -v ud=${UPDATE_DATE} '{print $1, $2, nm, $4, $5, $6, $7, $8, ud, $10}' > $destinyL
+    awk -v nm=${NAME} -v ud=${UPDATE_DATE} -v uu=${UPDATE_USER} \
+    '{print $1, $2, nm, $4, $5, $6, $7, $8, ud, $10, uu, $12}' > $destiny
     #LV2:変更されたデータとファイルを入れ替える
-    cp -fp ${OPERATIOND}/LV1/${num}_operation_${UPDATE_DATE} ${OPERATIOND}/LV2/${num}_operation_${UPDATE_DATE}
+    cat $destiny | awk '{$NF=""; print $0}' > ${OPERATIOND}/LV2/${num}_operation_${UPDATE_DATE}
     ls ${OPERATIOND}/LV2/${num}_* | sort -nk1 | head -n 1 > $tmp-delete
     rm -f $(cat $tmp-delete)
 

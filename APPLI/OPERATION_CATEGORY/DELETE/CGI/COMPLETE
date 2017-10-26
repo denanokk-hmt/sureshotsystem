@@ -44,6 +44,10 @@ ls ${DATAD}/LV1/${NUM}_operation_category_* | sort -nk1,1 | tail -n 1 | cut -d'/
 CREATE_DATE=$(cat $tmp-create)
 UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 
+########################################
+#更新者の取得
+CREATE_USER=$(cat ${DATAD}/LV3/${NUM}* | awk '{print $5}')
+UPDATE_USER=$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
 
 ########################################
 #　　作業カテゴリのデータ操作
@@ -57,8 +61,8 @@ LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
 
 ########################################
 #入力値を一時ファイル化
-#1.作業カテゴリ番号 2.作業カテゴリ名 3.作成日時 4.更新日時 5.削除フラグ
-echo ${NUM}" "${NAME}" "${CREATE_DATE}" "${UPDATE_DATE}" "1 > $tmp-operation-category
+#operation_category_id	operation_category_name	create_date	update_date	create_user	update_user	del_flg
+echo ${NUM} ${NAME} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} 1 > $tmp-operation-category
 
 ########################################
 #データ格納

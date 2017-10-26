@@ -91,15 +91,17 @@ CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-operation-category-new`
 
 ########################################
 #作業リストを取得
+[ -z "${PAGE_CATEGORY_NO}" ] && ${PAGE_CATEGORY_NO}=0 || :
 if [ "${PAGE_CATEGORY_NO}" -gt 0 ] ; then
     #ページフィルターにALL以外(空欄を除く)が選択された場合
-    cat ${DATAD}/${PAGE_CATEGORY_NO}/LV3/*[^_d]             |
-    LANG=C sort -nk1,1                                      |
+    cat ${DATAD}/LV3/*[^_d]                                 |
+    awk -v cate=${PAGE_CATEGORY_NO} '$2==cate{print $0}'    |
+    LANG=C sort -nk2 -nk1                                   |
     awk -v s=${START} -v e=${END} 'NR>=s&&NR<=e&&$9!=1'     |
     juni                                                    > $tmp-records
 else
-    cat ${DATAD}/*[^_d]/LV3/*[^_d]                          |
-    LANG=C sort -nk1,1                                      |
+    cat ${DATAD}/LV3/*[^_d]                                 |
+    LANG=C sort -nk2 -nk1                                   |
     awk -v s=${START} -v e=${END} 'NR>=s&&NR<=e&&$9!=1'     |
     juni                                                    > $tmp-records
 fi
