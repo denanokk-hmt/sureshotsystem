@@ -61,18 +61,24 @@ QRY_PAGE=$(nameread PAGE $tmp-post)
 SEARCH=$(nameread PAGE $tmp-post)
 PAGE_CATEGORY_NM=$(nameread CATEGORY_NM $tmp-post)
 PAGE_CATEGORY_NO=$(nameread CATEGORY_NO $tmp-post)
-VALUE1=$(nameread CATEGORY_NM_HID_NEW $tmp-post)        #パーツカテゴリ名
-VALUE2=$(nameread NEW_PARTS_NAME $tmp-post)             #パーツ名(EN)
-VALUE3=$(nameread NEW_PARTS_PRICE $tmp-post)            #プライス
+PARTS_NM_EN=$(nameread NEW_PARTS_NAME $tmp-post)             #パーツ名(EN)
+PARTS_PRICE=$(nameread NEW_PARTS_PRICE $tmp-post)            #プライス
 
 #新規追加
-VALUE4=$(nameread CATEGORY_NO_HID_NEW $tmp-post)     #パーツカテゴリ番号
-VALUE5=$(nameread NEW_PARTS_NAME_JP $tmp-post)          #パーツ名(JP)
-VALUE6=$(nameread NEW_PARTS_REMARKS $tmp-post)          #備考
+PARTS_CATEGORY_NO=$(nameread CATEGORY_NO_HID_NEW $tmp-post) #パーツカテゴリ番号
+PARTS_NM_JP=$(nameread NEW_PARTS_NAME_JP $tmp-post)         #パーツ名(JP)
+PARTS_REMARKS=$(nameread NEW_PARTS_REMARKS $tmp-post)       #備考
+
+#######################################
+#&エスケープ
+PARTS_NM_EN=$(echo ${PARTS_NM_EN} | sed 's/\&/\\\\\\&/')
+PARTS_NM_JP=$(echo ${PARTS_NM_JP} | sed 's/\&/\\\\\\&/')
+PARTS_REMARKS=$(echo ${PARTS_REMARKS} | sed 's/\&/\\\\\\&/')
+
 
 ########################################
 #重複確認
-cat ${DATAD}/${VALUE4}*[^_d]/LV3/* | awk -v cat=${VALUE4} -v nm=${VALUE2} '$2==cat&&$4==nm{print $1}' > $tmp-valid1
+cat ${DATAD}/${PARTS_CATEGORY_NO}/LV3/* | awk -v cat=${PARTS_CATEGORY_NO} -v nm=${PARTS_NM_EN} '$2==cat&&$4==nm{print $1}' > $tmp-valid1
 if [ -n "$(cat $tmp-valid1)" ] ; then
     echo 2222 > $tmp-ajax-html
     exit 0
@@ -84,18 +90,52 @@ CREATE_DATE=$(date +%Y%m%d%H%M%S)
 UPDATE_DATE=$CREATE_DATE
 
 ########################################
+#更新者の取得
+CREATE_USER=$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
+UPDATE_USER=${CREATE_USER}
+
+########################################
 #入力値を一時ファイル化
-#1.パーツ番号 2.パーツカテゴリ番号 3.パーツカテゴリ名 4.パーツ名(EN) 5.パーツ名(JP) 6.価格 7.備考 8.作成日時 9.更新日時 10.削除フラグ
-echo ${NEW_NUM}" "${VALUE4}" "${VALUE1}" "${VALUE2}" "${VALUE5}" "${VALUE3}" "${VALUE6}" "${CREATE_DATE}" "${UPDATE_DATE}" "0 > $tmp-parts
+#parts_id	parts_nm_en	parts_nm_jp	price	remarks	create_date	update_date	create_user	update_user	del_flg
+echo ${NEW_NUM} ${PARTS_NM_EN} ${PARTS_NM_JP} ${PARTS_PRICE} ${PARTS_REMARKS} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} 0 > $tmp-parts
 
 ########################################
 #データ格納
+#所属するカテゴリNoの下に配置
 #LV1
-$(mv $tmp-parts ${DATAD}/${VALUE4}/LV1/${NEW_NUM}_parts_${CREATE_DATE})
+#原始データとして追加のみを行う
+mv $tmp-parts ${DATAD}/${PARTS_CATEGORY_NO}/LV1/${NEW_NUM}_parts_${CREATE_DATE}
+
 #LV2
-cat ${DATAD}/${VALUE4}/LV1/${NEW_NUM}_parts_${CREATE_DATE} > ${DATAD}/${VALUE4}/LV2/${NEW_NUM}_parts_${CREATE_DATE}
+#削除フラグは除外-->dファイルとして扱う
+cat ${DATAD}/${PARTS_CATEGORY_NO}/LV1/${NEW_NUM}_parts_${CREATE_DATE}  | awk '{$NF=""; print $0}'> ${DATAD}/${PARTS_CATEGORY_NO}/LV2/${NEW_NUM}_parts_${CREATE_DATE}
+
 #LV3
-cat ${DATAD}/${VALUE4}/LV2/${NEW_NUM}_parts_${CREATE_DATE} > ${DATAD}/${VALUE4}/LV3/${NEW_NUM}_parts_${CREATE_DATE}
+#LV2のコピー
+cp -p ${DATAD}/${PARTS_CATEGORY_NO}/LV2/${NEW_NUM}_parts_${CREATE_DATE} ${DATAD}/${PARTS_CATEGORY_NO}/LV3/${NEW_NUM}_parts_${CREATE_DATE}
+
+########################################
+#正規データ配置
+#なにがしかのカテゴリNoの下にあるLV3データをかき集め、ファイルパスからカテゴリNoを、ファイルデータからパーツ番号を
+#紐付けたマップを作成
+ls ${SYSD}/DATA/PARTS_LIST/LISTS/*/LV3/*[^_d] | awk '{split($0,ary,"/"); print ary[7], ary[9]}' | cut -d'_' -f1 | LANG=C sort -k1 > $tmp-cate-list-map
+
+#パーツカテゴリ一覧
+cat ${SYSD}/DATA/PARTS_CATEGORY/LISTS/LV3/*[^_d] | awk '{print $1,$2}' | LANG=C sort -k1 > $tmp-cate-all
+
+#パーツ一覧
+cat ${SYSD}/DATA/PARTS_LIST/LISTS/*/LV3/*[^_d] | LANG=C sort -k1 > $tmp-parts-all
+
+#JOIN
+#マップとカテゴリ
+LANG=C join -1 1 -2 1 $tmp-cate-list-map $tmp-cate-all | LANG=C sort -k2 > $tmp-parts-category
+
+#カテゴリとパーツ一覧
+LANG=C join -1 2 -2 1 $tmp-parts-category $tmp-parts-all > $tmp-parts-list
+
+#カテゴリ情報とマッピングしたパーツ一覧をLISTS/LV3へ配置
+rm -f ${SYSD}/DATA/PARTS_LIST/LISTS/LV3/parts_*
+mv $tmp-parts-list ${SYSD}/DATA/PARTS_LIST/LISTS/LV3/parts_${CREATE_DATE}
 
 #######################################
 #ページャーを設定
@@ -136,13 +176,13 @@ CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-new`
 #パーツリストを取得
 [ -z "${PAGE_CATEGORY_NO}" ] && ${PAGE_CATEGORY_NO}=0 || :
 if [ "${PAGE_CATEGORY_NO}" -gt 0 ] ; then
-    cat ${DATAD}/${PAGE_CATEGORY_NO}*[^_d]/LV3/*[^_d]       |
-    LANG=C sort -nk1,1                                      |
+    cat ${DATAD}/LV3/*[^_d]                                 |
+    LANG=C sort -nk2 -nk1                                   |
     awk -v s=${START} -v e=${END} 'NR>=s&&NR<=e&&$9!=1'     |
     juni                                                    > $tmp-records
 else
-    cat ${DATAD}/*[^_d]/LV3/*[^_d]                          |
-    LANG=C sort -nk1,1                                      |
+    cat ${DATAD}/LV3/*[^_d]                                 |
+    LANG=C sort -nk2 -nk1                                   |
     awk -v s=${START} -v e=${END} 'NR>=s&&NR<=e&&$9!=1'     |
     juni                                                    > $tmp-records
 fi

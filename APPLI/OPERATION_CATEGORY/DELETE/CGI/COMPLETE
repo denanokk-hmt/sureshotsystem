@@ -161,7 +161,6 @@ cat ${SYSD}/DATA/OPERATION_LIST/LISTS/*/LV3/*[^_d] | LANG=C sort -k1 > $tmp-ope-
 
 #JOIN
 #マップとカテゴリ
-#ソートは二番目のオペ番号を数値昇順
 LANG=C join -1 1 -2 1 $tmp-cate-list-map $tmp-cate-all | LANG=C sort -k2 > $tmp-ope-category
 
 #カテゴリとオペ一覧

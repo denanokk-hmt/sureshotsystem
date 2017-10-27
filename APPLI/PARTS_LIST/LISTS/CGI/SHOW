@@ -17,7 +17,7 @@ SYSD=$(cd $(dirname $0) && pwd | awk '{print substr($0, 0, index($0, "sureshotsy
 #exec 2> $SYSD/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
 tmp=/tmp/tmp_$1
 LANG=ja_JP.UTF-8
-PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
+#PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
 CATEGORY=`cat $tmp-category`
 FUNC=`cat $tmp-func`
 DATAD=${SYSD}/DATA/${CATEGORY}/LISTS
@@ -91,15 +91,17 @@ CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-new`
 
 ########################################
 #パーツリストを取得
+[ -z "${PAGE_CATEGORY_NO}" ] && ${PAGE_CATEGORY_NO}=0 || :
 if [ "${PAGE_CATEGORY_NO}" -gt 0 ] ; then
     #ページフィルターにALL以外(空欄を除く)が選択された場合
-    cat ${DATAD}/${PAGE_CATEGORY_NO}*[^_d]/LV3/*[^_d]       |
-    LANG=C sort -nk1,1                                      |
+    cat ${DATAD}/LV3/*[^_d]                                 |
+    awk -v cate=${PAGE_CATEGORY_NO} '$2==cate{print $0}'    |
+    LANG=C sort -nk2 -nk1                                   |
     awk -v s=${START} -v e=${END} 'NR>=s&&NR<=e&&$9!=1'     |
     juni                                                    > $tmp-records
 else
-    cat ${DATAD}/*[^_d]/LV3/*[^_d]                          |
-    LANG=C sort -nk1,1                                      |
+    cat ${DATAD}/LV3/*[^_d]                                 |
+    LANG=C sort -nk2 -nk1                                   |
     awk -v s=${START} -v e=${END} 'NR>=s&&NR<=e&&$9!=1'     |
     juni                                                    > $tmp-records
 fi
@@ -108,11 +110,11 @@ mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/RECORDS.HTML $tmp-reco
 ########################################
 #登録済レコードに作業カテゴリリストを嵌め込む
 cat $tmp-table-records                                      |
-sed -e "s|###CATEGORY###|${CATEGORY_LIST}|g"                > $tmp-table-records2
+sed -e "s|###CATEGORY###|${CATEGORY_LIST}|g"                > $tmp-table
 
 ########################################
 # 改行文字を「\\n」という3文字の文字列に置換
-TABLE_RECORDS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-records2`
+TABLE_RECORDS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table`
 
 ########################################
 #tableにrecordsを嵌め込む

@@ -46,27 +46,37 @@ FIN
 PAGE_CATEGORY_NM=$(nameread PAGE_CATEGORY_NM $tmp-post)             #フィルター:カテゴリ名
 PAGE_CATEGORY_NO=$(nameread CATEGORY_NO  $tmp-post)                 #フィルター:カテゴリNO
 NUM=$(nameread EDIT_PARTS_NO $tmp-post)                             #パーツ番号
-VALUE1=$(nameread EDIT_PARTS_CATEGORY_NAME $tmp-post)               #パーツカテゴリ名
-VALUE2=$(nameread EDIT_PARTS_NAME $tmp-post)                        #パーツ名(EN)
-VALUE3=$(nameread EDIT_PARTS_PRICE $tmp-post)                       # プライス
-VALUE4=$(nameread EDIT_PARTS_CATEGORY_NO $tmp-post)                 #パーツカテゴリ番号
-VALUE5=$(nameread EDIT_PARTS_NAME_JP $tmp-post)                     #パーツ名(JP)
-VALUE6=$(nameread EDIT_PARTS_REMARKS $tmp-post)                     #備考
-VALUE7=$(nameread EDIT_PARTS_CATEGORY_NX $tmp-post)                 #パーツカテゴリ番号(変更前)
+PARTS_NM_EN=$(nameread EDIT_PARTS_NAME $tmp-post)                   #パーツ名(EN)
+PARTS_PRICE=$(nameread EDIT_PARTS_PRICE $tmp-post)                  # プライス
+PARTS_CATEGORY_NO=$(nameread EDIT_PARTS_CATEGORY_NO $tmp-post)      #パーツカテゴリ番号
+PARTS_NM_JP=$(nameread EDIT_PARTS_NAME_JP $tmp-post)                #パーツ名(JP)
+PARTS_REMARKS=$(nameread EDIT_PARTS_REMARKS $tmp-post)              #備考
+PARTS_CATEGORY_NX=$(nameread EDIT_PARTS_CATEGORY_NX $tmp-post)      #パーツカテゴリ番号(変更前)
+
+#######################################
+#&エスケープ
+PARTS_NM_EN=$(echo ${PARTS_NM_EN} | sed 's/\&/\\\\\\&/')
+PARTS_NM_JP=$(echo ${PARTS_NM_JP} | sed 's/\&/\\\\\\&/')
+PARTS_REMARKS=$(echo ${PARTS_REMARKS} | sed 's/\&/\\\\\\&/')
 
 ########################################
 #重複確認
-#cat ${DATAD}/${VALUE4}/LV3/* | awk -v nm=${VALUE2} '$4==nm{print $1}' > $tmp-valid1
-#if [ -n "$(cat $tmp-valid1)" ] ; then
-#    echo 2222 > $tmp-ajax-html
-#    exit 0
-#fi
+cat ${DATAD}/${PARTS_CATEGORY_NO}/LV3/* | awk -v cat=${PARTS_CATEGORY_NO} -v nm=${PARTS_NM_EN} '$2==cat&&$4==nm{print $1}' > $tmp-valid1
+if [ -n "$(cat $tmp-valid1)" ] ; then
+    echo 2222 > $tmp-ajax-html
+    exit 0
+fi
 
 ########################################
 #既存データから作成日時取得、現在日時を更新日時とする
-ls ${DATAD}/${VALUE7}/LV1/${NUM}_parts_* | sort -nk1,1 | head -n 1 | cut -d'_' -f4 > $tmp-create
+ls ${DATAD}/${PARTS_CATEGORY_NX}/LV1/${NUM}_parts_* | cut -d'_' -f4 | sort -nk1,1 | head -n 1 > $tmp-create
 CREATE_DATE=$(cat $tmp-create)
 UPDATE_DATE=$(date +%Y%m%d%H%M%S)
+
+########################################
+#更新者の取得
+CREATE_USER=$(cat ${DATAD}/${PARTS_CATEGORY_NX}/LV3/${NUM}* | awk '{print $8}')
+UPDATE_USER=$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
 
 ########################################
 #該当のデータ操作をロック
@@ -76,31 +86,62 @@ LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
 
 ########################################
 #入力値を一時ファイル化
-#1.パーツ番号 2.パーツカテゴリ番号 3.パーツカテゴリ名 4.パーツ名(EN) 5.パーツ名(JP) 6.価格 7.備考 8.作成日時 9.更新日時 10.削除フラグ
-echo ${NUM} ${VALUE4} ${VALUE1} ${VALUE2} ${VALUE5} ${VALUE3} ${VALUE6} ${CREATE_DATE} ${UPDATE_DATE} 0 > $tmp-parts
+#parts_id	parts_nm_en	parts_nm_jp	price	remarks	create_date	update_date	create_user	update_user	del_flg
+echo ${NUM} ${PARTS_NM_EN} ${PARTS_NM_JP} ${PARTS_PRICE} ${PARTS_REMARKS} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} 0 > $tmp-parts
 
 ########################################
 #データ格納
-#LV1:原始データとして、ファイル追加のみを行う
-mv $tmp-parts ${DATAD}/${VALUE4}/LV1/${NUM}_parts_${UPDATE_DATE}
 
 #カテゴリを変更した場合
-if [ "${VALUE4}" != "${VALUE7}" ]; then
-    #旧カテゴリにあるLV1のパーツを論理削除
-    ls ${DATAD}/${VALUE7}/LV1/${NUM}_parts_* | sort -nk1 | tail -n 1 > $tmp-delete-lv1
-    cp $(cat $tmp-delete-lv1) ${DATAD}/${VALUE7}/LV1/${NUM}_parts_${UPDATE_DATE}_d
-    #旧カテゴリにあるLV2、LV3のパーツを論理削除ファイルと入れ替える
-    rm -f ${DATAD}/${VALUE7}/LV2/${NUM}_parts_*
-    cp ${DATAD}/${VALUE7}/LV1/${NUM}_parts_${UPDATE_DATE}_d ${DATAD}/${VALUE7}/LV2/   
-    rm -f ${DATAD}/${VALUE7}/LV3/${NUM}_parts_*
-    cp ${DATAD}/${VALUE7}/LV2/${NUM}_parts_* ${DATAD}/${VALUE7}/LV3/   
+#旧カテゴリのデータをdファイルにする
+#すでにdファイル化されているデータについては画面操作がないので範疇にいれない
+if [ "${PARTS_CATEGORY_NO}" != "${PARTS_CATEGORY_NX}" ]; then
+    #LV1の該当オペデータの最終更新日を取得
+    LAST_UPDATE=$(ls ${DATAD}/${PARTS_CATEGORY_NX}/LV3/${NUM}_parts_* | awk 'BEGIN{FS="/"}{print $NF}'| cut -d'_' -f3)
+    #LV1 dファイル追加
+    cp ${DATAD}/${PARTS_CATEGORY_NX}/LV1/${NUM}_parts_${LAST_UPDATE}* ${DATAD}/${PARTS_CATEGORY_NX}/LV1/${NUM}_parts_${UPDATE_DATE}_d
+    #LV2 dファイル化
+    mv ${DATAD}/${PARTS_CATEGORY_NX}/LV2/${NUM}_parts_* ${DATAD}/${PARTS_CATEGORY_NX}/LV2/${NUM}_parts_${LAST_UPDATE}_d   
+    #LV3 dファイル化
+    mv ${DATAD}/${PARTS_CATEGORY_NX}/LV3/${NUM}_parts_* ${DATAD}/${PARTS_CATEGORY_NX}/LV3/${NUM}_parts_${LAST_UPDATE}_d   
 fi
 
-#LV3:LV2を更新ファイルと入れ替え
-rm -f ${DATAD}/${VALUE4}/LV2/${NUM}_parts_*
-cp -fp ${DATAD}/${VALUE4}/LV1/${NUM}_parts_${UPDATE_DATE} ${DATAD}/${VALUE4}/LV2/
-rm -f ${DATAD}/${VALUE4}/LV3/${NUM}_parts_*
-cp -fp ${DATAD}/${VALUE4}/LV2/${NUM}_parts_${UPDATE_DATE} ${DATAD}/${VALUE4}/LV3/
+#LV1
+#原始データとして、ファイル追加のみを行う
+mv $tmp-parts ${DATAD}/${PARTS_CATEGORY_NO}/LV1/${NUM}_parts_${UPDATE_DATE}
+
+#LV2を更新ファイルと入れ替え
+#削除フラグは除外-->dファイルとして扱う
+rm -f ${DATAD}/${PARTS_CATEGORY_NO}/LV2/${NUM}_parts_*
+cat ${DATAD}/${PARTS_CATEGORY_NO}/LV1/${NUM}_parts_${UPDATE_DATE} | awk '{$NF=""; print $0}' > ${DATAD}/${PARTS_CATEGORY_NO}/LV2/${NUM}_parts_${UPDATE_DATE}
+
+#LV3:更新ファイルと入れ替え
+#LV2のコピー
+rm -f ${DATAD}/${PARTS_CATEGORY_NO}/LV3/${NUM}_parts_*
+cp -fp ${DATAD}/${PARTS_CATEGORY_NO}/LV2/${NUM}_parts_${UPDATE_DATE} ${DATAD}/${PARTS_CATEGORY_NO}/LV3/
+
+########################################
+#正規データ配置
+#なにがしかのカテゴリNoの下にあるLV3データをかき集め、ファイルパスからカテゴリNoを、ファイルデータからパーツ番号を
+#紐付けたマップを作成
+ls ${DATAD}/*/LV3/*[^_d] | awk '{split($0,ary,"/"); print ary[7], ary[9]}' | cut -d'_' -f1 | LANG=C sort -k1 > $tmp-cate-list-map
+
+#パーツカテゴリ一覧
+cat ${SYSD}/DATA/PARTS_CATEGORY/LISTS/LV3/*[^_d] | awk '{print $1,$2}' | LANG=C sort -k1 > $tmp-cate-all
+
+#パーツ一覧
+cat ${SYSD}/DATA/PARTS_LIST/LISTS/*/LV3/*[^_d] | LANG=C sort -k1 > $tmp-parts-all
+
+#JOIN
+#マップとカテゴリ
+LANG=C join -1 1 -2 1 $tmp-cate-list-map $tmp-cate-all | LANG=C sort -k2 > $tmp-parts-category
+
+#カテゴリとパーツ一覧
+LANG=C join -1 2 -2 1 $tmp-parts-category $tmp-parts-all > $tmp-parts-list
+
+#カテゴリ情報とマッピングしたパーツ一覧をLISTS/LV3へ配置
+rm -f ${SYSD}/DATA/PARTS_LIST/LISTS/LV3/parts_*
+mv $tmp-parts-list ${SYSD}/DATA/PARTS_LIST/LISTS/LV3/parts_${CREATE_DATE}
 
 ########################################
 #データ操作ロックを解除

@@ -136,7 +136,8 @@ UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'PARTS_CATEGORY' ${NUM}`
 #done
 
 ########################################
-#正規データ配置
+:q!
+
 #なにがしかのカテゴリNoの下にあるLV3データをかき集め、ファイルパスからカテゴリNoを、ファイルデータからパーツ番号を
 #紐付けたマップを作成
 ls ${SYSD}/DATA/PARTS_LIST/LISTS/*/LV3/*[^_d] | awk '{split($0,ary,"/"); print ary[7], ary[9]}' | cut -d'_' -f1 | LANG=C sort -k1 > $tmp-cate-list-map
@@ -149,7 +150,6 @@ cat ${SYSD}/DATA/PARTS_LIST/LISTS/*/LV3/*[^_d] | LANG=C sort -k1 > $tmp-parts-al
 
 #JOIN
 #マップとカテゴリ
-#ソートは二番目のオペ番号を数値昇順
 LANG=C join -1 1 -2 1 $tmp-cate-list-map $tmp-cate-all | LANG=C sort -k2 > $tmp-parts-category
 
 #カテゴリとパーツ一覧

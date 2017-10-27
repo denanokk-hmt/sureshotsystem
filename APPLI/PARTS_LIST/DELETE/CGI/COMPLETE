@@ -16,7 +16,7 @@ SYSD=$(cd $(dirname $0) && pwd | awk '{print substr($0, 0, index($0, "sureshotsy
 #exec 2> ${SYSD}/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
 tmp=/tmp/tmp_$1
 LANG=ja_JP.UTF-8
-PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
+#PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
 CATEGORY=`cat $tmp-category`
 FUNC=`cat $tmp-func`
 DATAD=${SYSD}/DATA/${CATEGORY}/LISTS
@@ -44,11 +44,11 @@ FIN
 #######################################
 #フォームの入力値を取得
 NUM=$(nameread DELETE_PARTS_NO $tmp-post)
-VALUE4=$(nameread DELETE_CATEGORY_NX $tmp-post)         #パーツカテゴリ番号(変更前)
+CATE_NO=$(nameread DELETE_CATEGORY_NX $tmp-post)         #パーツカテゴリ番号(変更前)
 
 ########################################
 #存在確認
-cat ${DATAD}/${VALUE4}/LV3/${NUM}_*[^_d] | awk '{print}' > $tmp-valid1
+cat ${DATAD}/${CATE_NO}/LV3/${NUM}_*[^_d] | awk '{print}' > $tmp-valid1
 if [ -z "$(cat $tmp-valid1)" ] ; then
     echo 2222 > $tmp-ajax-html
     exit 0
@@ -56,9 +56,18 @@ fi
 
 #######################################
 #既存データから作成日時取得、現在日時を更新日時とする
-ls ${DATAD}/${VALUE4}/LV1/${NUM}_parts_* | cut -d'_' -f4 | sort -nk1,1 | head -n 1 > $tmp-create
+ls ${DATAD}/${CATE_NO}/LV1/${NUM}_parts_* | cut -d'_' -f4 | sort -nk1,1 | head -n 1 > $tmp-create
 CREATE_DATE=$(cat $tmp-create)
 UPDATE_DATE=$(date +%Y%m%d%H%M%S)
+
+########################################
+#更新者の取得
+CREATE_USER=$(cat ${DATAD}/${CATE_NO}/LV3/${NUM}* | awk '{print $8}')
+UPDATE_USER=$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
+
+########################################
+#最終更新日時
+LAST_UPDATE=$(ls ${DATAD}/${CATE_NO}/LV3/${NUM}* | awk 'BEGIN{FS="/"}{print $NF}' | cut -d'_' -f3)
 
 ########################################
 #該当のデータ操作をロック
@@ -68,23 +77,45 @@ LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
 
 #########################################
 #一時ファイル化
-ls ${DATAD}/${VALUE4}/LV1/${NUM}_parts_* | sort -nk1,1 | tail -n 1 > $tmp-latest
-cat $tmp-latest | awk -v ud=${UPDATE_DATE} '{print $1, $2, $3, $4, $5, $6, $7, $8, ud, "1"}' > $tmp-parts
+#parts_id	parts_nm_en	parts_nm_jp	price	remarks	create_date	update_date	create_user	update_user	del_flg
+cat ${DATAD}/${CATE_NO}/LV1/${NUM}_parts_${LAST_UPDATE} |
+awk -v ud=${UPDATE_DATE} '{print $1, $2, $3, $4, $5, $6, $7, $8, ud, "1"}' > $tmp-parts
 
 ########################################
 #データ格納
 #LV1:原始データとして、ファイル追加のみを行う
-$(mv $tmp-parts ${DATAD}/${VALUE4}/LV1/${NUM}_parts_${UPDATE_DATE})
+$(mv $tmp-parts ${DATAD}/${CATE_NO}/LV1/${NUM}_parts_${UPDATE_DATE})
 
-#LV2:変更されたデータとファイルを入れ替える
-cp -ip ${DATAD}/${VALUE4}/LV1/${NUM}_parts_${UPDATE_DATE} ${DATAD}/${VALUE4}/LV2/${NUM}_parts_${UPDATE_DATE}_d
-ls ${DATAD}/${VALUE4}/LV2/${NUM}_* | sort -nk1 | head -n 1 > $tmp-delete
-rm -f $(cat $tmp-delete)
+#LV2
+#ファイル名の末尾に_dを付ける
+mv ${DATAD}/${CATE_NO}/LV2/${NUM}_parts_${LAST_DATE} ${DATAD}/${CATE_NO}/LV2/${NUM}_parts_${LAST_DATE}_d
 
-#LV3:LV2のコピー
-cp -ip ${DATAD}/${VALUE4}/LV2/${NUM}_parts_${UPDATE_DATE}_d ${DATAD}/${VALUE4}/LV3/${NUM}_parts_${UPDATE_DATE}_d
-ls ${DATAD}/${VALUE4}/LV3/${NUM}_* | sort -nk1 | head -n 1 > $tmp-delete
-rm -f $(cat $tmp-delete)
+#LV3
+#ファイル名の末尾に_dを付ける
+mv ${DATAD}/${CATE_NO}/LV3/${NUM}_parts_${LAST_UPDATE} ${DATAD}/${CATE_NO}/LV3/${NUM}_parts_${LAST_DATE}_d
+
+########################################
+#正規データ配置
+#なにがしかのカテゴリNoの下にあるLV3データをかき集め、ファイルパスからカテゴリNoを、ファイルデータからパーツ番号を
+#紐付けたマップを作成
+ls ${SYSD}/DATA/PARTS_LIST/LISTS/*/LV3/*[^_d] | awk '{split($0,ary,"/"); print ary[7], ary[9]}' | cut -d'_' -f1 | LANG=C sort -k1 > $tmp-cate-list-map
+
+#パーツカテゴリ一覧
+cat ${SYSD}/DATA/PARTS_CATEGORY/LISTS/LV3/*[^_d] | awk '{print $1,$2}' | LANG=C sort -k1 > $tmp-cate-all
+
+#パーツ一覧
+cat ${SYSD}/DATA/PARTS_LIST/LISTS/*/LV3/*[^_d] | LANG=C sort -k1 > $tmp-parts-all
+
+#JOIN
+#マップとカテゴリ
+LANG=C join -1 1 -2 1 $tmp-cate-list-map $tmp-cate-all | LANG=C sort -k2 > $tmp-parts-category
+
+#カテゴリとパーツ一覧
+LANG=C join -1 2 -2 1 $tmp-parts-category $tmp-parts-all > $tmp-parts-list
+
+#カテゴリ情報とマッピングしたパーツ一覧をLISTS/LV3へ配置
+rm -f ${SYSD}/DATA/PARTS_LIST/LISTS/LV3/parts_*
+mv $tmp-parts-list ${SYSD}/DATA/PARTS_LIST/LISTS/LV3/parts_${CREATE_DATE}
 
 ########################################
 #データ操作ロックを解除
