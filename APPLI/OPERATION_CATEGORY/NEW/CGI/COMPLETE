@@ -40,7 +40,7 @@ if [ -e ${SYSD}/DATA/${CATEGORY}  ]; then
 else
     mkdir ${SYSD}/DATA/${CATEGORY}
     cp -rp ${SYSD}/DATA/ORG_LV1-3/ ${SYSD}/DATA/${CATEGORY}/LISTS
-    chmod -R 775 ${SYSD}/DATA/${CATEGORY} #オーナーと権限を再帰的に設定
+    chmod -R 770 ${SYSD}/DATA/${CATEGORY} #オーナーと権限を再帰的に設定
     ERROR_CHECK
 fi
 if [ -e ${SYSD}/DATA/OPERATION_LIST  ]; then
@@ -48,7 +48,7 @@ if [ -e ${SYSD}/DATA/OPERATION_LIST  ]; then
 else
     mkdir ${SYSD}/DATA/OPERATION_LIST
     mkdir ${SYSD}/DATA/OPERATION_LIST/LISTS
-    chmod -R 775 ${SYSD}/DATA/OPERATION_LIST #オーナーと権限を再帰的に設定
+    chmod -R 770 ${SYSD}/DATA/OPERATION_LIST #オーナーと権限を再帰的に設定
     ERROR_CHECK
 fi
 
@@ -97,10 +97,12 @@ echo ${NEW_NUM} ${VALUE1} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_
 #LV1:原始データとして、ファイル追加のみを行う
 mv $tmp-operation-category ${DATAD}/LV1/${NEW_NUM}_operation_category_${CREATE_DATE}
 
-#LV2:変更されたデータとファイルを入れ替える
+#LV2
+#削除フラグは除外-->dファイルとして扱う
 cat ${DATAD}/LV1/${NEW_NUM}_operation_category_${CREATE_DATE} | awk '{$NF=""; print $0}' > ${DATAD}/LV2/${NEW_NUM}_operation_category_${CREATE_DATE}
 
-#LV3:LV2のコピー
+#LV3
+#LV2のコピー
 cp -p ${DATAD}/LV2/${NEW_NUM}_operation_category_${CREATE_DATE} ${DATAD}/LV3/${NEW_NUM}_operation_category_${CREATE_DATE}
 
 ########################################
@@ -121,8 +123,8 @@ TABLE_RECORDS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-records`
 
 ########################################
 #tableにrecordsを嵌め込む
-cat ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/TABLE.HTML   > $tmp-table
-sed -e "s|###TABLE_RECORDS###|${TABLE_RECORDS}|g" $tmp-table    > $tmp-ajax-html
+cat ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/TABLE.HTML           > $tmp-table
+sed -e "s|###TABLE_RECORDS###|${TABLE_RECORDS}|g" $tmp-table  > $tmp-ajax-html
 
 ########################################
 #ending

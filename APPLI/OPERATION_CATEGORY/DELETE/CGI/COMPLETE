@@ -89,36 +89,87 @@ UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'OPERATION_CATEGORY' ${NUM}`
 ########################################
 
 #削除するカテゴリーで登録されている作業に対して、
-# 1.カテゴリを999 未選択、更新日を現在にして999ディレクトリにコピー
+#未登録カテゴリーが存在していなければ作成(0)
+# 0ディレクトリに移動
+
+#オペリストDir
 OPERATIOND=${SYSD}/DATA/OPERATION_LIST/LISTS
+
+#0未登録カテゴリを作成
+#0ディレクトリを作成
+if [ -e "${OPERATIOND}/0" ]; then
+    :
+else
+    #############################
+    #0:未登録カテゴリを作成
+    #############################
+    #LV1
+    echo 0 '未登録' ${UPDATE_DATE} ${UPDATE_DATE} ${UPDATE_USER} ${UPDATE_USER} 0 > \
+    ${DATAD}/LV1/0_operation_category_${UPDATE_DATE}
+    #LV2
+    cat ${DATAD}/LV1/0_operation_category_${UPDATE_DATE} | awk '{$NF=""; print $0}' > \
+    ${DATAD}/LV2/0_operation_category_${UPDATE_DATE}
+    #LV3
+    cp -p ${DATAD}/LV2/0_operation_category_${UPDATE_DATE} ${DATAD}/LV3/0_operation_category_${UPDATE_DATE}
+
+    ############################
+    #OPERATION_LISTにカテゴリ0ディレクトリを作成
+    ############################
+    cp -rp ${SYSD}/DATA/ORG_LV1-3 ${OPERATIOND}/0
+    chmod -R 770 ${OPERATIOND}/0
+    ERROR_CHECK
+fi
+
+#削除されるカテゴリのディレクトリから、身寄りが無くなったので、0ディレクトリにオペリストをすべて移動
 for file in `find ${OPERATIOND}/${NUM}/LV3/*[^_d] -maxdepth 1 -type f`; do
 
     #作業番号取得
-    num=$(echo $file | cut -d'/' -f9 | cut -d'_' -f1) 
-    update=$(echo $file | cut -d'/' -f9 | cut -d'_' -f3) 
-    ARR+=($num)
+    OPE_NO=$(echo $file | awk 'BEGIN{FS="/"}{print $NF}' | cut -d'_' -f1) 
+    #ARR+=($OPE_NO)
 
     #該当のデータ操作をロック
-    LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'OPERATION_LIST' ${num}`
+    LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'OPERATION_LIST' ${OPE_NO}`
     LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
     [ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
     
     #LV1:原始データとして、ファイル追加のみを行う
-    destiny=${OPERATIOND}/999/LV1/${num}_operation_${UPDATE_DATE}
-    cat ${OPERATIOND}/${NUM}/LV1/${num}_operation_${update} | awk -v ud=${UPDATE_DATE} '{print $1, "999", "未選択", $4, $5, $6, $7, $8, ud, "0"}' > $destiny
-
+    mv ${OPERATIOND}/${NUM}/LV1/${OPE_NO}_operation_* ${OPERATIOND}/0/LV1/
     #LV2:変更されたデータとファイルを入れ替える
-    cp -fp ${OPERATIOND}/999/LV1/${num}_operation_${UPDATE_DATE} ${OPERATIOND}/999/LV2/${num}_operation_${UPDATE_DATE}
-
+    mv ${OPERATIOND}/${NUM}/LV2/${OPE_NO}_operation_* ${OPERATIOND}/0/LV2/
     #LV3:LV2のコピー
-    cp -fp ${OPERATIOND}/999/LV2/${num}_operation_${UPDATE_DATE} ${OPERATIOND}/999/LV3/${num}_operation_${UPDATE_DATE}
+    mv ${OPERATIOND}/${NUM}/LV3/${OPE_NO}_operation_* ${OPERATIOND}/0/LV3/
 
     #データ操作ロックを解除
-    UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'OPERATION_LIST' ${num}`
+    UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'OPERATION_LIST' ${OPE_NO}`
     [ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
 done
+
 # 2.ディレクトリ名の末尾に_dをつける
 mv ${OPERATIOND}/${NUM} ${OPERATIOND}/${NUM}_${UPDATE_DATE}_d
+
+########################################
+#正規データ配置
+#なにがしかのカテゴリNoの下にあるLV3データをかき集め、ファイルパスからカテゴリNoを、ファイルデータからオペ番号を
+#紐付けたマップを作成
+ls ${SYSD}/DATA/OPERATION_LIST/LISTS/*/LV3/*[^_d] | awk '{split($0,ary,"/"); print ary[7], ary[9]}' | cut -d'_' -f1 | LANG=C sort -k1 > $tmp-cate-list-map
+
+#オペカテゴリ一覧
+cat ${SYSD}/DATA/OPERATION_CATEGORY/LISTS/LV3/*[^_d] | awk '{print $1,$2}' | LANG=C sort -k1 > $tmp-cate-all
+
+#オペ一覧
+cat ${SYSD}/DATA/OPERATION_LIST/LISTS/*/LV3/*[^_d] | LANG=C sort -k1 > $tmp-ope-all
+
+#JOIN
+#マップとカテゴリ
+#ソートは二番目のオペ番号を数値昇順
+LANG=C join -1 1 -2 1 $tmp-cate-list-map $tmp-cate-all | LANG=C sort -k2 > $tmp-ope-category
+
+#カテゴリとオペ一覧
+LANG=C join -1 2 -2 1 $tmp-ope-category $tmp-ope-all > $tmp-operations
+
+#カテゴリ情報とマッピングしたオペ一覧をLISTS/LV3へ配置
+rm -f ${SYSD}/DATA/OPERATION_LIST/LISTS/LV3/operations_*
+mv $tmp-operations ${SYSD}/DATA/OPERATION_LIST/LISTS/LV3/operations_${CREATE_DATE}
 
 ########################################
 #
