@@ -137,6 +137,7 @@
             } else {
                 $('table').html(data);
                 $('#info-msg').html(new_operation_name + "を追加しました。");
+                alert(new_operation_name + "を追加しました。");
             }
         });
         jqXHR.fail(function(data) {
@@ -170,8 +171,10 @@
                 alert(edit_operation_name + "は、既に使われています。");
             } else if (data == 111) {
                 $('#info-msg').html(edit_operation_name + "を変更しました。");
+                alert(edit_operation_name + "を変更しました。");
             } else {
                 $('#info-msg').html(edit_operation_name + "を変更出来ませんでした。");
+                alert(edit_operation_name + "を変更出来ませんでした。");
             }
         });
         jqXHR.fail(function() {
@@ -200,8 +203,10 @@
                 var sel = '#edit-row-' + id;
                 $(sel).remove();
                 $('#info-msg').html(delete_operation_name + "を削除しました。");
+                alert(delete_operation_name + "を削除しました。");
             } else {
                 $('#info-msg').html(delete_operation_name + "を削除出来ませんでした。");
+                alert(delete_operation_name + "を削除出来ませんでした。");
             }
         });
         jqXHR.fail(function() {
