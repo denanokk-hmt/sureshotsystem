@@ -101,7 +101,7 @@ mv $tmp-parts-category ${DATAD}/LV1/${NEW_NUM}_parts_category_${CREATE_DATE}
 
 #LV2
 #削除フラグは除外-->dファイルとして扱う
-cat ${DATAD}/LV1/${NEW_NUM}_parts_category_${CREATE_DATE} awk '{$NF=""; print $0}' > ${DATAD}/LV2/${NEW_NUM}_parts_category_${CREATE_DATE}
+cat ${DATAD}/LV1/${NEW_NUM}_parts_category_${CREATE_DATE} | awk '{$NF=""; print $0}' > ${DATAD}/LV2/${NEW_NUM}_parts_category_${CREATE_DATE}
 
 #LV3
 #LV2のコピー
