@@ -92,51 +92,12 @@ rm -f $(cat $tmp-delete)
 UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'OPERATION_CATEGORY' ${NUM}`
 [ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
 
-
 ########################################
-#   作業のデータ操作
-#   変更する作業カテゴリに属している作業をすべて変更先に移動する操作
-########################################
+#LV3一覧3データ配置
+#なにがしかのカテゴリNoの下にあるLV3データをかき集め、
+#ファイルパスからカテゴリNoを、
+#ファイルデータからオペ番号を
 
-#LISTデータにカテゴリ情報は含めくしたので以下の処理は廃止
-##該当カテゴリで登録されている作業に対して、
-## 1.カテゴリ名を修正するための更新処理を行う
-#OPERATIOND=${SYSD}/DATA/OPERATION_LIST/LISTS/${NUM}
-#for file in `find ${OPERATIOND}/LV3/*[^_d] -maxdepth 1 -type f`; do
-#
-#    #作業番号を取得
-#    num=$(echo $file | cut -d'/' -f9 | cut -d'_' -f1) 
-#    update=$(echo $file | cut -d'/' -f9 | cut -d'_' -f3) 
-#    ARR+=($num)
-#
-#    #該当のデータ操作をロック
-#    LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'OPERATION_LIST' ${num}`
-#    LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
-#    [ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
-#
-#    #LV1:原始データとして、ファイル追加のみを行う
-#    destiny=${OPERATIOND}/LV1/${num}_operation_${UPDATE_DATE}
-#    cat ${OPERATIOND}/LV1/${num}_operation_${update} | 
-#    awk -v nm=${NAME} -v ud=${UPDATE_DATE} -v uu=${UPDATE_USER} \
-#    '{print $1, $2, nm, $4, $5, $6, $7, $8, ud, $10, uu, $12}' > $destiny
-#    #LV2:変更されたデータとファイルを入れ替える
-#    cat $destiny | awk '{$NF=""; print $0}' > ${OPERATIOND}/LV2/${num}_operation_${UPDATE_DATE}
-#    ls ${OPERATIOND}/LV2/${num}_* | sort -nk1 | head -n 1 > $tmp-delete
-#    rm -f $(cat $tmp-delete)
-#
-#    #LV3:LV2のコピー
-#    cp -fp ${OPERATIOND}/LV2/${num}_operation_${UPDATE_DATE} ${OPERATIOND}/LV3/${num}_operation_${UPDATE_DATE}
-#    ls ${OPERATIOND}/LV3/${num}_* | sort -nk1 | head -n 1 > $tmp-delete
-#    rm -f $(cat $tmp-delete)
-#    
-#    #データ操作ロックを解除
-#    UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'OPERATION_LIST' ${num}`
-#    [ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
-#done
-
-########################################
-#正規データ配置
-#なにがしかのカテゴリNoの下にあるLV3データをかき集め、ファイルパスからカテゴリNoを、ファイルデータからオペ番号を
 #紐付けたマップを作成
 ls ${SYSD}/DATA/OPERATION_LIST/LISTS/*/LV3/*[^_d] | awk '{split($0,ary,"/"); print ary[7], ary[9]}' | cut -d'_' -f1 | LANG=C sort -k1 > $tmp-cate-list-map
 

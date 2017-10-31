@@ -115,9 +115,7 @@ else
     ############################
     #OPERATION_LISTにカテゴリ0ディレクトリを作成
     ############################
-    cp -rp ${SYSD}/DATA/ORG_LV1-3 ${OPERATIOND}/0
-    chmod -R 770 ${OPERATIOND}/0
-    ERROR_CHECK
+    result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${OPERATIOND}/0 ${OPERATIOND}/0`
 fi
 
 #削除されるカテゴリのディレクトリから、身寄りが無くなったので、0ディレクトリにオペリストをすべて移動
@@ -148,8 +146,11 @@ done
 mv ${OPERATIOND}/${NUM} ${OPERATIOND}/${NUM}_${UPDATE_DATE}_d
 
 ########################################
-#正規データ配置
-#なにがしかのカテゴリNoの下にあるLV3データをかき集め、ファイルパスからカテゴリNoを、ファイルデータからオペ番号を
+#LV3一覧3データ配置
+#なにがしかのカテゴリNoの下にあるLV3データをかき集め、
+#ファイルパスからカテゴリNoを、
+#ファイルデータからオペ番号を
+
 #紐付けたマップを作成
 ls ${SYSD}/DATA/OPERATION_LIST/LISTS/*/LV3/*[^_d] | awk '{split($0,ary,"/"); print ary[7], ary[9]}' | cut -d'_' -f1 | LANG=C sort -k1 > $tmp-cate-list-map
 

@@ -16,7 +16,7 @@ SYSD=$(cd $(dirname $0) && pwd | awk '{print substr($0, 0, index($0, "sureshotsy
 #exec 2> ${SYSD}/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
 tmp=/tmp/tmp_$1
 LANG=ja_JP.UTF-8
-PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
+#PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
 CATEGORY=`cat $tmp-category`
 FUNC=`cat $tmp-func`
 DATAD=${SYSD}/DATA/${CATEGORY}/LISTS
@@ -44,9 +44,9 @@ CUSTOMER_ID=$(nameread CUSTOMER_ID $tmp-post)
 
 ########################################
 #顧客番号一致確認
-if [ -e ${SYSD}/DATA/${CATEGORY}/TMP/${CUSTOMER_ID} ]; then
-    CUSTOMER_NUM=$(cat ${SYSD}/DATA/${CATEGORY}/TMP/${CUSTOMER_ID})
-    rm -f ${SYSD}/DATA/CUSTOMER/TMP/${CUSTOMER_ID}
+if [ -e ${SYSD}/TMP/CUSTOMER/${CUSTOMER_ID} ]; then
+    CUSTOMER_NUM=$(cat ${SYSD}/TMP/CUSTOMER/${CUSTOMER_ID})
+    rm -f ${SYSD}/TMP/CUSTOMER/${CUSTOMER_ID}
 else
     cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/CONFIRM.HTML             |
     sed -e "s/###ERROR_MSG###/データ不整合により処理を中止しました。/"  |

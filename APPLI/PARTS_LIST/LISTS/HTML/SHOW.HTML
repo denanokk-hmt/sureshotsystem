@@ -138,6 +138,7 @@
             } else {
                 $('table').html(data);
                 $('#info-msg').html(new_parts_name + "を追加しました。");
+                alert(new_parts_name + "を追加しました。");
             }
         });
         jqXHR.fail(function(data) {
@@ -147,29 +148,23 @@
 
     //パーツ変更
     function editParts(id) {
-        var page_filter = $('#CATEGORY_PAGE_HIDDEN').val();
-        var page_category_no = $('#CATEGORY_NO_PAGE_HIDDEN').val();
-        var edit_category_no = $('#CATEGORY_NO_' + id + '_HIDDEN').val();
-        var edit_category_nx = $('#CATEGORY_NO_' + id + '_HIDDEN_EX').val();
-        var edit_category_name = $('#CATEGORY_' + id + '_HIDDEN').val();
         var edit_parts_name = $('#PARTS_NAME_' + id).val();
-        var edit_parts_name_jp = $('#PARTS_NAME_JP_' + id).val();
-        var edit_parts_price = $('#PARTS_PRICE_' + id).val();
-        var edit_parts_remarks = $('#PARTS_REMARKS_' + id).val();
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/PARTS_LIST/EDIT/COMPLETE',
+            url: '/APP/PARTS_LIST/EDIT',
             data: {
-                PAGE_FILTER: page_filter,
-                CATEGORY_NO_PAGE_HIDDEN: page_category_no,
+                ACTION: 'COMPLETE',
+                REST: 'PUT',
+                PAGE_CATEGORY_NM: $('#CATEGORY_NM').val(),
+                PAGE_CATEGORY_NO: $('#CATEGORY_NO').val(),
                 EDIT_PARTS_NO: id,
-                EDIT_PARTS_CATEGORY_NO: edit_category_no,
-                EDIT_PARTS_CATEGORY_NX: edit_category_nx,
-                EDIT_PARTS_CATEGORY_NAME: edit_category_name,
-                EDIT_PARTS_NAME: edit_parts_name,
-                EDIT_PARTS_NAME_JP: edit_parts_name_jp,
-                EDIT_PARTS_PRICE: edit_parts_price,
-                EDIT_PARTS_REMARKS: edit_parts_remarks
+                EDIT_PARTS_CATEGORY_NO: $('#CATEGORY_NO_HID_' + id).val(),
+                EDIT_PARTS_CATEGORY_NX: $('#CATEGORY_NX_HID_' + id).val(),
+                EDIT_PARTS_CATEGORY_NAME: $('#CATEGORY_NM_HID_' + id).val(),
+                EDIT_PARTS_NAME: $('#PARTS_NAME_' + id).val(),
+                EDIT_PARTS_NAME_JP: $('#PARTS_NAME_JP_' + id).val(),
+                EDIT_PARTS_PRICE:$('#PARTS_PRICE_' + id).val() ,
+                EDIT_PARTS_REMARKS: $('#PARTS_REMARKS_' + id).val()
             }
         });
         jqXHR.done(function(data) {
@@ -177,8 +172,10 @@
                 alert(edit_parts_name + "は、既に使われています。");
             } else if (data == 111) {
                 $('#info-msg').html(edit_parts_name + "を変更しました。");
+                alert(edit_parts_name + "を変更しました。");
             } else {
                 $('#info-msg').html(edit_parts_name + "を変更出来ませんでした。");
+                alert(edit_parts_name + "を変更出来ませんでした。");
             }
         });
         jqXHR.fail(function() {
@@ -188,14 +185,16 @@
 
     //パーツ削除
     function deleteParts(id) {
-        var delete_category_nx = $('#CATEGORY_NO_' + id + '_HIDDEN_EX').val();
         var delete_parts_name = $('#PARTS_NAME_' + id).val();
+        var delete_category_nx = $('#CATEGORY_NX_HID_' + id).val();
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/PARTS_LIST/DELETE/COMPLETE',
+            url: '/APP/PARTS_LIST/DELETE',
             data: {
+                ACTION: 'COMPLETE',
+                REST: 'DELETE',
                 DELETE_PARTS_NO: id,
-                DELETE_CATEGORY_NX: delete_category_nx,
+                DELETE_CATEGORY_NX: $('#CATEGORY_NX_HID_' + id).val(),
             }
        });
         jqXHR.done(function(data) {
@@ -205,8 +204,10 @@
                 var sel = '#edit-row-' + id;
                 $(sel).remove();
                 $('#info-msg').html(delete_parts_name + "を削除しました。");
+                alert(delete_parts_name + "を削除しました。");
             } else {
                 $('#info-msg').html(delete_parts_name + "を削除出来ませんでした。");
+                alert(delete_parts_name + "を削除出来ませんでした。");
             }
         });
         jqXHR.fail(function() {

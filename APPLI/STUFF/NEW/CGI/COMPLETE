@@ -76,6 +76,10 @@ UPDATE_USER=${CREATE_USER}
 ########################################
 
 ########################################
+#ログインDirを作成
+result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${LOGIND} ${LOGIND}`
+
+########################################
 #一時ファイルに書き込み
 echo ${STUFF_NUM} ${EMAIL} ${PASSWORD} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} 0 > $tmp-login
 
@@ -92,6 +96,10 @@ cp -p ${LOGIND}/LV2/${STUFF_NUM}_login_${CREATE_DATE} ${LOGIND}/LV3/${STUFF_NUM}
 ########################################
 #       スタッフデータ　
 ########################################
+
+########################################
+#スタッフDirを作成
+result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${USERSD} ${USERSD}`
 
 ########################################
 #一時ファイルに書き込み

@@ -88,11 +88,11 @@ $(mv $tmp-parts ${DATAD}/${CATE_NO}/LV1/${NUM}_parts_${UPDATE_DATE})
 
 #LV2
 #ファイル名の末尾に_dを付ける
-mv ${DATAD}/${CATE_NO}/LV2/${NUM}_parts_${LAST_DATE} ${DATAD}/${CATE_NO}/LV2/${NUM}_parts_${LAST_DATE}_d
+mv ${DATAD}/${CATE_NO}/LV2/${NUM}_parts_${LAST_UPDATE} ${DATAD}/${CATE_NO}/LV2/${NUM}_parts_${LAST_UPDATE}_d
 
 #LV3
 #ファイル名の末尾に_dを付ける
-mv ${DATAD}/${CATE_NO}/LV3/${NUM}_parts_${LAST_UPDATE} ${DATAD}/${CATE_NO}/LV3/${NUM}_parts_${LAST_DATE}_d
+mv ${DATAD}/${CATE_NO}/LV3/${NUM}_parts_${LAST_UPDATE} ${DATAD}/${CATE_NO}/LV3/${NUM}_parts_${LAST_UPDATE}_d
 
 ########################################
 #正規データ配置

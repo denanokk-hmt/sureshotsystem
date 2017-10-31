@@ -115,9 +115,7 @@ else
     ############################
     #PARTS_LISTにカテゴリ0ディレクトリを作成
     ############################
-    cp -rp ${SYSD}/DATA/ORG_LV1-3 ${PARTSD}/0
-    chmod -R 770 ${PARTSD}/0
-    ERROR_CHECK
+    result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${PARTSD}/0 ${PARTSD}/0`
 fi
 
 #削除されるカテゴリのディレクトリから、身寄りが無くなったので、0ディレクトリにパーツリストをすべて移動
@@ -133,11 +131,11 @@ for file in `find ${PARTSD}/${NUM}/LV3/*[^_d] -maxdepth 1 -type f`; do
     [ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
     
     #LV1
-    mv ${PARTSD}/${NUM}/LV1/${PATS_NO}_parts_* ${PARTS}/0/LV1/
+    mv ${PARTSD}/${NUM}/LV1/${PARTS_NO}_parts_* ${PARTSD}/0/LV1/
     #LV2
-    mv ${PARTSD}/${NUM}/LV2/${PATS_NO}_parts_* ${PARTS}/0/LV2/
+    mv ${PARTSD}/${NUM}/LV2/${PATRS_NO}_parts_* ${PARTSD}/0/LV2/
     #LV3
-    mv ${PARTSD}/${NUM}/LV3/${PATS_NO}_parts_* ${PARTS}/0/LV3/
+    mv ${PARTSD}/${NUM}/LV3/${PATRS_NO}_parts_* ${PARTSD}/0/LV3/
 
     #データ操作ロックを解除
     UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'PARTS_LIST' ${num}`
@@ -148,8 +146,11 @@ done
 mv ${PARTSD}/${NUM} ${PARTSD}/${NUM}_${UPDATE_DATE}_d
 
 ########################################
-#正規データ配置
-#なにがしかのカテゴリNoの下にあるLV3データをかき集め、ファイルパスからカテゴリNoを、ファイルデータからパーツ番号を
+#LV3一覧3データ配置
+#なにがしかのカテゴリNoの下にあるLV3データをかき集め、
+#ファイルパスからカテゴリNoを
+#ファイルデータからパーツ番号を
+
 #紐付けたマップを作成
 ls ${SYSD}/DATA/PARTS_LIST/LISTS/*/LV3/*[^_d] | awk '{split($0,ary,"/"); print ary[7], ary[9]}' | cut -d'_' -f1 | LANG=C sort -k1 > $tmp-cate-list-map
 
