@@ -1,0 +1,52 @@
+#!/bin/bash -vx
+#
+
+########################################
+#	VALIDATION.CGI
+#
+#     $1:必須 セッションID
+#
+#	Written by hiramatsu
+#
+#
+# 使用方法
+# 　呼び出し元にて、バリデーションを行単位で指定し、
+#   $tmp-validationをリダイレクトする
+#   
+#   バリデーションの指定方法
+#     /CGI/VALID/LISTS配下にあるバリデーションファイル名を前方、
+#     後方に引数を指定し、これらをパイプ「|」をデリミタとして繋ぐ
+#     また引数を複数指定したい場合には、デリミタとしてカンマ「，」を用いる
+#     例：文字列の長さが3文字以上
+#         LENGTH|AAA,3,0
+#         
+
+########################################
+#基本設定
+SYSD=$(cd $(dirname $0) && pwd | awk '{print substr($0, 0, index($0, "sureshotsystem")+13)}')
+#exec 2> ${SYSD}/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
+tmp=/tmp/tmp_$1
+
+#######################################
+#Validation
+cat $tmp-validation |
+awk '
+{ for (i=1; i<=NF; i++)  { a[NR,i] = $i } } NF>p { p = NF }
+END {
+for(j=1; j<=p; j++) { str=a[1,j]; for(i=2; i<=NR; i++){ str=str" "a[i,j]; }
+print str
+}
+}' > $tmp-validation-list
+
+ARR=(`cat $tmp-validation-list`)
+for valid in ${ARR[@]}; do
+  VALID=$(echo $valid | cut -d'|' -f1)
+  ARGS=$(echo $valid | cut -d'|' -f2 | tr -s ',' ' ')
+  result=`${SYSD}/CGI/VALID/LISTS/${VALID} ${ARGS}`
+  echo $result >> $tmp-validation-result
+done
+
+#######################################
+#Return cookie words
+exit 0
+
