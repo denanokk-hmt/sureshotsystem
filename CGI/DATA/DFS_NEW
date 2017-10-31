@@ -1,0 +1,77 @@
+#!/bin/bash -vx
+#
+
+########################################
+#	DFS_NEW.CGI
+#
+#   引数
+#       $1:プロセスID
+#       $2:必須 ディレクトリパス(複数階層の場合、そのすべて:/DATA/AAA/LIST)
+#       $3:任意 LV1-LV3を配置するDirパス
+#   戻り値
+#       YYYYMMDD.HHMMSS.プロセスID.ステータス.固有キー
+#
+#	Written by hiramatsu
+
+
+########################################
+#基本設定
+SYSD=$(cd $(dirname $0) && pwd | awk '{print substr($0, 0, index($0, "sureshotsystem")+13)}')
+PID=$1
+DATE_TIME_PID=$(date +%Y%m%d).$(date +%H%M%S).${PID}
+#exec 2> ${SYSD}/LOG/LOG.$(basename $0).${DATE_TIME_PID}
+tmp=/tmp/tmp_$1
+LANG=ja_JP.UTF-8
+#PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
+LOCKD=${SYSD}/LOCK/$2
+KEY=${3:-KEY}
+
+
+########################################
+#Check error
+ERROR_CHECK(){
+	[ $(plus ${PIPESTATUS[@]}) -eq 0 ] && return
+    [ -z ${STATUS} ] && STATUS='LOCK_ERROR'
+    cat ${SYSD}/HTML/ERROR/SYSTEM_ERROR.HTML                        |
+    sed -e "s/###ERROR1_LABEL###/データ操作ロック処理中にエラー/"   |
+    sed -e "s/###ERROR2_LABEL###/処理ステータス:${STATUS}/"         |
+    sed -e "s|###ERROR3_LABEL###|${LOCKD}|"                         |
+    sed -e "s/###ERROR4_LABEL###/${KEY}/"                           |
+    sed -e "s/###ERROR5_LABEL###//"                                 > $tmp-html
+    echo ${STATUS}
+    exit 0
+}
+
+########################################
+#Dirを分解して、すべての階層のDirをチェックして、なければ作成
+ARR=(`echo $2 | tr -s '/' ' '`)
+for fld in ${ARR[@]}; do
+  DIR+=/$fld
+  if [ -e ${DIR} ]; then
+    :
+  else
+    [ -z ${TOPD} ] && TOPD=${DIR} || : 
+    mkdir ${DIR} 
+  fi
+done
+
+########################################
+#LV-3を配置
+if [ -n $3 ]; then
+  LVD=(1 2 3)
+  for lv in ${LVD[@]}; do
+    mkdir $3/LV$lv
+  done
+fi
+
+########################################
+#権限を付与
+chmod -R 770 ${TOPD}
+
+########################################
+#戻り値
+echo "OK" 
+
+########################################
+#正常終了
+exit 0
