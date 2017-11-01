@@ -133,9 +133,9 @@ for file in `find ${PARTSD}/${NUM}/LV3/*[^_d] -maxdepth 1 -type f`; do
     #LV1
     mv ${PARTSD}/${NUM}/LV1/${PARTS_NO}_parts_* ${PARTSD}/0/LV1/
     #LV2
-    mv ${PARTSD}/${NUM}/LV2/${PATRS_NO}_parts_* ${PARTSD}/0/LV2/
+    mv ${PARTSD}/${NUM}/LV2/${PARTS_NO}_parts_* ${PARTSD}/0/LV2/
     #LV3
-    mv ${PARTSD}/${NUM}/LV3/${PATRS_NO}_parts_* ${PARTSD}/0/LV3/
+    mv ${PARTSD}/${NUM}/LV3/${PARTS_NO}_parts_* ${PARTSD}/0/LV3/
 
     #データ操作ロックを解除
     UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'PARTS_LIST' ${num}`
