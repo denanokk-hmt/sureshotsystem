@@ -43,7 +43,7 @@ sed -e "s/###EMAIL_DUPLECATED###/hidden/"                 |
 sed -e "s/###TEL1_ERR###/hidden/"                         |
 sed -e "s/###TEL2_ERR###/hidden/"                         |
 sed -e "s/###PASSWORD_ERR###/hidden/"                     |
-sed -e "s/###PASSWORD_CONFIRMATION_ERR###/hidden/"        |
+sed -e "s/###PW_CONFIRM_ERR###/hidden/"                   |
 sed -e "s/###ADMIN_ERR###/hidden/"                        |
 sed -e "s/###FAMILY_NAME###//g"                           |
 sed -e "s/###GIVEN_NAME###//g"                            |
@@ -51,7 +51,7 @@ sed -e "s/###EMAIL###//g"                                 |
 sed -e "s/###TEL1###//g"                                  |
 sed -e "s/###TEL2###//g"                                  |
 sed -e "s/###PASSWORD###//g"                              |
-sed -e "s/###PASSWORD_CONFIRMATION###//g"                 |
+sed -e "s/###PW_CONFIRM###//g"                            |
 sed -e "s/###ADMIN_CHK###//"                              |
 sed -e "s/###ADMIN_VAL###/0/"                             > $tmp-html
 

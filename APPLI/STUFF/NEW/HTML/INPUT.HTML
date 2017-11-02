@@ -14,15 +14,23 @@
         <div class="col-md-10 lbl-header-info">
 		        <span class="label label-default ###INFO_TOP_MSG###">Please input berow objects.</span>
         </div>
+        <!--ERROR MESSAGE-->
         <div class="col-md-10 lbl-header-info">
-            <span class="label label-danger ###FAMILY_NAME_ERR###">FAMILY NAME was Invalid.</span>
-            <span class="label label-danger ###GIVEN_NAME_ERR###">GIVEN NAME was Invalid.</span>
-            <span class="label label-danger ###EMAIL_ERR###">EMAIL was Invalid.</span>
-            <span class="label label-danger ###EMAIL_DUPLECATED###">Duplicated EMAIL.</span>
-            <span class="label label-danger ###TEL1_ERR###">Tel1 Invailed.</span>
-            <span class="label label-danger ###TEL2_ERR###">Tel2 Invalid.</span>
-            <span class="label label-danger ###PASSWORD_ERR###">PASSWORD was Invalid.</span>
-            <span class="label label-danger ###PASSWORD_CONFIRMATION_ERR###">PASSWORD CONFIRMATION was Invalid.</span>
+            <span class="label label-danger ###FAMILY_NAME_ISNULL###">FAMILY NAMEに値がありません。 </span>
+            <span class="label label-danger ###FAMILY_NAME_LENGTH###">FAMILY NAMEは2文字以上必要です。 </span>
+            <span class="label label-danger ###GIVEN_NAME_ISNULL###">GIVEN NAMEに値がありません。</span>
+            <span class="label label-danger ###GIVEN_NAME_LENGTH###">GIVEN NAMEは2文字以上必要です。 </span>
+            <span class="label label-danger ###EMAIL_ISNULL###">EMAILに値がありません。</span>
+            <span class="label label-danger ###EMAIL_DUPLICATE###">EMAILが既に使用されています。</span>
+            <span class="label label-danger ###TEL1_ISNULL###">Tel1に値がありません。</span>
+            <span class="label label-danger ###TEL1_MATCH###">Tel1はハイフン付きで入力してください。</span>
+            <span class="label label-danger ###TEL1_NUMERIC###">Tel1にハイフンと数字以外が入力されています。</span>
+            <span class="label label-danger ###TEL2_MATCH###">Tel2はハイフン付きで入力してください。</span>
+            <span class="label label-danger ###TEL2_NUMERIC###">Tel2にハイフンと数字以外が入力されています。</span>
+            <span class="label label-danger ###PASSWORD_ISNULL###">PASSWORDに値がありません。</span>
+            <span class="label label-danger ###PASSWORD_LENGTH###">PASSWORDは8文字以上必要です。</span>
+            <span class="label label-danger ###PW_CONFIRM_ISNULL###">PW CONFIRMATIONに値がありません。</span>
+            <span class="label label-danger ###PW_CONFIRM_COMPARE###">PW CONFIRMATIONの値がPASSWORDと異なっています。</span>
         </div>
     </div>
     <br> 
@@ -31,111 +39,134 @@
     <form action="/APP/STUFF/NEW" method="POST">
 	      <input type="hidden" name="ACTION" value="CONFIRM" />
 	      <input type="hidden" name="REST" value="POST" />
+
+        <!--FAMILY_NAME-->
         <div class="row">
             <div class="col-md-1 hidden-xs">
-                <label class="control-label ###FAMILY_NAME_LBL_COLOR###">
+                <label class="control-label ###FAMILY_NAME_ISNULL_LBL### ###FAMILY_NAME_LENGTH_LBL###">
                     <i class="glyphicon glyphicon-user"></i>
                 </label>
             </div>
             <div class="col-md-10 col-xs-11">
                 <div class="form-group">
-	                <input type="text" name="FAMILY_NAME" value="###FAMILY_NAME###" class="form-control" placeholder="Family Name" />
+	                <input type="text" name="FAMILY_NAME" value="###FAMILY_NAME###" 
+                        class="form-control ###FAMILY_NAME_ISNULL_LBL### ###FAMILY_NAME_LENGTH_LBL###" 
+                        placeholder="Family Name" />
                 </div>
             </div>
             <div class="col-md-1 col-xs-1"></div>
         </div>
         <br> 
 
+        <!--GIVEN_NAME-->
         <div class="row">
             <div class="col-md-1 hidden-xs">
-                <label class="control-label ###GIVEN_NAME_LBL_COLOR###">
+                <label class="control-label ###GIVEN_NAME_ISNULL_LBL### ###GIVEN_NAME_LENGTH_LBL###">
                     <i class="glyphicon glyphicon-user"></i>
                 </label>
             </div>
             <div class="col-md-10 col-xs-11">
                 <div class="form-group">
-	                <input type="text" name="GIVEN_NAME" value="###GIVEN_NAME###" class="form-control" placeholder="Given Name" />
+	                <input type="text" name="GIVEN_NAME" value="###GIVEN_NAME###" 
+                        class="form-control ###GIVEN_NAME_ISNULL_LBL### ###GIVEN_NAME_LENGTH_LBL###" 
+                        placeholder="Given Name" />
                 </div>
             </div>
             <div class="col-md-1 col-xs-1"></div>
         </div>
         <br> 
 
+        <!--EMAIL-->
         <div class="row">
             <div class="col-md-1 hidden-xs">
-                <label class="control-label ###EMAIL_LBL_COLOR###">
+                <label class="control-label ###EMAIL_ISNULL_LBL### ###EMAIL_DUPLICATE_LBL###">
                     <i class="glyphicon glyphicon-envelope"></i>
                 </label>
             </div>
             <div class="col-md-10 col-xs-11">
                 <div class="form-group">
-                    <input type="email" name="EMAIL" id="EMAIL" value="###EMAIL###" class="form-control" placeholder="ID (e-mail)" />
+                    <input type="email" name="EMAIL" id="EMAIL" value="###EMAIL###" 
+                          class="form-control ###EMAIL_ISNULL_LBL### ###EMAIL_DUPLICATE_LBL###" 
+                          placeholder="ID (e-mail)" />
                 </div>
             </div>
             <div class="col-md-1 col-xs-1"></div>
         </div>
         <br> 
 
+        <!--TEL1-->
         <div class="row">
             <div class="col-md-1 hidden-xs">
-                <label class="control-label ###TEL1_LBL_COLOR###">
+                <label class="control-label ###TEL1_ISNULL_LBL### ###TEL1_MATCH_LBL### ###TEL1_NUMERIC_LBL###">
                     <i class="glyphicon glyphicon-envelope"></i>
                 </label>
             </div>
             <div class="col-md-10 col-xs-11">
                 <div class="form-group">
-                    <input type="text" name="TEL1" id="TEL1" value="###TEL1###" class="form-control" placeholder="mobile phone" />
+                    <input type="text" name="TEL1" id="TEL1" value="###TEL1###" 
+                          class="form-control ###TEL1_ISNULL_LBL### ###TEL1_MATCH_LBL### ###TEL1_NUMERIC_LBL###" 
+                          placeholder="mobile phone" />
                 </div>
             </div>
             <div class="col-md-1 col-xs-1"></div>
         </div>
         <br> 
 
+        <!--TEL2-->
         <div class="row">
             <div class="col-md-1 hidden-xs">
-                <label class="control-label ###TEL2_LBL_COLOR###">
+                <label class="control-label ###TEL2_MATCH_LBL### ###TEL2_NUMERIC_LBL###">
                     <i class="glyphicon glyphicon-envelope"></i>
                 </label>
             </div>
             <div class="col-md-10 col-xs-11">
                 <div class="form-group">
-                    <input type="text" name="TEL2" id="TEL2" value="###TEL2###" class="form-control" placeholder="another phone" />
+                    <input type="text" name="TEL2" id="TEL2" value="###TEL2###" 
+                          class="form-control ###TEL2_MATCH_LBL### ###TEL2_NUMERIC_LBL###" 
+                          placeholder="another phone" />
                 </div>
             </div>
             <div class="col-md-1 col-xs-1"></div>
         </div>
         <br> 
 
+        <!--PASSWORD-->
         <div class="row">
             <div class="col-md-1 hidden-xs ">
-                <label class="control-label ###PW_LBL_COLOR###">
+                <label class="control-label ###PASSWORD_ISNULL_LBL### ###PASSWORD_LENGTH_LBL###">
                     <i class="glyphicon glyphicon-edit"></i>
                 </label>
             </div>
             <div class="col-md-10 col-xs-11 ">
                 <div class="form-group">
-                    <input type="password" name="PASSWORD" id="PASSWORD" value="###PASSWORD###" class="form-control" placeholder="Password" />
+                    <input type="password" name="PASSWORD" id="PASSWORD" value="###PASSWORD###" 
+                          class="form-control ###PASSWORD_ISNULL_LBL### ###PASSWORD_LENGTH_LBL###" 
+                          placeholder="Password" />
                 </div>
             </div>
             <div class="col-md-1 col-xs-1"></div>
         </div>
         <br> 
 
+        <!--PASSWORD CONFIRMATION-->
         <div class="row">
             <div class="col-md-1 hidden-xs">
-                <label class="control-label ###PW_CONF_LBL_COLOR###">
+                <label class="control-label ###PW_CONFIRM_ISNULL_LBL### ###PW_CONFIRM_COMPARE_LBL###">
                     <i class="glyphicon glyphicon-thumbs-up"></i>
                 </label>
             </div>
             <div class="col-md-10 col-xs-11">
                 <div class="form-group">
-                    <input type="password" name="PASSWORD_CONFIRMATION" id="PASSWORD_CONFIRMATION" value="###PASSWORD_CONFIRMATION###" class="form-control" placeholder="Password Confirmation" />
+                    <input type="password" name="PW_CONFIRM" id="PW_CONFIRM" value="###PW_CONFIRM###" 
+                          class="form-control ###PW_CONFIRM_ISNULL_LBL### ###PW_CONFIRM_COMPARE_LBL###" 
+                          placeholder="Password Confirmation" />
                 </div>
             </div>
             <div class="col-md-1 col-xs-1"></div>
         </div>
         <br> 
 
+        <!--ADMIN CHECK-->
         <div class="row">
             <div class="col-md-1 hidden-xs">
                 <label class="control-label">
@@ -144,13 +175,15 @@
             </div>
             <div class="col-md-10 col-xs-11">
                 <div class="form-group">
-                    <input type="checkbox" ###ADMIN_CHK### name="ADMIN" id="ADMIN" value="###ADMIN_VAL###" class="form-control" placeholder="管理権限" />
+                    <input type="checkbox" ###ADMIN_CHK### name="ADMIN" id="ADMIN" value="###ADMIN_VAL###" 
+                          class="form-control" placeholder="管理権限" />
                 </div>
             </div>
             <div class="col-md-1 col-xs-1"></div>
         </div>
         <br> 
 
+        <!--CONFIRM BUTTON-->
         <div class="row">
             <div class="col-md-1 hidden-xs">
             </div>
