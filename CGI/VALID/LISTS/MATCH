@@ -1,0 +1,28 @@
+#!/bin/bash -vx
+#
+
+########################################
+#	MATCH.CGI
+#
+#       $1:検証する文字列や数値
+#       $2:探索する文字列や数値
+#       $3:
+#          1を指定->$2が$1の中に含まれていればOK
+#          0を指定->$2が$1の中に含まれていなければOK
+#       
+#	Written by hiramatsu
+
+
+#######################################
+#Validation
+#OKの場合、OK|OKメッセージ、
+#NGの場合、NG|NGメッセージを返す
+if [ "$3" = 1 ] ; then
+  [[ "$1" =~ $2 ]] && echo "OK|Matched." || echo "NG|Unmatched." 
+else
+  [[ "$1" =~ $2 ]] && echo "NG|Matched." || echo "OK|Unmatched." 
+fi
+#######################################
+#Return cookie words
+exit 0
+

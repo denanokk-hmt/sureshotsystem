@@ -1,0 +1,23 @@
+#!/bin/bash -vx
+#
+
+########################################
+#	NUMERIC.CGI
+#
+#       $1:検証する文字列や数値
+#       $2:$1から除外する文字、デリミタ
+#       
+#	Written by hiramatsu
+
+
+#######################################
+#Validation
+#OKの場合、OK|OKメッセージ、
+#NGの場合、NG|NGメッセージを返す
+expr $(echo $1 | sed 's/'$2'//g') + 1 >/dev/null 2>&1 
+[ $? -eq 2 ] &&  echo "NG|Not_Numeric." || echo "OK|Numeric." 
+
+#######################################
+#Return cookie words
+exit 0
+

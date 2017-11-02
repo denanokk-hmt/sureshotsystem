@@ -1,0 +1,21 @@
+#!/bin/bash -vx
+#
+
+########################################
+#	ISNULL.CGI
+#
+#       $1:検証する文字列や数値
+#       
+#	Written by hiramatsu
+
+
+#######################################
+#Validation
+#OKの場合、OK|OKメッセージ、
+#NGの場合、NG|NGメッセージを返す
+[ -n "$1" ] && echo "OK|Is_Not_Null." || echo "NG|Is_Null." 
+
+#######################################
+#Return cookie words
+exit 0
+

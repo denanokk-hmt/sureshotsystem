@@ -1,0 +1,80 @@
+#!/bin/bash -vx
+#
+
+########################################
+#	ALERT_SETTING.CGI
+# バリデーションの結果を受けて画面のアラート設定を行う   
+#     
+#     $1:必須 セッションID
+#
+
+########################################
+#基本設定
+SYSD=$(cd $(dirname $0) && pwd | awk '{print substr($0, 0, index($0, "sureshotsystem")+13)}')
+#exec 2> ${SYSD}/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
+tmp=/tmp/tmp_$1
+CATEGORY=$(cat $tmp-category)
+FUNC=$(cat $tmp-func)
+CONFD=${SYSD}/CGI/VALID/CONF/${CATEGORY}/${FUNC}
+
+#######################################
+#バリデーションの結果を画面のConfに紐付け
+#Join操作ではなくpaste-->呼び出しに合わせてConfの行位置
+#を一致させておく必要がある
+
+#ラベル
+paste -d '|' ${CONFD}/CONF_ERR_LVL $tmp-valid-report > $tmp-result-lvl
+cat $tmp-result-lvl | sed -e 's/|OK/|label-normal/g' | sed 's/|NG/|label-danger/g' > $tmp-result-lvl2
+
+#メッセージ
+paste -d '|' ${CONFD}/CONF_ERR_MSG $tmp-valid-report > $tmp-result-msg
+cat $tmp-result-msg | sed -e 's/|OK/|hidden/g' | sed 's/|NG/|show/g' > $tmp-result-msg2
+
+#######################################
+#HTMLを取得
+HTML=$(cat $tmp-html-org)
+
+#######################################
+#ラベルカラー結果に対するラベルカラーの設定
+cat $tmp-result-lvl2 |
+awk '
+{ for (i=1; i<=NF; i++)  { a[NR,i] = $i } } NF>p { p = NF }
+END {
+for(j=1; j<=p; j++) { str=a[1,j]; for(i=2; i<=NR; i++){ str=str" "a[i,j]; }
+print str
+}
+}' > $tmp-alert-list-lvl
+
+ARR=(`cat $tmp-alert-list-lvl`)
+for valid in ${ARR[@]}; do
+  LVL=$(echo $valid | cut -d'|' -f2)
+  DISP=$(echo $valid | cut -d'|' -f5)
+  HTML=$(echo ${HTML} | sed -e "s/${LVL}/${DISP}/g")
+done
+
+#######################################
+#バリデーション結果に対するのメッセージ表示非表示設定
+cat $tmp-result-msg2 |
+awk '
+{ for (i=1; i<=NF; i++)  { a[NR,i] = $i } } NF>p { p = NF }
+END {
+for(j=1; j<=p; j++) { str=a[1,j]; for(i=2; i<=NR; i++){ str=str" "a[i,j]; }
+print str
+}
+}' > $tmp-alert-list-msg
+
+ARR=(`cat $tmp-alert-list-msg`)
+for valid in ${ARR[@]}; do
+  MSG=$(echo $valid | cut -d'|' -f2)
+  DISP=$(echo $valid | cut -d'|' -f5)
+  HTML=$(echo ${HTML} | sed -e "s/${MSG}/${DISP}/g")
+done
+
+#######################################
+#バリデーション結果を反映したHTMLを返す
+echo ${HTML} >> $tmp-html-alert
+
+#######################################
+#Return cookie words
+exit 0
+

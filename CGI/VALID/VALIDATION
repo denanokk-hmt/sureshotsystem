@@ -3,7 +3,8 @@
 
 ########################################
 #	VALIDATION.CGI
-#
+# 設定されたバリデーションを実行する    
+#     
 #     $1:必須 セッションID
 #
 #	Written by hiramatsu
@@ -14,11 +15,13 @@
 #   $tmp-validationをリダイレクトする
 #   
 #   バリデーションの指定方法
-#     /CGI/VALID/LISTS配下にあるバリデーションファイル名を前方、
-#     後方に引数を指定し、これらをパイプ「|」をデリミタとして繋ぐ
+#     バリデーションをかける項目名を先頭、
+#     /CGI/VALID/LISTS配下にあるバリデーションファイル名を中央、
+#     バリデーションに必要な値(引数)を後方に配置する
+#     これらをパイプ「|」をデリミタとして繋ぐ
 #     また引数を複数指定したい場合には、デリミタとしてカンマ「，」を用いる
 #     例：文字列の長さが3文字以上
-#         LENGTH|AAA,3,0
+#         FAMILY_NAME|LENGTH|AAA,3,0
 #         
 
 ########################################
@@ -40,11 +43,17 @@ print str
 
 ARR=(`cat $tmp-validation-list`)
 for valid in ${ARR[@]}; do
-  VALID=$(echo $valid | cut -d'|' -f1)
-  ARGS=$(echo $valid | cut -d'|' -f2 | tr -s ',' ' ')
+  NAME=$(echo $valid | cut -d'|' -f1)
+  VALID=$(echo $valid | cut -d'|' -f2)
+  ARGS=$(echo $valid | cut -d'|' -f3 | tr -s ',' ' ')
   result=`${SYSD}/CGI/VALID/LISTS/${VALID} ${ARGS}`
   echo $result >> $tmp-validation-result
 done
+
+#######################################
+#結果をリダイレクト
+#項目名|バリデーション名|結果
+ paste -d '|' $tmp-validation $tmp-validation-result | awk 'BEGIN{FS="|"}{OFS="|"}{print $1,$2,$4}' > $tmp-valid-report
 
 #######################################
 #Return cookie words

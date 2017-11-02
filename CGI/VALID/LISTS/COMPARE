@@ -1,0 +1,22 @@
+#!/bin/bash -vx
+#
+
+########################################
+#	ISVALUE.CGI
+#
+#       $1:比較検証元の文字列や数値
+#       $2:比較検証先の文字列や数値
+#       
+#	Written by hiramatsu
+
+
+#######################################
+#Validation
+#OKの場合、OK|OKメッセージ、
+#NGの場合、NG|NGメッセージを返す
+[ "$1" = "$2" ] && echo "OK|Same_Values." || echo "NG|Difference_Values." 
+
+#######################################
+#Return cookie words
+exit 0
+
