@@ -31,7 +31,7 @@ SYSD=$(cd $(dirname $0) && pwd | awk '{print substr($0, 0, index($0, "sureshotsy
 tmp=/tmp/tmp_$1
 
 #######################################
-#Validation
+#呼び出し元で設定したバリデーションを横並びにして配列化の種を作成
 cat $tmp-validation |
 awk '
 { for (i=1; i<=NF; i++)  { a[NR,i] = $i } } NF>p { p = NF }
@@ -41,7 +41,12 @@ print str
 }
 }' > $tmp-validation-list
 
+#######################################
+#上記で作った種を配列に変換
 ARR=(`cat $tmp-validation-list`)
+
+#######################################
+#配列を回して、設定されたバリデーションを実行し、結果を書き込む
 for valid in ${ARR[@]}; do
   NAME=$(echo $valid | cut -d'|' -f1)
   VALID=$(echo $valid | cut -d'|' -f2)
@@ -51,7 +56,7 @@ for valid in ${ARR[@]}; do
 done
 
 #######################################
-#結果をリダイレクト
+#バリデーションの結果と設定を結合してレポートを作成
 #項目名|バリデーション名|結果
  paste -d '|' $tmp-validation $tmp-validation-result | awk 'BEGIN{FS="|"}{OFS="|"}{print $1,$2,$4}' > $tmp-valid-report
 
