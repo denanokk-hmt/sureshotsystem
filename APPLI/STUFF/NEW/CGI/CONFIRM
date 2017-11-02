@@ -104,7 +104,7 @@ if [ -n "$(grep "|NG" $tmp-valid-report)" ] ; then
 
     #########################################
     #入力画面HTMLを取得
-    cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/INPUT.HTML > $tmp-html-org
+    cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/INPUT.HTML > $tmp-html-tmp
     
     #########################################
     #バリデーション結果を元にメッセージとラベルカラーを設定
@@ -119,7 +119,7 @@ if [ -n "$(grep "|NG" $tmp-valid-report)" ] ; then
     sed -e "s/###TEL1###/$(cat $tmp-value6)/"                           |
     sed -e "s/###TEL2###/$(cat $tmp-value7)/"                           |
     sed -e "s/###PASSWORD###/$(cat $tmp-value4)/"                       |
-    sed -e "s/###PASSWORD_CONFIRMATION###/$(cat $tmp-value5)/"          |
+    sed -e "s/###PW_CONFIRM###//"                                       |
     sed -e "s/###ADMIN_CHK###/${ADMIN_CHK}/"                            | 
     sed -e "s/###ADMIN_VAL###/${ADMIN_VAL}/"                            > $tmp-html
 

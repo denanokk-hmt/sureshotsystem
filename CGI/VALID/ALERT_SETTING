@@ -30,9 +30,6 @@ cat $tmp-result-lvl | sed -e 's/|OK/|label-normal/g' | sed 's/|NG/|label-danger/
 paste -d '|' ${CONFD}/CONF_ERR_MSG $tmp-valid-report > $tmp-result-msg
 cat $tmp-result-msg | sed -e 's/|OK/|hidden/g' | sed 's/|NG/|show/g' > $tmp-result-msg2
 
-#######################################
-#HTMLを取得
-HTML=$(cat $tmp-html-org)
 
 #######################################
 #ラベルカラー結果に対するラベルカラーの設定
@@ -58,8 +55,10 @@ ARR=(`cat $tmp-alert-list-lvl`)
 for valid in ${ARR[@]}; do
   LVL=$(echo $valid | cut -d'|' -f2)
   DISP=$(echo $valid | cut -d'|' -f5)
-  HTML=$(echo ${HTML} | sed -e "s/${LVL}/${DISP}/g")
+  cat $tmp-html-tmp > $tmp-html-lvl
+  cat $tmp-html-lvl | sed -e "s/${LVL}/${DISP}/g" > $tmp-html-tmp
 done
+
 
 #######################################
 #バリデーション結果に対するのメッセージ表示非表示設定
@@ -86,11 +85,13 @@ for valid in ${ARR[@]}; do
   MSG=$(echo $valid | cut -d'|' -f2)
   DISP=$(echo $valid | cut -d'|' -f5)
   HTML=$(echo ${HTML} | sed -e "s/${MSG}/${DISP}/g")
+  cat $tmp-html-tmp > $tmp-html-msg
+  cat $tmp-html-msg | sed -e "s/${MSG}/${DISP}/g" > $tmp-html-tmp
 done
 
 #######################################
 #バリデーション結果を反映したHTMLを返す
-echo ${HTML} >> $tmp-html-alert
+cat $tmp-html-tmp > $tmp-html-alert
 
 #######################################
 #Return cookie words

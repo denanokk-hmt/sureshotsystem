@@ -202,12 +202,6 @@
 
 <script>
 
-    //読み込み時、必ず管理者権限は初期化
-    $(function() {
-        $('#ADMIN').prop('checked',false);
-        $('#ADMIN').val(0);
-    });
-
     //ADMINフラグのcheckBox ON/OFF
     $('#ADMIN').on('click', function() {
       if ($(this).prop('checked')) {
