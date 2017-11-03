@@ -156,6 +156,7 @@ EMAIL=$(cat $tmp-value3)
 PASSWORD=$(cat $tmp-value4)
 TEL1=$(cat $tmp-value6)
 TEL2=$(cat $tmp-value7)
+[ -n "${TEL2}" ] && : || TEL2=${TEL1}
 ADMIN_FLG=$(cat $tmp-value8)
 [ "${ADMIN_FLG}" = "1" ] && ADMIN="管理者権限あり" || ADMIN='管理者権限なし'
 DEL_FLG=0
