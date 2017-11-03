@@ -150,13 +150,13 @@ STUFF_NUM=`${SYSD}/CGI/NUMBERS $1 'STUFF' `
 
 #######################################
 #Get Form Data
-FAMILY_NAME=$(nameread FAMILY_NAME $tmp-post)
-GIVEN_NAME=$(nameread GIVEN_NAME $tmp-post)
-EMAIL=$(nameread EMAIL $tmp-post)
-PASSWORD=$(nameread PASSWORD $tmp-post)
-TEL1=$(nameread TEL1 $tmp-post)
-TEL2=$(nameread TEL2 $tmp-post)
-ADMIN_FLG=$(nameread ADMIN_VAL $tmp-post)
+FAMILY_NAME=$(cat $tmp-value1)
+GIVEN_NAME=$(cat $tmp-value2)
+EMAIL=$(cat $tmp-value3)
+PASSWORD=$(cat $tmp-value4)
+TEL1=$(cat $tmp-value6)
+TEL2=$(cat $tmp-value7)
+ADMIN_FLG=$(cat $tmp-value8)
 [ "${ADMIN_FLG}" = "1" ] && ADMIN="管理者権限あり" || ADMIN='管理者権限なし'
 DEL_FLG=0
 

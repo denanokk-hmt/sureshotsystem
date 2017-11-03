@@ -35,25 +35,126 @@ FIN
 	exit 1
 }
 
+########################################
+#フォーム値の設定
+nameread FAMILY_NAME $tmp-post              | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value1
+nameread GIVEN_NAME $tmp-post               | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value2
+nameread EMAIL $tmp-post                    | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value3
+nameread PASSWORD $tmp-post                 | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value4
+nameread TEL1 $tmp-post                     | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value6
+nameread TEL2 $tmp-post                     | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value7
+nameread ADMIN $tmp-post                    | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value8
+nameread ENC_ID $tmp-post                   | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value9
+nameread STUFF_ID $tmp-post                 | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value10
+
+########################################
+#バリデーションを設定
+
+#FAMILY NAME
+cat $tmp-value1 | awk '{print sprintf("FAMILY_NAME|ISNULL|%s",$1)}'       >> $tmp-validation  #必須入力
+cat $tmp-value1 | awk '{print sprintf("FAMILY_NAME|LENGTH|%s,2,20",$1)}'  >> $tmp-validation  #length <=2 =>20
+
+#GIVEN NAME
+cat $tmp-value2 | awk '{print sprintf("GIVEN_NAME|ISNULL|%s",$1)}'        >> $tmp-validation  #必須入力
+cat $tmp-value2 | awk '{print sprintf("GIVEN_NAME|LENGTH|%s,2,20",$1)}'   >> $tmp-validation  #length <=2 =>20
+
+#EMAIL
+cat $tmp-value3 | awk '{print sprintf("EMAIL|ISNULL|%s",$1)}'                   >> $tmp-validation  #必須入力
+cat $tmp-value3 | awk '{print sprintf("EMAIL|DUPLICATE|STUFF,USERS,4,%s",$1)}'  >> $tmp-validation  #重複確認
+
+#PASSWORD length <=8 
+cat $tmp-value4 | awk '{print sprintf("PASSWORD|ISNULL|%s",$1)}'          >> $tmp-validation  #必須入力
+cat $tmp-value4 | awk '{print sprintf("PASSWORD|LENGTH|%s,8,0",$1)}'      >> $tmp-validation  #length <=8 
+
+#PASSWORD CONFIRMATION
+#PASSWORDと同じ値を設定して必ず合格にする
+cat $tmp-value4 | awk '{print sprintf("PW_CONFIRM|ISNULL|%s",$1)}'                      >> $tmp-validation  #必須入力
+paste $tmp-value4 $tmp-value4 | awk '{print sprintf("PW_CONFIRM|COMPARE|%s,%s",$1,$2)}' >> $tmp-validation  #=PASSWORD 
+
+#TEL1
+cat $tmp-value6 | awk '{print sprintf("TEL1|ISNULL|%s",$1)}'              >> $tmp-validation  #必須入力
+cat $tmp-value6 | awk '{print sprintf("TEL1|MATCH|%s,-,1",$1)}'           >> $tmp-validation  #ハイフン必須
+cat $tmp-value6 | awk '{print sprintf("TEL1|NUMERIC|%s,-",$1)}'           >> $tmp-validation  #ハイフン覗いたら数字のみ
+
+#TEL2
+cat $tmp-value7 | awk '{print sprintf("TEL2|MATCH|%s,-,1",$1)}'           >> $tmp-validation  #ハイフン必
+cat $tmp-value7 | awk '{print sprintf("TEL2|NUMERIC|%s,-",$1)}'           >> $tmp-validation  #ハイフン覗いたら数字のみ
+
+########################################
+#バリデーションを実行
+result=`${SYSD}/CGI/VALID/VALIDATION $1`
+
+########################################
+#管理者権限を取得
+if [ "$(cat $tmp-value8)" = "1" ] ; then
+  ADMIN_CHK="checked"
+  ADMIN="管理者権限あり"
+  ADMIN_VAL=1
+else
+  ADMIN_CHK=''
+  ADMIN='管理者権限なし'
+  ADMIN_VAL=0
+fi
+
+########################################
+#パスワードの暗号化
+echo $(sha1 $(cat $tmp-value4)) > $tmp-sha1
+
+########################################
+#HTMLの設定
+if [ -n "$(grep "|NG" $tmp-valid-report)" ] ; then
+
+    #Validation NG
+
+    #########################################
+    #入力画面HTMLを取得
+    cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/INPUT.HTML > $tmp-html-tmp
+    
+    #########################################
+    #バリデーション結果を元にメッセージとラベルカラーを設定
+    result=`${SYSD}/CGI/VALID/ALERT_SETTING $1`
+
+    #########################################
+    #上記処理からのHTMLを受け、入力値を設定し、HTMLを完成させる
+    #CONFIRMからのバリデーションエラーのため、PWは削除
+    cat $tmp-html-alert                                                 |
+    sed -e "s/###FAMILY_NAME###/$(cat $tmp-value1)/"                    |
+    sed -e "s/###GIVEN_NAME###/$(cat $tmp-value2)/"                     |
+    sed -e "s/###EMAIL###/$(cat $tmp-value3)/"                          |
+    sed -e "s/###TEL1###/$(cat $tmp-value6)/"                           |
+    sed -e "s/###TEL2###/$(cat $tmp-value7)/"                           |
+    sed -e "s/###PASSWORD###//"                                         |
+    sed -e "s/###PW_CONFIRM###//"                                       |
+    sed -e "s/###ADMIN_CHK###/${ADMIN_CHK}/"                            | 
+    sed -e "s/###ADMIN_VAL###/${ADMIN_VAL}/"                            > $tmp-html
+
+    #########################################
+    #pege name
+    echo "New stuff input" > $tmp-pagename
+    
+    exit 0
+fi
+
 #######################################
 #Get Form Data
-ENC_ID=$(nameread ENC_ID $tmp-post)
-STUFF_ID=$(nameread STUFF_ID $tmp-post)
-FAMILY_NAME=$(nameread FAMILY_NAME $tmp-post)
-GIVEN_NAME=$(nameread GIVEN_NAME $tmp-post)
-EMAIL=$(nameread EMAIL $tmp-post)
-PASSWORD=$(nameread PASSWORD $tmp-post)
-TEL1=$(nameread TEL1 $tmp-post)
-TEL2=$(nameread TEL2 $tmp-post)
-ADMIN_FLG=$(nameread ADMIN_VAL $tmp-post)
+ENC_ID=$(cat $tmp-value9)
+STUFF_ID=$(cat $tmp-value10)
+FAMILY_NAME=$(cat $tmp-value1)
+GIVEN_NAME=$(cat $tmp-value2)
+EMAIL=$(cat $tmp-value3)
+PASSWORD=$(cat $tmp-value4)
+TEL1=$(cat $tmp-value6)
+TEL2=$(cat $tmp-value7)
+ADMIN_FLG=$(cat $tmp-value8)
 [ "${ADMIN_FLG}" = "1" ] && ADMIN="管理者権限あり" || ADMIN='管理者権限なし'
 DEL_FLG=0
 
-
 ######################################
 #INPUT表示時点で作成した暗号化スタッフ番号を取得し、整合性の確認を行う
-#暗号化の一時ファイルは削除
 STUFF_NUM=$(cat ${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/${ENC_ID})
+
+######################################
+#暗号化の一時ファイルは削除
 rm -f ${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/${ENC_ID}
 
 ######################################
