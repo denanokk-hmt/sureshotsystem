@@ -5,24 +5,28 @@
 #	LENGTH.CGI
 #
 #       $1:検証する文字列や数値
-#       $2:最小文字数(0を指定した場合、$4の最大文字数のみを評価) 
-#       $3:最大文字数(0を指定した場合、$3の最初文字数のみを評価)
+#       $2:最小文字数(0を指定した場合、$3の最大文字数のみを評価) 
+#       $3:最大文字数(0を指定した場合、$2の最初文字数のみを評価)
 #       
 #	Written by hiramatsu
 
 #######################################
+LANG=ja_JP.UTF-8
+
 #Validation
 #OKの場合、OK|OKメッセージ、
 #NGの場合、NG|NGメッセージを返す
+STR_LEN=${#1}
+
 case $2:$3 in
-  *:0)  #最小文字数チェック($3文字以上ならOK)
-    [ ${#1} -ge $2 ] && echo "OK|Len_Min." || echo "NG|Len_Min." 
+  *:0)  #最小文字数チェック($2文字以上ならOK)
+    [ "${STR_LEN}" -ge $2 ] && echo "OK|Len_Min." || echo "NG|Len_Min." 
     ;;
-  0:*)  #最大文字数チェック($4文字以下ならOK)
-    [ ${#1} -le $3 ] && echo "OK|Len_Max." || echo "NG|Len_Max." 
+  0:*)  #最大文字数チェック($3文字以下ならOK)
+    [ "${STR_LEN}" -le $3 ] && echo "OK|Len_Max." || echo "NG|Len_Max." 
     ;;
-  *)    #文字数範囲チェック($3文字以上、$4文字以下ならOK)
-    [ ${#1} -ge $2 ] && [ ${#1} -le $3 ] && echo "OK|Len_Range." || echo "NG|Len_Range." 
+  *)    #文字数範囲チェック($2文字以上、$3文字以下ならOK)
+    [ "${STR_LEN}" -ge $2 ] && [ "${STR_LEN}" -le $3 ] && echo "OK|Len_Range." || echo "NG|Len_Range." 
     ;;
 esac
 

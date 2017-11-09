@@ -61,9 +61,9 @@ done
  paste -d '|' $tmp-validation $tmp-validation-result | awk 'BEGIN{FS="|"}{OFS="|"}{print $1,$2,$4}' > $tmp-valid-report
 
 #EXAM
+#cat $tmp-validation >/tmp/tmp-v
 #cat $tmp-validation-list >/tmp/tmp-vlist
 #cat $tmp-validation-result >/tmp/tmp-vresult
-#cat $tmp-valid-report > /tmp/tmp-vreport
 
 #######################################
 #Return cookie words

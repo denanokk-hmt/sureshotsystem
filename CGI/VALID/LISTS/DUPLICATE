@@ -15,6 +15,7 @@
 ########################################
 #基本設定
 SYSD=$(cd $(dirname $0) && pwd | awk '{print substr($0, 0, index($0, "sureshotsystem")+13)}')
+LANG=ja_JP.UTF-8
 
 #######################################
 #Validation
@@ -35,7 +36,11 @@ case ${CATEGORY}-${COLUMN} in
     #CUSTOMER/LISTS
     VALID=$(cat ${DATAD}/LV3/*[^_d] | awk -v val=${VALUE} -v col=${COLUMN} '$'"col"'==val{print $1}')
     ;;
-  OPERATION_2)
+  OPERATION_CATEGORY_2)
+    #OPERATION_CATEGORY/LISTS
+    VALID=$(cat ${DATAD}/LV3/*[^_d] | awk -v val=${VALUE} -v col=${COLUMN} '$'"col"'==val{print $1}')
+    ;;
+  OPERATION_CATEGORY_3)
     #OPERATION_CATEGORY/LISTS
     VALID=$(cat ${DATAD}/LV3/*[^_d] | awk -v val=${VALUE} -v col=${COLUMN} '$'"col"'==val{print $1}')
     ;;

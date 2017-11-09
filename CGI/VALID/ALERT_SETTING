@@ -6,7 +6,11 @@
 # バリデーションの結果を受けて画面のアラート設定を行う   
 #     
 #     $1:必須 セッションID
-#
+#     $2,$3:必須
+#         デフォルト:「-」ハイフンを指定する(動的な項目していが必要ない) 
+#         動的な一覧の行などにラベルやMSGを表示させたい場合にはそのキーを指定
+#         ※$2を指定する場合、CONF_ERR_LVLの指定を以下のように『@』を指定する
+#           例　ITEM_NM|###ITEM_NM_ISNULL_LBL_@###
 
 ########################################
 #基本設定
@@ -18,16 +22,28 @@ FUNC=$(cat $tmp-func)
 CONFD=${SYSD}/CGI/VALID/CONF/${CATEGORY}/${FUNC}
 
 #######################################
+#Args
+#LVL Config
+#  項目名|ラベルクラス名|項目名|バリデーション名|判定結果
+[ "$2" = '-' ] && LVL_KEY='' || LVL_KEY = $2
+cat ${CONFD}/CONF_ERR_LVL | sed -e "s/_@/${LVL_KEY}/g" > $tmp-conf-lvl
+
+#MSG Config
+#  項目名|メッセージクラス名|項目名|バリデーション名|判定結果
+[ "$3" = '-' ] && MSG_KEY='' || MSG_KEY = $2
+cat ${CONFD}/CONF_ERR_MSG | sed -e "s/_@/${MSG_KEY}/g" > $tmp-conf-msg
+
+#######################################
 #バリデーションの結果を画面のConfに紐付け
 #Join操作ではなくpaste-->呼び出しに合わせてConfの行位置
 #を一致させておく必要がある
 
 #ラベル
-paste -d '|' ${CONFD}/CONF_ERR_LVL $tmp-valid-report > $tmp-result-lvl
+paste -d '|' $tmp-conf-lvl $tmp-valid-report > $tmp-result-lvl
 cat $tmp-result-lvl | sed -e 's/|OK/|label-normal/g' | sed 's/|NG/|label-danger/g' > $tmp-result-lvl2
 
 #メッセージ
-paste -d '|' ${CONFD}/CONF_ERR_MSG $tmp-valid-report > $tmp-result-msg
+paste -d '|' $tmp-conf-msg $tmp-valid-report > $tmp-result-msg
 cat $tmp-result-msg | sed -e 's/|OK/|hidden/g' | sed 's/|NG/|show/g' > $tmp-result-msg2
 
 
@@ -53,6 +69,7 @@ ARR=(`cat $tmp-alert-list-lvl`)
 #######################################
 #配列を回して、HTMLの文字列を結果に応じて置換
 for valid in ${ARR[@]}; do
+  #  項目名|ラベルクラス名|項目名|バリデーション名|判定結果
   LVL=$(echo $valid | cut -d'|' -f2)
   DISP=$(echo $valid | cut -d'|' -f5)
   cat $tmp-html-tmp > $tmp-html-lvl

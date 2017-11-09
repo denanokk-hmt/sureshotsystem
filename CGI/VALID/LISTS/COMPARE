@@ -4,17 +4,29 @@
 ########################################
 #	ISVALUE.CGI
 #
-#       $1:比較検証元の文字列や数値
-#       $2:比較検証先の文字列や数値
+#     $1:必須 判定
+#       値が同じを正解とする場合、"SAME"
+#       値が異なるを正解とする場合、"DIFF"
+#     $2:比較検証元の文字列や数値
+#     $3:比較検証先の文字列や数値
 #       
 #	Written by hiramatsu
 
 
 #######################################
+LANG=ja_JP.UTF-8
+
 #Validation
 #OKの場合、OK|OKメッセージ、
 #NGの場合、NG|NGメッセージを返す
-[ "$1" = "$2" ] && echo "OK|Same_Values." || echo "NG|Difference_Values." 
+case $1 in
+  SAME)
+    [ "$2" = "$3" ] && echo "OK|Same_Values." || echo "NG|Difference_Values." 
+    ;;
+  DIFF)
+    [ "$2" != "$3" ] && echo "OK|Difference_Values." || echo "NG|Same_Values." 
+    ;;
+esac
 
 #######################################
 #Return cookie words
