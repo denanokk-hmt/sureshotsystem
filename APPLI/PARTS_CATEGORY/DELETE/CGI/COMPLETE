@@ -37,6 +37,8 @@ FIN
 #フォームの入力値を取得
 NUM=$(nameread PARTS_CATEGORY_ID $tmp-post)
 NAME=$(nameread PARTS_CATEGORY_NAME $tmp-post)
+PARTS_CATEGORY_NM_EN=$(nameread PARTS_CATEGORY_NM_EN $tmp-post)
+PARTS_CATEGORY_NM_JP=$(nameread PARTS_CATEGORY_NM_JP $tmp-post)
 #
 ########################################
 #既存データから作成日時取得、現在日時を更新日時とする
@@ -61,8 +63,8 @@ LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
 
 ########################################
 #入力値を一時ファイル化
-#parts_category_id	parts_category_name	create_date	update_date	create_user	update_user	del_flg
-echo ${NUM} ${NAME} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} 1 > $tmp-parts-category
+#parts_category_id	parts_category_nm_en  parts_category_nm_jp	create_date	update_date	create_user	update_user	del_flg
+echo ${NUM} ${PARTS_CATEGORY_NM_EN} ${PARTS_CATEGORY_NM_JP} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} 1 > $tmp-parts-category
 
 ########################################
 #データ格納
@@ -95,26 +97,26 @@ UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'PARTS_CATEGORY' ${NUM}`
 #パーツリストDir
 PARTSD=${SYSD}/DATA/PARTS_LIST/LISTS
 
+    #############################
 #0未登録カテゴリを作成
-#0ディレクトリを作成
-if [ -e "${PARTSD}/0" ]; then
+if [ -e "${DATAD}/LV1/0_*" ]; then
     :
 else
-    #############################
-    #0:未登録カテゴリを作成
-    #############################
     #LV1
-    echo 0 '未登録' ${UPDATE_DATE} ${UPDATE_DATE} ${UPDATE_USER} ${UPDATE_USER} 0 > \
+    echo 0 '未登録' 'Unregistered' ${UPDATE_DATE} ${UPDATE_DATE} ${UPDATE_USER} ${UPDATE_USER} 0 > \
     ${DATAD}/LV1/0_parts_category_${UPDATE_DATE}
     #LV2
     cat ${DATAD}/LV1/0_parts_category_${UPDATE_DATE} | awk '{$NF=""; print $0}' > \
     ${DATAD}/LV2/0_parts_category_${UPDATE_DATE}
     #LV3
     cp -p ${DATAD}/LV2/0_parts_category_${UPDATE_DATE} ${DATAD}/LV3/0_parts_category_${UPDATE_DATE}
+fi
 
-    ############################
-    #PARTS_LISTにカテゴリ0ディレクトリを作成
-    ############################
+############################
+#PARTS_LISTにカテゴリ0ディレクトリを作成
+if [ -e "${PARTSD}/0" ]; then
+    :
+else
     result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${PARTSD}/0 ${PARTSD}/0`
 fi
 

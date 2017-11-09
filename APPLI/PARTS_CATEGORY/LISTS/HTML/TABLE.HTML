@@ -3,22 +3,34 @@
         <tr>
             <th>#</th>
             <th>CATEGORY NO</th>
-            <th>CATEGORY NAME</th>
+            <th>CATEGORY NAME(EN)</th>
+            <th>CATEGORY NAME(JP)</th>
             <th></th>
             <th></th>
         </tr>
     </thead>
     <tbody>
        <tr>
-            <td>--</td>
+            <td>-</td>
             <td>
                 <span class="label label-default">NEW</span>
             </td>
             <td>
-                <input type="text" id="NEW_PARTS_CATEGORY_NAME" name="NEW_PARTS_CATEGORY_NAME" value="" class="form-control" style="" placeholder="Parts category name" >
+                <input type="text" 
+                        id="PARTS_CATEGORY_NM_EN_NEW" 
+                        name="PARTS_CATEGORY_NM_EN_NEW" value="" 
+                        class="form-control"
+                        placeholder="部品カテゴリ名(英語)" >
             </td>
             <td>
-                <a href="" class="btn btn-primary" onclick="newPartsCategory(); return false;">NEW</a>
+                <input type="text" 
+                        id="PARTS_CATEGORY_NM_JP_NEW" 
+                        name="PARTS_CATEGORY_NM_JP_NEW" value="" 
+                        class="form-control" 
+                        placeholder="部品カテゴリ名(日本語)" />
+            </td>
+            <td>
+                <a class="btn btn-primary" onclick="newPartsCategory(); return false;">NEW</a>
             </td>
         </tr>
         ###TABLE_RECORDS###

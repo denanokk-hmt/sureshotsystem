@@ -1,34 +1,57 @@
 <!--<!DOCTYPE html>-->
 <!--<html>-->
 
-<div class="container">
-    
-    <div class="fixed">
-
-        <!--Header Info-->
-        <div class="row">
-            <label class="control-label col-sm-1">
-                <h3><i class="glyphicon glyphicon-info-sign"></i></h3>
-            </label>
-            <div class="col-sm-6 lbl-header-info">
-                <span id="info-msg" class="label label-lg label-###INFO_LV###">
-                    ###INFO_MSG###
-                </span>
+<div id="page" class="container fade-in" style="opacity:0">
+     
+    <!--Header Info-->
+    <div class="col-md-1 col-xs-1" >
+        <i class="glyphicon glyphicon-info-sign"></i>
+    </div>
+ 
+    <!--Header Info-->
+    <div class="col-md10 lbl-header-info">
+        <span id="info-msg" class="label label-lg label-###INFO_LV###">
+            ###INFO_MSG###
+        </span>
+    </div>
+    <!--ERROR MESSAGE-->
+    <div class="row">
+        <div class="col-md-10 lbl-header-info">
+            <div>
+                <span id="PARTS_CATEGORY_NM_EN_ISNULL_MSG" class="fade-in label label-danger ###PARTS_CATEGORY_NM_EN_ISNULL###">カテゴリ名(英語)に、値がありません。</span>
+            </div>
+            <div>
+                <span id="PARTS_CATEGORY_NM_EN_LENGTH_MSG" class="fade-in label label-danger ###PARTS_CATEGORY_NM_EN_LENGTH###">カテゴリ名(英語)は、3文字以上必要です。</span>
+            </div>
+            <div>
+                <span id="PARTS_CATEGORY_NM_EN_ISEN_ISJP_MSG" class="fade-in label label-danger ###PARTS_CATEGORY_NM_EN_ISEN_ISJP###">カテゴリ名(英語)に、英数字以外が入力されています。</span>
+            </div>
+            <div>
+                <span id="PARTS_CATEGORY_NM_EN_DUPLICATE_MSG" class="fade-in label label-danger ###PARTS_CATEGORY_NM_EN_DUPLICATE###">カテゴリ名(英語)は、既に使用されています。</span>
+            </div>
+            <div>
+                <span id="PARTS_CATEGORY_NM_JP_ISNULL_MSG" class="fade-in label label-danger ###PARTS_CATEGORY_NM_JP_ISNULL###">カテゴリ名(日本語)に、値がありません。</span>
+            </div>
+            <div>
+                <span id="PARTS_CATEGORY_NM_JP_LENGTH_MSG" class="fade-in label label-danger ###PARTS_CATEGORY_NM_JP_LENGTH###">カテゴリ名(日本語)、3文字以上必要です。</span>
+            </div>
+            <div>
+                <span id="PARTS_CATEGORY_NM_JP_ISEN_ISJP_MSG" class="fade-in label label-danger ###PARTS_CATEGORY_NM_JP_ISEN_ISJP###">カテゴリ名(日本語)に、日本語が入力されていません。</span>
+            </div>
+            <div>
+                <span id="PARTS_CATEGORY_NM_JP_DUPLICATE_MSG" class="fade-in label label-danger ###PARTS_CATEGORY_NM_JP_DUPLICATE###">カテゴリ名(日本語)は、既に使用されています。</span>
             </div>
         </div>
-
-        <!--Search-->
-        <!--
-
-        -->
     </div>
+    <br>
 
-    <!--Spacer-->
+    <!--Spacer
     <div class="header-dummy" style="height:7.0em; background-color:piiiiink;"></div>
+    -->
 
     <!--Contents-->
     <div class="header-under-contents">
-        <form class="form-horizontal" action="/APP/PARTS_CATEGORY/LISTS/SHOW" method="GET">
+        <form class="form-horizontal" action="" method="">
             <input type="hidden" id="ACTION" name="ACTION" value="COMPLETE" >
             <input type="hidden" id="REST" name="REST" value="" >
             <div class="contents-table">
@@ -41,10 +64,58 @@
 
 <script>
 
+    //Validation Err MSGのOpacityを初期化
+    $(document).ready(function(){
+        validationErrMsgInit();
+    });
+
+    //ロード時に全画面をフェードイン
+    $(window).on('load',function(){
+        $('#page').css("opacity","1");
+    });
+
+    //バリデーションエラーMSGの初期化
+    function validationErrMsgInit() {
+
+        //バリデーションエラー表示をクリア
+        $('input[type=text]').removeClass("label-danger");
+        $('.lbl-header-info .label').removeClass("show");
+        $('.lbl-header-info .label').addClass("hidden");
+        $('#info-msg').html("");
+
+        //バリデーションエラーMSGをフェードアウト
+        fadeInOut(0);
+
+        $('input[type=text]').each(function(){
+            $(this).h
+        });
+    }
+
+    /*バリデーションエラーMSGをフェードアウト
+    *   引数 inout
+    *   フェードイン:1
+    *   フェードアウト:0
+    */
+    function fadeInOut(inout) {
+        $('.fade-in').not('#page').each(function(){
+            $(this).css("opacity",inout );
+        });
+    }
+
+    //
+    $('.btn').on('click', function() {
+    });
+
+
     //カテゴリ名新規追加
     function newPartsCategory() {
+ 
+        //バリデーションエラーMSG初期化
+        validationErrMsgInit();
+
+        //新規登録処理
         $('#REST').val('POST'); //REST
-        var new_category_name = $('#NEW_PARTS_CATEGORY_NAME').val();
+        var new_category_nm_en = $('#PARTS_CATEGORY_NM_EN_NEW').val();
         var params = $('form').serialize();
         var jqXHR = $.ajax({
             type: 'POST',
@@ -52,11 +123,24 @@
             data: params
         });
         jqXHR.done(function(data) {
-            if (data == 2222) {
-                alert(new_category_name + "は、既に使われています。");
+            //バリデーションエラーの場合、先頭にVALID=NG
+            //デリミタとして「@」を指定されてくる
+            var valid_result = data.split("@");
+            if (valid_result[0] == 'VALID_NG') {
+
+                //バリデーションエラー表示
+                var r = validationResultDisplay('NEW', valid_result[1], 'POST');
+
+                //バリデーションMSGをフワッと表示 
+                fadeInOut(1);
+
+                if (r != 'OK') {  
+                    alert("新規登録処理に失敗しました。");
+                }
             } else {
                 $('table').html(data);
-                $('#info-msg').html(new_category_name + "を追加しました。");
+                $('#info-msg').html(new_category_nm_en + "を追加しました。");
+                alert(new_category_nm_en + "を追加しました。");
             }
         });
         jqXHR.fail(function(data) {
@@ -66,11 +150,18 @@
 
     //カテゴリ名変更
     function editPartsCategory(id) {
+
+        //バリデーションエラーMSG初期化
+        validationErrMsgInit();
+
         if (id == 999) {
             alert("更新対象です。");
             return false;
         }
-        var edit_category_name = $('#PARTS_CATEGORY_NAME_' + id).val();
+
+        //更新処理
+        var edit_category_nm_en = $('#PARTS_CATEGORY_NM_EN_' + id).val();
+        var edit_category_nm_jp = $('#PARTS_CATEGORY_NM_EN_JP_' + id).val();
         var params = $('form').serialize();
         var jqXHR = $.ajax({
             type: 'POST',
@@ -79,15 +170,28 @@
                 REST: 'PUT',
                 ACTION: 'COMPLETE',
                 PARTS_CATEGORY_ID: id,
-                PARTS_CATEGORY_NAME: edit_category_name
+                PARTS_CATEGORY_NM_EN: edit_category_nm_en,
+                PARTS_CATEGORY_NM_JP: edit_category_nm_jp
             }
         });
         jqXHR.done(function(data) {
-            if (data == 2222) {
-                alert(edit_category_name + "は、既に使われています。");
+            //バリデーションエラーの場合、先頭にVALID=NG
+            //デリミタとして「@」をが指定されてくる
+            var valid_result = data.split("@");
+            if (valid_result[0] == 'VALID_NG') {
+
+                //バリデーションエラー表示
+                var r = validationResultDisplay(id, valid_result[1], 'PUT');
+
+                //バリデーションMSGをフワッと表示 
+                fadeInOut(1);
+                
+                if (r != 'OK') {  
+                    alert("更新処理に失敗しました。");
+                }
             } else {
-                alert('No:' + id + 'を'+ edit_category_name + "に変更しました。");
-                $('#info-msg').html('No:' + id + 'を'+ edit_category_name + "に変更しました。");
+                $('#info-msg').html(edit_category_nm_en + "に変更しました。");
+                alert(edit_category_nm_en + "に変更しました。");
             }
         });
         jqXHR.fail(function() {
@@ -97,31 +201,35 @@
 
     //カテゴリ名削除
     function deletePartsCategory(id) {
+
+        //バリデーションエラーMSG初期化
+        validationErrMsgInit();
+ 
         if (id == 999) {
             alert("削除対象外です。");
             return false;
         }
-        var delete_category_name = $('#PARTS_CATEGORY_NAME_' + id).val();
+        var delete_category_nm_en = $('#PARTS_CATEGORY_NM_EN_' + id).val();
         var params = $('form').serialize();
         var jqXHR = $.ajax({
             type: 'POST',
             url: '/APP/PARTS_CATEGORY/DELETE',
             data: {
-                REST: 'PUT',
+                REST: 'DELETE',
                 ACTION: 'COMPLETE',
                 PARTS_CATEGORY_ID: id,
-                PARTS_CATEGORY_NAME: delete_category_name
+                PARTS_CATEGORY_NM_EN: delete_category_nm_en
             }
         });
         jqXHR.done(function(data) {
             if (data == 111) {
                 var sel = '#edit-row-' + id;
                 $(sel).remove();
-                alert('No:' + id + 'の'+ delete_category_name + "を削除しました。");
-                $('#info-msg').html(delete_category_name + "を削除しました。");
+                alert('No:' + id + 'の'+ delete_category_nm_en + "を削除しました。");
+                $('#info-msg').html(delete_category_nm_en + "を削除しました。");
             } else {
-                alert('No:' + id + 'の' +  delete_category_name + "を削除出来ませんでした。");
-                $('#info-msg').html(delete_category_name + "を削除出来ませんでした。");
+                alert('No:' + id + 'の' +  delete_category_nm_en + "を削除出来ませんでした。");
+                $('#info-msg').html(delete_category_nm_en + "を削除出来ませんでした。");
             }
         });
         jqXHR.fail(function() {

@@ -33,6 +33,40 @@ FIN
 	exit 1
 }
 
+#######################################
+#フォームの入力値を取得
+nameread PARTS_CATEGORY_NM_EN_NEW $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value1
+nameread PARTS_CATEGORY_NM_JP_NEW $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value2
+
+########################################
+#バリデーションを設定
+
+#PARTS_CATEGORY_NM_EN
+cat $tmp-value1 | awk '{print sprintf("PARTS_CATEGORY_NM_EN|ISNULL|%s",$1)}'                                >> $tmp-validation  #必須入力
+cat $tmp-value1 | awk '{print sprintf("PARTS_CATEGORY_NM_EN|LENGTH|%s,3,0",$1)}'                            >> $tmp-validation  #3文字以上
+cat $tmp-value1 | awk '{print sprintf("PARTS_CATEGORY_NM_EN|ISEN_ISJP|EN,%s",$1)}'                          >> $tmp-validation  #英語のみ
+cat $tmp-value1 | awk '{print sprintf("PARTS_CATEGORY_NM_EN|DUPLICATE|PARTS_CATEGORY,LISTS,2,%s",$1)}'  >> $tmp-validation  #重複確認
+
+#PARTS_CATEGORY_NM_JP
+cat $tmp-value2 | awk '{print sprintf("PARTS_CATEGORY_NM_JP|ISNULL|%s",$1)}'                                >> $tmp-validation  #必須入力
+cat $tmp-value2 | awk '{print sprintf("PARTS_CATEGORY_NM_JP|LENGTH|%s,3,0",$1)}'                            >> $tmp-validation  #3文字以上
+cat $tmp-value2 | awk '{print sprintf("PARTS_CATEGORY_NM_JP|ISEN_ISJP|JP,%s",$1)}'                          >> $tmp-validation  #日本語
+cat $tmp-value2 | awk '{print sprintf("PARTS_CATEGORY_NM_JP|DUPLICATE|PARTS_CATEGORY,LISTS,3,%s",$1)}'  >> $tmp-validation  #重複確認
+
+########################################
+#バリデーションを実行
+result=`${SYSD}/CGI/VALID/VALIDATION $1`
+
+########################################
+#バリデーション結果
+if [ -n "$(grep "|NG" $tmp-valid-report)" ] ; then
+    #Validation NG
+    echo 'VALID_NG@' $(cat $tmp-valid-report) > $tmp-ajax-html
+    #echo 2222 > $tmp-ajax-html
+    exit 0
+fi
+
+
 ########################################
 #カテゴリディレクトリを作成する
 result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${DATAD} ${DATAD}`
@@ -55,15 +89,8 @@ NEW_NUM=`${SYSD}/CGI/NUMBERS $1 'PARTS_CATEGORY' `
 
 #######################################
 #フォームの入力値を取得
-VALUE1=$(nameread NEW_PARTS_CATEGORY_NAME $tmp-post)
-
-########################################
-#重複確認
-cat ${DATAD}/LV3/*[^_d] | awk -v nm=${VALUE1} '$2==nm{print $1}' > $tmp-valid1
-if [ -n "$(cat $tmp-valid1)" ] ; then
-    echo 2222 > $tmp-ajax-html
-    exit 0
-fi
+PARTS_CATEGORY_NM_EN=$(cat $tmp-value1)
+PARTS_CATEGORY_NM_JP=$(cat $tmp-value2)
 
 ########################################
 #日付を設定
@@ -77,8 +104,8 @@ UPDATE_USER=${CREATE_USER}
 
 ########################################
 #入力値を一時ファイル化
-#parts_category_id	parts_category_name	create_date	update_date	create_user	update_user	del_flg
-echo ${NEW_NUM} ${VALUE1} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} 0 > $tmp-parts-category
+#parts_category_id	parts_category_nm_en	parts_category_nm_jp  create_date	update_date	create_user	update_user	del_flg
+echo ${NEW_NUM} ${PARTS_CATEGORY_NM_EN} ${PARTS_CATEGORY_NM_JP} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} 0 > $tmp-parts-category
 
 ########################################
 #データ格納

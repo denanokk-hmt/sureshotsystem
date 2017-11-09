@@ -7,10 +7,22 @@
             <span class="label label-default">%2</span>
         </td>
         <td>
-            <input type="text" name="PARTS_CATEGORY_NAME_%2" id="PARTS_CATEGORY_NAME_%2" value="%3" class="form-control" />
+            <input type="text" 
+                    name="PARTS_CATEGORY_NM_EN_%2" 
+                    id="PARTS_CATEGORY_NM_EN_%2" value="%3" 
+                    class="form-control"
+                    placeholder="部品カテゴリ名(英語)" />
         </td>
         <td>
-            <a href="" class="btn btn-warning" id="PARTS_CATEGORY_EDIT_%2" onclick="editPartsCategory(%2); return false;" >EDIT</a>
+            <input type="text" 
+                    name="PARTS_CATEGORY_NM_JP_%2" 
+                    id="PARTS_CATEGORY_NM_JP_%2" value="%4" 
+                    class="form-control" 
+                    placeholder="部品カテゴリ名(日本語)" />
+        </td>
+ 
+        <td>
+            <a class="btn btn-warning" id="PARTS_CATEGORY_EDIT_%2" onclick="editPartsCategory(%2); return false;" >EDIT</a>
         </td>
         <td>
             <a class="btn btn-danger" id="PARTS_CATEGORY_DELETE_%2" onclick="deletePartsCategory(%2);" >DELETE</a>

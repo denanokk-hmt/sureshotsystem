@@ -35,20 +35,50 @@ FIN
 
 #######################################
 #フォームの入力値を取得
-NUM=$(nameread PARTS_CATEGORY_ID $tmp-post)
-NAME=$(nameread PARTS_CATEGORY_NAME $tmp-post)
+nameread PARTS_CATEGORY_NM_EN $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value1
+nameread PARTS_CATEGORY_NM_JP $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value2
 
 ########################################
-#重複確認
-cat ${DATAD}/LV3/*[^_d] | awk -v nm=${NAME} '$2==nm{print $1}' > $tmp-valid1
-if [ -n "$(cat $tmp-valid1)" ] ; then
-    echo 2222 > $tmp-ajax-html
+#バリデーションを設定
+
+#PARTS_CATEGORY_NM_EN
+cat $tmp-value1 | awk '{print sprintf("PARTS_CATEGORY_NM_EN|ISNULL|%s",$1)}'                                >> $tmp-validation  #必須入力
+cat $tmp-value1 | awk '{print sprintf("PARTS_CATEGORY_NM_EN|LENGTH|%s,3,0",$1)}'                            >> $tmp-validation  #3文字以上
+cat $tmp-value1 | awk '{print sprintf("PARTS_CATEGORY_NM_EN|ISEN_ISJP|EN,%s",$1)}'                          >> $tmp-validation  #英語のみ
+cat $tmp-value1 | awk '{print sprintf("PARTS_CATEGORY_NM_EN|DUPLICATE|PARTS_CATEGORY,LISTS,2,%s",$1)}'  >> $tmp-validation  #重複確認
+
+#PARTS_CATEGORY_NM_JP
+cat $tmp-value2 | awk '{print sprintf("PARTS_CATEGORY_NM_JP|ISNULL|%s",$1)}'                                >> $tmp-validation  #必須入力
+cat $tmp-value2 | awk '{print sprintf("PARTS_CATEGORY_NM_JP|LENGTH|%s,3,0",$1)}'                            >> $tmp-validation  #3文字以上
+cat $tmp-value2 | awk '{print sprintf("PARTS_CATEGORY_NM_JP|ISEN_ISJP|JP,%s",$1)}'                          >> $tmp-validation  #日本語
+cat $tmp-value2 | awk '{print sprintf("PARTS_CATEGORY_NM_JP|DUPLICATE|PARTS_CATEGORY,LISTS,3,%s",$1)}'  >> $tmp-validation  #重複確認
+
+########################################
+#バリデーションを実行
+result=`${SYSD}/CGI/VALID/VALIDATION $1`
+
+########################################
+#バリデーション結果
+if [ -n "$(grep "|NG" $tmp-valid-report)" ] ; then
+    #Validation NG
+    echo 'VALID_NG@' $(cat $tmp-valid-report) > $tmp-ajax-html
+    #echo 2222 > $tmp-ajax-html
     exit 0
 fi
+
+
+#######################################
+#フォームの入力値を取得
+NUM=$(nameread PARTS_CATEGORY_ID $tmp-post)
+PARTS_CATEGORY_NM_EN=$(cat $tmp-value1)
+PARTS_CATEGORY_NM_JP=$(cat $tmp-value2)
 
 ########################################
 #既存データから作成日時取得、現在日時を更新日時とする
 ls ${DATAD}/LV1/${NUM}_parts_category_* | cut -d'_' -f5 | sort -nk1,1 | head -n 1 > $tmp-create
+
+########################################
+#日付を設定
 CREATE_DATE=$(cat $tmp-create)
 UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 
@@ -69,8 +99,8 @@ LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
 
 ########################################
 #入力値を一時ファイル化
-#parts_category_id	parts_category_name	create_date	update_date	create_user	update_user	del_flg
-echo ${NUM} ${NAME} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} 0 > $tmp-parts-category
+#parts_category_id	parts_category_nm_en	parts_category_nm_jp  create_date	update_date	create_user	update_user	del_flg
+echo ${NUM} ${PARTS_CATEGORY_NM_EN} ${PARTS_CATEGORY_NM_JP} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} 0 > $tmp-parts-category
 
 ########################################
 #データ格納
