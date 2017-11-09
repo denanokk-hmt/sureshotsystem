@@ -55,9 +55,17 @@ TABLE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-html`
 
 ########################################
 #tableをはめ込む
-cat ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/SHOW.HTML  > $tmp-base
-sed -e "s|###TABLE###|${TABLE}|g" $tmp-base        |
-sed -e "s|###INFO_MSG###||g"                        > $tmp-html
+cat ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/SHOW.HTML          |
+sed -e "s/###OPERATION_CATEGORY_NM_EN_ISNULL###/hidden/"    |
+sed -e "s/###OPERATION_CATEGORY_NM_EN_LENGTH###/hidden/"    |
+sed -e "s/###OPERATION_CATEGORY_NM_EN_ISEN_ISJP###/hidden/" |
+sed -e "s/###OPERATION_CATEGORY_NM_EN_DUPLICATE###/hidden/" |
+sed -e "s/###OPERATION_CATEGORY_NM_JP_ISNULL###/hidden/"    |
+sed -e "s/###OPERATION_CATEGORY_NM_JP_LENGTH###/hidden/"    |
+sed -e "s/###OPERATION_CATEGORY_NM_JP_ISEN_ISJP###/hidden/" |
+sed -e "s/###OPERATION_CATEGORY_NM_JP_DUPLICATE###/hidden/" |
+sed -e "s|###TABLE###|${TABLE}|g"                           |
+sed -e "s|###INFO_MSG###||g"                                > $tmp-html
 
 ########################################
 #page name

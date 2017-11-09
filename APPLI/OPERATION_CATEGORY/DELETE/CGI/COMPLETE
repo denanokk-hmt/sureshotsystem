@@ -36,7 +36,8 @@ FIN
 ########################################
 #フォームの入力値を取得
 NUM=$(nameread OPERATION_CATEGORY_ID $tmp-post)
-NAME=$(nameread OPERATION_CATEGORY_NAME $tmp-post)
+OPERATION_CATEGORY_NM_EN=$(nameread OPERATION_CATEGORY_NM_EN $tmp-post)
+OPERATION_CATEGORY_NM_JP=$(nameread OPERATION_CATEGORY_NM_JP $tmp-post)
 #
 ########################################
 #既存データから作成日時取得、現在日時を更新日時とする
@@ -62,7 +63,7 @@ LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
 ########################################
 #入力値を一時ファイル化
 #operation_category_id	operation_category_name	create_date	update_date	create_user	update_user	del_flg
-echo ${NUM} ${NAME} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} 1 > $tmp-operation-category
+echo ${NUM} ${OPERATION_CATEGORY_NM_EN} ${OPERATION_CATEGORY_NM_JP} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} 1 > $tmp-operation-category
 
 ########################################
 #データ格納
@@ -95,26 +96,28 @@ UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'OPERATION_CATEGORY' ${NUM}`
 #オペリストDir
 OPERATIOND=${SYSD}/DATA/OPERATION_LIST/LISTS
 
+#############################
 #0未登録カテゴリを作成
-#0ディレクトリを作成
-if [ -e "${OPERATIOND}/0" ]; then
+if [ -e "${DATAD}/LV1/0_*" ]; then
     :
 else
-    #############################
-    #0:未登録カテゴリを作成
-    #############################
     #LV1
     echo 0 '未登録' ${UPDATE_DATE} ${UPDATE_DATE} ${UPDATE_USER} ${UPDATE_USER} 0 > \
     ${DATAD}/LV1/0_operation_category_${UPDATE_DATE}
     #LV2
+    rm -f ${DATAD}/LV2/0_*
     cat ${DATAD}/LV1/0_operation_category_${UPDATE_DATE} | awk '{$NF=""; print $0}' > \
     ${DATAD}/LV2/0_operation_category_${UPDATE_DATE}
     #LV3
+    rm -f ${DATAD}/LV3/0_*
     cp -p ${DATAD}/LV2/0_operation_category_${UPDATE_DATE} ${DATAD}/LV3/0_operation_category_${UPDATE_DATE}
+fi
 
-    ############################
-    #OPERATION_LISTにカテゴリ0ディレクトリを作成
-    ############################
+############################
+#OPERATION_LISTにカテゴリ0ディレクトリを作成
+if [ -e "${OPERATIOND}/0" ]; then
+    :
+else
     result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${OPERATIOND}/0 ${OPERATIOND}/0`
 fi
 
