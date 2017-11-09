@@ -1,7 +1,7 @@
 <!--<!DOCTYPE html>-->
 <!--<html>-->
 <!--<body>-->
-<div class="container">
+<div id="page" class="container fade-in" style="opacity:0">
     <div class="col-md-6 col-md-offset-1">
 
     <!--Header info-->
@@ -70,6 +70,13 @@
 </div>
 
 <script type="text/javascript">
+
+    //ロード時に全画面をフェードイン
+    $(window).on('load',function(){
+        $('#page').css("opacity","1");
+    });
+
+    //DDO.JP
 		document.write('<scr'+'ipt type="text/javascript" src="http://ad.ddo.jp/300x250.js.php?ddo_id=sureshot&ddo_i='+    Math.floor((new Date()).getTime()/1000/60)+'"><'+'/scr'+'ipt>');
 </script>
 <!--</body>-->
