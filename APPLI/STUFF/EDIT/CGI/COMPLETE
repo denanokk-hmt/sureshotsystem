@@ -68,8 +68,8 @@ cat $tmp-value4 | awk '{print sprintf("PASSWORD|LENGTH|%s,8,0",$1)}'      >> $tm
 
 #PASSWORD CONFIRMATION
 #PASSWORDと同じ値を設定して必ず合格にする
-cat $tmp-value4 | awk '{print sprintf("PW_CONFIRM|ISNULL|%s",$1)}'                      >> $tmp-validation  #必須入力
-paste $tmp-value4 $tmp-value4 | awk '{print sprintf("PW_CONFIRM|COMPARE|%s,%s",$1,$2)}' >> $tmp-validation  #=PASSWORD 
+cat $tmp-value4 | awk '{print sprintf("PW_CONFIRM|ISNULL|%s",$1)}'                            >> $tmp-validation  #必須入力
+paste $tmp-value4 $tmp-value4 | awk '{print sprintf("PW_CONFIRM|COMPARE|SAME,%s,%s",$1,$2)}'  >> $tmp-validation  #=PASSWORD 
 
 #TEL1
 cat $tmp-value6 | awk '{print sprintf("TEL1|ISNULL|%s",$1)}'              >> $tmp-validation  #必須入力
@@ -145,6 +145,7 @@ EMAIL=$(cat $tmp-value3)
 PASSWORD=$(cat $tmp-value4)
 TEL1=$(cat $tmp-value6)
 TEL2=$(cat $tmp-value7)
+[ -n "${TEL2}" ] && : || TEL2=${TEL1}
 ADMIN_FLG=$(cat $tmp-value8)
 [ "${ADMIN_FLG}" = "1" ] && ADMIN="管理者権限あり" || ADMIN='管理者権限なし'
 DEL_FLG=0

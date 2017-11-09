@@ -64,8 +64,8 @@ cat $tmp-value4 | awk '{print sprintf("PASSWORD|ISNULL|%s",$1)}'          >> $tm
 cat $tmp-value4 | awk '{print sprintf("PASSWORD|LENGTH|%s,8,0",$1)}'      >> $tmp-validation  #length <=8 
 
 #PASSWORD CONFIRMATION
-cat $tmp-value5 | awk '{print sprintf("PW_CONFIRM|ISNULL|%s",$1)}'                      >> $tmp-validation  #必須入力
-paste $tmp-value4 $tmp-value5 | awk '{print sprintf("PW_CONFIRM|COMPARE|%s,%s",$1,$2)}' >> $tmp-validation  #=PASSWORD 
+cat $tmp-value5 | awk '{print sprintf("PW_CONFIRM|ISNULL|%s",$1)}'                            >> $tmp-validation  #必須入力
+paste $tmp-value4 $tmp-value5 | awk '{print sprintf("PW_CONFIRM|COMPARE|SAME,%s,%s",$1,$2)}'  >> $tmp-validation  #=PASSWORD 
 
 #TEL1
 cat $tmp-value6 | awk '{print sprintf("TEL1|ISNULL|%s",$1)}'              >> $tmp-validation  #必須入力
@@ -108,7 +108,7 @@ if [ -n "$(grep "|NG" $tmp-valid-report)" ] ; then
     
     #########################################
     #バリデーション結果を元にメッセージとラベルカラーを設定
-    result=`${SYSD}/CGI/VALID/ALERT_SETTING $1`
+    result=`${SYSD}/CGI/VALID/ALERT_SETTING $1 - -`
 
     #########################################
     #上記処理からのHTMLを受け、入力値を設定し、HTMLを完成させる
