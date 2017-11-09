@@ -102,7 +102,7 @@ if [ -e "${DATAD}/LV1/0_*" ]; then
     :
 else
     #LV1
-    echo 0 '未登録' ${UPDATE_DATE} ${UPDATE_DATE} ${UPDATE_USER} ${UPDATE_USER} 0 > \
+    echo 0 '未登録' 'Unregistered' ${UPDATE_DATE} ${UPDATE_DATE} ${UPDATE_USER} ${UPDATE_USER} 0 > \
     ${DATAD}/LV1/0_operation_category_${UPDATE_DATE}
     #LV2
     rm -f ${DATAD}/LV2/0_*
