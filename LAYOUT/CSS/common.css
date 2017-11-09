@@ -173,7 +173,6 @@ body {
 }
 
 
-
 /****************/
 /*Gutter*/
 /****************/
@@ -225,3 +224,13 @@ body {
     }
 }
 
+
+/****************/
+/*ふわっと*/
+/****************/
+.fade-in {
+  transition: opacity 1.5s;
+  -moz-transition: opacity 1.5s;
+  -webkit-transition: opacity 1.5s;
+  -o-transition: opacity 1.5s;
+}
