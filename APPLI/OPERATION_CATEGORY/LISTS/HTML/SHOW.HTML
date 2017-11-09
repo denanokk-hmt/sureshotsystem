@@ -114,7 +114,7 @@
 
         //新規登録処理
         $('#REST').val('POST'); //REST
-        var new_category_name = $('#OPERATION_CATEGORY_NM_EN_NEW').val(); //MSG用
+        var new_category_nm_en = $('#OPERATION_CATEGORY_NM_EN_NEW').val(); //MSG用
         var params = $('form').serialize();
         jqXHR = $.ajax({
             type: 'POST',
@@ -138,8 +138,8 @@
                 }
             } else {
                 $('table').html(data);
-                $('#info-msg').html(new_category_name + "を追加しました。");
-                alert(new_category_name + "を追加しました。");
+                $('#info-msg').html(new_category_nm_en + "を追加しました。");
+                alert(new_category_nm_en + "を追加しました。");
             }
         });
         jqXHR.fail(function(data) {

@@ -62,7 +62,7 @@ LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
 
 ########################################
 #入力値を一時ファイル化
-#operation_category_id	operation_category_name	create_date	update_date	create_user	update_user	del_flg
+#operation_category_id	operation_category_nm_en  operation_category_en_jpcreate_date	update_date	create_user	update_user	del_flg
 echo ${NUM} ${OPERATION_CATEGORY_NM_EN} ${OPERATION_CATEGORY_NM_JP} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} 1 > $tmp-operation-category
 
 ########################################
