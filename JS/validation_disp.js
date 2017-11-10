@@ -33,14 +33,19 @@ function validationResultDisplay(id, data, method, bfrVal ,aftVal,) {
     var ngcount = 0;
     $('input').removeClass("label-danger");
     for (var i = 1; i < len; i++){
+        //alert(data_arry[i]);
         var report = data_arry[i].split("|");
-        var item = report[0];   //項目名
-        var valid = report[1]   //バリデーション名
-        var result = report[2]  //結果(OK/NG)
+        var item = report[0];           //項目名
+        var valid = report[1];          //バリデーション名
+        var result = report[2].trim();  //結果(OK/NG)
+        //alert(item);
+        //alert(valid);
+        //alert(result);
         var msg_ele = '#' + item + '_' + valid + '_MSG';
         var lvl_ele = '#' + item + '_' + id;
         var lvl_cls = '###' + item + '_' + valid + '_LBL###';
         if (result == 'NG') {
+            alert(lvl_ele);
             ngcount ++;
             $(msg_ele).addClass("show"); 
             $(msg_ele).removeClass("hidden"); 

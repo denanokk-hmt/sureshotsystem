@@ -1,68 +1,84 @@
 <!--<!DOCTYPE html>-->
 <!--<html>-->
 
-<div class="container">
-    
-    <div class="container">
-    <div class="fixed gray-trans-over">
-
-        <!--Header Info-->
-        <div class="row">
-            <label class="control-label col-sm-1">
-                <h3><i class="glyphicon glyphicon-info-sign"></i></h3>
-            </label>
-            <div class="col-sm-6 lbl-header-info">
-                <span id="info-msg" class="label label-lg label-###INFO_LV###">
-                    ###INFO_MSG###
-                </span>
+<div id="page" class="container fade-in" style="opacity:0">
+     
+    <!--Header Info-->
+    <div class="col-md-1 col-xs-1" >
+        <i class="glyphicon glyphicon-info-sign"></i>
+    </div>
+ 
+    <!--Header Info-->
+    <div class="col-md10 lbl-header-info">
+        <span id="info-msg" class="label label-lg label-###INFO_LV###">
+            ###INFO_MSG###
+        </span>
+    </div>
+    <!--ERROR MESSAGE-->
+    <div class="row">
+        <div class="col-md-10 lbl-header-info">
+            <div>
+                <span id="CATEGORY_NM_ISNULL_MSG" class="fade-in label label-danger ###CATEGORY_NM_ISNULL###">カテゴリ名が、選択されていません。</span>
+            </div>
+            <div>
+                <span id="OPERATION_NAME_ISNULL_MSG" class="fade-in label label-danger ###OPERATION_NAME_ISNULL###">オペレーション名に、値がありません。</span>
+            </div>
+            <div>
+                <span id="OPERATION_NAME_LENGTH_MSG" class="fade-in label label-danger ###OPERATION_NAME_LENGTH###">オペレーション名は、3文字以上必要です。</span>
+            </div>
+            <div>
+                <span id="OPERATION_NAME_DUPLICATE_MSG" class="fade-in label label-danger ###OPERATION_NAME_DUPLICATE###">カテゴリ名(日本語)は、既に使用されています。</span>
+            </div>
+            <div>
+                <span id="OPERATION_PRICE_ISNULL_MSG" class="fade-in label label-danger ###OPERATION_PRICE_ISNULL###">オペレーション料金に、値がありません。</span>
             </div>
         </div>
+    </div>
+    <br>
 
-        <!--Operation Category Filter-->
-        <div class="row">
-            <form action="/APP/OPERATION_LIST/LISTS" method="GET">    
-                <div class="form-group">
+    <!--カテゴリ検索-->
+    <div class="row">
+        <form action="/APP/OPERATION_LIST/LISTS" method="GET">    
+            <div class="form-group">
+                <div class="btn-group">
+                    <!--Operation Category Dropdown list-->
                     <div class="btn-group">
-                        <!--Operation Category Dropdown list-->
-                        <div class="btn-group">
-                            <button type="submit" class="btn btn-info dropdown-toggle" data-toggle="dropdown" id="operation_category" aria-expended="false">
-                                &nbsp<span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu" role="menu" name="PAGE">
-                               <li name="CATEGORY_PAGE">
-                                   <a class="category-list" id="cat_list_0" >ALL</a>
-                               </li>
-                               ###CATEGORY###
-                            </ul>
-                        </div>
-                        <div class="btn-group">
-                            <input type="text" name="CATEGORY_NM_PAGE" id="CATEGORY_NM_PAGE" value="###CATEGORY_NM_PAGE###" class="form-control" disabled />
-                        </div>
-
-                        <!--Search Submit button-->
-                        <div class="btn-group">
-                            <button id="Search" type="submit" class="btn btn-info" />
-                                <span class="glyphicon glyphicon-eye-open">Search</span>
-                            </button>
-                        </div>
+                        <button type="submit" class="btn btn-info dropdown-toggle" data-toggle="dropdown" id="operation_category" aria-expended="false">
+                            &nbsp<span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu" name="PAGE">
+                           <li name="CATEGORY_PAGE">
+                               <a class="category-list" id="cat_list_0" >ALL</a>
+                           </li>
+                           ###CATEGORY###
+                        </ul>
                     </div>
-
-                    <input type="hidden" id="action" name="action" value="SHOW" />
-                    <input type="hidden" id="page" name="page" value="###PAGE###" />
-                    <input type="hidden" id="search" name="search" value="0" />
-                    <input type="hidden" name="category-nm" id="CATEGORY_NM_HID_PAGE" value="###CATEGORY_NM_PAGE###" />
-                    <input type="hidden" name="category-no" id="CATEGORY_NO_HID_PAGE" value="###CATEGORY_NO_PAGE###" />
+                    <div class="btn-group">
+                        <input type="text" name="CATEGORY_NM_PAGE" id="CATEGORY_NM_PAGE" value="###CATEGORY_NM_PAGE###" class="form-control" disabled />
+                    </div>
+                    <!--Search Submit button-->
+                    <div class="btn-group">
+                        <button id="Search" type="submit" class="btn btn-info" />
+                            <span class="glyphicon glyphicon-eye-open">Search</span>
+                        </button>
+                    </div>
                 </div>
+                <!--カテゴリ検索値、表示ページ、検索有無-->
+                <input type="hidden" id="action" name="action" value="SHOW" />
+                <input type="hidden" id="page" name="page" value="###PAGE###" />
+                <input type="hidden" id="search" name="search" value="0" />
+                <input type="hidden" name="category-nm" id="CATEGORY_NM_HID_PAGE" value="###CATEGORY_NM_PAGE###" />
+                <input type="hidden" name="category-no" id="CATEGORY_NO_HID_PAGE" value="###CATEGORY_NO_PAGE###" />
+            </div>
 
-                <!--Spacer-->
-                <div class="col-sm-1 hidden-xs"></div>
-            </form>
-        </div>
-        </div>
+            <!--Spacer-->
+            <div class="col-sm-1 hidden-xs"></div>
+        </form>
     </div>
 
-    <!--Spacer-->
+    <!--Spacer
     <div class="header-dummy" style="height:9.0em; background-color:piink;"></div>
+    -->
 
     <!--Contents Records/Pagination-->
     <div class="header-under-contents">
@@ -76,7 +92,6 @@
             <div class="contents-table">
                 ###TABLE###
             </div>
-
         </form>
         <div id="pager" class="pagination-foot">
             ###PAGER###
@@ -85,6 +100,40 @@
 </div>
 
 <script>
+
+    //Validation Err MSGのOpacityを初期化
+    $(document).ready(function(){
+        validationErrMsgInit();
+    });
+
+    //ロード時に全画面をフェードイン
+    $(window).on('load',function(){
+        $('#page').css("opacity","1");
+    });
+
+    //バリデーションエラーMSGの初期化
+    function validationErrMsgInit() {
+
+        //バリデーションエラー表示をクリア
+        $('input[type=text]').removeClass("label-danger");
+        $('.lbl-header-info .label').removeClass("show");
+        $('.lbl-header-info .label').addClass("hidden");
+        $('#info-msg').html("");
+
+        //バリデーションエラーMSGをフェードアウト
+        fadeInOut(0);
+    }
+
+    /*バリデーションエラーMSGをフェードアウト
+    *   引数 inout
+    *   フェードイン:1
+    *   フェードアウト:0
+    */
+    function fadeInOut(inout) {
+        $('.fade-in').not('#page').each(function(){
+            $(this).css("opacity",inout );
+        });
+    }
 
     $(document).ready(function() {
         $("#pager").sticky({topSpacing:0});
@@ -123,6 +172,10 @@
 
     //作業追加
     function newOperation() {
+
+        //バリデーションエラーMSG初期化
+        validationErrMsgInit();
+
         $('#REST').val('POST');
         var new_operation_name = $('#NEW_OPERATION_NAME').val();
         var params = $('form').serialize();
@@ -132,12 +185,24 @@
             data: params
         });
         jqXHR.done(function(data) {
-            if (data == 2222) {
-                alert(new_operation_name + "は、既に使われています。");
+            //バリデーションエラーの場合、先頭にVALID=NG
+            //デリミタとして「@」を指定されてくる
+            var valid_result = data.split("@");
+            if (valid_result[0] == 'VALID_NG') {
+
+                //バリデーションエラー表示
+                var r = validationResultDisplay('NEW', valid_result[1], 'POST');
+
+                //バリデーションMSGをフワッと表示 
+                fadeInOut(1);
+
+                if (r != 'OK') {  
+                    alert("新規登録処理に失敗しました。");
+                }
             } else {
                 $('table').html(data);
-                $('#info-msg').html(new_operation_name + "を追加しました。");
-                alert(new_operation_name + "を追加しました。");
+                $('#info-msg').html(new_operation_nm_en + "を追加しました。");
+                alert(new_category_nm_en + "を追加しました。");
             }
         });
         jqXHR.fail(function(data) {
@@ -147,6 +212,10 @@
 
     //作業変更
     function editOperation(id) {
+
+        //バリデーションエラーMSG初期化
+        validationErrMsgInit();
+
         var edit_operation_name = $('#OPERATION_NAME_' + id).val();
         var jqXHR = $.ajax({
             type: 'POST',
@@ -161,20 +230,27 @@
                 EDIT_OPERATION_CATEGORY_NX: $('#CATEGORY_NX_HID_' + id).val(),
                 EDIT_OPERATION_CATEGORY_NAME: $('#CATEGORY_NM_HID_' + id).val(),
                 EDIT_OPERATION_NAME: $('#OPERATION_NAME_' + id).val(),
-                EDIT_OPERATION_NAME_JP: $('#OPERATION_NAME_JP_' + id).val(),
-                EDIT_OPERATION_PRICE:$('#OPERATION_PRICE_' + id).val() ,
-                EDIT_OPERATION_REMARKS: $('#OPERATION_REMARKS_' + id).val()
+                EDIT_OPERATION_PRICE:$('#OPERATION_PRICE_' + id).val()
             }
         });
         jqXHR.done(function(data) {
-            if (data == 2222) {
-                alert(edit_operation_name + "は、既に使われています。");
-            } else if (data == 111) {
-                $('#info-msg').html(edit_operation_name + "を変更しました。");
-                alert(edit_operation_name + "を変更しました。");
+            //バリデーションエラーの場合、先頭にVALID=NG
+            //デリミタとして「@」を指定されてくる
+            var valid_result = data.split("@");
+            if (valid_result[0] == 'VALID_NG') {
+
+                //バリデーションエラー表示
+                var r = validationResultDisplay(id, valid_result[1], 'PUT');
+
+                //バリデーションMSGをフワッと表示 
+                fadeInOut(1);
+
+                if (r != 'OK') {  
+                    alert("更新処理に失敗しました。");
+                }
             } else {
-                $('#info-msg').html(edit_operation_name + "を変更出来ませんでした。");
-                alert(edit_operation_name + "を変更出来ませんでした。");
+                $('#info-msg').html(edit_operation_name + "に変更しました。");
+                alert(edit_operation_name + "に変更しました。");
             }
         });
         jqXHR.fail(function() {
@@ -184,6 +260,11 @@
 
     //作業削除
     function deleteOperation(id) {
+
+        //バリデーションエラーMSG初期化
+        validationErrMsgInit();
+ 
+        //削除処理
         var delete_operation_name = $('#OPERATION_NAME_' + id).val();
         var delete_category_nx = $('#CATEGORY_NX_HID_' + id).val();
         var jqXHR = $.ajax({

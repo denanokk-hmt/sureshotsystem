@@ -66,25 +66,9 @@ if [ -n "$(grep "|NG" $tmp-valid-report)" ] ; then
     exit 0
 fi
 
-########################################
-#カテゴリディレクトリを作成する
-result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${DATAD} ${DATAD}`
-
-#オペディレクトリを作成する
-result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/OPERATION_LIST/LISTS ${SYSD}/DATA/OPERATION_LIST/LISTS`
-
-########################################
-#カテゴリ番号の次のロットを追加する
-LATEST_NUM=$(ls ${SYSD}/DATA/NUMBERS/${CATEGORY}/ORIGIN | sort -nr | head -n 1)
-START=$((LATEST_NUM + 1))
-END=$((START + 3))
-SEQ_STATUS=`${SYSD}/CGI/NUMBER_SEQ $1 ${CATEGORY} ${START} ${END} `
-[[ ${SEQ_STATUS} != 'SUCCESS' ]] && exit 0
-
-########################################
-#新規カテゴリ番号を確定する
-NEW_NUM=`${SYSD}/CGI/NUMBERS $1 'OPERATION_CATEGORY' `
-[ ${NEW_NUM} = 'ERROR' ] && exit 0 || :
+#########################################
+##新規作業番号を確定する
+NEW_NUM=$(${SYSD}/CGI/NUMBER/NUMBER $1)
 
 #######################################
 #フォームの入力値を取得
@@ -100,6 +84,26 @@ UPDATE_DATE=$CREATE_DATE
 #更新者の取得
 CREATE_USER=$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
 UPDATE_USER=${CREATE_USER}
+
+########################################
+#カテゴリディレクトリを作成する
+result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${DATAD} ${DATAD}`
+
+########################################
+#オペリストディレクトリを作成する
+result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/OPERATION_LIST/LISTS ${SYSD}/DATA/OPERATION_LIST/LISTS`
+
+########################################
+#オペリスト格納用カテゴリDirを作成
+result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/OPERATION_LIST/LISTS/${NEW_NUM} ${SYSD}/DATA/OPERATION_LIST/LISTS/${NEW_NUM}`
+
+########################################
+#オペディテールディレクトリを作成する
+result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/OPERATION_DETAIL/LISTS ${SYSD}/DATA/OPERATION_DETAIL/LISTS`
+
+########################################
+#オペディテール格納用カテゴリDirを作成
+result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/OPERATION_DETAIL/LISTS/${NEW_NUM} ${SYSD}/DATA/OPERATION_DETAIL/LISTS/${NEW_NUM}`
 
 ########################################
 #入力値を一時ファイル化
@@ -118,10 +122,6 @@ cat ${DATAD}/LV1/${NEW_NUM}_operation_category_${CREATE_DATE} | awk '{$NF=""; pr
 #LV3
 #LV2のコピー
 cp -p ${DATAD}/LV2/${NEW_NUM}_operation_category_${CREATE_DATE} ${DATAD}/LV3/${NEW_NUM}_operation_category_${CREATE_DATE}
-
-########################################
-#パーツ格納用カテゴリDirを作成
-result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/OPERATION_LIST/LISTS/${NEW_NUM} ${SYSD}/DATA/OPERATION_LIST/LISTS/${NEW_NUM}`
 
 ########################################
 #Get records

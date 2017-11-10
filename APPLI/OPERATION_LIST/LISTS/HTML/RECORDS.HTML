@@ -2,10 +2,13 @@
 
 <!--RECORDS-->
 <tr id="edit-row-%2">
+    <!--順番-->
     <td>%1</td>
+    <!--ID-->
     <td>
         <span class="label label-default">%2</span>
     </td>
+    <!--カテゴリ-->
     <td>
         <div class="edit">
             <div class="form-group">
@@ -28,23 +31,25 @@
             </div>
         </div>
     </td>
+    <!--作業名-->
     <td>
         <input type="text" name="OPERATION_NAME_%2" id="OPERATION_NAME_%2" value="%5" class="form-control input-sm" />
     </td>
-    <td>
-        <input type="text" name="OPERATION_NAME_JP_%2" id="OPERATION_NAME_JP_%2" value="%6" class="form-control input-sm" />
-    </td>
+    <!--料金-->
     <td>
         <input type="number" name="OPERATION_PRICE_%2" id="OPERATION_PRICE_%2" value="%7" class="form-control input-sm" />
     </td>
+    <!--詳細ボタン-->
     <td>
-        <input type="text" name="OPERATION_REMARKS_%2" id="OPERATION_REMARKS_%2" value="%8" class="form-control input-sm" />
+        <a class="btn btn-success btn-sm" id="OPERATION_DETAIL_%2" onclick="detailOperation(%2); return false;" >DETAIL</a>
     </td>
+    <!--更新ボタン-->
     <td>
         <a class="btn btn-warning btn-sm" id="OPERATION_EDIT_%2" onclick="editOperation(%2); return false;" >EDIT</a>
     </td>
+    <!--削除ボタン-->
     <td>
-        <a class="btn btn-danger btn-sm" id="OPERATION_DELETE_%2" onclick="deleteOperation(%2); return false;" >DEL</a>
+        <a class="btn btn-danger btn-sm" id="OPERATION_DELETE_%2" onclick="deleteOperation(%2); return false;" >DELETE</a>
     </td>
 </tr>
 <!--RECORDS-->
