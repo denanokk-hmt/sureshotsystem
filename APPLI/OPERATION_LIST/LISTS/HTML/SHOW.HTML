@@ -1,7 +1,7 @@
 <!--<!DOCTYPE html>-->
 <!--<html>-->
 
-<div id="page" class="container fade-in" style="opacity:0">
+<div id="whole" class="container fade-in" style="opacity:0">
      
     <!--Header Info-->
     <div class="col-md-1 col-xs-1" >
@@ -38,7 +38,7 @@
 
     <!--カテゴリ検索-->
     <div class="row">
-        <form action="/APP/OPERATION_LIST/LISTS" method="GET">    
+        <form name="search" action="/APP/OPERATION_LIST/LISTS" method="GET">    
             <div class="form-group">
                 <div class="btn-group">
                     <!--Operation Category Dropdown list-->
@@ -82,7 +82,7 @@
 
     <!--Contents Records/Pagination-->
     <div class="header-under-contents">
-        <form class="form-inline form-horizontal"  action="" method="">
+        <form name="main" class="form-inline form-horizontal"  action="" method="">
             <input type="hidden" id="ACTION" name="ACTION" value="COMPLETE" />
             <input type="hidden" id="REST" name="REST" value="" />
             <input type="hidden" id="PAGE" name="PAGE" value="###PAGE###" />
@@ -108,7 +108,7 @@
 
     //ロード時に全画面をフェードイン
     $(window).on('load',function(){
-        $('#page').css("opacity","1");
+        $('#whole').css("opacity","1");
     });
 
     //バリデーションエラーMSGの初期化
@@ -130,7 +130,7 @@
     *   フェードアウト:0
     */
     function fadeInOut(inout) {
-        $('.fade-in').not('#page').each(function(){
+        $('.fade-in').not('#whole').each(function(){
             $(this).css("opacity",inout );
         });
     }
@@ -201,7 +201,7 @@
                 }
             } else {
                 $('table').html(data);
-                $('#info-msg').html(new_operation_nm_en + "を追加しました。");
+                $('#info-msg').html(new_operation_name + "を追加しました。");
                 alert(new_category_nm_en + "を追加しました。");
             }
         });
@@ -209,6 +209,29 @@
             alert("新規登録処理に失敗しました。");
         });
     }
+
+    //詳細画面へ遷移
+    function detailOperation(id) {
+
+        //バリデーションエラーMSG初期化
+        validationErrMsgInit();
+
+        //GETパラメーターの順番は、action,page,serach,category-nm,category-no が前提
+        var action = '?action=SHOW';
+        var page = '&page=' + $('#page').val();
+        var search = '&search=' + $('#search').val();
+        var categoryNm = $('#CATEGORY_NM_HID_PAGE').val();
+        var categoryNo = $('#CATEGORY_NO_HID_PAGE').val();
+        if (categoryNo != '') {
+            categoryNm = '&category-nm=' + categoryNm;
+            categoryNo = '&category-no=' + categoryNo;
+        }
+        var operationId = '&id=' + id;
+
+        //詳細へ 
+        location.href='/APP/OPERATION_DETAIL/LISTS' + action + page + search + categoryNm + categoryNo + operationId;
+    }
+
 
     //作業変更
     function editOperation(id) {

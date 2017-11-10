@@ -27,11 +27,13 @@
  *            変更後項目名|変更後の値
  */
 function validationResultDisplay(id, data, method, bfrVal ,aftVal,) {
+
     var data_arry = data.split(" ");  // 空白で分割
     var len = data_arry.length;
     var ngmsg = '';
     var ngcount = 0;
     $('input').removeClass("label-danger");
+    $('input').css('background-color','#fff');
     for (var i = 1; i < len; i++){
         //alert(data_arry[i]);
         var report = data_arry[i].split("|");
@@ -45,12 +47,13 @@ function validationResultDisplay(id, data, method, bfrVal ,aftVal,) {
         var lvl_ele = '#' + item + '_' + id;
         var lvl_cls = '###' + item + '_' + valid + '_LBL###';
         if (result == 'NG') {
-            alert(lvl_ele);
+            //alert(lvl_ele);
             ngcount ++;
             $(msg_ele).addClass("show"); 
             $(msg_ele).removeClass("hidden"); 
             $(lvl_ele).removeClass(lvl_cls); 
             $(lvl_ele).addClass("label-danger"); 
+            $(lvl_ele).css('background-color','#d9534f');
             //alert(item + '_' + valid + '_' + result); 
         } else {
             $(msg_ele).addClass("hidden"); 
