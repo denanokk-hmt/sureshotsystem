@@ -234,3 +234,19 @@ body {
   -webkit-transition: opacity 1.5s;
   -o-transition: opacity 1.5s;
 }
+
+/* Table
+————————————————– */
+.table-responsive > table {
+width: 100%;
+table-layout: fixed;
+word-wrap: break-word;
+}
+@media (max-width: 767px) {
+.table-responsive > table {
+table-layout: auto;
+}
+}
+
+/* end
+————————————————– */
