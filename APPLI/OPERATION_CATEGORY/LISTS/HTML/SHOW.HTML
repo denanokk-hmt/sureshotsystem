@@ -1,7 +1,7 @@
 <!--<!DOCTYPE html>-->
 <!--<html>-->
 
-<div id="page" class="container fade-in" style="opacity:0">
+<div id="whole" class="container fade-in" style="opacity:0">
     
     <!--Header Info-->
     <div class="col-md-1 col-xs-1" >
@@ -71,7 +71,7 @@
 
     //ロード時に全画面をフェードイン
     $(window).on('load',function(){
-        $('#page').css("opacity","1");
+        $('#whole').css("opacity","1");
     });
 
     //バリデーションエラーMSGの初期化
@@ -93,7 +93,7 @@
     *   フェードアウト:0
     */
     function fadeInOut(inout) {
-        $('.fade-in').not('#page').each(function(){
+        $('.fade-in').not('#whole').each(function(){
             $(this).css("opacity",inout );
         });
     }
