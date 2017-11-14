@@ -105,7 +105,7 @@ case $SESS_STATUS in
         ;;
 esac
 
-#社員登録とログイン画面以外の場合、有効なログインセッションを要求
+#TOPとログイン画面以外の場合、有効なログインセッションを要求
 case ${CATEGORY}/${FUNC} in
 #"STUFF/NEW" | "STUFF/SIGNIN)
 "STUFF/SIGNIN" | "/")
