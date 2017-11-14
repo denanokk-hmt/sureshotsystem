@@ -41,15 +41,15 @@ RETURN_URL=$(nameread RETURN_URL $tmp-post)
 
 #######################################
 #アカウントIDをハッシュ化
-echo $(sha1 ${ID}) > $tmp-sha1-id
+echo -n ${ID} | shasum -a 256 | cut -d' ' -f1 > $tmp-sha-id
 
 #######################################
 #パスワードをハッシュ
-echo $(sha1 ${PW}) > $tmp-sha1-pw
+echo -n ${PW} | shasum -a 256 | cut -d' ' -f1 > $tmp-sha-pw
 
 #######################################
 #AUTH
-cat ${USERSD}/LV3/*[^_d] | awk -v id=$(cat $tmp-sha1-id) -v pw=$(cat $tmp-sha1-pw) '$4==id&&$5==pw {print}' > $tmp-auth
+cat ${USERSD}/LV3/*[^_d] | awk -v id=$(cat $tmp-sha-id) -v pw=$(cat $tmp-sha-pw) '$4==id&&$5==pw {print}' > $tmp-auth
 
 ########################################
 #SET LOGIN SESSION
@@ -58,9 +58,7 @@ if [ -n "$(cat $tmp-auth)" ] ; then
     #ログインOKの場合
 
     #スタッフ番号を取得
-    cat ${USERSD}/LV3/*[^_d]                              | 
-    awk -v id=${ID} -v pw=${PW} '$4==id&&$5==pw {print}'  |
-    cut -d' ' -f1                                         > $tmp-stuff-no
+    cat $tmp-auth | cut -d' ' -f1 > $tmp-stuff-no
  
     #ログインセッション用クッキー設定文字列(ファイル内に社員IDを書き込む)
     STUFF_SESS_ID='sureshot_stuff_session_id'

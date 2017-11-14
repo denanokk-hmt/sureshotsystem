@@ -20,7 +20,6 @@ LANG=ja_JP.UTF-8
 CATEGORY=`cat $tmp-category`
 FUNC=`cat $tmp-func`
 STUFFD=${SYSD}/DATA/${CATEGORY}
-LOGIND=${STUFFD}/LOGIN
 USERSD=${STUFFD}/USERS
 STUFF_SESS_ID='sureshot_stuff_session_id'
 
@@ -38,46 +37,55 @@ FIN
 
 ########################################
 #フォーム値の設定
-nameread FAMILY_NAME $tmp-post              | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value1
-nameread GIVEN_NAME $tmp-post               | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value2
-nameread EMAIL $tmp-post                    | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value3
-nameread PASSWORD $tmp-post                 | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value4
-nameread TEL1 $tmp-post                     | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value6
-nameread TEL2 $tmp-post                     | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value7
-nameread ADMIN $tmp-post                    | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value8
+nameread FAMILY_NAME  $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-2
+nameread GIVEN_NAME   $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-3
+nameread EMAIL_VAL    $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-4
+nameread PASSWORD     $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-5
+nameread TEL1         $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-6
+nameread TEL2         $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-7
+nameread ADMIN        $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-8
+echo 0                                                             > $tmp-pk-9
+
+########################################
+#認証用ID,PWを取得
+STUFF_NO=$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
+cat ${SYSD}/TMP/${STUFF_NO}/STUFF/email             > $tmp-email
+echo -n $(cat ${SYSD}/TMP/${STUFF_NO}/STUFF/pw)     | 
+shasum -a 256 | cut -d' ' -f1                       > $tmp-sha-pw
+echo -n $(cat ${SYSD}/TMP/${STUFF_NO}/STUFF/pwconf) | 
+shasum -a 256 | cut -d' ' -f1                       > $tmp-sha-pwconf
 
 ########################################
 #バリデーションを設定
 
 #FAMILY NAME
-cat $tmp-value1 | awk '{print sprintf("FAMILY_NAME|ISNULL|%s",$1)}'       >> $tmp-validation  #必須入力
-cat $tmp-value1 | awk '{print sprintf("FAMILY_NAME|LENGTH|%s,2,20",$1)}'  >> $tmp-validation  #length <=2 =>20
+cat $tmp-pk-2 | awk '{print sprintf("FAMILY_NAME|ISNULL|%s",$1)}'       >> $tmp-validation  #必須入力
+cat $tmp-pk-2 | awk '{print sprintf("FAMILY_NAME|LENGTH|%s,2,20",$1)}'  >> $tmp-validation  #length <=2 =>20
 
 #GIVEN NAME
-cat $tmp-value2 | awk '{print sprintf("GIVEN_NAME|ISNULL|%s",$1)}'        >> $tmp-validation  #必須入力
-cat $tmp-value2 | awk '{print sprintf("GIVEN_NAME|LENGTH|%s,2,20",$1)}'   >> $tmp-validation  #length <=2 =>20
+cat $tmp-pk-3 | awk '{print sprintf("GIVEN_NAME|ISNULL|%s",$1)}'        >> $tmp-validation  #必須入力
+cat $tmp-pk-3 | awk '{print sprintf("GIVEN_NAME|LENGTH|%s,2,20",$1)}'   >> $tmp-validation  #length <=2 =>20
 
 #EMAIL
-cat $tmp-value3 | awk '{print sprintf("EMAIL|ISNULL|%s",$1)}'                   >> $tmp-validation  #必須入力
-cat $tmp-value3 | awk '{print sprintf("EMAIL|DUPLICATE|STUFF,USERS,4,%s",$1)}'  >> $tmp-validation  #重複確認
+cat $tmp-pk-4 | awk '{print sprintf("EMAIL|ISNULL|%s",$1)}'                   >> $tmp-validation  #必須入力
+cat $tmp-pk-4 | awk '{print sprintf("EMAIL|DUPLICATE|STUFF,USERS,4,%s",$1)}'  >> $tmp-validation  #重複確認
 
 #PASSWORD length <=8 
-cat $tmp-value4 | awk '{print sprintf("PASSWORD|ISNULL|%s",$1)}'          >> $tmp-validation  #必須入力
-cat $tmp-value4 | awk '{print sprintf("PASSWORD|LENGTH|%s,8,0",$1)}'      >> $tmp-validation  #length <=8 
+cat $tmp-pk-5 | awk '{print sprintf("PASSWORD|ISNULL|%s",$1)}'          >> $tmp-validation  #必須入力
+cat $tmp-pk-5 | awk '{print sprintf("PASSWORD|LENGTH|%s,8,0",$1)}'      >> $tmp-validation  #length <=8 
+paste $tmp-pk-5 $tmp-sha-pw | awk '{print sprintf("PW_CONFIRM|COMPARE|SAME,%s,%s",$1,$2)}'  >> $tmp-validation  #PWの値一致
 
 #PASSWORD CONFIRMATION
-#PASSWORDと同じ値を設定して必ず合格にする
-cat $tmp-value4 | awk '{print sprintf("PW_CONFIRM|ISNULL|%s",$1)}'                            >> $tmp-validation  #必須入力
-paste $tmp-value4 $tmp-value4 | awk '{print sprintf("PW_CONFIRM|COMPARE|SAME,%s,%s",$1,$2)}'  >> $tmp-validation  #=PASSWORD 
+paste $tmp-pk-5 $tmp-sha-pwconf | awk '{print sprintf("PW_CONFIRM|COMPARE|SAME,%s,%s",$1,$2)}'  >> $tmp-validation  #PWとPWCONFの値一致 
 
 #TEL1
-cat $tmp-value6 | awk '{print sprintf("TEL1|ISNULL|%s",$1)}'              >> $tmp-validation  #必須入力
-cat $tmp-value6 | awk '{print sprintf("TEL1|MATCH|%s,-,1",$1)}'           >> $tmp-validation  #ハイフン必須
-cat $tmp-value6 | awk '{print sprintf("TEL1|NUMERIC|%s,-",$1)}'           >> $tmp-validation  #ハイフン覗いたら数字のみ
+cat $tmp-pk-6 | awk '{print sprintf("TEL1|ISNULL|%s",$1)}'              >> $tmp-validation  #必須入力
+cat $tmp-pk-6 | awk '{print sprintf("TEL1|MATCH|%s,-,1",$1)}'           >> $tmp-validation  #ハイフン必須
+cat $tmp-pk-6 | awk '{print sprintf("TEL1|NUMERIC|%s,-",$1)}'           >> $tmp-validation  #ハイフン覗いたら数字のみ
 
 #TEL2
-cat $tmp-value7 | awk '{print sprintf("TEL2|MATCH|%s,-,1",$1)}'           >> $tmp-validation  #ハイフン必
-cat $tmp-value7 | awk '{print sprintf("TEL2|NUMERIC|%s,-",$1)}'           >> $tmp-validation  #ハイフン覗いたら数字のみ
+cat $tmp-pk-7 | awk '{print sprintf("TEL2|MATCH|%s,-,1",$1)}'           >> $tmp-validation  #ハイフン必
+cat $tmp-pk-7 | awk '{print sprintf("TEL2|NUMERIC|%s,-",$1)}'           >> $tmp-validation  #ハイフン覗いたら数字のみ
 
 ########################################
 #バリデーションを実行
@@ -85,7 +93,7 @@ result=`${SYSD}/CGI/VALID/VALIDATION $1`
 
 ########################################
 #管理者権限を取得
-if [ "$(cat $tmp-value8)" = "1" ] ; then
+if [ "$(cat $tmp-pk-8)" = "1" ] ; then
   ADMIN_CHK="checked"
   ADMIN="管理者権限あり"
   ADMIN_VAL=1
@@ -96,8 +104,12 @@ else
 fi
 
 ########################################
-#パスワードの暗号化
-echo $(sha1 $(cat $tmp-value4)) > $tmp-sha1
+#スタッフDirを作成
+result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${STUFFD}/ACCOUNTS`
+
+########################################
+#アカウントID(email)を暗号化してsha256ファイル名にしたEMAILアドで閉じ込める
+cat $tmp-email | openssl enc -aes-128-cbc -e -base64 -pass pass:$(cat ${SYSD}/CGI/BIN/key) > ${STUFFD}/ACCOUNTS/$(cat $tmp-pk-4)
 
 ########################################
 #HTMLの設定
@@ -116,16 +128,16 @@ if [ -n "$(grep "|NG" $tmp-valid-report)" ] ; then
     #########################################
     #上記処理からのHTMLを受け、入力値を設定し、HTMLを完成させる
     #CONFIRMからのバリデーションエラーのため、PWは削除
-    cat $tmp-html-alert                                                 |
-    sed -e "s/###FAMILY_NAME###/$(cat $tmp-value1)/"                    |
-    sed -e "s/###GIVEN_NAME###/$(cat $tmp-value2)/"                     |
-    sed -e "s/###EMAIL###/$(cat $tmp-value3)/"                          |
-    sed -e "s/###TEL1###/$(cat $tmp-value6)/"                           |
-    sed -e "s/###TEL2###/$(cat $tmp-value7)/"                           |
-    sed -e "s/###PASSWORD###//"                                         |
-    sed -e "s/###PW_CONFIRM###//"                                       |
-    sed -e "s/###ADMIN_CHK###/${ADMIN_CHK}/"                            | 
-    sed -e "s/###ADMIN_VAL###/${ADMIN_VAL}/"                            > $tmp-html
+    cat $tmp-html-alert                             |
+    sed -e "s/###FAMILY_NAME###/$(cat $tmp-pk-2)/"  |
+    sed -e "s/###GIVEN_NAME###/$(cat $tmp-pk-3)/"   |
+    sed -e "s/###EMAIL###/$(cat $tmp-email)/"       |
+    sed -e "s/###TEL1###/$(cat $tmp-pk-6)/"         |
+    sed -e "s/###TEL2###/$(cat $tmp-pk-7)/"         |
+    sed -e "s/###PASSWORD###//"                     |
+    sed -e "s/###PW_CONFIRM###//"                   |
+    sed -e "s/###ADMIN_CHK###/${ADMIN_CHK}/"        | 
+    sed -e "s/###ADMIN_VAL###/${ADMIN_VAL}/"        > $tmp-html
 
     #########################################
     #pege name
@@ -134,32 +146,10 @@ if [ -n "$(grep "|NG" $tmp-valid-report)" ] ; then
     exit 0
 fi
 
-
-########################################
-#社員番号の次のロットを追加する
-LATEST_NUM=$(ls ${SYSD}/DATA/NUMBERS/${CATEGORY}/ORIGIN | sort -nr | head -n 1)
-START=$((LATEST_NUM + 1))
-END=$((START + 3))
-SEQ_STATUS=`${SYSD}/CGI/NUMBER_SEQ $1 ${CATEGORY} ${START} ${END} `
-[[ ${SEQ_STATUS} != 'SUCCESS' ]] && exit 0
-
-########################################
-#新規の社員番号を確定する
-STUFF_NUM=`${SYSD}/CGI/NUMBERS $1 'STUFF' `
-[ ${STUFF_NUM} = 'ERROR' ] && exit 0 || :
-
-#######################################
-#Get Form Data
-FAMILY_NAME=$(cat $tmp-value1)
-GIVEN_NAME=$(cat $tmp-value2)
-EMAIL=$(cat $tmp-value3)
-PASSWORD=$(cat $tmp-value4)
-TEL1=$(cat $tmp-value6)
-TEL2=$(cat $tmp-value7)
-[ -n "${TEL2}" ] && : || TEL2=${TEL1}
-ADMIN_FLG=$(cat $tmp-value8)
-[ "${ADMIN_FLG}" = "1" ] && ADMIN="管理者権限あり" || ADMIN='管理者権限なし'
-DEL_FLG=0
+#########################################
+##新規作業番号を確定する
+STUFF_NUM=$(${SYSD}/CGI/NUMBER/NUMBER $1) #GK
+echo ${STUFF_NUM} > $tmp-pk-1
 
 ########################################
 #Set DATE
@@ -172,68 +162,49 @@ CREATE_USER=$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
 UPDATE_USER=${CREATE_USER}
 
 ########################################
-#       ログインデータ　
-########################################
-
-########################################
-#ログインDirを作成
-result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${LOGIND} ${LOGIND}`
-
-########################################
-#一時ファイルに書き込み
-echo ${STUFF_NUM} ${EMAIL} ${PASSWORD} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} 0 > $tmp-login
-
-########################################
-#データ配置
-#LV1
-mv $tmp-login ${LOGIND}/LV1/${STUFF_NUM}_login_${CREATE_DATE}
-#LV2
-cat ${LOGIND}/LV1/${STUFF_NUM}_login_${CREATE_DATE} | awk '{$NF=""; print $0}' > ${LOGIND}/LV2/${STUFF_NUM}_login_${CREATE_DATE}
-#LV3(LV2と同じ)
-cp -p ${LOGIND}/LV2/${STUFF_NUM}_login_${CREATE_DATE} ${LOGIND}/LV3/${STUFF_NUM}_login_${CREATE_DATE}
-
-
-########################################
-#       スタッフデータ　
-########################################
-
-########################################
 #スタッフDirを作成
-result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${USERSD} ${USERSD}`
-
-########################################
-#一時ファイルに書き込み
-#stuff_id	family_name	given_name	account_id	tel1	tel2	create_date	update_date	create_user	update_user	admin_flg	del_flg
-echo ${STUFF_NUM} ${FAMILY_NAME} ${GIVEN_NAME} ${EMAIL} ${TEL1} ${TEL2} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} ${ADMIN_FLG} ${DEL_FLG} > $tmp-stuff
+result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${USERSD}`
 
 ########################################
 #データ配置
 #LV1
-#stuff_id	family_name	given_name	account_id	tel1	tel2	create_date	update_date	create_user	update_user	admin_flg	del_flg
-mv $tmp-stuff ${USERSD}/LV1/${STUFF_NUM}_stuff_${CREATE_DATE}
+cat $tmp-pk-1 > ${USERSD}/LV1/${STUFF_NUM}_1_${CREATE_USER}_${CREATE_DATE}
+cat $tmp-pk-2 > ${USERSD}/LV1/${STUFF_NUM}_2_${CREATE_USER}_${CREATE_DATE}
+cat $tmp-pk-3 > ${USERSD}/LV1/${STUFF_NUM}_3_${CREATE_USER}_${CREATE_DATE}
+cat $tmp-pk-4 > ${USERSD}/LV1/${STUFF_NUM}_4_${CREATE_USER}_${CREATE_DATE}
+cat $tmp-pk-5 > ${USERSD}/LV1/${STUFF_NUM}_5_${CREATE_USER}_${CREATE_DATE}
+cat $tmp-pk-6 > ${USERSD}/LV1/${STUFF_NUM}_6_${CREATE_USER}_${CREATE_DATE}
+cat $tmp-pk-7 > ${USERSD}/LV1/${STUFF_NUM}_7_${CREATE_USER}_${CREATE_DATE}
+cat $tmp-pk-8 > ${USERSD}/LV1/${STUFF_NUM}_8_${CREATE_USER}_${CREATE_DATE}
+cat $tmp-pk-9 > ${USERSD}/LV1/${STUFF_NUM}_9_${CREATE_USER}_${CREATE_DATE}
+
 #LV2
-#stuff_id	family_name	given_name	account_id	tel1	tel2	create_date	update_date	create_user	update_user	admin_flg
-#削除フラグはもたない-->dファイルにする
-cat ${USERSD}/LV1/${STUFF_NUM}_stuff_${CREATE_DATE} | awk '{$NF=""; print $0}' > ${USERSD}/LV2/${STUFF_NUM}_stuff_${CREATE_DATE}
+cp -fp ${USERSD}/LV1/${STUFF_NUM}_* ${USERSD}/LV2/
+
 #LV3
-#stuff_id	family_name	given_name	account_id	tel1	tel2	create_date	update_date	create_user	update_user	admin_flg	show_each_url	edit_each_url	delete_each_url
-cat ${USERSD}/LV2/${STUFF_NUM}_stuff_${CREATE_DATE} |
-awk '{print sprintf("%s\
-/APP/STUFF/USERS?action=SHOW&id=%d \
-/APP/STUFF/EDIT?action=INPUT&id=%d \
-/APP/STUFF/DELETE?action=CONFIRM&id=%d"\
-,$0,$1,$1,$1)}'  >   ${USERSD}/LV3/${STUFF_NUM}_stuff_${CREATE_DATE}
+for file in $(ls ${USERSD}/LV2/${STUFF_NUM}_* | sort -t$'_' -nk1);
+do
+  VALUE=$(echo $VALUE `cat $file`)
+done
+echo ${VALUE} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} \
+"/APP/STUFF/USERS?action=SHOW&id=${STUFF_NUM}" \
+"/APP/STUFF/EDIT?action=INPUT&id=${STUFF_NUM}" \
+"/APP/STUFF/DELETE?action=CONFIRM&id=${STUFF_NUM}" \
+> ${USERSD}/LV3/${STUFF_NUM}_stuff_${CREATE_DATE}
+
+########################################
+#TMP/*/STUFを削除F
+rm -rf ${SYSD}/TMP/${STUFF_NO}/STUFF
 
 ########################################
 #HTMLの設定
-ACTION=`cat $tmp-action`
-cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML   |
-sed -e "s/###FAMILY_NAME_LABEL###/${FAMILY_NAME}/"          |
-sed -e "s/###GIVEN_NAME_LABEL###/${GIVEN_NAME}/"            |
-sed -e "s/###EMAIL_LABEL###/${EMAIL}/"                      |
-sed -e "s/###TEL1_LABEL###/${TEL1}/"                        |
-sed -e "s/###TEL2_LABEL###/${TEL2}/"                        |
-sed -e "s/###ADMIN_LABEL###/${ADMIN}/"                      > $tmp-html
+cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/$(cat $tmp-action).HTML  |
+sed -e "s/###FAMILY_NAME_LABEL###/$(cat $tmp-pk-2)/"                |
+sed -e "s/###GIVEN_NAME_LABEL###/$(cat $tmp-pk-3)/"                 |
+sed -e "s/###EMAIL_LABEL###/$(cat $tmp-email)/"                     |
+sed -e "s/###TEL1_LABEL###/$(cat $tmp-pk-6)/"                       |
+sed -e "s/###TEL2_LABEL###/$(cat $tmp-pk-7)/"                       |
+sed -e "s/###ADMIN_LABEL###/${ADMIN}/"                              > $tmp-html
 
 #########################################
 #pege name

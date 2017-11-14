@@ -93,8 +93,9 @@ else
 fi
 
 ########################################
-#パスワードの暗号化
-echo $(sha1 $(cat $tmp-value4)) > $tmp-sha1
+#Email,PW ハッシュ化
+echo -n $(cat $tmp-value3) | shasum -a 256 | cut -d' ' -f1 > $tmp-sha-email
+echo -n $(cat $tmp-value4) | shasum -a 256 | cut -d' ' -f1 > $tmp-sha-pw
 
 ########################################
 #HTMLの設定
@@ -132,16 +133,24 @@ else
     #Validation OK
     
     #########################################
+    #EMail、PW、PWCONFをTMPに格納(完了ページ認証用)
+    STUFF_NO=$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
+    result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/TMP/${STUFF_NO}/STUFF`
+    cat $tmp-value3 > ${SYSD}/TMP/${STUFF_NO}/STUFF/email 
+    cat $tmp-value4 > ${SYSD}/TMP/${STUFF_NO}/STUFF/pw 
+    cat $tmp-value5 > ${SYSD}/TMP/${STUFF_NO}/STUFF/pwconf
+
+    #########################################
     #確認画面のHTMLを取得、入力値を設定し、HTMLを完成させる
     cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/CONFIRM.HTML             |
     sed -e "s/###FAMILY_NAME###/$(cat $tmp-value1)/g"                   |
     sed -e "s/###GIVEN_NAME###/$(cat $tmp-value2)/g"                    |
     sed -e "s/###EMAIL###/$(cat $tmp-value3)/g"                         |
     sed -e "s/###PASSWORD###/********/g"                                |
-    sed -e "s/###EMAIL###/$(cat $tmp-value3)/g"                         |
+    sed -e "s/###EMAIL_VAL###/$(cat $tmp-sha-email)/g"                  |
     sed -e "s/###TEL1###/$(cat $tmp-value6)/g"                          |
     sed -e "s/###TEL2###/$(cat $tmp-value7)/g"                          |
-    sed -e "s/###PASSWORD_VAL###/$(cat $tmp-sha1)/"                     |
+    sed -e "s/###PASSWORD_VAL###/$(cat $tmp-sha-pw)/"                   |
     sed -e "s/###ADMIN###/${ADMIN}/"                                    | 
     sed -e "s/###ADMIN_VAL###/${ADMIN_VAL}/"                            > $tmp-html
 
