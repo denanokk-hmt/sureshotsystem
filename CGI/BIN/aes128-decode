@@ -1,0 +1,12 @@
+#!/bin/bash -vx
+SYSD=$(cd $(dirname $0) && pwd | awk '{print substr($0, 0, index($0, "sureshotsystem")+13)}')
+tmp=/tmp/tmp_$2
+#exec 2> ${SYSD}/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
+
+for file in $(ls $1);
+do
+  #echo $file $(cat $1/$file | openssl enc -aes-128-cbc -d -base64 -pass pass:$(cat ${SYSD}/CGI/BIN/key)) >> $PATH
+  echo $file $(cat $1/$file | openssl enc -aes-128-cbc -d -base64 -pass pass:$(cat ${SYSD}/CGI/BIN/key)) >> $3
+done
+
+

@@ -77,7 +77,18 @@ fi
 cat ${SYSD}/DATA/${CATEGORY}/USERS/LV3/[^0]*[^_d]   |
 LANG=C sort -nk1,1                                  |
 awk -v s=${START} -v e=${END} 'NR>=s&&NR<=e&&$9!=1' |
-juni                                                > $tmp-records
+juni                                                > $tmp-records-base
+
+########################################
+#EMAIL DEDODE
+resutlt=`aes128-decode ${SYSD}/DATA/STUFF/ACCOUNTS $1 $tmp-email-decode`
+
+########################################
+#DecodeしたEmailをJOIN
+cat $tmp-records-base | sort -k5 > $tmp-records-base-sort
+cat $tmp-email-decode | sort -k1 > $tmp-email-decode-sort
+join -1 5 -2 1 $tmp-records-base-sort $tmp-email-decode-sort | awk '{$1="";$6=$NF;$NF="";print}' | sort -nk1 > $tmp-records
+
 # 1;社員番号 2;姓 3:名 4:email
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML $tmp-records > $tmp-template-html
 
