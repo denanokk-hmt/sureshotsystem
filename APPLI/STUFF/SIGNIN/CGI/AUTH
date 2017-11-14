@@ -19,7 +19,6 @@ LANG=ja_JP.UTF-8
 #PATH=/home/:/home/UTL:/usr/local/bin:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
 CATEGORY=`cat $tmp-category`
 FUNC=`cat $tmp-func`
-LOGIND=${SYSD}/DATA/STUFF/LOGIN
 USERSD=${SYSD}/DATA/STUFF/USERS
 
 ########################################
@@ -36,23 +35,21 @@ FIN
 
 ######################################
 #Get Form Data
-VALUE_ID=$(nameread ID $tmp-post)
-VALUE_PW=$(nameread PASSWORD $tmp-post)
+ID=$(nameread ID $tmp-post)
+PW=$(nameread PASSWORD $tmp-post)
 RETURN_URL=$(nameread RETURN_URL $tmp-post)
 
 #######################################
-#アカウントIDの暗号化
-echo $(sha1 $VALUE_ID) > $tmp-sha1-id
-ID=$(cat $tmp-sha1-id)
+#アカウントIDをハッシュ化
+echo $(sha1 ${ID}) > $tmp-sha1-id
 
 #######################################
-#パスワードの暗号化
-echo $(sha1 $VALUE_PW) > $tmp-sha1-pw
-PW=$(cat $tmp-sha1-pw)
+#パスワードをハッシュ
+echo $(sha1 ${PW}) > $tmp-sha1-pw
 
 #######################################
 #AUTH
-cat ${LOGIND}/LV3/*   | awk -v id=$VALUE_ID -v pw=$PW '$2==id&&$3==pw&&$6==0{print}' > $tmp-auth
+cat ${USERSD}/LV3/*[^_d] | awk -v id=$(cat $tmp-sha1-id) -v pw=$(cat $tmp-sha1-pw) '$4==id&&$5==pw {print}' > $tmp-auth
 
 ########################################
 #SET LOGIN SESSION
@@ -61,9 +58,9 @@ if [ -n "$(cat $tmp-auth)" ] ; then
     #ログインOKの場合
 
     #スタッフ番号を取得
-    cat ${LOGIND}/LV3/*                                           | 
-    awk -v id=$VALUE_ID -v pw=$PW '$2==id&&$3==pw&&$6==0{print}'  |
-    cut -d' ' -f1                                                 > $tmp-stuff-no
+    cat ${USERSD}/LV3/*[^_d]                              | 
+    awk -v id=${ID} -v pw=${PW} '$4==id&&$5==pw {print}'  |
+    cut -d' ' -f1                                         > $tmp-stuff-no
  
     #ログインセッション用クッキー設定文字列(ファイル内に社員IDを書き込む)
     STUFF_SESS_ID='sureshot_stuff_session_id'
@@ -72,33 +69,25 @@ if [ -n "$(cat $tmp-auth)" ] ; then
 
     #ログインアカウント用クッキー設定文字列(ファイル内にアカウントIDを書き込む)
     STUFF_SESS_AC='sureshot_stuff_session_ac'
-    COOK=`${SYSD}/CGI/SESSION/SESSION_SET ${STUFF_SESS_AC} 15 ${VALUE_ID}`
+    COOK=`${SYSD}/CGI/SESSION/SESSION_SET ${STUFF_SESS_AC} 15 ${ID}`
     echo $COOK > $tmp-cook-account
 
     #サイドメニューのサインイン/アウトの表示非表示
     echo "hidden" > $tmp-side-signin
     echo "show" > $tmp-side-signout
     
-    #IDを保存(ローテート必要)
-    echo $VALUE_ID > ${SYSD}/TMP/STUFF/LOGIN/${ID}
-    
     #ログインしたSTUFFフォルダをTMPに作成
     mkdir ${SYSD}/TMP/$(cat $tmp-stuff-no)
-
-    #ログインSTUFFの姓、名、社員IDをTMP/社員ID/配下にSHA1でアカウントを暗号化した形で格納
-    cat ${USERSD}/LV3/*   | awk -v id=$VALUE_ID '$4==id{print $3, $2, $1}' >> ${SYSD}/TMP/$(cat $tmp-stuff-no)/${ID}
-
 fi
 
 #######################################
 #HTMLの設定
 if [ -z "$(cat $tmp-auth)" ] ; then
     #ログインエラーの場合
-    ACTION=INPUT
-    cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML           |
+    cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/INPUT.HTML               |
     sed -e "s/###INFO_LV###/danger/"                                    |
     sed -e "s/###AUTH_MSG###/Account ID or Password was incomplete./"   |
-    sed -e "s/###ID_VALUE###/${VALUE_ID}/"                              |
+    sed -e "s/###ID_VALUE###/${ID}/"                                    |
     sed -e "s/###PASSWORD_VALUE###//"                                   |
     sed -e "s|###RETURN_URL###|${RETURN_URL}|"                          > $tmp-html
 else
@@ -121,6 +110,3 @@ fi
 #ending
 echo "OK"
 exit 0
-
-
- 
