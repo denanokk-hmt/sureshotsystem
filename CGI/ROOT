@@ -86,7 +86,6 @@ echo $REST > $tmp-rest
 #ログインセッションの確認と設定
 STUFF_SESS_ID='sureshot_stuff_session_id'    #社員用ログインセッションID
 
-########################################
 #ログインセッションを確認
 if [ "${CATEGORY}/${FUNC}/${ACTION}" = "STUFF/SIGNIN/OUT" ]; then
   SESS_STATUS="out"
@@ -94,7 +93,6 @@ else
   SESS_STATUS=`${SYSD}/CGI/SESSION/SESSION_CHECK ${STUFF_SESS_ID} `
 fi
 
-########################################
 #ログイン状態によってサイドスライダーのログインアウトの表示を変更
 case $SESS_STATUS in
     live)
@@ -107,26 +105,32 @@ case $SESS_STATUS in
         ;;
 esac
 
-########################################
-#有効なログインセッションを要求
-case $SESS_STATUS in
-live)
-    #ログインセッションが有効の場合、時間を延長
-    SESS=$(session_get ${STUFF_SESS_ID})
-    STUFF_ID=$(cat ${SYSD}/SESSION/${SESS})
-    COOK=`${SYSD}/CGI/SESSION/SESSION_SET ${STUFF_SESS_ID} 15 ${STUFF_ID}`
-    echo $COOK > $tmp-cook-login
+#社員登録とログイン画面以外の場合、有効なログインセッションを要求
+case ${CATEGORY}/${FUNC} in
+#"STUFF/NEW" | "STUFF/SIGNIN)
+"STUFF/SIGNIN" | "/")
     ;;
 *)
-    #リターンURLを設定
-    RETURN_URL=$REQUEST_URI
-    CATEGORY='STUFF'
-    FUNC='SIGNIN'
-    ACTION='INPUT'
-    echo ${RETURN_URL} > $tmp-return-url
-    echo ${CATEGORY} > $tmp-category
-    echo $FUNC > $tmp-func
-    echo $ACTION > $tmp-action
+    case $SESS_STATUS in
+    live)
+        #ログインセッションが有効の場合、時間を延長
+        SESS=$(session_get ${STUFF_SESS_ID})
+        STUFF_ID=$(cat ${SYSD}/SESSION/${SESS})
+        COOK=`${SYSD}/CGI/SESSION/SESSION_SET ${STUFF_SESS_ID} 15 ${STUFF_ID}`
+        echo $COOK > $tmp-cook-login
+        ;;
+    *)
+        #リターンURLを設定
+        RETURN_URL=$REQUEST_URI
+        CATEGORY='STUFF'
+        FUNC='SIGNIN'
+        ACTION='INPUT'
+        echo ${RETURN_URL} > $tmp-return-url
+        echo ${CATEGORY} > $tmp-category
+        echo $FUNC > $tmp-func
+        echo $ACTION > $tmp-action
+        ;;
+    esac
     ;;
 esac
 
