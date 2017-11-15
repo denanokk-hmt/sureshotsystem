@@ -92,8 +92,6 @@ join -1 5 -2 1 $tmp-records-base-sort $tmp-email-decode-sort | awk '{$1="";$6=$N
 # 1;社員番号 2;姓 3:名 4:email
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML $tmp-records > $tmp-template-html
 
-cat $tmp-records > /tmp/ttt
-
 ########################################
 #Set pager
 RECORDS=$( ls ${SYSD}/DATA/${CATEGORY}/USERS/LV3/*[^_d] | wc -l )
@@ -101,7 +99,9 @@ RESULT=`${SYSD}/CGI/PAGER $1 /APP/STUFF/USERS ${SHOW_PAGE} ${RECORDS} ${VIEW_MAX
 
 ########################################
 #Making viweing body HTML filw path
-sed -e "s|###PAGER###|$(cat $tmp-pager-html)|g" $tmp-template-html > $tmp-html
+cat $tmp-template-html                          |
+sed -e "s/###INFO_MSG###//"                     |
+sed -e "s|###PAGER###|$(cat $tmp-pager-html)|g" > $tmp-html
 
 #########################################
 #page name
