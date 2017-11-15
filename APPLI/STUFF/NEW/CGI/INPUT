@@ -34,23 +34,7 @@ FIN
 
 ########################################
 #Making viweing body HTML filw path
-ACTION=`cat $tmp-action`
-cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML   |
-sed -e "s/###FAMILY_NAME_ISNULL###/hidden/"                 |
-sed -e "s/###FAMILY_NAME_LENGTH###/hidden/"                 |
-sed -e "s/###GIVEN_NAME_ISNULL###/hidden/"                  |
-sed -e "s/###GIVEN_NAME_LENGTH###/hidden/"                  |
-sed -e "s/###EMAIL_ISNULL###/hidden/"                       |
-sed -e "s/###EMAIL_DUPLICATE###/hidden/"                    |
-sed -e "s/###TEL1_ISNULL###/hidden/"                        |
-sed -e "s/###TEL1_MATCH###/hidden/"                         |
-sed -e "s/###TEL1_NUMERIC###/hidden/"                       |
-sed -e "s/###TEL2_MATCH###/hidden/"                         |
-sed -e "s/###TEL2_NUMERIC###/hidden/"                       |
-sed -e "s/###PASSWORD_ISNULL###/hidden/"                    |
-sed -e "s/###PASSWORD_LENGTH###/hidden/"                    |
-sed -e "s/###PW_CONFIRM_ISNULL###/hidden/"                  |
-sed -e "s/###PW_CONFIRM_COMPARE###/hidden/"                 |
+cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/INPUT.HTML       |
 sed -e "s/###FAMILY_NAME###//g"                             |
 sed -e "s/###GIVEN_NAME###//g"                              |
 sed -e "s/###EMAIL###//g"                                   |

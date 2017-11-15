@@ -1,7 +1,7 @@
 <!--<!DOCTYPE html>-->
 <!--<html>-->
 <!--<body>-->
-<div class="container">
+<div id="whole" class="container fade-in" style="opacity:0">
     <div class="col-md-6 col-md-offset-1">
 
     <!--Header Info-->
@@ -201,6 +201,41 @@
 </div>
 
 <script>
+
+    //Validation Err MSGのOpacityを初期化
+    $(document).ready(function(){
+        validationErrMsgInit();
+    });
+
+    //ロード時に全画面をフェードイン
+    $(window).on('load',function(){
+        $('#whole').css("opacity","1");
+    });
+
+    //バリデーションエラーMSGの初期化
+    function validationErrMsgInit() {
+
+        //バリデーションエラー表示をクリア
+        $('input[type=text]').removeClass("label-danger");
+        $('.lbl-header-info .label').removeClass("show");
+        $('.lbl-header-info .label').addClass("hidden");
+        $('#info-msg').html("");
+
+        //バリデーションエラーMSGをフェードアウト
+        fadeInOut(0);
+   }
+
+    /*バリデーションエラーMSGをフェードアウト
+    *   引数 inout
+    *   フェードイン:1
+    *   フェードアウト:0
+    */
+    function fadeInOut(inout) {
+        $('.fade-in').not('#whole').each(function(){
+            $(this).css("opacity",inout );
+        });
+    }
+
 
     //ADMINフラグのcheckBox ON/OFF
     $('#ADMIN').on('click', function() {

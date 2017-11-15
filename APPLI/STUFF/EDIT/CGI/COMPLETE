@@ -218,11 +218,6 @@ echo ${VALUE} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${USER} \
 UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'STUFF' ${STUFF_ID}`
 [ ${UNLOCK_STATUS} != 'UNLOCK' ] && exit 0 || :
 
-########################################
-#SET SESSION
-COOK=`${SYSD}/CGI/SESSION/SESSION_SET ${STUFF_SESS_ID} 15 ${USER}`
-echo $COOK > $tmp-cook
-
 ######################################
 #暗号化の一時ファイルは削除
 rm -rf ${SYSD}/TMP/${USER}/STUFF

@@ -51,7 +51,7 @@ result=`${SYSD}/CGI/DATA/DFS_NEW $1 ${SYSD}/TMP/${USER}/STUFF`
 
 ########################################
 #暗号化したスタッフIDを認証用としてTMP/*/STUFFに配置
-echo $EDIT_ID > ${SYSD}/TMP/${USER}/STUFF/${ENC_ID}
+echo ${EDIT_ID} > ${SYSD}/TMP/${USER}/STUFF/${ENC_ID}
 
 ########################################
 #スタッフの最新データを取得

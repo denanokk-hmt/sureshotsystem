@@ -193,7 +193,7 @@ echo ${VALUE} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} \
 > ${USERSD}/LV3/${STUFF_ID}_stuff_${CREATE_DATE}
 
 ########################################
-#TMP/*/STUFFを削除F
+#TMP/*/STUFFを削除
 rm -rf ${SYSD}/TMP/${USER}/STUFF
 
 ########################################

@@ -19,6 +19,7 @@ LANG=ja_JP.UTF-8
 #PATH=/home/:/home/UTL:/usr/local/bin:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
 CATEGORY=`cat $tmp-category`
 FUNC=`cat $tmp-func`
+USERSD=${SYSD}/DATA/${CATEGORY}/USERS
 
 ########################################
 #Check error
@@ -33,32 +34,36 @@ FIN
 }
 
 ########################################
-#同一社員番号確認用にIDを暗号化し、ファイル保存
-#また、この暗号化したIDをフォームのhiddenタグに適用
-#GETパラメータの順番は、action,idの順番が前提
-cat $tmp-get | awk '{split($0,ary,"&"); print ary[2]}' | sed 's/id\=//' > $tmp-id
-ID=$(cat $tmp-id)
-ENC_ID=$(sha1 $RANDOM$(cat $tmp-id))
-#修正するスタッフIDをスタッフIDを暗号化したフィル名に書き込み、
-#サインインしたスタッフIDのTMPディレクトリに配置する
-echo $ID > ${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/${ENC_ID}
+#削除するスタッフIDを取得 ※GETパラメータの順番は、action,idの順番が前提
+DEL_ID=$(cat $tmp-get | awk '{split($0,ary,"&"); print ary[2]}' | sed 's/id\=//')
 
 ########################################
-#スタッフ情報を取得
-ARR=( `cat ${SYSD}/DATA/${CATEGORY}/USERS/LV3/${ID}_stuff_* |
-        awk -v id=$ID '$1==id{print}'                       |
-        tr -s ' ' ' '`)
-STUFF_ID=${ARR[0]}
-FAMILY_NAME=${ARR[1]}
-GIVEN_NAME=${ARR[2]}
-EMAIL=${ARR[3]}
-TEL1=${ARR[4]}
-TEL2=${ARR[5]}
-ADMIN_FLG=${ARR[10]}
+#次ページ照合用にIDを暗号化
+ENC_ID=$(sha1 $RANDOM$(cat $tmp-id))
+
+########################################
+#作業者IDを取得
+USER=$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
+
+########################################
+#TMPディレクトリにある作業者ID内にSTUFFディレクトリを作成する
+result=`${SYSD}/CGI/DATA/DFS_NEW $1 ${SYSD}/TMP/${USER}/STUFF`
+
+########################################
+#暗号化したスタッフIDを認証用としてTMP/*/STUFFに配置
+echo ${DEL_ID} > ${SYSD}/TMP/${USER}/STUFF/${ENC_ID}
+
+########################################
+#スタッフの最新データを取得
+cat `ls -v ${USERSD}/LV2/${DEL_ID}*` > $tmp-lv2
+
+########################################
+#Emailを復号化
+cat ${SYSD}/DATA/STUFF/ACCOUNTS/$(cat $tmp-lv2 | sed -n 4p) | openssl enc -aes-128-cbc -d -base64 -pass pass:$(cat ${SYSD}/CGI/BIN/key) > $tmp-email-decode
 
 ########################################
 #管理者権限を取得
-[ "${ADMIN_FLG}" = "1" ] && ADMIN="管理者権限あり" || ADMIN='管理者権限なし'
+[ "$(cat $tmp-lv2 | sed -n 8p)" = "1" ] && ADMIN="管理者権限あり" || ADMIN='管理者権限なし'
 
 ########################################
 #HTMLの設定
@@ -66,12 +71,12 @@ cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/CONFIRM.HTML     |
 sed -e "s/###MSG###/このスタッフの情報を削除します。/"      |
 sed -e "s/###ERROR_MSG###//"                                |
 sed -e "s/###ENC_ID###/${ENC_ID}/"                          |
-sed -e "s/###STUFF_ID###/${STUFF_ID}/"                      |
-sed -e "s/###FAMILY_NAME###/${FAMILY_NAME}/"                |
-sed -e "s/###GIVEN_NAME###/${GIVEN_NAME}/"                  |
-sed -e "s/###EMAIL###/${EMAIL}/"                            |
-sed -e "s/###TEL1###/${TEL1}/"                              |
-sed -e "s/###TEL2###/${TEL2}/"                              |
+sed -e "s/###STUFF_ID###/$(cat $tmp-lv2 | sed -n 1p)/"      |
+sed -e "s/###FAMILY_NAME###/$(cat $tmp-lv2 | sed -n 2p)/"   |
+sed -e "s/###GIVEN_NAME###/$(cat $tmp-lv2 | sed -n 3p)/"    |
+sed -e "s/###EMAIL###/$(cat $tmp-email-decode)/"            |
+sed -e "s/###TEL1###/$(cat $tmp-lv2 | sed -n 6p)/"          |
+sed -e "s/###TEL2###/$(cat $tmp-lv2 | sed -n 7p)/"          |
 sed -e "s/###ADMIN###/${ADMIN}/"                            > $tmp-html
 
 #########################################
