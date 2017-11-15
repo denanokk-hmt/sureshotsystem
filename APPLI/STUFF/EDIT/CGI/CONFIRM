@@ -33,27 +33,45 @@ FIN
 }
 
 ########################################
+#作業者
+USER=$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
+
+########################################
 #暗号化された社員IDを取得(暗号化されフォームに埋め込まれた社員ID)
 ENC_ID=$(nameread ENC_ID $tmp-post | awk '{gsub(/^\_$/,"",$1);print}')
 
 ########################################
 #社員番号を復元
-STUFF_ID=$(cat ${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/${ENC_ID})
+STUFF_ID=$(cat ${SYSD}/TMP/${USER}/STUFF/${ENC_ID})
 
 ########################################
 #フォーム値の設定
-nameread FAMILY_NAME $tmp-post              | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value1
-nameread GIVEN_NAME $tmp-post               | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value2
-nameread EMAIL $tmp-post                    | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value3
-nameread PASSWORD $tmp-post                 | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value4
-nameread PW_CONFIRM $tmp-post               | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value5
-nameread TEL1 $tmp-post                     | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value6
-nameread TEL2 $tmp-post                     | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value7
-nameread ADMIN $tmp-post                    | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value8
+nameread STUFF_ID $tmp-post       | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-stuff-id
+nameread FAMILY_NAME $tmp-post    | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value1
+nameread GIVEN_NAME $tmp-post     | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value2
+nameread EMAIL $tmp-post          | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value3
+nameread PASSWORD $tmp-post       | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value4
+nameread PW_CONFIRM $tmp-post     | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value5
+nameread TEL1 $tmp-post           | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value6
+nameread TEL2 $tmp-post           | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value7
+nameread ADMIN $tmp-post          | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value8
 
 ########################################
+#社員番号が一致しない場合、不正より処理を中断
+if [ "${STUFF_ID}" != "$(cat $tmp-stuff-id)" ] ; then
+    cat ${SYSD}/HTML/ERROR/SYSTEM_ERROR.HTML                        |
+    sed -e "s/###ERROR1_LABEL###/不正更新によりエラー/"             |
+    sed -e "s/###ERROR2_LABEL###/${STUFF_ID}/"                      |
+    sed -e "s|###ERROR3_LABEL###|照合エラー|"                       |
+    sed -e "s/###ERROR4_LABEL###/管理者に報告してください。/"       |
+    sed -e "s/###ERROR5_LABEL###//"                                 > $tmp-html
+    echo "ERROR"
+    exit 0
+fi
+                    
+########################################
 #バリデーションを設定
-
+                    
 #FAMILY NAME
 cat $tmp-value1 | awk '{print sprintf("FAMILY_NAME|ISNULL|%s",$1)}'       >> $tmp-validation  #必須入力
 cat $tmp-value1 | awk '{print sprintf("FAMILY_NAME|LENGTH|%s,2,20",$1)}'  >> $tmp-validation  #length <=2 =>20
@@ -100,12 +118,9 @@ else
 fi
 
 ########################################
-#パスワードの暗号化
-if [ "$(cat $tmp-value4)" = 'NOT_CHANGE' ]; then
-    echo 'NOT_CHANGE' > $tmp-sha1
-else
-    echo $(sha1 $(cat $tmp-value4)) > $tmp-sha1
-fi
+#Email,PW ハッシュ化
+echo -n $(cat $tmp-value3) | shasum -a 256 | cut -d' ' -f1 > $tmp-sha-email
+echo -n $(cat $tmp-value4) | shasum -a 256 | cut -d' ' -f1 > $tmp-sha-pw
 
 ########################################
 #HTMLの設定
@@ -139,11 +154,19 @@ if [ -n "$(grep "|NG" $tmp-valid-report)" ] ; then
     echo "Update stuff input" > $tmp-pagename
 
 else
+
     #Validation OK
+    
+    #########################################
+    #EMail、PW、PWCONFをTMPに格納(完了ページ認証用)
+    result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/TMP/${USER}/STUFF`
+    cat $tmp-value3 > ${SYSD}/TMP/${USER}/STUFF/email 
+    cat $tmp-value4 > ${SYSD}/TMP/${USER}/STUFF/pw 
+    cat $tmp-value5 > ${SYSD}/TMP/${USER}/STUFF/pwconf
 
     #########################################
     #確認画面のHTMLを取得、入力値を設定し、HTMLを完成させる
-    cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML           |
+    cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/CONFIRM.HTML             |
     sed -e "s/###ENC_ID###/${ENC_ID}/"                                  |
     sed -e "s/###STUFF_ID###/${STUFF_ID}/"                              |
     sed -e "s/###FAMILY_NAME###/$(cat $tmp-value1)/g"                   |
@@ -153,7 +176,7 @@ else
     sed -e "s/###EMAIL###/$(cat $tmp-value3)/g"                         |
     sed -e "s/###TEL1###/$(cat $tmp-value6)/g"                          |
     sed -e "s/###TEL2###/$(cat $tmp-value7)/g"                          |
-    sed -e "s/###PASSWORD_VAL###/$(cat $tmp-sha1)/"                     |
+    sed -e "s/###PASSWORD_VAL###/$(cat $tmp-sha-pw)/"                   |
     sed -e "s/###ADMIN###/${ADMIN}/"                                    | 
     sed -e "s/###ADMIN_VAL###/${ADMIN_VAL}/"                            > $tmp-html
 

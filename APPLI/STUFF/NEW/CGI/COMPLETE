@@ -48,11 +48,11 @@ echo 0                                                             > $tmp-pk-9
 
 ########################################
 #認証用ID,PWを取得
-STUFF_NO=$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
-cat ${SYSD}/TMP/${STUFF_NO}/STUFF/email             > $tmp-email
-echo -n $(cat ${SYSD}/TMP/${STUFF_NO}/STUFF/pw)     | 
+USER=$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
+cat ${SYSD}/TMP/${USER}/STUFF/email             > $tmp-email
+echo -n $(cat ${SYSD}/TMP/${USER}/STUFF/pw)     | 
 shasum -a 256 | cut -d' ' -f1                       > $tmp-sha-pw
-echo -n $(cat ${SYSD}/TMP/${STUFF_NO}/STUFF/pwconf) | 
+echo -n $(cat ${SYSD}/TMP/${USER}/STUFF/pwconf) | 
 shasum -a 256 | cut -d' ' -f1                       > $tmp-sha-pwconf
 
 ########################################
@@ -148,8 +148,8 @@ fi
 
 #########################################
 ##新規作業番号を確定する
-STUFF_NUM=$(${SYSD}/CGI/NUMBER/NUMBER $1) #GK
-echo ${STUFF_NUM} > $tmp-pk-1
+STUFF_ID=$(${SYSD}/CGI/NUMBER/NUMBER $1) #GK
+echo ${STUFF_ID} > $tmp-pk-1
 
 ########################################
 #Set DATE
@@ -163,42 +163,44 @@ UPDATE_USER=${CREATE_USER}
 
 ########################################
 #スタッフDirを作成
-result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${USERSD}`
+result=`${SYSD}/CGI/DATA/DFS_NEW $1 ${USERSD}`
 
 ########################################
 #データ配置
 #LV1
-cat $tmp-pk-1 > ${USERSD}/LV1/${STUFF_NUM}_1_${CREATE_USER}_${CREATE_DATE}
-cat $tmp-pk-2 > ${USERSD}/LV1/${STUFF_NUM}_2_${CREATE_USER}_${CREATE_DATE}
-cat $tmp-pk-3 > ${USERSD}/LV1/${STUFF_NUM}_3_${CREATE_USER}_${CREATE_DATE}
-cat $tmp-pk-4 > ${USERSD}/LV1/${STUFF_NUM}_4_${CREATE_USER}_${CREATE_DATE}
-cat $tmp-pk-5 > ${USERSD}/LV1/${STUFF_NUM}_5_${CREATE_USER}_${CREATE_DATE}
-cat $tmp-pk-6 > ${USERSD}/LV1/${STUFF_NUM}_6_${CREATE_USER}_${CREATE_DATE}
-cat $tmp-pk-7 > ${USERSD}/LV1/${STUFF_NUM}_7_${CREATE_USER}_${CREATE_DATE}
-cat $tmp-pk-8 > ${USERSD}/LV1/${STUFF_NUM}_8_${CREATE_USER}_${CREATE_DATE}
-cat $tmp-pk-9 > ${USERSD}/LV1/${STUFF_NUM}_9_${CREATE_USER}_${CREATE_DATE}
+cat $tmp-pk-1 > ${USERSD}/LV1/${STUFF_ID}_1_${CREATE_USER}_${CREATE_DATE}
+cat $tmp-pk-2 > ${USERSD}/LV1/${STUFF_ID}_2_${CREATE_USER}_${CREATE_DATE}
+cat $tmp-pk-3 > ${USERSD}/LV1/${STUFF_ID}_3_${CREATE_USER}_${CREATE_DATE}
+cat $tmp-pk-4 > ${USERSD}/LV1/${STUFF_ID}_4_${CREATE_USER}_${CREATE_DATE}
+cat $tmp-pk-5 > ${USERSD}/LV1/${STUFF_ID}_5_${CREATE_USER}_${CREATE_DATE}
+cat $tmp-pk-6 > ${USERSD}/LV1/${STUFF_ID}_6_${CREATE_USER}_${CREATE_DATE}
+cat $tmp-pk-7 > ${USERSD}/LV1/${STUFF_ID}_7_${CREATE_USER}_${CREATE_DATE}
+cat $tmp-pk-8 > ${USERSD}/LV1/${STUFF_ID}_8_${CREATE_USER}_${CREATE_DATE}
+cat $tmp-pk-9 > ${USERSD}/LV1/${STUFF_ID}_9_${CREATE_USER}_${CREATE_DATE}
 
 #LV2
-cp -fp ${USERSD}/LV1/${STUFF_NUM}_* ${USERSD}/LV2/
+cp -fp ${USERSD}/LV1/${STUFF_ID}_* ${USERSD}/LV2/
 
 #LV3
-for file in $(ls ${USERSD}/LV2/${STUFF_NUM}_* | sort -t$'_' -nk1);
+for file in $(ls ${USERSD}/LV2/${STUFF_ID}_* | sort -t$'_' -nk1);
 do
   VALUE=$(echo $VALUE `cat $file`)
 done
 echo ${VALUE} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} \
-"/APP/STUFF/USERS?action=SHOW&id=${STUFF_NUM}" \
-"/APP/STUFF/EDIT?action=INPUT&id=${STUFF_NUM}" \
-"/APP/STUFF/DELETE?action=CONFIRM&id=${STUFF_NUM}" \
-> ${USERSD}/LV3/${STUFF_NUM}_stuff_${CREATE_DATE}
+"/APP/STUFF/USERS?action=SHOW&id=${STUFF_ID}" \
+"/APP/STUFF/EDIT?action=INPUT&id=${STUFF_ID}" \
+"/APP/STUFF/DELETE?action=CONFIRM&id=${STUFF_ID}" \
+> ${USERSD}/LV3/${STUFF_ID}_stuff_${CREATE_DATE}
 
 ########################################
-#TMP/*/STUFを削除F
-rm -rf ${SYSD}/TMP/${STUFF_NO}/STUFF
+#TMP/*/STUFFを削除F
+rm -rf ${SYSD}/TMP/${USER}/STUFF
 
 ########################################
 #HTMLの設定
 cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/$(cat $tmp-action).HTML  |
+sed -e "s/###STUFF_ID_LABEL###/${STUFF_ID}/"                        |
+sed -e "s/###FAMILY_NAME_LABEL###/$(cat $tmp-pk-2)/"                |
 sed -e "s/###FAMILY_NAME_LABEL###/$(cat $tmp-pk-2)/"                |
 sed -e "s/###GIVEN_NAME_LABEL###/$(cat $tmp-pk-3)/"                 |
 sed -e "s/###EMAIL_LABEL###/$(cat $tmp-email)/"                     |

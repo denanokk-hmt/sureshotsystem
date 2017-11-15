@@ -92,6 +92,8 @@ join -1 5 -2 1 $tmp-records-base-sort $tmp-email-decode-sort | awk '{$1="";$6=$N
 # 1;社員番号 2;姓 3:名 4:email
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML $tmp-records > $tmp-template-html
 
+cat $tmp-records > /tmp/ttt
+
 ########################################
 #Set pager
 RECORDS=$( ls ${SYSD}/DATA/${CATEGORY}/USERS/LV3/*[^_d] | wc -l )

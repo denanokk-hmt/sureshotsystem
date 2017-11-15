@@ -19,6 +19,7 @@ LANG=ja_JP.UTF-8
 #PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
 CATEGORY=`cat $tmp-category`
 FUNC=`cat $tmp-func`
+USERSD=${SYSD}/DATA/${CATEGORY}/USERS
 
 ########################################
 #Check error
@@ -33,64 +34,52 @@ FIN
 }
 
 ########################################
-#同一社員番号確認用にIDを暗号化し、ファイル保存
-#また、この暗号化したIDをフォームのhiddenタグに適用
-#GETパラメータの順番は、action,idの順番が前提
-cat $tmp-get | awk '{split($0,ary,"&"); print ary[2]}' | sed 's/id\=//' > $tmp-id
-STUFF_ID=$(cat $tmp-id)
-ENC_ID=$(sha1 $RANDOM$STUFF_ID)
-#修正するスタッフIDをスタッフIDを暗号化したフィル名に書き込み、
-#サインインしたスタッフIDのTMPディレクトリに配置する
-echo $STUFF_ID > ${SYSD}/TMP/$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))/${ENC_ID}
+#更新するスタッフIDを取得 ※GETパラメータの順番は、action,idの順番が前提
+EDIT_ID=$(cat $tmp-get | awk '{split($0,ary,"&"); print ary[2]}' | sed 's/id\=//')
 
 ########################################
-#Get Own users data
-#stuff_id	family_name	given_name	account_id	tel1	tel2	create_date	update_date	create_user	update_user	admin_flg	show_each_url	edit_each_url	delete_each_url
-#配列ARRの添字は0始まり
-ARR=( `cat ${SYSD}/DATA/${CATEGORY}/USERS/LV3/${STUFF_ID}_stuff_* |
-        awk -v id=$STUFF_ID '$1==id{print}'                       |
-        tr -s ' ' ' '`)
-FAMILY_NAME=${ARR[1]}
-GIVEN_NAME=${ARR[2]}
-EMAIL=${ARR[3]}
-TEL1=${ARR[4]}
-TEL2=${ARR[5]}
-ADMIN_FLG=${ARR[10]}
+#次ページ照合用にIDを暗号化
+ENC_ID=$(sha1 $RANDOM$EDIT_ID)
+
+########################################
+#作業者IDを取得
+USER=$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
+
+########################################
+#TMPディレクトリにある作業者ID内にSTUFFディレクトリを作成する
+result=`${SYSD}/CGI/DATA/DFS_NEW $1 ${SYSD}/TMP/${USER}/STUFF`
+
+########################################
+#暗号化したスタッフIDを認証用としてTMP/*/STUFFに配置
+echo $EDIT_ID > ${SYSD}/TMP/${USER}/STUFF/${ENC_ID}
+
+########################################
+#スタッフの最新データを取得
+cat `ls -v ${USERSD}/LV2/${EDIT_ID}*` > $tmp-lv2
+
+########################################
+#Emailを復号化
+cat ${SYSD}/DATA/STUFF/ACCOUNTS/$(cat $tmp-lv2 | sed -n 4p) | openssl enc -aes-128-cbc -d -base64 -pass pass:$(cat ${SYSD}/CGI/BIN/key) > $tmp-email-decode
 
 ########################################
 #管理者権限を取得
-[ "${ADMIN_FLG}" = "1" ] && ADMIN_CHK="checked" || ADMIN_CHK=''
+[ "$(cat $tmp-lv2 | sed -n 8p)" = "1" ] && ADMIN_CHK="checked" || ADMIN_CHK=''
 
 ########################################
 #Making viweing body HTML filw path
 ACTION=`cat $tmp-action`
 cat ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML   |
-sed -e "s/###FAMILY_NAME_ISNULL###/hidden/"                    |
-sed -e "s/###FAMILY_NAME_LENGTH###/hidden/"                    |
-sed -e "s/###GIVEN_NAME_ISNULL###/hidden/"                     |
-sed -e "s/###GIVEN_NAME_LENGTH###/hidden/"                     |
-sed -e "s/###EMAIL_ISNULLK###/hidden/"                          |
-sed -e "s/###EMAIL_DUPLECATE###/hidden/"                   |
-sed -e "s/###TEL1_ISNULL###/hidden/"                           |
-sed -e "s/###TEL1_MATCH###/hidden/"                           |
-sed -e "s/###TEL1_NUMERIC###/hidden/"                           |
-sed -e "s/###TEL2_MATCH###/hidden/"                           |
-sed -e "s/###TEL2_NUMERIC###/hidden/"                           |
-sed -e "s/###PASSWORD_ISNULL###/hidden/"                       |
-sed -e "s/###PASSWORD_LENGTH###/hidden/"                       |
-sed -e "s/###PW_CONFIRM_ISNULL###/hidden/"                     |
-sed -e "s/###PW_CONFIRM_COMPARE###/hidden/"                     |
-sed -e "s/###ADMIN_ERR###/hidden/"                          |
-sed -e "s/###FAMILY_NAME###/${FAMILY_NAME}/"                |
-sed -e "s/###GIVEN_NAME###/${GIVEN_NAME}/"                  |
-sed -e "s/###EMAIL###/${EMAIL}/"                            |
-sed -e "s/###TEL1###/${TEL1}/"                              |
-sed -e "s/###TEL2###/${TEL2}/"                              |
+sed -e "s/###STUFF_ID###/$(cat $tmp-lv2 | sed -n 1p)/g"     |
+sed -e "s/###FAMILY_NAME###/$(cat $tmp-lv2 | sed -n 2p)/"   |
+sed -e "s/###GIVEN_NAME###/$(cat $tmp-lv2 | sed -n 3p)/"    |
+sed -e "s/###EMAIL###/$(cat $tmp-email-decode)/"            |
+sed -e "s/###TEL1###/$(cat $tmp-lv2 | sed -n 6p)/"          |
+sed -e "s/###TEL2###/$(cat $tmp-lv2 | sed -n 7p)/"          |
 sed -e "s/###PASSWORD###/NOT_CHANGE/"                       |
 sed -e "s/###ENC_ID###/${ENC_ID}/"                          |
 sed -e "s/###PW_CONFIRM###/NOT_CHANGE/"                     | 
 sed -e "s/###ADMIN_CHK###/${ADMIN_CHK}/"                    |
-sed -e "s/###ADMIN_VAL###/${ADMIN_FLG}/"                    > $tmp-html
+sed -e "s/###ADMIN_VAL###/$(cat $tmp-lv2 | sed -n 8p)/"     > $tmp-html
 
 #########################################
 #page name
