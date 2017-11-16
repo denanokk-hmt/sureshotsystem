@@ -176,13 +176,16 @@ if [ "$(cat $tmp-pk-5)" = "$(echo -n 'NOT_CHANGE' | shasum -a 256 | cut -d' ' -f
 fi
 
 ########################################
-#既存データから作成日時取得、現在日時を更新日時とする
-CREATE_DATE=$(cat ${USERSD}/LV3/${STUFF_ID}_* | awk '{print $10}')
-UPDATE_DATE=$(date +%Y%m%d%H%M%S)
+#作成日時、作成者、最終更新日時、更新者を取得
+result=`${SYSD}/CGI/DFS_INFO/CREATE_LASTUPDATE $1 ${USERSD}/LV1 ${STUFF_ID}`
+CREATE_DATE=$(cat $tmp-create-dt)
+CREATE_USER=$(cat $tmp-create-user)
+LASTUPDATE_DT=$(cat $tmp-lastupdate-dt)
+LASTUPDATE_USER=$(cat $tmp-lastupdate-user)
 
 ########################################
-#更新者の取得
-CREATE_USER=$(cat ${USERSD}/LV3/${STUFF_ID}* | awk '{print $12}')
+#更新日時
+UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 
 ########################################
 #データ配置
@@ -211,7 +214,7 @@ echo ${VALUE} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${USER} \
 "/APP/STUFF/USERS?action=SHOW&id=${STUFF_ID}" \
 "/APP/STUFF/EDIT?action=INPUT&id=${STUFF_ID}" \
 "/APP/STUFF/DELETE?action=CONFIRM&id=${STUFF_ID}" \
-> ${USERSD}/LV3/${STUFF_ID}_stuff_${CREATE_DATE}
+> ${USERSD}/LV3/${STUFF_ID}_stuff_${UPDATE_DATE}
 
 ########################################
 #STUFFのデータ操作ロックを解除

@@ -69,30 +69,29 @@ LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
 [ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
 
 ########################################
-#既存データから作成日時取得、現在日時を更新日時とする
-CREATE_DATE=$(cat ${USERSD}/LV3/${STUFF_ID}_* | awk '{print $10}')
+#作成日時、作成者、最終更新日時、更新者を取得
+`${SYSD}/CGI/CREATE_LASTUPDATE $1 ${USERSD}/LV1 ${STUFF_ID}`
+CREATE_DATE=$(cat $tmp-create-dt)
+CREATE_USER=$(cat $tmp-create-user)
+LASTUPDATE_DT=$(cat $tmp-lastupdate-dt)
+LASTUPDATE_USER=$(cat $tmp-lastupdate-user)
+
+########################################
+#更新日時
 UPDATE_DATE=$(date +%Y%m%d%H%M%S)
-
-########################################
-#更新者の取得
-CREATE_USER=$(cat ${USERSD}/LV3/${STUFF_ID}* | awk '{print $12}')
-
-########################################
-#最終更新日の取得
-LAST_UPDATE=$(ls ${USERSD}/LV3/${STUFF_ID}_* | cut -d'_' -f3)
 
 ########################################
 #データ配置
 #LV1
-cp -f ${USERSD}/LV1/${STUFF_ID}_1_*_${LAST_UPDATE} ${USERSD}/LV1/${STUFF_ID}_1_${USER}_${UPDATE_DATE}_d
-cp -f ${USERSD}/LV1/${STUFF_ID}_2_*_${LAST_UPDATE} ${USERSD}/LV1/${STUFF_ID}_2_${USER}_${UPDATE_DATE}_d
-cp -f ${USERSD}/LV1/${STUFF_ID}_3_*_${LAST_UPDATE} ${USERSD}/LV1/${STUFF_ID}_3_${USER}_${UPDATE_DATE}_d
-cp -f ${USERSD}/LV1/${STUFF_ID}_4_*_${LAST_UPDATE} ${USERSD}/LV1/${STUFF_ID}_4_${USER}_${UPDATE_DATE}_d
-cp -f ${USERSD}/LV1/${STUFF_ID}_5_*_${LAST_UPDATE} ${USERSD}/LV1/${STUFF_ID}_5_${USER}_${UPDATE_DATE}_d
-cp -f ${USERSD}/LV1/${STUFF_ID}_6_*_${LAST_UPDATE} ${USERSD}/LV1/${STUFF_ID}_6_${USER}_${UPDATE_DATE}_d
-cp -f ${USERSD}/LV1/${STUFF_ID}_7_*_${LAST_UPDATE} ${USERSD}/LV1/${STUFF_ID}_7_${USER}_${UPDATE_DATE}_d
-cp -f ${USERSD}/LV1/${STUFF_ID}_8_*_${LAST_UPDATE} ${USERSD}/LV1/${STUFF_ID}_8_${USER}_${UPDATE_DATE}_d
-cp -f ${USERSD}/LV1/${STUFF_ID}_9_*_${LAST_UPDATE} ${USERSD}/LV1/${STUFF_ID}_9_${USER}_${UPDATE_DATE}_d
+cp -f ${USERSD}/LV1/${STUFF_ID}_1_*_${LASTUPDATE_DT} ${USERSD}/LV1/${STUFF_ID}_1_${USER}_${UPDATE_DATE}_d
+cp -f ${USERSD}/LV1/${STUFF_ID}_2_*_${LASTUPDATE_DT} ${USERSD}/LV1/${STUFF_ID}_2_${USER}_${UPDATE_DATE}_d
+cp -f ${USERSD}/LV1/${STUFF_ID}_3_*_${LASTUPDATE_DT} ${USERSD}/LV1/${STUFF_ID}_3_${USER}_${UPDATE_DATE}_d
+cp -f ${USERSD}/LV1/${STUFF_ID}_4_*_${LASTUPDATE_DT} ${USERSD}/LV1/${STUFF_ID}_4_${USER}_${UPDATE_DATE}_d
+cp -f ${USERSD}/LV1/${STUFF_ID}_5_*_${LASTUPDATE_DT} ${USERSD}/LV1/${STUFF_ID}_5_${USER}_${UPDATE_DATE}_d
+cp -f ${USERSD}/LV1/${STUFF_ID}_6_*_${LASTUPDATE_DT} ${USERSD}/LV1/${STUFF_ID}_6_${USER}_${UPDATE_DATE}_d
+cp -f ${USERSD}/LV1/${STUFF_ID}_7_*_${LASTUPDATE_DT} ${USERSD}/LV1/${STUFF_ID}_7_${USER}_${UPDATE_DATE}_d
+cp -f ${USERSD}/LV1/${STUFF_ID}_8_*_${LASTUPDATE_DT} ${USERSD}/LV1/${STUFF_ID}_8_${USER}_${UPDATE_DATE}_d
+cp -f ${USERSD}/LV1/${STUFF_ID}_9_*_${LASTUPDATE_DT} ${USERSD}/LV1/${STUFF_ID}_9_${USER}_${UPDATE_DATE}_d
 
 #LV2
 rm -f ${USERSD}/LV2/${STUFF_ID}_*
