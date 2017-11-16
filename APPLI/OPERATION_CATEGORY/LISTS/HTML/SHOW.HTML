@@ -207,6 +207,7 @@
 
         //削除処理
         var delete_category_nm_en = $('#OPERATION_CATEGORY_NM_EN_' + id).val();
+        var delete_category_nm_jp = $('#OPERATION_CATEGORY_NM_JP_' + id).val();
         var params = $('form').serialize();
         var jqXHR = $.ajax({
             type: 'POST',
@@ -215,7 +216,8 @@
                 REST: 'DELETE',
                 ACTION: 'COMPLETE',
                 OPERATION_CATEGORY_ID: id,
-                OPERATION_CATEGORY_NM_EN: delete_category_nm_en
+                OPERATION_CATEGORY_NM_EN: delete_category_nm_en,
+                OPERATION_CATEGORY_NM_JP: delete_category_nm_jp
             }
         });
         jqXHR.done(function(data) {

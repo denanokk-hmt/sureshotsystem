@@ -35,19 +35,25 @@ FIN
 #
 ########################################
 #フォームの入力値を取得
-NUM=$(nameread OPERATION_CATEGORY_ID $tmp-post)
-OPERATION_CATEGORY_NM_EN=$(nameread OPERATION_CATEGORY_NM_EN $tmp-post)
-OPERATION_CATEGORY_NM_JP=$(nameread OPERATION_CATEGORY_NM_JP $tmp-post)
-#
+nameread OPERATION_CATEGORY_ID    $tmp-post > $tmp-pk-1
+NUM=$(cat $tmp-pk-1)
+nameread OPERATION_CATEGORY_NM_EN $tmp-post > $tmp-pk-2
+nameread OPERATION_CATEGORY_NM_JP $tmp-post > $tmp-pk-3
+
 ########################################
-#既存データから作成日時取得、現在日時を更新日時とする
-ls ${DATAD}/LV1/${NUM}_operation_category_* | sort -nk1,1 | tail -n 1 | cut -d'/' -f8 | cut -d'_' -f4 > $tmp-create
-CREATE_DATE=$(cat $tmp-create)
+#作成日時、作成者、最終更新日時、更新者を取得
+result=`${SYSD}/CGI/DFS_INFO/CREATE_LASTUPDATE $1 ${DATAD}/LV1 ${NUM}`
+CREATE_DATE=$(cat $tmp-create-dt)
+CREATE_USER=$(cat $tmp-create-user)
+LASTUPDATE_DT=$(cat $tmp-lastupdate-dt)
+LASTUPDATE_USER=$(cat $tmp-lastupdate-user)
+
+########################################
+#更新日時を設定
 UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 
 ########################################
 #更新者の取得
-CREATE_USER=$(cat ${DATAD}/LV3/${NUM}* | awk '{print $5}')
 UPDATE_USER=$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
 
 ########################################
@@ -61,23 +67,24 @@ LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
 [ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
 
 ########################################
-#入力値を一時ファイル化
-#operation_category_id	operation_category_nm_en  operation_category_en_jpcreate_date	update_date	create_user	update_user	del_flg
-echo ${NUM} ${OPERATION_CATEGORY_NM_EN} ${OPERATION_CATEGORY_NM_JP} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} 1 > $tmp-operation-category
-
-########################################
-#データ格納
-#LV1:原始データとして、ファイル追加のみを行う
-#削除データなのでファイル名の末尾に_dを付ける
-mv $tmp-operation-category ${DATAD}/LV1/${NUM}_operation_category_${UPDATE_DATE}_d
+#データ配置
+#LV1
+cat $tmp-pk-1 > ${DATAD}/LV1/${NUM}_1_${UPDATE_USER}_${UPDATE_DATE}_d
+cat $tmp-pk-2 > ${DATAD}/LV1/${NUM}_2_${UPDATE_USER}_${UPDATE_DATE}_d
+cat $tmp-pk-3 > ${DATAD}/LV1/${NUM}_3_${UPDATE_USER}_${UPDATE_DATE}_d
 
 #LV2
-#ファイル名の末尾に_dを付ける
-mv $(ls ${DATAD}/LV2/${NUM}_*) $(ls ${DATAD}/LV2/${NUM}_*)_d
+rm -f ${DATAD}/LV2/${NUM}_*
+cp -fp ${DATAD}/LV1/${NUM}_*_${UPDATE_DATE}_d ${DATAD}/LV2/
 
 #LV3
-#ファイル名の末尾に_dを付ける
-mv $(ls ${DATAD}/LV3/${NUM}_*) $(ls ${DATAD}/LV3/${NUM}_*)_d
+rm -f ${DATAD}/LV3/${NUM}_*
+for file in $(ls ${DATAD}/LV2/${NUM}_* | sort -t$'_' -nk1);
+do
+  VALUE=$(echo $VALUE `cat $file`)
+done
+echo ${VALUE} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} \
+> ${DATAD}/LV3/${NUM}_operation-category_${UPDATE_DATE}_d
 
 ########################################
 #データ操作ロックを解除
@@ -102,15 +109,20 @@ if [ -e "${DATAD}/LV1/0_*" ]; then
     :
 else
     #LV1
-    echo 0 '未登録' 'Unregistered' ${UPDATE_DATE} ${UPDATE_DATE} ${UPDATE_USER} ${UPDATE_USER} 0 > \
-    ${DATAD}/LV1/0_operation_category_${UPDATE_DATE}
+    echo 0              > ${DATAD}/LV1/0_1_${UPDATE_USER}_${UPDATE_DATE}
+    echo '未登録'       > ${DATAD}/LV1/0_2_${UPDATE_USER}_${UPDATE_DATE}
+    echo 'Unregistered' > ${DATAD}/LV1/0_3_${UPDATE_USER}_${UPDATE_DATE}
+
     #LV2
-    rm -f ${DATAD}/LV2/0_*
-    cat ${DATAD}/LV1/0_operation_category_${UPDATE_DATE} | awk '{$NF=""; print $0}' > \
-    ${DATAD}/LV2/0_operation_category_${UPDATE_DATE}
+    cp -fp ${DATAD}/LV1/0_* ${DATAD}/LV2/
+
     #LV3
-    rm -f ${DATAD}/LV3/0_*
-    cp -p ${DATAD}/LV2/0_operation_category_${UPDATE_DATE} ${DATAD}/LV3/0_operation_category_${UPDATE_DATE}
+    for file in $(ls ${DATAD}/LV2/0_* | sort -t$'_' -nk1);
+    do
+      VALUE=$(echo $VALUE `cat $file`)
+    done
+    echo ${VALUE} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} \
+    > ${DATAD}/LV3/0_operation_category_${UPDATE_DATE}
 fi
 
 ############################
@@ -134,11 +146,11 @@ for file in `find ${OPERATIOND}/${NUM}/LV3/*[^_d] -maxdepth 1 -type f`; do
     [ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
     
     #LV1
-    mv ${OPERATIOND}/${NUM}/LV1/${OPE_NO}_operation_* ${OPERATIOND}/0/LV1/
+    mv ${OPERATIOND}/${NUM}/LV1/${OPE_NO}_* ${OPERATIOND}/0/LV1/
     #LV2
-    mv ${OPERATIOND}/${NUM}/LV2/${OPE_NO}_operation_* ${OPERATIOND}/0/LV2/
+    mv ${OPERATIOND}/${NUM}/LV2/${OPE_NO}_* ${OPERATIOND}/0/LV2/
     #LV3
-    mv ${OPERATIOND}/${NUM}/LV3/${OPE_NO}_operation_* ${OPERATIOND}/0/LV3/
+    mv ${OPERATIOND}/${NUM}/LV3/${OPE_NO}_* ${OPERATIOND}/0/LV3/
 
     #データ操作ロックを解除
     UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'OPERATION_LIST' ${OPE_NO}`
@@ -172,7 +184,7 @@ LANG=C join -1 2 -2 1 $tmp-ope-category $tmp-ope-all > $tmp-operations
 
 #カテゴリ情報とマッピングしたオペ一覧をLISTS/LV3へ配置
 rm -f ${SYSD}/DATA/OPERATION_LIST/LISTS/LV3/operations_*
-mv $tmp-operations ${SYSD}/DATA/OPERATION_LIST/LISTS/LV3/operations_${CREATE_DATE}
+mv $tmp-operations ${SYSD}/DATA/OPERATION_LIST/LISTS/LV3/operations_${UPDATE_DATE}
 
 ########################################
 #
