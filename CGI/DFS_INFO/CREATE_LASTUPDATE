@@ -1,8 +1,8 @@
-#!/bin/bash
+#!/bin/bash -vx
 #
 
 ########################################
-#	GET_INFO.CGI
+#	CREATE_LASTUPDATE.CGI
 #
 #   引数
 #       $1:プロセスID
@@ -21,16 +21,16 @@ LANG=ja_JP.UTF-8
 #PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
 
 #作成日時
-ls -1 $2/$3_* | cut -d'_' -f4 | LANG=C sort -nk1 | head -n1 > $tmp-create-dt
+ls -1 $2/$3_* | xargs -I{} basename {} | cut -d'_' -f4 | LANG=C sort -nk1 | head -n1 > $tmp-create-dt
 
 #作成者
-ls -1 $2/$3_* | LANG=C sort -t$'_' -nk4 | cut -d'_' -f3 | head -n1 > $tmp-create-user
+ls -1 $2/$3_* | xargs -I{} basename {} | LANG=C sort -t$'_' -nk4 | cut -d'_' -f3 | head -n1 > $tmp-create-user
 
 #最終更新日時
-ls -1 $2/$3_* | cut -d'_' -f4 | LANG=C sort -nk1 | tail -n1 > $tmp-lastupdate-dt
+ls -1 $2/$3_* | xargs -I{} basename {} | cut -d'_' -f4 | LANG=C sort -nk1 | tail -n1 > $tmp-lastupdate-dt
 
 #最終更新者
-ls -1 $2/$3_* | LANG=C sort -t$'_' -nk4 | cut -d'_' -f3 | tail -n1 > $tmp-lastupdate-user
+ls -1 $2/$3_* | xargs -I{} basename {} | LANG=C sort -t$'_' -nk4 | cut -d'_' -f3 | tail -n1 > $tmp-lastupdate-user
 
 ########################################
 #戻り値
