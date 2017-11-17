@@ -87,8 +87,10 @@
             <input type="hidden" id="REST" name="REST" value="" />
             <input type="hidden" id="PAGE" name="PAGE" value="###PAGE###" />
             <input type="hidden" id="SEARCH" name="SEARH" value="0" />
+            <!--
             <input type="hidden" id="CATEGORY_NM" name="CATEGORY_NM" value="###CATEGORY_NM_PAGE###" />
             <input type="hidden" id="CATEGORY_NO" name="CATEGORY_NO" value="###CATEGORY_NO_PAGE###" />
+            -->
             <div class="contents-table">
                 ###TABLE###
             </div>
@@ -166,8 +168,8 @@
         }
 
         //POST,PUT,DELETEパラメータようにhiddenに値を設定
-        $('#CATEGORY_NM').val(choice);
-        $('#CATEGORY_NO').val(cat_no);
+        //$('#CATEGORY_NM').val(choice);
+        //$('#CATEGORY_NO').val(cat_no);
     });
 
     //作業追加
@@ -178,11 +180,22 @@
 
         $('#REST').val('POST');
         var new_operation_name = $('#OPERATION_NAME_NEW').val();
-        var params = $('form').serialize();
+        //var params = $('form').serialize();
         var jqXHR = $.ajax({
             type: 'POST',
             url: '/APP/OPERATION_LIST/NEW',
-            data: params
+            //data: params
+            data: {
+                ACTION: 'COMPLETE',
+                REST: 'POST',
+                PAGE: $('#PAGE').val(),
+                SEARCH: $('#SEARCH').val(),
+                PAGE_CATEGORY_NM: $('#CATEGORY_NM_HID_PAGE').val(),
+                PAGE_CATEGORY_NO: $('#CATEGORY_NO_HID_PAGE').val(),
+                NEW_CATEGORY_NO: $('#CATEGORY_NO_HID_NEW').val(),
+                NEW_OPERATION_NAME: $('#OPERATION_NAME_NEW').val(),
+                NEW_OPERATION_PRICE:$('#OPERATION_PRICE_NEW').val()
+            }
         });
         jqXHR.done(function(data) {
             //バリデーションエラーの場合、先頭にVALID=NG
@@ -202,7 +215,7 @@
             } else {
                 $('table').html(data);
                 $('#info-msg').html(new_operation_name + "を追加しました。");
-                alert(new_category_nm_en + "を追加しました。");
+                alert(new_operation_name + "を追加しました。");
             }
         });
         jqXHR.fail(function(data) {
@@ -246,8 +259,9 @@
             data: {
                 ACTION: 'COMPLETE',
                 REST: 'PUT',
-                PAGE_CATEGORY_NM: $('#CATEGORY_NM').val(),
-                PAGE_CATEGORY_NO: $('#CATEGORY_NO').val(),
+                
+                PAGE_CATEGORY_NM: $('#CATEGORY_NM_HID_PAGE').val(),
+                PAGE_CATEGORY_NO: $('#CATEGORY_NO_HID_PAGE').val(),
                 EDIT_OPERATION_NO: id,
                 EDIT_OPERATION_CATEGORY_NO: $('#CATEGORY_NO_HID_' + id).val(),
                 EDIT_OPERATION_CATEGORY_NX: $('#CATEGORY_NX_HID_' + id).val(),

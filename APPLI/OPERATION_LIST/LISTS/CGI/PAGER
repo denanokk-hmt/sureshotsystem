@@ -91,7 +91,7 @@ fi
 
 ########################################
 #ページャーを設定
-RESULT=`${SYSD}/CGI/PAGER \
+RESULT=`${SYSD}/CGI/PAGINATION/PAGER \
                           $1 \
                           "/APP/${CATEGORY}/${FUNC}" \
                           ${SHOW_PAGE} \

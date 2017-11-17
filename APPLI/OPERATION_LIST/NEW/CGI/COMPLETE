@@ -43,23 +43,40 @@ FIN
 
 #######################################
 #フォームの入力値を取得
-nameread CATEGORY_NO_HID_NEW  $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value1
-nameread OPERATION_NAME_NEW   $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value2
-nameread OPERATION_PRICE_NEW  $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value3
+nameread NEW_CATEGORY_NO      $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-category-no
+CATEGORY_NO=$(cat $tmp-category-no)
+nameread NEW_OPERATION_NAME   $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-2-org
+nameread NEW_OPERATION_PRICE  $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-3
+nameread PAGE_CATEGORY_NO     $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-page-category-no
+nameread PAGE_CATEGORY_NM     $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-page-category-nm
+nameread PAGE                 $tmp-post > $tmp-page #表示ページ
+nameread SEARCH               $tmp-post > $tmp-search #検索状態
+
+#######################################
+#ページの表示状態を取得
+PAGE_CATEGORY_NO=$(cat $tmp-page-category-no) #検索条件
+PAGE_CATEGORY_NM=$(cat $tmp-page-category-nm) #検索条件
+[ -n "$(cat $tmp-page)" ] && PAGE=$(cat $tmp-page) || PAGE=1
+[ -n "$(cat $tmp-search)" ] && SEARCH=$(cat $tmp-search) || SEARCH='searc=0'
+
+#######################################
+#「&」エスケープ
+cat $tmp-pk-2-org | sed 's/\&/\\\\\\&/' > $tmp-pk-2
+
 
 ########################################
 #バリデーションを設定
 
 #CATEGORY_NM
-cat $tmp-value1 | awk '{print sprintf("CATEGORY_NM|ISNULL|%s",$1)}'                                >> $tmp-validation  #必須選択
+cat $tmp-category | awk '{print sprintf("CATEGORY_NM|ISNULL|%s",$1)}'                                >> $tmp-validation  #必須選択
 
 #OPERATION_NAME_NEW
-cat $tmp-value2 | awk '{print sprintf("OPERATION_NAME|ISNULL|%s",$1)}'                                >> $tmp-validation  #必須入力
-cat $tmp-value2 | awk '{print sprintf("OPERATION_NAME|LENGTH|%s,3,0",$1)}'                            >> $tmp-validation  #3文字以上
-cat $tmp-value2 | awk '{print sprintf("OPERATION_NAME|DUPLICATE|OPERATION_LIST,LISTS,2,%s",$1)}'  >> $tmp-validation  #重複確認
+cat $tmp-pk-2 | awk '{print sprintf("OPERATION_NAME|ISNULL|%s",$1)}'                                >> $tmp-validation  #必須入力
+cat $tmp-pk-2 | awk '{print sprintf("OPERATION_NAME|LENGTH|%s,3,0",$1)}'                            >> $tmp-validation  #3文字以上
+cat $tmp-pk-2 | awk '{print sprintf("OPERATION_NAME|DUPLICATE|OPERATION_LIST,LISTS,2,%s",$1)}'      >> $tmp-validation  #重複確認
 
 #PRICE
-cat $tmp-value3 | awk '{print sprintf("OPERATION_PRICE|ISNULL|%s",$1)}'                                >> $tmp-validation  #必須入力
+cat $tmp-pk-3 | awk '{print sprintf("OPERATION_PRICE|ISNULL|%s",$1)}'                                >> $tmp-validation  #必須入力
 
 ########################################
 #バリデーションを実行
@@ -77,20 +94,7 @@ fi
 #########################################
 ##新規作業番号を確定する
 NEW_NUM=$(${SYSD}/CGI/NUMBER/NUMBER $1)
-
-######################################
-#フォームの入力値を取得
-QRY_PAGE=$(nameread PAGE $tmp-post)
-SEARCH=$(nameread PAGE $tmp-post)
-PAGE_CATEGORY_NM=$(nameread CATEGORY_NM $tmp-post)
-PAGE_CATEGORY_NO=$(nameread CATEGORY_NO $tmp-post)
-CATEGORY_NO=$(nameread CATEGORY_NO_HID_NEW $tmp-post)     #作業カテゴリ番号
-OPERATION_NAME=$(nameread OPERATION_NAME_NEW $tmp-post)   #作業名(EN)
-OPERATION_PRICE=$(nameread OPERATION_PRICE $tmp-post)     #プライス
-
-#######################################
-#&エスケープ
-OPERATION_NAME=$(echo ${OPERATION_NAME} | sed 's/\&/\\\\\\&/')
+echo ${NEW_NUM} > $tmp-pk-1
 
 ########################################
 #日付を設定
@@ -119,24 +123,22 @@ result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/OPERATION_DETAIL/LISTS ${SYSD}/
 result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/OPERATION_DETAIL/LISTS/${CATEGORY_NO} ${SYSD}/DATA/OPERATION_DETAIL/LISTS/${CATEGORY_NO}`
 
 ########################################
-#入力値を一時ファイル化
-#operation_id	operation_nm_en	operation_nm_jp	price	remarks	create_date	update_date	create_user	update_user	del_flg
-echo ${NEW_NUM} ${OPERATION_NAME} ${OPERATION_PRICE} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} 0 > $tmp-operation
-
-########################################
-#データ格納
-#所属するカテゴリNoの下に配置
+#データ配置
 #LV1
-#原始データとして追加のみを行う
-mv $tmp-operation ${DATAD}/${CATEGORY_NO}/LV1/${NEW_NUM}_operation_${CREATE_DATE}
+cat $tmp-pk-1 > ${DATAD}/${CATEGORY_NO}/LV1/${NEW_NUM}_1_${CREATE_USER}_${CREATE_DATE}
+cat $tmp-pk-2 > ${DATAD}/${CATEGORY_NO}/LV1/${NEW_NUM}_2_${CREATE_USER}_${CREATE_DATE}
+cat $tmp-pk-3 > ${DATAD}/${CATEGORY_NO}/LV1/${NEW_NUM}_3_${CREATE_USER}_${CREATE_DATE}
 
 #LV2
-#削除フラグは除外-->dファイルとして扱う
-cat ${DATAD}/${CATEGORY_NO}/LV1/${NEW_NUM}_operation_${CREATE_DATE} | awk '{$NF=""; print $0}' > ${DATAD}/${CATEGORY_NO}/LV2/${NEW_NUM}_operation_${CREATE_DATE}
+cp -fp ${DATAD}/${CATEGORY_NO}/LV1/${NEW_NUM}_* ${DATAD}/${CATEGORY_NO}/LV2/
 
 #LV3
-#LV2のコピー
-cp -p ${DATAD}/${CATEGORY_NO}/LV2/${NEW_NUM}_operation_${CREATE_DATE} ${DATAD}/${CATEGORY_NO}/LV3/${NEW_NUM}_operation_${CREATE_DATE}
+for file in $(ls ${DATAD}/${CATEGORY_NO}/LV2/${NEW_NUM}_* | sort -t$'_' -nk1);
+do
+  VALUE=$(echo $VALUE `cat $file`)
+done
+echo ${VALUE} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} \
+> ${DATAD}/${CATEGORY_NO}/LV3/${NEW_NUM}_operation-list_${CREATE_DATE}
 
 ########################################
 #正規データ配置
@@ -161,40 +163,35 @@ LANG=C join -1 2 -2 1 $tmp-ope-category $tmp-ope-all > $tmp-operations
 rm -f ${DATAD}/LV3/operations_*
 mv $tmp-operations ${DATAD}/LV3/operations_${CREATE_DATE}
 
+
+########################################
+#作業カテゴリを取得
+cat ${SYSD}/DATA/OPERATION_CATEGORY/LISTS/LV3/*[^_d]    |
+LANG=C sort -nk1,1                                      > $tmp-operation-category
+
+########################################
+#登録済作業用の作業カテゴリ
+# 1;カテゴリ番号 2;カテゴリ名
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_LIST.HTML $tmp-operation-category > $tmp-operation-category-list
+
+########################################
+#新規登録作業用の作業カテゴリ
+# 1;カテゴリ番号 2;カテゴリ名
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_NEW.HTML $tmp-operation-category > $tmp-operation-category-new
+
+########################################
+# 改行文字を「\\n」という3文字の文字列に置換
+CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-operation-category-list`
+CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-operation-category-new`
+
 #######################################
 #ページャーを設定
-START_END=`${SYSD}/APPLI/${CATEGORY}/LISTS/CGI/PAGER $1 ${QRY_PAGE} ${SEARCH} ${PAGE_CATEGORY_NM} ${PAGE_CATEGORY_NO}`
+START_END=`${SYSD}/APPLI/${CATEGORY}/LISTS/CGI/PAGER $1 ${PAGE} ${SEARCH} ${PAGE_CATEGORY_NM} ${PAGE_CATEGORY_NO}`
 
 #######################################
 #表示するレコードの開始と終了
 START=$(cat $tmp-rec-start)
 END=$(cat $tmp-rec-end)
-
-########################################
-#作業カテゴリを取得
-cat ${SYSD}/DATA/OPERATION_CATEGORY/LISTS/LV3/*[^_d]    |
-LANG=C sort -nk1,1                                      > $tmp-category
-
-########################################
-#Page絞り込み用の作業カテゴリ
-# 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_PAGE.HTML $tmp-category > $tmp-operation-category-page
-
-########################################
-#登録済作業用の作業カテゴリ
-# 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_LIST.HTML $tmp-category > $tmp-operation-category-list
-
-########################################
-#新規登録作業用の作業カテゴリ
-# 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_NEW.HTML $tmp-category > $tmp-operation-category-new
-
-########################################
-# 改行文字を「\\n」という3文字の文字列に置換
-CATEGORY_PAGE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-operation-category-page`
-CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-operation-category-list`
-CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-operation-category-new`
 
 ########################################
 #作業リストを取得
@@ -211,6 +208,9 @@ else
     awk -v s=${START} -v e=${END} 'NR>=s&&NR<=e&&$9!=1'     |
     juni                                                    > $tmp-records
 fi
+
+########################################
+#レコードHTMLを作成
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/RECORDS.HTML $tmp-records > $tmp-table-records
 
 ########################################
