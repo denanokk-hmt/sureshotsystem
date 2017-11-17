@@ -262,10 +262,10 @@
                 
                 PAGE_CATEGORY_NM: $('#CATEGORY_NM_HID_PAGE').val(),
                 PAGE_CATEGORY_NO: $('#CATEGORY_NO_HID_PAGE').val(),
+                EDIT_CATEGORY_NM: $('#CATEGORY_NM_HID_' + id).val(),
+                EDIT_CATEGORY_NO: $('#CATEGORY_NO_HID_' + id).val(),
+                EDIT_CATEGORY_NX: $('#CATEGORY_NX_HID_' + id).val(),
                 EDIT_OPERATION_NO: id,
-                EDIT_OPERATION_CATEGORY_NO: $('#CATEGORY_NO_HID_' + id).val(),
-                EDIT_OPERATION_CATEGORY_NX: $('#CATEGORY_NX_HID_' + id).val(),
-                EDIT_OPERATION_CATEGORY_NAME: $('#CATEGORY_NM_HID_' + id).val(),
                 EDIT_OPERATION_NAME: $('#OPERATION_NAME_' + id).val(),
                 EDIT_OPERATION_PRICE:$('#OPERATION_PRICE_' + id).val()
             }
@@ -286,8 +286,12 @@
                     alert("更新処理に失敗しました。");
                 }
             } else {
-                $('#info-msg').html(edit_operation_name + "に変更しました。");
-                alert(edit_operation_name + "に変更しました。");
+                if (data == 111) {
+                    $('#info-msg').html(edit_operation_name + "に変更しました。");
+                    alert(edit_operation_name + "に変更しました。");
+                } else {
+                    alert("更新処理に失敗しました。");
+                }
             }
         });
         jqXHR.fail(function() {
@@ -310,8 +314,13 @@
             data: {
                 ACTION: 'COMPLETE',
                 REST: 'DELETE',
-                DELETE_OPERATION_NO: id,
                 DELETE_CATEGORY_NX: $('#CATEGORY_NX_HID_' + id).val(),
+                DELETE_CATEGORY_NM: $('#CATEGORY_NM_HID_' + id).val(),
+                DELETE_CATEGORY_NO: $('#CATEGORY_NO_HID_' + id).val(),
+                DELETE_CATEGORY_NX: $('#CATEGORY_NX_HID_' + id).val(),
+                DELETE_OPERATION_NO: id,
+                DELETE_OPERATION_NAME: $('#OPERATION_NAME_' + id).val(),
+                DELETE_OPERATION_PRICE:$('#OPERATION_PRICE_' + id).val()
             }
        });
         jqXHR.done(function(data) {
