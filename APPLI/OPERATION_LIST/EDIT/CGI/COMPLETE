@@ -61,20 +61,20 @@ cat $tmp-pk-2-org | sed 's/\&/\\\\\\&/' > $tmp-pk-2
 #バリデーションを設定
 
 #CATEGORY_NM
-cat $tmp-category-no | awk '{print sprintf("CATEGORY_NM|ISNULL|%s",$1)}'                                >> $tmp-validation  #必須選択
+cat $tmp-category-no | awk '{print sprintf("CATEGORY_NM|ISNULL|%s",$1)}'                            >> $tmp-validation  #必須選択
 
 #OPERATION_NAME_NEW
 cat $tmp-pk-2 | awk '{print sprintf("OPERATION_NAME|ISNULL|%s",$1)}'                                >> $tmp-validation  #必須入力
 cat $tmp-pk-2 | awk '{print sprintf("OPERATION_NAME|LENGTH|%s,3,0",$1)}'                            >> $tmp-validation  #3文字以上
-cat $tmp-pk-2 | awk '{print sprintf("OPERATION_NAME|DUPLICATE|OPERATION_LIST,LISTS,2,%s",$1)}'  >> $tmp-validation  #重複確認
+cat $tmp-pk-2 | awk -v gk=${NUM} '{print sprintf("OPERATION_NAME|DUPLICATE|OPERATION_LIST,LISTS/*,%s,2,%s",gk,$1)}'      >> $tmp-validation  #重複確認
 
 #PRICE
-cat $tmp-pk-3 | awk '{print sprintf("OPERATION_PRICE|ISNULL|%s",$1)}'                                >> $tmp-validation  #必須入力
+cat $tmp-pk-3 | awk '{print sprintf("OPERATION_PRICE|ISNULL|%s",$1)}'                               >> $tmp-validation  #必須入力
 
 ########################################
 #バリデーションを実行
 result=`${SYSD}/CGI/VALID/VALIDATION $1`
-
+exit 0
 ########################################
 #バリデーション結果
 if [ -n "$(grep "|NG" $tmp-valid-report)" ] ; then

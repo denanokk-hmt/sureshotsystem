@@ -1,13 +1,14 @@
-#!/bin/bash
+#!/bin/bash -vx
 #
 
 ########################################
 #	DUPLICATE.CGI
 #
 #       $1:検索するDFSのCATEGORYディレクト名
-#       $2:検索するDFSのFUNCディレクト名
-#       $3:検索するDFSのLV3ディレクトリのカラム名
-#       $4:重複を検証する文字列や数値
+#       $2:検索するDFSのFUNCディレクト名(LV2の直上)
+#       $3:検索するDFSのGK番号
+#       $4:検索するDFSのPK番号
+#       $5:重複を検証する文字列や数値
 #       
 #	Written by hiramatsu
 
@@ -23,49 +24,14 @@ LANG=ja_JP.UTF-8
 #NGの場合、NG|NGメッセージを返す
 CATEGORY=$1
 FUNC=$2
-COLUMN=$3
-VALUE=$4
+GK=${3:-0}
+PK=$4
+VALUE=$5
 DATAD=${SYSD}/DATA/${CATEGORY}/${FUNC}
 
-case ${CATEGORY}-${COLUMN} in
-  STUFF-4)
-    #STUFF/USERS
-    VALID=$(cat ${DATAD}/LV3/*[^_d] | awk -v val=${VALUE} -v col=${COLUMN} '$'"col"'==val{print $1}')
-    ;;
-  CUSTOMER-4)
-    #CUSTOMER/LISTS
-    VALID=$(cat ${DATAD}/LV3/*[^_d] | awk -v val=${VALUE} -v col=${COLUMN} '$'"col"'==val{print $1}')
-    ;;
-  OPERATION_CATEGORY_2)
-    #OPERATION_CATEGORY/LISTS
-    VALID=$(cat ${DATAD}/LV3/*[^_d] | awk -v val=${VALUE} -v col=${COLUMN} '$'"col"'==val{print $1}')
-    ;;
-  OPERATION_CATEGORY_3)
-    #OPERATION_CATEGORY/LISTS
-    VALID=$(cat ${DATAD}/LV3/*[^_d] | awk -v val=${VALUE} -v col=${COLUMN} '$'"col"'==val{print $1}')
-    ;;
-  OPERATION_LIST-2)
-    #OPERATION_LIST/LISTS
-    VALID=$(cat ${DATAD}/*/LV3/*[^_d] | awk -v val=${VALUE} -v col=${COLUMN} '$'"col"'==val{print $1}')
-    ;;
-  PARTS_CATEGORY-2)
-    #PARTS_CATEGORY/LISTS
-    VALID=$(cat ${DATAD}/LV3/*[^_d] | awk -v val=${VALUE} -v col=${COLUMN} '$'"col"'==val{print $1}')
-    ;;
-  PARTS_LIST-2)
-    #PARTS_LIST/LISTS
-    VALID=$(cat ${DATAD}/*/LV3/*[^_d] | awk -v val=${VALUE} -v col=${COLUMN} '$'"col"'==val{print $1}')
-    ;;
-  SET_CATEGORY-2)
-    #SET_CATEGORY/LISTS
-    VALID=$(cat ${DATAD}/LV3/*[^_d] | awk -v val=${VALUE} -v col=${COLUMN} '$'"col"'==val{print $1}')
-    ;;
-  SET_LIST-2)
-    #SET_LIST/LISTS
-    VALID=$(cat ${DATAD}/*/LV3/*[^_d] | awk -v val=${VALUE} -v col=${COLUMN} '$'"col"'==val{print $1}')
-    ;;
-esac
-  
+#######################################
+#Validation
+VALID=$(cat ${DATAD}/LV3/*[^_d] | awk -v gk=${GK} -v pk=${PK} -v val=${VALUE} '$1!=gk&&$'"pk"'==val{print $1}')
 [ -n "${VALID}" ] && echo "NG|Duplicated." || echo "OK|Not_Duplicate."
 
 #######################################

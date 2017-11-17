@@ -57,7 +57,7 @@ cat $tmp-value2 | awk '{print sprintf("GIVEN_NAME|LENGTH|%s,2,20",$1)}'   >> $tm
 
 #EMAIL
 cat $tmp-value3 | awk '{print sprintf("EMAIL|ISNULL|%s",$1)}'                   >> $tmp-validation  #必須入力
-cat $tmp-value3 | awk '{print sprintf("EMAIL|DUPLICATE|STUFF,USERS,4,%s",$1)}'  >> $tmp-validation  #重複確認
+cat $tmp-value3 | awk '{print sprintf("EMAIL|DUPLICATE|STUFF,USERS,"",4,%s",$1)}'  >> $tmp-validation  #重複確認
 
 #PASSWORD length <=8 
 cat $tmp-value4 | awk '{print sprintf("PASSWORD|ISNULL|%s",$1)}'          >> $tmp-validation  #必須入力

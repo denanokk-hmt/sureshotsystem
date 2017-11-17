@@ -47,13 +47,13 @@ nameread OPERATION_CATEGORY_NM_JP $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' >
 cat $tmp-pk-2 | awk '{print sprintf("OPERATION_CATEGORY_NM_EN|ISNULL|%s",$1)}'                                >> $tmp-validation  #必須入力
 cat $tmp-pk-2 | awk '{print sprintf("OPERATION_CATEGORY_NM_EN|LENGTH|%s,3,0",$1)}'                            >> $tmp-validation  #3文字以上
 cat $tmp-pk-2 | awk '{print sprintf("OPERATION_CATEGORY_NM_EN|ISEN_ISJP|EN,%s",$1)}'                          >> $tmp-validation  #英語のみ
-cat $tmp-pk-2 | awk '{print sprintf("OPERATION_CATEGORY_NM_EN|DUPLICATE|OPERATION_CATEGORY,LISTS,2,%s",$1)}'  >> $tmp-validation  #重複確認
+cat $tmp-pk-2 | awk -v gk=${NUM} '{print sprintf("OPERATION_CATEGORY_NM_EN|DUPLICATE|OPERATION_CATEGORY,LISTS,%s,2,%s",gk,$1)}'  >> $tmp-validation  #重複確認
 
 #OPERATION_CATEGORY_NM_JP
 cat $tmp-pk-3 | awk '{print sprintf("OPERATION_CATEGORY_NM_JP|ISNULL|%s",$1)}'                                >> $tmp-validation  #必須入力
 cat $tmp-pk-3 | awk '{print sprintf("OPERATION_CATEGORY_NM_JP|LENGTH|%s,3,0",$1)}'                            >> $tmp-validation  #3文字以上
 cat $tmp-pk-3 | awk '{print sprintf("OPERATION_CATEGORY_NM_JP|ISEN_ISJP|JP,%s",$1)}'                          >> $tmp-validation  #日本語
-cat $tmp-pk-3 | awk '{print sprintf("OPERATION_CATEGORY_NM_JP|DUPLICATE|OPERATION_CATEGORY,LISTS,3,%s",$1)}'  >> $tmp-validation  #重複確認
+cat $tmp-pk-3 | awk -v gk=${NUM} '{print sprintf("OPERATION_CATEGORY_NM_JP|DUPLICATE|OPERATION_CATEGORY,LISTS,%s,3,%s",gk,$1)}'  >> $tmp-validation  #重複確認
 
 ########################################
 #バリデーションを実行
