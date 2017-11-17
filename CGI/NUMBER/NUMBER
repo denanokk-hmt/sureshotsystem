@@ -1,4 +1,4 @@
-#!/bin/bash -vx
+#!/bin/bash
 #
 
 ########################################
@@ -44,11 +44,11 @@ CATEGORY=$(cat $tmp-category)
 LATEST_NUM=$(ls ${SYSD}/DATA/NUMBERS/${CATEGORY}/ORIGIN | sort -nr | head -n 1)
 START=$((LATEST_NUM + 1))
 END=$((START + 3))
-SEQ_STATUS=`${SYSD}/CGI/NUMBER_SEQ $1 ${CATEGORY} ${START} ${END} `
+SEQ_STATUS=`${SYSD}/CGI/NUMBER/NUMBER_SEQ $1 ${CATEGORY} ${START} ${END} `
 
 ########################################
 #新規カテゴリ番号を確定する
-NEW_NUM=`${SYSD}/CGI/NUMBERS $1 ${CATEGORY} `
+NEW_NUM=`${SYSD}/CGI/NUMBER/NUMBERS $1 ${CATEGORY} `
 echo ${NEW_NUM}
 
 ERROR_CHECK
