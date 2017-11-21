@@ -181,7 +181,7 @@
         validationErrMsgInit();
 
         $('#REST').val('POST');
-        var new_parts_name = $('#NEW_PARTS_NAME').val();
+        var new_parts_name = $('#PARTS_NAME_NEW').val();
         //var params = $('form').serialize();
         var jqXHR = $.ajax({
             type: 'POST',
@@ -263,13 +263,11 @@
                 PAGE_CATEGORY_NM: $('#CATEGORY_NM').val(),
                 PAGE_CATEGORY_NO: $('#CATEGORY_NO').val(),
                 EDIT_PARTS_NO: id,
-                EDIT_PARTS_CATEGORY_NO: $('#CATEGORY_NO_HID_' + id).val(),
-                EDIT_PARTS_CATEGORY_NX: $('#CATEGORY_NX_HID_' + id).val(),
-                EDIT_PARTS_CATEGORY_NAME: $('#CATEGORY_NM_HID_' + id).val(),
+                EDIT_CATEGORY_NO: $('#CATEGORY_NO_HID_' + id).val(),
+                EDIT_CATEGORY_NX: $('#CATEGORY_NX_HID_' + id).val(),
+                EDIT_CATEGORY_NM: $('#CATEGORY_NM_HID_' + id).val(),
                 EDIT_PARTS_NAME: $('#PARTS_NAME_' + id).val(),
-                EDIT_PARTS_NAME_JP: $('#PARTS_NAME_JP_' + id).val(),
                 EDIT_PARTS_PRICE:$('#PARTS_PRICE_' + id).val() ,
-                EDIT_PARTS_REMARKS: $('#PARTS_REMARKS_' + id).val()
             }
         });
         jqXHR.done(function(data) {
