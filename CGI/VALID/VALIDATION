@@ -58,7 +58,7 @@ done
 #######################################
 #バリデーションの結果と設定を結合してレポートを作成
 #項目名|バリデーション名|結果
- paste -d '|' $tmp-validation $tmp-validation-result | awk 'BEGIN{FS="|"}{OFS="|"}{print $1,$2,$4}' > $tmp-valid-report
+paste -d '|' $tmp-validation $tmp-validation-result | awk 'BEGIN{FS="|"}{OFS="|"}{print $1,$2,$4}' > $tmp-valid-report
 
 #EXAM
 #cat $tmp-validation >/tmp/tmp-v
@@ -66,6 +66,7 @@ done
 #cat $tmp-validation-result >/tmp/tmp-vresult
 
 #######################################
-#Return cookie words
+#ending
+echo "OK"
 exit 0
 
