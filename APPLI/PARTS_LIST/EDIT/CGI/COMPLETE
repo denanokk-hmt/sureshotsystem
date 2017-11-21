@@ -43,40 +43,71 @@ FIN
 
 #######################################
 #フォームの入力値を取得
-PAGE_CATEGORY_NM=$(nameread PAGE_CATEGORY_NM $tmp-post)             #フィルター:カテゴリ名
-PAGE_CATEGORY_NO=$(nameread CATEGORY_NO  $tmp-post)                 #フィルター:カテゴリNO
-NUM=$(nameread EDIT_PARTS_NO $tmp-post)                             #パーツ番号
-PARTS_NM_EN=$(nameread EDIT_PARTS_NAME $tmp-post)                   #パーツ名(EN)
-PARTS_PRICE=$(nameread EDIT_PARTS_PRICE $tmp-post)                  # プライス
-PARTS_CATEGORY_NO=$(nameread EDIT_PARTS_CATEGORY_NO $tmp-post)      #パーツカテゴリ番号
-PARTS_NM_JP=$(nameread EDIT_PARTS_NAME_JP $tmp-post)                #パーツ名(JP)
-PARTS_REMARKS=$(nameread EDIT_PARTS_REMARKS $tmp-post)              #備考
-PARTS_CATEGORY_NX=$(nameread EDIT_PARTS_CATEGORY_NX $tmp-post)      #パーツカテゴリ番号(変更前)
+nameread EDIT_CATEGORY_NO     $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-category-no
+nameread EDIT_CATEGORY_NX     $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-category-nx
+nameread EDIT_CATEGORY_NM     $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-category-nm
+nameread EDIT_PARTS_NO    $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-1
+nameread EDIT_PARTS_NAME  $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-2-org
+nameread EDIT_PARTS_PRICE $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-3
 
 #######################################
-#&エスケープ
-PARTS_NM_EN=$(echo ${PARTS_NM_EN} | sed 's/\&/\\\\\\&/')
-PARTS_NM_JP=$(echo ${PARTS_NM_JP} | sed 's/\&/\\\\\\&/')
-PARTS_REMARKS=$(echo ${PARTS_REMARKS} | sed 's/\&/\\\\\\&/')
+#変数化
+NUM=$(cat $tmp-pk-1)
+CATEGORY_NO=$(cat $tmp-category-no)
+CATEGORY_NX=$(cat $tmp-category-nx)
+
+#######################################
+#「&」エスケープ
+cat $tmp-pk-2-org | sed 's/\&/\\\\\\&/' > $tmp-pk-2
 
 ########################################
-#重複確認
-cat ${DATAD}/${PARTS_CATEGORY_NO}/LV3/* | awk -v cat=${PARTS_CATEGORY_NO} -v nm=${PARTS_NM_EN} '$2==cat&&$4==nm{print $1}' > $tmp-valid1
-if [ -n "$(cat $tmp-valid1)" ] ; then
-    echo 2222 > $tmp-ajax-html
+#バリデーションを設定
+
+#CATEGORY_NM
+cat $tmp-category-no | awk '{print sprintf("CATEGORY_NM|ISNULL|%s",$1)}'                            >> $tmp-validation  #必須選択
+
+#PARTS_NAME_NEW
+cat $tmp-pk-2 | awk '{print sprintf("PARTS_NAME|ISNULL|%s",$1)}'                                >> $tmp-validation  #必須入力
+cat $tmp-pk-2 | awk '{print sprintf("PARTS_NAME|LENGTH|%s,3,0",$1)}'                            >> $tmp-validation  #3文字以上
+cat $tmp-pk-2 | awk -v gk=${NUM} '{print sprintf("PARTS_NAME|DUPLICATE|PARTS_LIST,LISTS/*,%s,2,%s",gk,$1)}'      >> $tmp-validation  #重複確認
+
+#PRICE
+cat $tmp-pk-3 | awk '{print sprintf("PARTS_PRICE|ISNULL|%s",$1)}'                               >> $tmp-validation  #必須入力
+
+########################################
+#バリデーションを実行
+result=`${SYSD}/CGI/VALID/VALIDATION $1`
+
+########################################
+#バリデーション結果
+if [ -n "$(grep "|NG" $tmp-valid-report)" ] ; then
+    #Validation NG
+    echo 'VALID_NG@' $(cat $tmp-valid-report) > $tmp-ajax-html
+    #echo 2222 > $tmp-ajax-html
     exit 0
 fi
 
+
 ########################################
-#既存データから作成日時取得、現在日時を更新日時とする
-ls ${DATAD}/${PARTS_CATEGORY_NX}/LV1/${NUM}_parts_* | cut -d'_' -f4 | sort -nk1,1 | head -n 1 > $tmp-create
-CREATE_DATE=$(cat $tmp-create)
+#作成日時、作成者、最終更新日時、更新者を取得
+#NX番号で取得すること
+result=`${SYSD}/CGI/DFS_INFO/CREATE_LASTUPDATE $1 ${DATAD}/$(cat $tmp-category-nx)/LV1 ${NUM}`
+CREATE_DATE=$(cat $tmp-create-dt)
+CREATE_USER=$(cat $tmp-create-user)
+LASTUPDATE_DT=$(cat $tmp-lastupdate-dt)
+LASTUPDATE_USER=$(cat $tmp-lastupdate-user)
+
+########################################
+#更新日時を設定
 UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 
 ########################################
 #更新者の取得
-CREATE_USER=$(cat ${DATAD}/${PARTS_CATEGORY_NX}/LV3/${NUM}* | awk '{print $8}')
 UPDATE_USER=$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
+
+########################################
+#パーツリスト格納用カテゴリDirを作成
+result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/PARTS_LIST/LISTS/${CATEGORY_NO} ${SYSD}/DATA/PARTS_LIST/LISTS/${CATEGORY_NO}`
 
 ########################################
 #該当のデータ操作をロック
@@ -85,40 +116,46 @@ LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
 [ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
 
 ########################################
-#入力値を一時ファイル化
-#parts_id	parts_nm_en	parts_nm_jp	price	remarks	create_date	update_date	create_user	update_user	del_flg
-echo ${NUM} ${PARTS_NM_EN} ${PARTS_NM_JP} ${PARTS_PRICE} ${PARTS_REMARKS} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} 0 > $tmp-parts
+#データ配置
 
 ########################################
-#データ格納
-
 #カテゴリを変更した場合
-#旧カテゴリのデータをdファイルにする
-#すでにdファイル化されているデータについては画面操作がないので範疇にいれない
-if [ "${PARTS_CATEGORY_NO}" != "${PARTS_CATEGORY_NX}" ]; then
-    #LV1の該当オペデータの最終更新日を取得
-    LAST_UPDATE=$(ls ${DATAD}/${PARTS_CATEGORY_NX}/LV3/${NUM}_parts_* | awk 'BEGIN{FS="/"}{print $NF}'| cut -d'_' -f3)
-    #LV1 dファイル追加
-    cp ${DATAD}/${PARTS_CATEGORY_NX}/LV1/${NUM}_parts_${LAST_UPDATE}* ${DATAD}/${PARTS_CATEGORY_NX}/LV1/${NUM}_parts_${UPDATE_DATE}_d
-    #LV2 dファイル化
-    mv ${DATAD}/${PARTS_CATEGORY_NX}/LV2/${NUM}_parts_* ${DATAD}/${PARTS_CATEGORY_NX}/LV2/${NUM}_parts_${LAST_UPDATE}_d   
-    #LV3 dファイル化
-    mv ${DATAD}/${PARTS_CATEGORY_NX}/LV3/${NUM}_parts_* ${DATAD}/${PARTS_CATEGORY_NX}/LV3/${NUM}_parts_${LAST_UPDATE}_d   
+#既存のカテゴリの該当オペをdファイル化
+if [ "${CATEGORY_NO}" != "${CATEGORY_NX}" ]; then
+  #LV1
+  cat $tmp-pk-1 > ${DATAD}/${CATEGORY_NX}/LV1/${NUM}_1_${UPDATE_USER}_${UPDATE_DATE}_d
+  cat $tmp-pk-2 > ${DATAD}/${CATEGORY_NX}/LV1/${NUM}_2_${UPDATE_USER}_${UPDATE_DATE}_d
+  cat $tmp-pk-3 > ${DATAD}/${CATEGORY_NX}/LV1/${NUM}_3_${UPDATE_USER}_${UPDATE_DATE}_d
+  #LV2  
+  rm -f ${DATAD}/${CATEGORY_NX}/LV2/${NUM}_*
+  cp -fp ${DATAD}/${CATEGORY_NX}/LV1/${NUM}_*_${UPDATE_DATE}_d ${DATAD}/${CATEGORY_NX}/LV2/
+  #LV3
+  rm -f ${DATAD}/${CATEGORY_NX}/LV3/${NUM}_*
+  for file in $(ls ${DATAD}/${CATEGORY_NX}/LV2/${NUM}_*_${UPDATE_DATE}_d | sort -t$'_' -nk1);
+  do
+    VALUE=$(echo $VALUE `cat $file`)
+  done
+  echo ${VALUE} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} \
+  > ${DATAD}/${CATEGORY_NX}/LV3/${NUM}_operation-list_${UPDATE_DATE}_d
 fi
 
 #LV1
-#原始データとして、ファイル追加のみを行う
-mv $tmp-parts ${DATAD}/${PARTS_CATEGORY_NO}/LV1/${NUM}_parts_${UPDATE_DATE}
+cat $tmp-pk-1 > ${DATAD}/${CATEGORY_NO}/LV1/${NUM}_1_${UPDATE_USER}_${UPDATE_DATE}
+cat $tmp-pk-2 > ${DATAD}/${CATEGORY_NO}/LV1/${NUM}_2_${UPDATE_USER}_${UPDATE_DATE}
+cat $tmp-pk-3 > ${DATAD}/${CATEGORY_NO}/LV1/${NUM}_3_${UPDATE_USER}_${UPDATE_DATE}
 
-#LV2を更新ファイルと入れ替え
-#削除フラグは除外-->dファイルとして扱う
-rm -f ${DATAD}/${PARTS_CATEGORY_NO}/LV2/${NUM}_parts_*
-cat ${DATAD}/${PARTS_CATEGORY_NO}/LV1/${NUM}_parts_${UPDATE_DATE} | awk '{$NF=""; print $0}' > ${DATAD}/${PARTS_CATEGORY_NO}/LV2/${NUM}_parts_${UPDATE_DATE}
+#LV2
+rm -f ${DATAD}/${CATEGORY_NO}/LV2/${NUM}_*
+cp -fp ${DATAD}/${CATEGORY_NO}/LV1/${NUM}_*_${UPDATE_DATE} ${DATAD}/${CATEGORY_NO}/LV2/
 
-#LV3:更新ファイルと入れ替え
-#LV2のコピー
-rm -f ${DATAD}/${PARTS_CATEGORY_NO}/LV3/${NUM}_parts_*
-cp -fp ${DATAD}/${PARTS_CATEGORY_NO}/LV2/${NUM}_parts_${UPDATE_DATE} ${DATAD}/${PARTS_CATEGORY_NO}/LV3/
+#LV3
+rm -f ${DATAD}/${CATEGORY_NO}/LV3/${NUM}_*
+for file in $(ls ${DATAD}/${CATEGORY_NO}/LV2/${NUM}_*_${UPDATE_DATE} | sort -t$'_' -nk1);
+do
+  VALUE=$(echo $VALUE `cat $file`)
+done
+echo ${VALUE} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} \
+> ${DATAD}/${CATEGORY_NO}/LV3/${NUM}_operation-list_${UPDATE_DATE}
 
 ########################################
 #正規データ配置

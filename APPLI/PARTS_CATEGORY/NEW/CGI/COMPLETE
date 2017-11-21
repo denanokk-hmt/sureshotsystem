@@ -35,23 +35,23 @@ FIN
 
 #######################################
 #フォームの入力値を取得
-nameread PARTS_CATEGORY_NM_EN_NEW $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value1
-nameread PARTS_CATEGORY_NM_JP_NEW $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value2
+nameread PARTS_CATEGORY_NM_EN_NEW $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-2
+nameread PARTS_CATEGORY_NM_JP_NEW $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-3
 
 ########################################
 #バリデーションを設定
 
 #PARTS_CATEGORY_NM_EN
-cat $tmp-value1 | awk '{print sprintf("PARTS_CATEGORY_NM_EN|ISNULL|%s",$1)}'                                >> $tmp-validation  #必須入力
-cat $tmp-value1 | awk '{print sprintf("PARTS_CATEGORY_NM_EN|LENGTH|%s,3,0",$1)}'                            >> $tmp-validation  #3文字以上
-cat $tmp-value1 | awk '{print sprintf("PARTS_CATEGORY_NM_EN|ISEN_ISJP|EN,%s",$1)}'                          >> $tmp-validation  #英語のみ
-cat $tmp-value1 | awk '{print sprintf("PARTS_CATEGORY_NM_EN|DUPLICATE|PARTS_CATEGORY,LISTS,2,%s",$1)}'  >> $tmp-validation  #重複確認
+cat $tmp-pk-2 | awk '{print sprintf("PARTS_CATEGORY_NM_EN|ISNULL|%s",$1)}'                                >> $tmp-validation  #必須入力
+cat $tmp-pk-2 | awk '{print sprintf("PARTS_CATEGORY_NM_EN|LENGTH|%s,3,0",$1)}'                            >> $tmp-validation  #3文字以上
+cat $tmp-pk-2 | awk '{print sprintf("PARTS_CATEGORY_NM_EN|ISEN_ISJP|EN,%s",$1)}'                          >> $tmp-validation  #英語のみ
+cat $tmp-pk-2 | awk '{print sprintf("PARTS_CATEGORY_NM_EN|DUPLICATE|PARTS_CATEGORY,LISTS,"",2,%s",$1)}'  >> $tmp-validation  #重複確認
 
 #PARTS_CATEGORY_NM_JP
-cat $tmp-value2 | awk '{print sprintf("PARTS_CATEGORY_NM_JP|ISNULL|%s",$1)}'                                >> $tmp-validation  #必須入力
-cat $tmp-value2 | awk '{print sprintf("PARTS_CATEGORY_NM_JP|LENGTH|%s,3,0",$1)}'                            >> $tmp-validation  #3文字以上
-cat $tmp-value2 | awk '{print sprintf("PARTS_CATEGORY_NM_JP|ISEN_ISJP|JP,%s",$1)}'                          >> $tmp-validation  #日本語
-cat $tmp-value2 | awk '{print sprintf("PARTS_CATEGORY_NM_JP|DUPLICATE|PARTS_CATEGORY,LISTS,3,%s",$1)}'  >> $tmp-validation  #重複確認
+cat $tmp-pk-3 | awk '{print sprintf("PARTS_CATEGORY_NM_JP|ISNULL|%s",$1)}'                                >> $tmp-validation  #必須入力
+cat $tmp-pk-3 | awk '{print sprintf("PARTS_CATEGORY_NM_JP|LENGTH|%s,3,0",$1)}'                            >> $tmp-validation  #3文字以上
+cat $tmp-pk-3 | awk '{print sprintf("PARTS_CATEGORY_NM_JP|ISEN_ISJP|JP,%s",$1)}'                          >> $tmp-validation  #日本語
+cat $tmp-pk-3 | awk '{print sprintf("PARTS_CATEGORY_NM_JP|DUPLICATE|PARTS_CATEGORY,LISTS,"",3,%s",$1)}'  >> $tmp-validation  #重複確認
 
 ########################################
 #バリデーションを実行
@@ -66,31 +66,10 @@ if [ -n "$(grep "|NG" $tmp-valid-report)" ] ; then
     exit 0
 fi
 
-
-########################################
-#カテゴリディレクトリを作成する
-result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${DATAD} ${DATAD}`
-
-#パーツディレクトリを作成する
-result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/PARTS_LIST/LISTS ${SYSD}/DATA/PARTS_LIST/LISTS`
-
-########################################
-#カテゴリ番号の次のロットを追加する
-LATEST_NUM=$(ls ${SYSD}/DATA/NUMBERS/${CATEGORY}/ORIGIN | sort -nr | head -n 1)
-START=$((LATEST_NUM + 1))
-END=$((START + 3))
-SEQ_STATUS=`${SYSD}/CGI/NUMBER_SEQ $1 ${CATEGORY} ${START} ${END} `
-[[ ${SEQ_STATUS} != 'SUCCESS' ]] && exit 0
-
 ########################################
 #新規カテゴリ番号を確定する
-NEW_NUM=`${SYSD}/CGI/NUMBERS $1 'PARTS_CATEGORY' `
-[ ${NEW_NUM} = 'ERROR' ] && exit 0 || :
-
-#######################################
-#フォームの入力値を取得
-PARTS_CATEGORY_NM_EN=$(cat $tmp-value1)
-PARTS_CATEGORY_NM_JP=$(cat $tmp-value2)
+NEW_NUM=$(${SYSD}/CGI/NUMBER/NUMBER $1)
+echo ${NEW_NUM} > $tmp-pk-1
 
 ########################################
 #日付を設定
@@ -103,33 +82,40 @@ CREATE_USER=$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
 UPDATE_USER=${CREATE_USER}
 
 ########################################
-#入力値を一時ファイル化
-#parts_category_id	parts_category_nm_en	parts_category_nm_jp  create_date	update_date	create_user	update_user	del_flg
-echo ${NEW_NUM} ${PARTS_CATEGORY_NM_EN} ${PARTS_CATEGORY_NM_JP} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} 0 > $tmp-parts-category
+#カテゴリディレクトリを作成する
+result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${DATAD} ${DATAD}`
 
 ########################################
-#データ格納
-#LV1
-#LV1:原始データとして、ファイル追加のみを行う
-mv $tmp-parts-category ${DATAD}/LV1/${NEW_NUM}_parts_category_${CREATE_DATE}
-
-#LV2
-#削除フラグは除外-->dファイルとして扱う
-cat ${DATAD}/LV1/${NEW_NUM}_parts_category_${CREATE_DATE} | awk '{$NF=""; print $0}' > ${DATAD}/LV2/${NEW_NUM}_parts_category_${CREATE_DATE}
-
-#LV3
-#LV2のコピー
-cp -p ${DATAD}/LV2/${NEW_NUM}_parts_category_${CREATE_DATE} ${DATAD}/LV3/${NEW_NUM}_parts_category_${CREATE_DATE}
+#パーツディレクトリを作成する
+result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/PARTS_LIST/LISTS ${SYSD}/DATA/PARTS_LIST/LISTS`
 
 ########################################
 #パーツ格納用カテゴリDirを作成
 result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/PARTS_LIST/LISTS/${NEW_NUM} ${SYSD}/DATA/PARTS_LIST/LISTS/${NEW_NUM}`
 
 ########################################
+#データ配置
+#LV1
+cat $tmp-pk-1 > ${DATAD}/LV1/${NEW_NUM}_1_${CREATE_USER}_${CREATE_DATE}
+cat $tmp-pk-2 > ${DATAD}/LV1/${NEW_NUM}_2_${CREATE_USER}_${CREATE_DATE}
+cat $tmp-pk-3 > ${DATAD}/LV1/${NEW_NUM}_3_${CREATE_USER}_${CREATE_DATE}
+
+#LV2
+cp -fp ${DATAD}/LV1/${NEW_NUM}_* ${DATAD}/LV2/
+
+#LV3
+for file in $(ls ${DATAD}/LV2/${NEW_NUM}_* | sort -t$'_' -nk1);
+do
+  VALUE=$(echo $VALUE `cat $file`)
+done
+echo ${VALUE} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} \
+> ${DATAD}/LV3/${NEW_NUM}_parts-category_${CREATE_DATE}
+
+########################################
 #Get records
-cat ${SYSD}/DATA/${CATEGORY}/LISTS/LV3/*[^_d]       |
-LANG=C sort -nk1,1                                  |
-juni                                                > $tmp-records
+cat ${DATAD}/LV3/*[^_d]       |
+LANG=C sort -nk1,1            |
+juni                          > $tmp-records
 # 1;カテゴリ番号 2;カテゴリ名
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/RECORDS.HTML $tmp-records > $tmp-table-records
 

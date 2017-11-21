@@ -43,31 +43,37 @@ FIN
 
 #######################################
 #フォームの入力値を取得
-NUM=$(nameread DELETE_PARTS_NO $tmp-post)
-CATE_NO=$(nameread DELETE_CATEGORY_NX $tmp-post)         #パーツカテゴリ番号(変更前)
+nameread DELETE_CATEGORY_NO     $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-category-no
+nameread DELETE_CATEGORY_NX     $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-category-nx
+nameread DELETE_CATEGORY_NM     $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-category-nm
+nameread DELETE_PARTS_NO    $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-1
+nameread DELETE_PARTS_NAME  $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-2-org
+nameread DELETE_PARTS_PRICE $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-3
 
-########################################
-#存在確認
-cat ${DATAD}/${CATE_NO}/LV3/${NUM}_*[^_d] | awk '{print}' > $tmp-valid1
-if [ -z "$(cat $tmp-valid1)" ] ; then
-    echo 2222 > $tmp-ajax-html
-    exit 0
-fi
+NUM=$(cat $tmp-pk-1)
+CATEGORY_NX=$(cat $tmp-category-nx)
 
 #######################################
-#既存データから作成日時取得、現在日時を更新日時とする
-ls ${DATAD}/${CATE_NO}/LV1/${NUM}_parts_* | cut -d'_' -f4 | sort -nk1,1 | head -n 1 > $tmp-create
-CREATE_DATE=$(cat $tmp-create)
+#「&」エスケープ
+cat $tmp-pk-2-org | sed 's/\&/\\\\\\&/' > $tmp-pk-2
+
+
+########################################
+#作成日時、作成者、最終更新日時、更新者を取得
+#NX番号で取得すること
+result=`${SYSD}/CGI/DFS_INFO/CREATE_LASTUPDATE $1 ${DATAD}/$(cat $tmp-category-nx)/LV1 ${NUM}`
+CREATE_DATE=$(cat $tmp-create-dt)
+CREATE_USER=$(cat $tmp-create-user)
+LASTUPDATE_DT=$(cat $tmp-lastupdate-dt)
+LASTUPDATE_USER=$(cat $tmp-lastupdate-user)
+
+########################################
+#更新日時を設定
 UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 
 ########################################
 #更新者の取得
-CREATE_USER=$(cat ${DATAD}/${CATE_NO}/LV3/${NUM}* | awk '{print $8}')
 UPDATE_USER=$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
-
-########################################
-#最終更新日時
-LAST_UPDATE=$(ls ${DATAD}/${CATE_NO}/LV3/${NUM}* | awk 'BEGIN{FS="/"}{print $NF}' | cut -d'_' -f3)
 
 ########################################
 #該当のデータ操作をロック
@@ -75,24 +81,27 @@ LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'PARTS_LIST' ${NUM}`
 LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
 [ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
 
-#########################################
-#一時ファイル化
-#parts_id	parts_nm_en	parts_nm_jp	price	remarks	create_date	update_date	create_user	update_user	del_flg
-cat ${DATAD}/${CATE_NO}/LV1/${NUM}_parts_${LAST_UPDATE} |
-awk -v ud=${UPDATE_DATE} '{print $1, $2, $3, $4, $5, $6, $7, $8, ud, "1"}' > $tmp-parts
-
 ########################################
-#データ格納
-#LV1:原始データとして、ファイル追加のみを行う
-$(mv $tmp-parts ${DATAD}/${CATE_NO}/LV1/${NUM}_parts_${UPDATE_DATE})
+#データ配置
 
-#LV2
-#ファイル名の末尾に_dを付ける
-mv ${DATAD}/${CATE_NO}/LV2/${NUM}_parts_${LAST_UPDATE} ${DATAD}/${CATE_NO}/LV2/${NUM}_parts_${LAST_UPDATE}_d
+#LV1
+cat $tmp-pk-1 > ${DATAD}/${CATEGORY_NX}/LV1/${NUM}_1_${UPDATE_USER}_${UPDATE_DATE}_d
+cat $tmp-pk-2 > ${DATAD}/${CATEGORY_NX}/LV1/${NUM}_2_${UPDATE_USER}_${UPDATE_DATE}_d
+cat $tmp-pk-3 > ${DATAD}/${CATEGORY_NX}/LV1/${NUM}_3_${UPDATE_USER}_${UPDATE_DATE}_d
+
+#LV2  
+rm -f ${DATAD}/${CATEGORY_NX}/LV2/${NUM}_*
+cp -fp ${DATAD}/${CATEGORY_NX}/LV1/${NUM}_*_${UPDATE_DATE}_d ${DATAD}/${CATEGORY_NX}/LV2/
 
 #LV3
-#ファイル名の末尾に_dを付ける
-mv ${DATAD}/${CATE_NO}/LV3/${NUM}_parts_${LAST_UPDATE} ${DATAD}/${CATE_NO}/LV3/${NUM}_parts_${LAST_UPDATE}_d
+rm -f ${DATAD}/${CATEGORY_NX}/LV3/${NUM}_*
+for file in $(ls ${DATAD}/${CATEGORY_NX}/LV2/${NUM}_*_${UPDATE_DATE}_d | sort -t$'_' -nk1);
+do
+  VALUE=$(echo $VALUE `cat $file`)
+done
+echo ${VALUE} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} \
+> ${DATAD}/${CATEGORY_NX}/LV3/${NUM}_operation-list_${UPDATE_DATE}_d
+
 
 ########################################
 #正規データ配置
