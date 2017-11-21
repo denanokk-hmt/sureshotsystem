@@ -83,7 +83,7 @@ mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/${ACTION}.HTML $tmp-re
 ########################################
 #Set pager
 RECORDS=$( ls ${SYSD}/DATA/${CATEGORY}/${FUNC}/LV3/*[^_d] | wc -l )
-RESULT=`${SYSD}/CGI/PAGER $1 /APP/${CATEGORY}/${FUNC}/${ACTION} ${SHOW_PAGE} ${RECORDS} ${VIEW_MAX_RECORDS} ${VIEW_MAX_PAGES}`
+RESULT=`${SYSD}/CGI/PAGINATION/PAGER $1 /APP/${CATEGORY}/${FUNC}/${ACTION} ${SHOW_PAGE} ${RECORDS} ${VIEW_MAX_RECORDS} ${VIEW_MAX_PAGES}`
 
 ########################################
 #Making viweing body HTML filw path

@@ -104,7 +104,7 @@ if [ "${PAGE_CATEGORY_NO}" -gt 0 ] ; then
 else
     RECORDS=$( ls ${DATAD}/*/LV3/*_setlist_base_*[^_d] | wc -l )
 fi
-RESULT=`${SYSD}/CGI/PAGER $1 "/APP/SET_LIST/LISTS/SHOW" ${SHOW_PAGE} ${RECORDS} ${VIEW_MAX_RECORDS} ${VIEW_MAX_PAGES} "&category=${PAGE_CATEGORY}" "&category-no=${PAGE_CATEGORY_NO}"`
+RESULT=`${SYSD}/CGI/PAGINATION/PAGER $1 "/APP/SET_LIST/LISTS/SHOW" ${SHOW_PAGE} ${RECORDS} ${VIEW_MAX_RECORDS} ${VIEW_MAX_PAGES} "&category=${PAGE_CATEGORY}" "&category-no=${PAGE_CATEGORY_NO}"`
 
 ########################################
 #セットカテゴリを取得
