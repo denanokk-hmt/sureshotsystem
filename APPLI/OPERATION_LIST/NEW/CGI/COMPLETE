@@ -186,7 +186,7 @@ CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-operation-category-new`
 
 #######################################
 #ページャーを設定
-START_END=`${SYSD}/APPLI/${CATEGORY}/LISTS/CGI/PAGER $1 ${PAGE} ${SEARCH} ${PAGE_CATEGORY_NM} ${PAGE_CATEGORY_NO}`
+START_END=`${SYSD}/APPLI/${CATEGORY}/LISTS/CGI/PAGINATION/PAGER $1 ${PAGE} ${SEARCH} ${PAGE_CATEGORY_NM} ${PAGE_CATEGORY_NO}`
 
 #######################################
 #表示するレコードの開始と終了

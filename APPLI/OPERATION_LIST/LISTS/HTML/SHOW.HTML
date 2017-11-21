@@ -59,7 +59,7 @@
                     <!--Search Submit button-->
                     <div class="btn-group">
                         <button id="Search" type="submit" class="btn btn-info" />
-                            <span class="glyphicon glyphicon-eye-open">Search</span>
+                            <span class="glyphicon glyphicon-eye-open"></span>
                         </button>
                     </div>
                 </div>
@@ -259,7 +259,6 @@
             data: {
                 ACTION: 'COMPLETE',
                 REST: 'PUT',
-                
                 PAGE_CATEGORY_NM: $('#CATEGORY_NM_HID_PAGE').val(),
                 PAGE_CATEGORY_NO: $('#CATEGORY_NO_HID_PAGE').val(),
                 EDIT_CATEGORY_NM: $('#CATEGORY_NM_HID_' + id).val(),
@@ -314,7 +313,6 @@
             data: {
                 ACTION: 'COMPLETE',
                 REST: 'DELETE',
-                DELETE_CATEGORY_NX: $('#CATEGORY_NX_HID_' + id).val(),
                 DELETE_CATEGORY_NM: $('#CATEGORY_NM_HID_' + id).val(),
                 DELETE_CATEGORY_NO: $('#CATEGORY_NO_HID_' + id).val(),
                 DELETE_CATEGORY_NX: $('#CATEGORY_NX_HID_' + id).val(),

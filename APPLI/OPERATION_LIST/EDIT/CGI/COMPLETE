@@ -50,8 +50,11 @@ nameread EDIT_OPERATION_NO    $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tm
 nameread EDIT_OPERATION_NAME  $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-2-org
 nameread EDIT_OPERATION_PRICE $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-3
 
+#######################################
+#変数化
 NUM=$(cat $tmp-pk-1)
 CATEGORY_NO=$(cat $tmp-category-no)
+CATEGORY_NX=$(cat $tmp-category-nx)
 
 #######################################
 #「&」エスケープ
@@ -74,7 +77,7 @@ cat $tmp-pk-3 | awk '{print sprintf("OPERATION_PRICE|ISNULL|%s",$1)}'           
 ########################################
 #バリデーションを実行
 result=`${SYSD}/CGI/VALID/VALIDATION $1`
-exit 0
+
 ########################################
 #バリデーション結果
 if [ -n "$(grep "|NG" $tmp-valid-report)" ] ; then
@@ -83,6 +86,7 @@ if [ -n "$(grep "|NG" $tmp-valid-report)" ] ; then
     #echo 2222 > $tmp-ajax-html
     exit 0
 fi
+
 
 ########################################
 #作成日時、作成者、最終更新日時、更新者を取得
@@ -102,6 +106,10 @@ UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 UPDATE_USER=$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
 
 ########################################
+#オペリスト格納用カテゴリDirを作成
+result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/OPERATION_LIST/LISTS/${CATEGORY_NO} ${SYSD}/DATA/OPERATION_LIST/LISTS/${CATEGORY_NO}`
+
+########################################
 #該当のデータ操作をロック
 LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'OPERATION_LIST' ${NUM}`
 LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
@@ -113,7 +121,7 @@ LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
 ########################################
 #カテゴリを変更した場合
 #既存のカテゴリの該当オペをdファイル化
-if [ "$(cat $tmp-category-no)" != "$(cat $tmp-category-nx)" ]; then
+if [ "${CATEGORY_NO}" != "${CATEGORY_NX}" ]; then
   #LV1
   cat $tmp-pk-1 > ${DATAD}/${CATEGORY_NX}/LV1/${NUM}_1_${UPDATE_USER}_${UPDATE_DATE}_d
   cat $tmp-pk-2 > ${DATAD}/${CATEGORY_NX}/LV1/${NUM}_2_${UPDATE_USER}_${UPDATE_DATE}_d
