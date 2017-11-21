@@ -1,31 +1,32 @@
 <!--OPERATION CATEGORY Records-->
 
 <!--RECORDS-->
-    <tr id="edit-row-%2">
-        <td>%1</td>
-        <td>
-            <span class="label label-default">%2</span>
-        </td>
-        <td>
-            <input type="text" 
-                    name="OPERATION_CATEGORY_NM_EN_%2" 
-                    id="OPERATION_CATEGORY_NM_EN_%2" value="%3" 
-                    class="form-control" 
-                    placeholder="作業カテゴリ名(英語)" />
-        </td>
-        <td>
-            <input type="text" 
-                    name="OPERATION_CATEGORY_NM_JP_%2" 
-                    id="OPERATION_CATEGORY_NM_JP_%2" value="%4" 
-                    class="form-control" 
-                    placeholder="作業カテゴリ名(日本語)" />
-        </td>
-        <td>
-            <a class="btn btn-warning" id="OPERATION_CATEGORY_EDIT_%2" onclick="editOperationCategory(%2); return false;" >EDIT</a>
-        </td>
-        <td>
-            <a class="btn btn-danger" id="OPERATION_CATEGORY_DELETE_%2" onclick="deleteOperationCategory(%2);" >DELETE</a>
-        </td>
-    </tr>
+    <div class="row" id="row edit-row-%2" style="margin-bottom:0px;">
+        <div class="border10"></div>
+            <div class="col-md-1 col-sm-1 hidden-xs row-0">
+                <span class="label label-default">%1</span>
+            </div>
+            <div class="col-md-1 col-sm-1 row-0">
+                <span class="label label-default">%2</span>
+            </div>
+            <div class="col-md-3 col-sm-3 row-0">
+                <input type="text" 
+                        name="OPERATION_CATEGORY_NM_EN_%2" 
+                        id="OPERATION_CATEGORY_NM_EN_%2" value="%3" 
+                        class="form-control" 
+                        placeholder="作業カテゴリ名(英語)" />
+            </div>
+            <div class="col-md-3 col-sm-3 row-0">
+                <input type="text" 
+                        name="OPERATION_CATEGORY_NM_JP_%2" 
+                        id="OPERATION_CATEGORY_NM_JP_%2" value="%4" 
+                        class="form-control" 
+                        placeholder="作業カテゴリ名(日本語)" />
+            </div> 
+            <div class="col-md-3 col-sm-3 row-0">
+                <a class="btn btn-warning" id="OPERATION_CATEGORY_EDIT_%2" onclick="editOperationCategory(%2); return false;" >EDIT</a>
+                <a class="btn btn-danger" id="OPERATION_CATEGORY_DELETE_%2" onclick="deleteOperationCategory(%2);" >DELETE</a>
+            </div> 
+    </div>
 <!--RECORDS-->
 

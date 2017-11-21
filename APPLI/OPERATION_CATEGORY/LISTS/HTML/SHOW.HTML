@@ -54,7 +54,7 @@
         <form class="form-horizontal" action="" method="">
             <input type="hidden" id="ACTION" name="ACTION" value="COMPLETE" >
             <input type="hidden" id="REST" name="REST" value="" >
-            <div class="contents-table">
+            <div id="data" class="contents-table">
                 ###TABLE###
             </div>
         </form>
@@ -133,7 +133,7 @@
                     alert("新規登録処理に失敗しました。");
                 }
             } else {
-                $('table').html(data);
+                $('#data').html(data);
                 $('#info-msg').html(new_category_nm_en + "を追加しました。");
                 alert(new_category_nm_en + "を追加しました。");
             }

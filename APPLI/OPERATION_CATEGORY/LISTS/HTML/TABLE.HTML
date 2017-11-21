@@ -1,38 +1,53 @@
-<table class="table">
-    <thead>
-        <tr>
-            <th>#</th>
-            <th>CATEGORY NO</th>
-            <th>CATEGORY NAME(EN)</th>
-            <th>CATEGORY NAME(JP)</th>
-            <th></th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>-</td>
-            <td>
+        <!--Column-->
+        <div class="row b-font">
+            <div class="col-md-1 col-sm-1 hidden-xs row-0">
+                <span class="">#</span>
+            </div>
+            <div class="col-md-1 col-sm-1 row-0">
+                <span class="">No</span>
+            </div>
+            <div class="col-md-3 col-sm-3 row-0">
+                <span class="">Catgegory Name (En)</span>
+            </div>
+            <div class="col-md-3 col-sm-3 row-0">
+                <span class="">Operation Name (Jp)</span>
+            </div>
+            <div class="col-md-1 col-sm-1 row-0">
+                <span class="">Action</span>
+            </div>
+            <div class="col-md-1 col-sm-1 row-0">
+                <span class="">Action</span>
+            </div>
+        </div>
+        <div class="border15"></div>
+
+        <!--New-->
+        <div class="row">
+            <div class="col-md-1 col-sm-1 hidden-xs row-0">
+                <span class="label label-default">-</span>
+            </div>
+            <div class="col-md-1 col-sm-1 row-0">
                 <span class="label label-default">NEW</span>
-            </td>
-            <td>
+            </div>
+            <div class="col-md-3 col-sm-3 row-0">
                 <input type="text" 
                         id="OPERATION_CATEGORY_NM_EN_NEW" 
                         name="OPERATION_CATEGORY_NM_EN_NEW" value="" 
                         class="form-control" 
                         placeholder="作業カテゴリ名(英語)" >
-            </td>
-            <td>
+            </div>
+            <div class="col-md-3 col-sm-3 row-0">
                 <input type="text" 
                         id="OPERATION_CATEGORY_NM_JP_NEW" 
                         name="OPERATION_CATEGORY_NM_JP_NEW" value="" 
                         class="form-control" 
                         placeholder="作業カテゴリ名(日本語)" />
-            </td>
-            <td>
+            </div> 
+            <div class="col-md-1 col-sm-1 row-0">
                 <a class="btn btn-primary" onclick="newOperationCategory(); return false;">NEW</a>
-            </td>
-        </tr>
+            </div> 
+            <div class="col-md-1 col-sm-1 row-0">
+            </div> 
+        </div>
+        <br> 
         ###TABLE_RECORDS###
-    </tbody>
-</table>
