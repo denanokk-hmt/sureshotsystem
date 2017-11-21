@@ -180,12 +180,8 @@ body {
     margin-left:0px;
     margin-right:0px;
     margin-bottom:0px;
- 
-    > div{
-        padding-right:0px;
-        padding-left:0px;
-    }
-}
+    padding:0px;
+  }
 .row-10{
     margin-left:-5px;
     margin-right:-5px;
@@ -247,6 +243,28 @@ word-wrap: break-word;
 table-layout: auto;
 }
 }
+
+/* 基本フォント
+————————————————– */
+.b-font {
+  font-family: 'Lato', Calibri, Arial, sans-serif;
+  color: #47a3da;
+}
+
+/* 線引
+————————————————– */
+.border15 {
+    border-bottom: 1.5px solid rgba(0,0,0,0.1);
+    box-shadow: 0 1px 0 rgba(255,255,255,1);
+    margin-bottom:10px;
+}
+.border10 {
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    box-shadow: 0 1px 0 rgba(255,255,255,0.5);
+    margin-top:5px;
+    margin-bottom:5px;
+}
+
 
 /* end
 ————————————————– */

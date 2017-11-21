@@ -1,34 +1,58 @@
 <!--<!DOCTYPE html>-->
 <!--<html>-->
-
-<div class="container">
+<div id="whole" class="container fade-in" style="opacity:0">
     
-    <div class="fixed">
-
-        <!--Header Info-->
-        <div class="row">
-            <label class="control-label col-sm-1">
-                <h3><i class="glyphicon glyphicon-info-sign"></i></h3>
-            </label>
-            <div class="col-sm-6 lbl-header-info">
-                <span id="info-msg" class="label label-lg label-###INFO_LV###">
-                    ###INFO_MSG###
-                </span>
+    <!--Header Info-->
+    <div class="col-md-1 col-xs-1" >
+        <i class="glyphicon glyphicon-info-sign"></i>
+    </div>
+ 
+    <!--Header Info-->
+    <div class="col-md10 lbl-header-info">
+        <span id="info-msg" class="label label-lg label-###INFO_LV###">
+            ###INFO_MSG###
+        </span>
+    </div>
+    <!--ERROR MESSAGE-->
+    <div class="row">
+        <div class="col-md-10 lbl-header-info">
+            <div>
+                <span id="SET_CATEGORY_NM_EN_ISNULL_MSG" class="fade-in label label-danger ###SET_CATEGORY_NM_EN_ISNULL###">カテゴリ名(英語)に、値がありません。</span>
+            </div>
+            <div>
+                <span id="SET_CATEGORY_NM_EN_LENGTH_MSG" class="fade-in label label-danger ###SET_CATEGORY_NM_EN_LENGTH###">カテゴリ名(英語)は、3文字以上必要です。</span>
+            </div>
+            <div>
+                <span id="SET_CATEGORY_NM_EN_ISEN_ISJP_MSG" class="fade-in label label-danger ###SET_CATEGORY_NM_EN_ISEN_ISJP###">カテゴリ名(英語)に、英数字以外が入力されています。</span>
+            </div>
+            <div>
+                <span id="SET_CATEGORY_NM_EN_DUPLICATE_MSG" class="fade-in label label-danger ###SET_CATEGORY_NM_EN_DUPLICATE###">カテゴリ名(英語)は、既に使用されています。</span>
+            </div>
+            <div>
+                <span id="SET_CATEGORY_NM_JP_ISNULL_MSG" class="fade-in label label-danger ###SET_CATEGORY_NM_JP_ISNULL###">カテゴリ名(日本語)に、値がありません。</span>
+            </div>
+            <div>
+                <span id="SET_CATEGORY_NM_JP_LENGTH_MSG" class="fade-in label label-danger ###SET_CATEGORY_NM_JP_LENGTH###">カテゴリ名(日本語)、3文字以上必要です。</span>
+            </div>
+            <div>
+                <span id="SET_CATEGORY_NM_JP_ISEN_ISJP_MSG" class="fade-in label label-danger ###SET_CATEGORY_NM_JP_ISEN_ISJP###">カテゴリ名(日本語)に、日本語が入力されていません。</span>
+            </div>
+            <div>
+                <span id="SET_CATEGORY_NM_JP_DUPLICATE_MSG" class="fade-in label label-danger ###SET_CATEGORY_NM_JP_DUPLICATE###">カテゴリ名(日本語)は、既に使用されています。</span>
             </div>
         </div>
-
-        <!--Search-->
-        <!--
-
-        -->
     </div>
+    <br>
 
-    <!--Spacer-->
+    <!--Spacer
     <div class="header-dummy" style="height:7.0em; background-color:piiiiink;"></div>
+    -->
 
     <!--Contents-->
     <div class="header-under-contents">
-        <form class="form-horizontal" action="/APP/SET_CATEGORY/LISTS/SHOW" method="GET">
+        <form class="form-horizontal" action="" method="">
+            <input type="hidden" id="ACTION" name="ACTION" value="COMPLETE" >
+            <input type="hidden" id="REST" name="REST" value="" >
             <div class="contents-table">
                 ###TABLE###
             </div>
@@ -39,9 +63,52 @@
 
 <script>
 
+    //Validation Err MSGのOpacityを初期化
+    $(document).ready(function(){
+        validationErrMsgInit();
+    });
+
+    //ロード時に全画面をフェードイン
+    $(window).on('load',function(){
+        $('#whole').css("opacity","1");
+    });
+
+    //バリデーションエラーMSGの初期化
+    function validationErrMsgInit() {
+
+        //バリデーションエラー表示をクリア
+        $('input[type=text]').removeClass("label-danger");
+        $('.lbl-header-info .label').removeClass("show");
+        $('.lbl-header-info .label').addClass("hidden");
+        $('#info-msg').html("");
+
+        //バリデーションエラーMSGをフェードアウト
+        fadeInOut(0);
+   }
+
+    /*バリデーションエラーMSGをフェードアウト
+    *   引数 inout
+    *   フェードイン:1
+    *   フェードアウト:0
+    */
+    function fadeInOut(inout) {
+        $('.fade-in').not('#whole').each(function(){
+            $(this).css("opacity",inout );
+        });
+    }
+
+    //
+    $('.btn').on('click', function() {
+    });
+
     //カテゴリ名新規追加
     function newSetCategory() {
-        var new_category_name = $('#NEW_SET_CATEGORY_NAME').val();
+
+        //バリデーションエラーMSG初期化
+        validationErrMsgInit();
+
+        //新規登録処理
+        var new_category_nm_en = $('#SET_CATEGORY_NM_EN_NEW').val(); //MSG用
         var params = $('form').serialize();
         var jqXHR = $.ajax({
             type: 'POST',
