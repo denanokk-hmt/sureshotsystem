@@ -34,7 +34,7 @@ FIN
 }
 
 ########################################
-#パーツカテゴリ更新中は、処理をさせない
+#部品カテゴリ更新中は、処理をさせない
 #ls ${SYSD}/LOCK/PARTS_CATEGORY/* > $tmp-checker 2> /dev/null
 #if [ -n cat $tmp-checker ] ; then
 #    echo "333" > $tmp-ajax-html
@@ -107,19 +107,19 @@ CREATE_USER=$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
 UPDATE_USER=${CREATE_USER}
 
 ########################################
-#パーツリストディレクトリを作成する
+#部品リストディレクトリを作成する
 result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/PARTS_LIST/LISTS ${SYSD}/DATA/PARTS_LIST/LISTS`
 
 ########################################
-#パーツリスト格納用カテゴリDirを作成
+#部品リスト格納用カテゴリDirを作成
 result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/PARTS_LIST/LISTS/${CATEGORY_NO} ${SYSD}/DATA/PARTS_LIST/LISTS/${CATEGORY_NO}`
 
 ########################################
-#パーツディテールディレクトリを作成する
+#部品ディテールディレクトリを作成する
 result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/PARTS_DETAIL/LISTS ${SYSD}/DATA/PARTS_DETAIL/LISTS`
 
 ########################################
-#パーツディテール格納用カテゴリDirを作成
+#部品ディテール格納用カテゴリDirを作成
 result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/PARTS_DETAIL/LISTS/${CATEGORY_NO} ${SYSD}/DATA/PARTS_DETAIL/LISTS/${CATEGORY_NO}`
 
 ########################################
@@ -142,45 +142,45 @@ echo ${VALUE} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} \
 
 ########################################
 #正規データ配置
-#なにがしかのカテゴリNoの下にあるLV3データをかき集め、ファイルパスからカテゴリNoを、ファイルデータからパーツ番号を
+#なにがしかのカテゴリNoの下にあるLV3データをかき集め、ファイルパスからカテゴリNoを、ファイルデータから部品番号を
 #紐付けたマップを作成
 ls ${SYSD}/DATA/PARTS_LIST/LISTS/*/LV3/*[^_d] | awk '{split($0,ary,"/"); print ary[7], ary[9]}' | cut -d'_' -f1 | LANG=C sort -k1 > $tmp-cate-list-map
 
-#パーツカテゴリ一覧
+#部品カテゴリ一覧
 cat ${SYSD}/DATA/PARTS_CATEGORY/LISTS/LV3/*[^_d] | awk '{print $1,$2}' | LANG=C sort -k1 > $tmp-cate-all
 
-#パーツ一覧
+#部品一覧
 cat ${SYSD}/DATA/PARTS_LIST/LISTS/*/LV3/*[^_d] | LANG=C sort -k1 > $tmp-parts-all
 
 #JOIN
 #マップとカテゴリ
 LANG=C join -1 1 -2 1 $tmp-cate-list-map $tmp-cate-all | LANG=C sort -k2 > $tmp-parts-category
 
-#カテゴリとパーツ一覧
+#カテゴリと部品一覧
 LANG=C join -1 2 -2 1 $tmp-parts-category $tmp-parts-all > $tmp-parts-list
 
-#カテゴリ情報とマッピングしたパーツ一覧をLISTS/LV3へ配置
+#カテゴリ情報とマッピングした部品一覧をLISTS/LV3へ配置
 rm -f ${SYSD}/DATA/PARTS_LIST/LISTS/LV3/parts_*
 mv $tmp-parts-list ${SYSD}/DATA/PARTS_LIST/LISTS/LV3/parts_${CREATE_DATE}
 
 
 ########################################
-#パーツカテゴリを取得
+#部品カテゴリを取得
 cat ${SYSD}/DATA/PARTS_CATEGORY/LISTS/LV3/*[^_d]    |
 LANG=C sort -nk1,1                                  > $tmp-parts-category
 
 ########################################
-#Page絞り込み用のパーツカテゴリ
+#Page絞り込み用の部品カテゴリ
 # 1;カテゴリ番号 2;カテゴリ名
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_PAGE.HTML $tmp-parts-category > $tmp-parts-category-page
 
 ########################################
-#登録済パーツ用のパーツカテゴリ
+#登録済部品用の部品カテゴリ
 # 1;カテゴリ番号 2;カテゴリ名
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_LIST.HTML $tmp-parts-category > $tmp-parts-category-list
 
 ########################################
-#新規登録パーツ用のパーツカテゴリ
+#新規登録部品用の部品カテゴリ
 # 1;カテゴリ番号 2;カテゴリ名
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_NEW.HTML $tmp-parts-category > $tmp-parts-category-new
 
@@ -199,7 +199,7 @@ START=$(cat $tmp-rec-start)
 END=$(cat $tmp-rec-end)
 
 ########################################
-#パーツリストを取得
+#部品リストを取得
 [ -z "${PAGE_CATEGORY_NO}" ] && ${PAGE_CATEGORY_NO}=0 || :
 if [ "${PAGE_CATEGORY_NO}" -gt 0 ] ; then
     cat ${DATAD}/LV3/*[^_d]                                 |
@@ -218,7 +218,7 @@ fi
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/RECORDS.HTML $tmp-records > $tmp-table-records
 
 ########################################
-#登録済レコードにパーツカテゴリリストを嵌め込む
+#登録済レコードに部品カテゴリリストを嵌め込む
 cat $tmp-table-records                                      |
 sed -e "s|###CATEGORY###|${CATEGORY_LIST}|g"                > $tmp-table
 
