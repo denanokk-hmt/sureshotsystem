@@ -107,19 +107,19 @@ CREATE_USER=$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
 UPDATE_USER=${CREATE_USER}
 
 ########################################
-#オペリストディレクトリを作成する
+#作業リストディレクトリを作成する
 result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/OPERATION_LIST/LISTS ${SYSD}/DATA/OPERATION_LIST/LISTS`
 
 ########################################
-#オペリスト格納用カテゴリDirを作成
+#作業リスト格納用カテゴリDirを作成
 result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/OPERATION_LIST/LISTS/${CATEGORY_NO} ${SYSD}/DATA/OPERATION_LIST/LISTS/${CATEGORY_NO}`
 
 ########################################
-#オペディテールディレクトリを作成する
+#作業ディテールディレクトリを作成する
 result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/OPERATION_DETAIL/LISTS ${SYSD}/DATA/OPERATION_DETAIL/LISTS`
 
 ########################################
-#オペディテール格納用カテゴリDirを作成
+#作業ディテール格納用カテゴリDirを作成
 result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/OPERATION_DETAIL/LISTS/${CATEGORY_NO} ${SYSD}/DATA/OPERATION_DETAIL/LISTS/${CATEGORY_NO}`
 
 ########################################
@@ -142,24 +142,24 @@ echo ${VALUE} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} \
 
 ########################################
 #正規データ配置
-#なにがしかのカテゴリNoの下にあるLV3データをかき集め、ファイルパスからカテゴリNoを、ファイルデータからオペ番号を
+#なにがしかのカテゴリNoの下にあるLV3データをかき集め、ファイルパスからカテゴリNoを、ファイルデータから作業番号を
 #紐付けたマップを作成
 ls ${DATAD}/*/LV3/*[^_d] | awk '{split($0,ary,"/"); print ary[7], ary[9]}' | cut -d'_' -f1 | LANG=C sort -k1 > $tmp-cate-list-map
 
-#オペカテゴリ一覧
+#作業カテゴリ一覧
 cat ${SYSD}/DATA/OPERATION_CATEGORY/LISTS/LV3/*[^_d] | awk '{print $1,$2}' | LANG=C sort -k1 > $tmp-cate-all
 
-#オペ一覧
+#作業一覧
 cat ${DATAD}/*/LV3/*[^_d] | LANG=C sort -k1 > $tmp-ope-all
 
 #JOIN
 #マップとカテゴリ
 LANG=C join -1 1 -2 1 $tmp-cate-list-map $tmp-cate-all | LANG=C sort -k2 > $tmp-ope-category
 
-#カテゴリとオペ一覧
+#カテゴリと作業一覧
 LANG=C join -1 2 -2 1 $tmp-ope-category $tmp-ope-all > $tmp-operations
 
-#カテゴリ情報とマッピングしたオペ一覧をLISTS/LV3へ配置
+#カテゴリ情報とマッピングした作業一覧をLISTS/LV3へ配置
 rm -f ${DATAD}/LV3/operations_*
 mv $tmp-operations ${DATAD}/LV3/operations_${CREATE_DATE}
 
