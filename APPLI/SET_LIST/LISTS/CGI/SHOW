@@ -2,7 +2,7 @@
 #
 
 ########################################
-# SET_LIST/LIST SHOW.CGI
+#	PARTS_LIST/LIST SHOW.CGI
 #
 #   $1:必須 $$
 #
@@ -35,116 +35,92 @@ FIN
 }
 
 ########################################
-#仮登録を削除
-SESSION=$(session_get 'sureshot_stuff_session_id') 
-STUFF_ID=$(cat ${SYSD}/SESSION/${SESSION})
-TEMPD=${SYSD}/TMP/${STUFF_ID}/SET_LIST
-
-########################################
-#仮登録を削除
-rm -rf ${TEMPD}
-
-########################################
 #GETパラメーターを取得
-#ページを取得(初期はなし、絞込の場合は、page=1
-QRY_PAGE=$( cat $tmp-get | sed -e 's/^.*\(page\=[0-9]*\).*$/\1/' | sed -e 's/page\=//')
+#GETパラメーターの順番は、action,page,serach,category-nm,category-no が前提
+[ -n "$(cat $tmp-get | grep 'page=')" ] && \
+QRY_PAGE=$(cat $tmp-get | awk '{split($0,ary,"&"); print ary[2]}' | sed 's/page\=//') || \
+QRY_PAGE=1
+[ -n "$(cat $tmp-get | grep 'search=')" ] && \
+SEARCH=$(cat $tmp-get | awk '{split($0,ary,"&"); print ary[3]}') || \
+SEARCH='search=0'
 
 ########################################
-#SEARCHで来た場合
-#課題：正規表現で狙った箇所の文字列を抜き出したいが出来ていない
-#その為、フォーム側のパラメーターの順序に合わせなければならなくなっている(cut)
-cat $tmp-get | grep 'SEARCH' > $tmp-search
-if [ -n "$(cat $tmp-get | grep 'SEARCH=1')" ] ; then
+#検索で来た場合
+#GETパラメーターの順番は、action,page,serach,category-nm,category-no が前提
+cat $tmp-get | grep 'search' > $tmp-search
+if [ "${SEARCH}" = 'search=1' ] ; then
     #絞込のカテゴリを取得(urldecode)
-    SET_PAGE_CATEGORY=$( cat $tmp-get | cut -d'&' -f1 | sed -e 's/SET_CATEGORY_NM_HID_PAGE\=//' | ruby -r uri -ne 'print URI.unescape $_')
-    SET_PAGE_CATEGORY_NO=$( cat $tmp-get | cut -d'&' -f2 | sed -e 's/SET_CATEGORY_NO_HID_PAGE\=//' | ruby -r uri -ne 'print URI.unescape $_')
-else
-    SET_PAGE_CATEGORY=$( cat $tmp-get | cut -d'&' -f2 | sed -e 's/set-category\=//' | ruby -r uri -ne 'print URI.unescape $_')
-    SET_PAGE_CATEGORY_NO=$( cat $tmp-get | cut -d'&' -f3 | sed -e 's/set-category-no\=//' | ruby -r uri -ne 'print URI.unescape $_')
+    PAGE_CATEGORY_NM=$(cat $tmp-get | awk '{split($0,ary,"&"); print ary[4]}' | sed 's/category-nm\=//' | ruby -r uri -ne 'print URI.unescape $_')
+    PAGE_CATEGORY_NO=$(cat $tmp-get | awk '{split($0,ary,"&"); print ary[5]}' | sed 's/category-no\=//')
 fi
 
 #######################################
-#最大表示レコード数設定ファイルの確認
-if [ -e ${SYSD}/SYS/VIEW/${CATEGORY}/${FUNC}/VIEW_MAX_RECORDS ]; then
-    :
-else
-    mkdir ${SYSD}/SYS/VIEW/${CATEGORY}
-    mkdir ${SYSD}/SYS/VIEW/${CATEGORY}/${FUNC}
-    cp ${SYSD}/SYS/VIEW/ORG_VIEW_MAX/VIEW_MAX_RECORDS ${SYSD}/SYS/VIEW/${CATEGORY}/${FUNC}/
-    cp ${SYSD}/SYS/VIEW/ORG_VIEW_MAX/VIEW_MAX_PAGES ${SYSD}/SYS/VIEW/${CATEGORY}/${FUNC}/
-fi
-
-#######################################
-#最大表示レコード数
-cat ${SYSD}/SYS/VIEW/${CATEGORY}/${FUNC}/VIEW_MAX_RECORDS | 
-awk '{print $2}' > $tmp-max-records
-VIEW_MAX_RECORDS=$( cat $tmp-max-records )
-
-########################################
-#最大表示ページ数
-cat ${SYSD}/SYS/VIEW/${CATEGORY}/${FUNC}/VIEW_MAX_PAGES | 
-awk '{print $2}' > $tmp-max-pages
-VIEW_MAX_PAGES=$( cat $tmp-max-pages )
-
-#Set record start & end
-if [ -z $(echo ${QRY_PAGE}) ] || [ "${QRY_PAGE}" = 1 ]; then
-    SHOW_PAGE=1
-    START=1
-    END=${VIEW_MAX_RECORDS}
-else
-    SHOW_PAGE=${QRY_PAGE}
-    END=$(expr ${QRY_PAGE} \* ${VIEW_MAX_RECORDS} )
-    START=$(expr ${END} - ${VIEW_MAX_RECORDS} + 1 )
-fi
-
-########################################
 #ページャーを設定
-if [ "${PAGE_CATEGORY_NO}" -gt 0 ] ; then
-    RECORDS=$(cat ${DATAD}/${PAGE_CATEGORY_NO}/LV3/*_setlist_base_*[^_d] | wc -l)
-else
-    RECORDS=$( ls ${DATAD}/*/LV3/*_setlist_base_*[^_d] | wc -l )
-fi
-RESULT=`${SYSD}/CGI/PAGINATION/PAGER $1 "/APP/SET_LIST/LISTS/SHOW" ${SHOW_PAGE} ${RECORDS} ${VIEW_MAX_RECORDS} ${VIEW_MAX_PAGES} "&category=${PAGE_CATEGORY}" "&category-no=${PAGE_CATEGORY_NO}"`
+START_END=`${SYSD}/APPLI/${CATEGORY}/LISTS/CGI/PAGER $1 ${QRY_PAGE} ${SEARCH} ${PAGE_CATEGORY_NM} ${PAGE_CATEGORY_NO}`
+
+#######################################
+#表示するレコードの開始と終了
+START=$(cat $tmp-rec-start)
+END=$(cat $tmp-rec-end)
 
 ########################################
-#セットカテゴリを取得
-cat ${SYSD}/DATA/SET_CATEGORY/LISTS/LV3/*[^_d]    |
-LANG=C sort -nk1,1                                  > $tmp-set-category
+#パーツカテゴリを取得
+cat ${SYSD}/DATA/PARTS_CATEGORY/LISTS/LV3/*[^_d]    |
+LANG=C sort -nk1,1                                  > $tmp-category
 
 ########################################
-#Page絞り込み用のセットカテゴリ
+#Page絞り込み用のパーツカテゴリ
 # 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/SET_CATEGORY_PAGE.HTML $tmp-set-category > $tmp-set-category-page
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_PAGE.HTML $tmp-category > $tmp-parts-category-page
 
 ########################################
-# セットカテゴリの改行文字を「\\n」という3文字の文字列に置換
-SET_CATEGORY_PAGE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-set-category-page`
+#パーツリスト用のパーツカテゴリ
+# 1;カテゴリ番号 2;カテゴリ名
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_LIST.HTML $tmp-category > $tmp-parts-category-list
 
 ########################################
-#セットリストを取得
-if [ "${SET_PAGE_CATEGORY_NO}" -gt 0 ] ; then
-    #ページフィルターにALL以外(空欄を除く)が選択された場合
-    cat ${DATAD}/${SET_PAGE_CATEGORY_NO}*[^_d]/LV3/*_setlist_base_*[^_d]  |
-    LANG=C sort -nk1,1                                                    |
-    awk -v s=${START} -v e=${END} 'NR>=s&&NR<=e&&$9!=1'                   |
-    juni                                                                  > $tmp-records
-else
-    cat ${DATAD}/*[^_d]/LV3/*_setlist_base_*[^_d]                         |
-    LANG=C sort -nk1,1                                                    |
-    awk -v s=${START} -v e=${END} 'NR>=s&&NR<=e&&$9!=1'                   |
-    juni                                                                  > $tmp-records
-fi
-
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/RECORDS.HTML $tmp-records     > $tmp-table-records
+#パーツ新規登録用のパーツカテゴリ
+# 1;カテゴリ番号 2;カテゴリ名
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_NEW.HTML $tmp-category > $tmp-parts-category-new
 
 ########################################
 # 改行文字を「\\n」という3文字の文字列に置換
-TABLE_RECORDS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-records`
+CATEGORY_PAGE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-page`
+CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-list`
+CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-new`
+
+########################################
+#パーツリストを取得
+[ -z "${PAGE_CATEGORY_NO}" ] && ${PAGE_CATEGORY_NO}=0 || :
+if [ "${PAGE_CATEGORY_NO}" -gt 0 ] ; then
+    #ページフィルターにALL以外(空欄を除く)が選択された場合
+    cat ${DATAD}/LV3/*[^_d]                                 |
+    awk -v cate=${PAGE_CATEGORY_NO} '$2==cate{print $0}'    |
+    LANG=C sort -nk2 -nk1                                   |
+    awk -v s=${START} -v e=${END} 'NR>=s&&NR<=e&&$9!=1'     |
+    juni                                                    > $tmp-records
+else
+    cat ${DATAD}/LV3/*[^_d]                                 |
+    LANG=C sort -nk2 -nk1                                   |
+    awk -v s=${START} -v e=${END} 'NR>=s&&NR<=e&&$9!=1'     |
+    juni                                                    > $tmp-records
+fi
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/RECORDS.HTML $tmp-records > $tmp-table-records
+
+########################################
+#登録済レコードに作業カテゴリリストを嵌め込む
+cat $tmp-table-records                                      |
+sed -e "s|###CATEGORY###|${CATEGORY_LIST}|g"                > $tmp-table
+
+########################################
+# 改行文字を「\\n」という3文字の文字列に置換
+TABLE_RECORDS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table`
 
 ########################################
 #tableにrecordsを嵌め込む
 cat ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/TABLE.HTML         |
-sed -e "s|###TABLE_RECORDS###|${TABLE_RECORDS}|g"           > $tmp-table-html
+sed -e "s|###TABLE_RECORDS###|${TABLE_RECORDS}|g"           |
+sed -e "s|###CATEGORY###|${CATEGORY_NEW}|g"                 > $tmp-table-html
 
 ########################################
 # 改行文字を「\\n」という3文字の文字列に置換
@@ -152,17 +128,18 @@ TABLE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-html`
 
 ########################################
 #tableをはめ込む、ページャーを差し込む
-cat ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/SHOW.HTML              |
-sed -e "s|###SET_CATEGORY_NM_PAGE###|${SET_PAGE_CATEGORY}|g"    |
-sed -e "s|###SET_CATEGORY_NO_PAGE###|${SET_PAGE_CATEGORY_NO}|g" |
-sed -e "s|###SET_CATEGORY###|${SET_CATEGORY_PAGE}|g"            |
-sed -e "s|###TABLE###|${TABLE}|g"                               |
-sed -e "s|###INFO_MSG###|"変更するセットのEDITボタンを押してください。"|g"  |
-sed -e "s|###PAGER###|$(cat $tmp-pager-html)|g"                 > $tmp-html
+cat ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/SHOW.HTML          |
+sed -e "s|###CATEGORY_NM_PAGE###|${PAGE_CATEGORY_NM}|g"     |
+sed -e "s|###CATEGORY_NO_PAGE###|${PAGE_CATEGORY_NO}|g"     |
+sed -e "s|###CATEGORY###|${CATEGORY_PAGE}|g"                |
+sed -e "s|###PAGE###|${QRY_PAGE}|g"                         |
+sed -e "s|###TABLE###|${TABLE}|g"                           |
+sed -e "s|###INFO_MSG###||g"                                |
+sed -e "s|###PAGER###|$(cat $tmp-pager-html)|g"             > $tmp-html
 
 ########################################
 #page name
-echo "Set lists" > $tmp-pagename
+echo "Parts lists" > $tmp-pagename
 
 ########################################
 echo "OK"

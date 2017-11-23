@@ -1,24 +1,62 @@
 <!--<!DOCTYPE html>-->
 <!--<html>-->
+
+
 <table class="table" style="font-size:12px;">
     <thead>
         <tr>
             <th>#</th>
             <th>NO</th>
-            <th>SET CATEGORY</th>
-            <th>SET NAME</th>
-            <th>SET PRICE</th>
-            <th>REMARKS</th>
-            <th>
-                <a class="btn btn-success btn-sm btn-set-new" id="SET_NEW">NEW</a>
-            </th>
+            <th>PARTS CATEGORY</th>
+            <th>PARTS NAME</th>
+            <th>PRICE</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
-
-        <!--LIST 登録済セットの表示-->
-        ###TABLE_RECORDS###
-
+        <!--パーツ新規追加-->
+        <tr>
+            <!--順-->
+            <td>--</td>
+            <!--ID-->
+            <td>
+                <span class="label label-default">NEW</span>
+            </td>
+            <!--カテゴリ-->
+            <td>
+                <div class="form-group">
+                    <div class="btn-group">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-info dropdown-toggle input-sm" id="new_parts_categogy" data-toggle="dropdown" aria-expended="false">
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu" name="NEW">
+                                ###CATEGORY###
+                            </ul>
+                        </div>
+                        <div class="btn-group">
+                            <input type="text" name="CATEGORY_NM_NEW" id="CATEGORY_NM_NEW" value="" class="form-control input-sm" disabled placeholder="部品カテゴリ"/>
+                        </div>
+                    </div>
+                    <input type="hidden" name="CATEGORY_NM_HID_NEW" id="CATEGORY_NM_HID_NEW" value="" class="form-control" />
+                    <input type="hidden" name="CATEGORY_NO_HID_NEW" id="CATEGORY_NO_HID_NEW" value="" class="form-control" />
+                </div>
+            </td>
+            <!--部品名-->
+            <td>
+                <input type="text" id="PARTS_NAME_NEW" name="PARTS_NAME_NEW" value="" class="form-control input-sm" style="" placeholder="部品名(正)" >
+            </td>
+            <!--金額-->
+            <td>
+                <input type="number" id="PARTS_PRICE_NEW" name="PARTS_PRICE_NEW" value="" class="form-control input-sm" style="" placeholder="部品代(税抜)" >
+            </td>
+            <!--ボタン-->
+            <td>
+                <a href="" class="btn btn-primary btn-sm" onclick="newParts(); return false;">NEW</a>
+            </td>
+       </tr>
+       <!--登録済パーツの表示-->
+       ###TABLE_RECORDS###
    </tbody>
 </table>
 

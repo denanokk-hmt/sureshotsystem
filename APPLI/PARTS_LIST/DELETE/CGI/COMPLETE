@@ -100,7 +100,7 @@ do
   VALUE=$(echo $VALUE `cat $file`)
 done
 echo ${VALUE} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} \
-> ${DATAD}/${CATEGORY_NX}/LV3/${NUM}_operation-list_${UPDATE_DATE}_d
+> ${DATAD}/${CATEGORY_NX}/LV3/${NUM}_parts-list_${UPDATE_DATE}_d
 
 
 ########################################

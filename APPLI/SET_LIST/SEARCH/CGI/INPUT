@@ -2,7 +2,7 @@
 #
 
 ########################################
-#	SET_LIST SEARCH INPUT.CGI
+#	PARTS_LIST SEARCH INPUT.CGI
 #
 #   引数
 #       $1:プロセスID
@@ -39,23 +39,23 @@ CATE_NO=$(nameread CATEGORY_NO $tmp-post)
 ROW=$(nameread ROW $tmp-post)
 
 ########################################
-#セットカテゴリを取得
-cat ${SYSD}/DATA/SET_LIST/LISTS/${CATE_NO}/LV3/*[^_d]  |
-LANG=C sort -nk1,1                                      > $tmp-set
+#パーツカテゴリを取得
+cat ${SYSD}/DATA/PARTS_LIST/LISTS/${CATE_NO}/LV3/*[^_d]  |
+LANG=C sort -nk1,1                                      > $tmp-parts
 
 ########################################
-#Set
+#Parts
 # 部品番号、カテゴリ番号、カテゴリ名、部品名(EN)、部品名(JP)、単価、UD、CD
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/DROPDOWN_LIST.HTML $tmp-set > $tmp-set-row
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/${FUNC}/HTML/DROPDOWN_LIST.HTML $tmp-parts > $tmp-parts-row
 
 ########################################
 #選択行を設定
-cat $tmp-set-row  |
+cat $tmp-parts-row  |
 sed -e "s/###ROW###/${ROW}/" > $tmp-ajax-html
 
 ########################################
 # 改行文字を「\\n」という3文字の文字に置換
-#SET=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-set-html`
+#PARTS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-html`
 
 ########################################
 #ending

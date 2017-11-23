@@ -1,161 +1,336 @@
 <!--<!DOCTYPE html>-->
 <!--<html>-->
 
-<div class="container">
-    
-    <div class="container">
-    <div class="fixed gray-trans-over">
-
-        <!--Header Info-->
-        <div class="row">
-            <label class="control-label col-sm-1">
-                <h3><i class="glyphicon glyphicon-info-sign"></i></h3>
-            </label>
-            <div class="col-sm-6 lbl-header-info">
-                <span id="info-msg" class="label label-lg label-###INFO_LV###">
-                    ###INFO_MSG###
-                </span>
+<div id="whole" class="container fade-in" style="opacity:0">
+      
+    <!--Header Info-->
+    <div class="col-md-1 col-xs-1" >
+        <i class="glyphicon glyphicon-info-sign"></i>
+    </div>
+ 
+    <!--Header Info-->
+    <div class="col-md10 lbl-header-info">
+        <span id="info-msg" class="label label-lg label-###INFO_LV###">
+            ###INFO_MSG###
+        </span>
+    </div>
+    <!--ERROR MESSAGE-->
+    <div class="row">
+        <div class="col-md-10 lbl-header-info">
+            <div>
+                <span id="CATEGORY_NM_ISNULL_MSG" class="fade-in label label-danger ###CATEGORY_NM_ISNULL###">カテゴリ名が、選択されていません。</span>
+            </div>
+            <div>
+                <span id="PARTS_NAME_ISNULL_MSG" class="fade-in label label-danger ###PARTS_NAME_ISNULL###">パーツ名に、値がありません。</span>
+            </div>
+            <div>
+                <span id="PARTS_NAME_LENGTH_MSG" class="fade-in label label-danger ###PARTS_NAME_LENGTH###">パーツ名は、3文字以上必要です。</span>
+            </div>
+            <div>
+                <span id="PARTS_NAME_DUPLICATE_MSG" class="fade-in label label-danger ###PARTS_NAME_DUPLICATE###">カテゴリ名(日本語)は、既に使用されています。</span>
+            </div>
+            <div>
+                <span id="PARTS_PRICE_ISNULL_MSG" class="fade-in label label-danger ###PARTS_PRICE_ISNULL###">パーツ代金に、値がありません。</span>
             </div>
         </div>
+    </div>
+    <br>
 
-        <!--Set Category Filter-->
-        <div class="row">
-            <form action="/APP/SET_LIST/LISTS/SHOW" method="GET">    
-
-                <div class="form-group">
+    <!--Parts Category Filter-->
+    <div class="row">
+        <form action="/APP/PARTS_LIST/LISTS" method="GET">    
+            <div class="form-group">
+                <div class="btn-group">
+                    <!--Parts Category Dropdown list-->
                     <div class="btn-group">
-                        
-                        <!--Set Category Dropdown list-->
-                        <div class="btn-group">
-                            <button type="submit" class="btn btn-info dropdown-toggle" data-toggle="dropdown" id="set_category" aria-expended="false">
-                                &nbsp<span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu SET" role="menu" name="PAGE">
-                               <li name="CATEGORY_PAGE">
-                                   <a class="category-list" id="cat_list_0" >ALL</a>
-                               </li>
-                               ###SET_CATEGORY###
-                            </ul>
-                        </div>
-                        <div class="btn-group">
-                            <input type="text" name="CATEGORY_NM_PAGE" id="CATEGORY_NM_PAGE" value="" class="form-control" disabled />
-                        </div>
-
-                        <!--Search Submit button-->
-                        <div class="btn-group">
-                            <button type="submit" class="btn btn-info" />
-                                <span clss="glyphicon glyphicon-eye-open">Search</span>
-                            </button>
-                        </div>
+                        <button type="submit" class="btn btn-info dropdown-toggle" data-toggle="dropdown" id="parts_category" aria-expended="false">
+                            &nbsp<span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu" name="PAGE">
+                            <li name="CATEGORY_PAGE">
+                                <a class="category-list" id="cat_list_0" >ALL</a>
+                            </li>
+                            ###CATEGORY###
+                        </ul>
+                    </div>
+                    <div class="btn-group">
+                        <input type="text" name="CATEGORY_NM_PAGE" id="CATEGORY_NM_PAGE" value="###CATEGORY_NM_PAGE###" class="form-control" disabled />
                     </div>
 
-                    <input type="hidden" name="SET_CATEGORY_NM_HID_PAGE" id="SET_CATEGORY_NM_HID_PAGE" value="###SET_CATEGORY_NM_PAGE###" class="form-control" />
-                    <input type="hidden" name="SET_CATEGORY_NO_HID_PAGE" id="SET_CATEGORY_NO_HID_PAGE" value="###SET_CATEGORY_NO_PAGE###" class="form-control" />
-                    <input type="hidden" name="SEARCH" id="SEARCH" value="1" class="form-control" />
-                    <input type="hidden" name="page" id="page" value="1" class="form-control" />
+                    <!--Search Submit button-->
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-info" />
+                            <span class="glyphicon glyphicon-eye-open"></span>
+                        </button>
+                    </div>
                 </div>
+                <!--カテゴリ検索値、表示ページ、検索有無-->
+                <input type="hidden" id="action" name="action" value="SHOW" />
+                <input type="hidden" id="page" name="page" value="###PAGE###" />
+                <input type="hidden" id="search" name="search" value="0" />
+                <input type="hidden" name="category-nm" id="CATEGORY_NM_HID_PAGE" value="###CATEGORY_NM_PAGE###" />
+                <input type="hidden" name="category-no" id="CATEGORY_NO_HID_PAGE" value="###CATEGORY_NO_PAGE###" />
+            </div>
 
-                <!--Spacer-->
-                <div class="col-sm-1 hidden-xs"></div>
-            </form>
-        </div>
-        </div>
+            <!--Spacer-->
+            <div class="col-sm-1 hidden-xs"></div>
+        </form>
     </div>
 
-    <!--Spacer-->
+    <!--Spacer
     <div class="header-dummy" style="height:9.0em; background-color:piink;"></div>
+    -->
 
     <!--Contents Records/Pagination-->
     <div class="header-under-contents">
-        <form name="form_set_list" class="form-inline form-horizontal"  action="" method="">
-	          <input type="hidden" name="SET_CATEGORY_NO_HID" id="SET_CATEGORY_NO_HID" value="" class="form-control input-sm" />
-	          <input type="hidden" name="SET_NO_HID" id="SET_NO_HID" value="" class="form-control input-sm" />
-  
+        <form class="form-inline form-horizontal"  action="" method="">
+            <input type="hidden" id="ACTION" name="ACTION" value="COMPLETE" />
+            <input type="hidden" id="REST" name="REST" value="" />
+            <input type="hidden" id="PAGE" name="PAGE" value="###PAGE###" />
+            <input type="hidden" id="SEARCH" name="SEARH" value="0" />
+            <!--
+            <input type="hidden" id="CATEGORY_NM" name="CATEGORY_NM" value="###CATEGORY_NM_PAGE###" />
+            <input type="hidden" id="CATEGORY_NO" name="CATEGORY_NO" value="###CATEGORY_NO_PAGE###" />
+            --> 
             <div class="contents-table">
                 ###TABLE###
             </div>
 
-            <div id="pager" class="pagination-foot">
-                ###PAGER###
-            </div>
         </form>
+        <div id="pager" class="pagination-foot">
+            ###PAGER###
+        </div>
     </div>
 </div>
 
 <script>
 
+    //Validation Err MSGのOpacityを初期化
+    $(document).ready(function(){
+        validationErrMsgInit();
+    });
+
+    //ロード時に全画面をフェードイン
+    $(window).on('load',function(){
+        $('#whole').css("opacity","1");
+    });
+
+    //バリデーションエラーMSGの初期化
+    function validationErrMsgInit() {
+
+        //バリデーションエラー表示をクリア
+        $('input[type=text]').removeClass("label-danger");
+        $('.lbl-header-info .label').removeClass("show");
+        $('.lbl-header-info .label').addClass("hidden");
+        $('#info-msg').html("");
+
+        //バリデーションエラーMSGをフェードアウト
+        fadeInOut(0);
+    }
+
+    /*バリデーションエラーMSGをフェードアウト
+    *   引数 inout
+    *   フェードイン:1
+    *   フェードアウト:0
+    */
+    function fadeInOut(inout) {
+        $('.fade-in').not('#whole').each(function(){
+            $(this).css("opacity",inout );
+        });
+    }
+
     $(document).ready(function() {
         $("#pager").sticky({topSpacing:0});
     });
 
-    //NEWボタン
-    $(document).on('click', 'a.btn-set-new', function() {
+    //カテゴリを選択
+    $(document).on('click', 'a.category-list', function() {
 
-        //イベント基本情報
+        //選択した部品のidから行を取得する
         var idname = $(this).attr("id"); 
         var list_id = idname.split("_");
-        var action = list_id[1];
-        var set_no = list_id[2];
-        var frm = document.forms['form_set_list'];
+        var row = $(this).parent().parent().attr("name");
+        var cat_no = list_id[2];
+        var choice = $(this).text();
 
-        frm.method = 'GET';
-        frm.action = '/APP/SET_LIST/NEW/SET/INPUT';
-        frm.submit();
+        //該当のレコードに選択したカテゴリ名を設定
+        $('#CATEGORY_NM_' + row).val(choice);
+        $('#CATEGORY_NM_HID_' + row).val(choice);
+
+        //該当のレコードに選択したカテゴリ番号を設定
+        $('#CATEGORY_NO_HID_' + row).val(cat_no);
+
+        //GETパラメーターの検索フラグを設定
+        if (choice == 'ALL') {
+            $('#search').val(0);
+            $('#SEARCH').val(0);
+        } else {
+            $('#search').val(1);
+            $('#SEARCH').val(1);
+        }
     });
 
-    //EDITボタン
-    $(document).on('click', 'a.btn-set-edit', function() {
+    //詳細画面へ遷移
+    function goToDetail(id) {
 
-        //イベント基本情報
-        var idname = $(this).attr("id"); 
-        var list_id = idname.split("_");
-        var action = list_id[1];
-        var set_no = list_id[2];
-        var cat_no = $('#SET_CATEGORY_NO_HID_' + set_no).val(); 
-        var frm = document.forms['form_set_list'];
+        //バリデーションエラーMSG初期化
+        validationErrMsgInit();
 
-        //パラメータを設定
-        $('#SET_CATEGORY_NO_HID').val(cat_no); 
-        $('#SET_NO_HID').val(set_no); 
+        //GETパラメーターの順番は、action,page,serach,category-nm,category-no が前提
+        var action = '?action=SHOW';
+        var page = '&page=' + $('#page').val();
+        var search = '&search=' + $('#search').val();
+        var categoryNm = '&category-nm=' + $('#CATEGORY_NM_HID_PAGE').val();
+        var categoryNo = '&category-no=' + $('#CATEGORY_NO_HID_PAGE').val();
+        var operationId = '&id=' + id;
 
-        //submit
-        frm.method = 'GET';
-        frm.action = '/APP/SET_LIST/EDIT/SET/INPUT';
-        frm.submit();
-    });
+        //詳細へ 
+        location.href='/APP/PARTS_DETAIL/LISTS' + action + page + search + categoryNm + categoryNo + operationId;
+    }
 
-    //DELETEボタン
-    $(document).on('click', 'a.btn-set-delete', function() {
+    //パーツ追加
+    function newParts() {
 
-        //イベント基本情報
-        var idname = $(this).attr("id"); 
-        var list_id = idname.split("_");
-        var action = list_id[1];
-        var set_no = list_id[2];
-        var set_category_no = $('#SET_CATEGORY_NO_HID_' + set_no).val();
-  
-        //セット名を仮登録
+        //バリデーションエラーMSG初期化
+        validationErrMsgInit();
+
+        $('#REST').val('POST');
+        var new_parts_name = $('#PARTS_NAME_NEW').val();
+        //var params = $('form').serialize();
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/SET_LIST/DELETE/COMPLETE',
+            url: '/APP/PARTS_LIST/NEW',
+            //data: params
             data: {
-              SET_CATEGORY_NO: set_category_no,
-              SET_NO: set_no
+                ACTION: 'COMPLETE',
+                REST: 'POST',
+                PAGE: $('#PAGE').val(),
+                SEARCH: $('#SEARCH').val(),
+                PAGE_CATEGORY_NM: $('#CATEGORY_NM_HID_PAGE').val(),
+                PAGE_CATEGORY_NO: $('#CATEGORY_NO_HID_PAGE').val(),
+                NEW_CATEGORY_NO: $('#CATEGORY_NO_HID_NEW').val(),
+                NEW_PARTS_NAME: $('#PARTS_NAME_NEW').val(),
+                NEW_PARTS_PRICE:$('#PARTS_PRICE_NEW').val()
             }
         });
         jqXHR.done(function(data) {
-            if (data == 2222) {
-                alert("セット:" + set_no + "の削除に失敗しました。");
+            //バリデーションエラーの場合、先頭にVALID=NG
+            //デリミタとして「@」を指定されてくる
+            var valid_result = data.split("@");
+            if (valid_result[0] == 'VALID_NG') {
+
+                //バリデーションエラー表示
+                var r = validationResultDisplay('NEW', valid_result[1], 'POST');
+
+                //バリデーションMSGをフワッと表示 
+                fadeInOut(1);
+
+                if (r != 'OK') {  
+                    alert("新規登録処理に失敗しました。");
+                }
             } else {
-                var sel = '#edit-row-' + set_no;
-                $(sel).remove();
-                alert("セット:" + set_no + "を削除しました。");
+                $('table').html(data);
+                $('#info-msg').html(new_parts_name + "を追加しました。");
+                alert(new_parts_name + "を追加しました。");
             }
         });
         jqXHR.fail(function(data) {
-            alert("セット:" + set_no + "の削除に失敗しました。");
+            alert("新規登録処理に失敗しました。");
         });
-    });
+    }
+
+    //パーツ変更
+    function editParts(id) {
+
+        //バリデーションエラーMSG初期化
+        validationErrMsgInit();
+ 
+        var edit_parts_name = $('#PARTS_NAME_' + id).val();
+        var jqXHR = $.ajax({
+            type: 'POST',
+            url: '/APP/PARTS_LIST/EDIT',
+            data: {
+                ACTION: 'COMPLETE',
+                REST: 'PUT',
+                PAGE_CATEGORY_NM: $('#CATEGORY_NM').val(),
+                PAGE_CATEGORY_NO: $('#CATEGORY_NO').val(),
+                EDIT_PARTS_NO: id,
+                EDIT_CATEGORY_NO: $('#CATEGORY_NO_HID_' + id).val(),
+                EDIT_CATEGORY_NX: $('#CATEGORY_NX_HID_' + id).val(),
+                EDIT_CATEGORY_NM: $('#CATEGORY_NM_HID_' + id).val(),
+                EDIT_PARTS_NAME: $('#PARTS_NAME_' + id).val(),
+                EDIT_PARTS_PRICE:$('#PARTS_PRICE_' + id).val() ,
+            }
+        });
+        jqXHR.done(function(data) {
+            //バリデーションエラーの場合、先頭にVALID=NG
+            //デリミタとして「@」を指定されてくる
+            var valid_result = data.split("@");
+            if (valid_result[0] == 'VALID_NG') {
+
+                //バリデーションエラー表示
+                var r = validationResultDisplay(id, valid_result[1], 'PUT');
+
+                //バリデーションMSGをフワッと表示 
+                fadeInOut(1);
+
+                if (r != 'OK') {  
+                    alert("更新処理に失敗しました。");
+                }
+            } else {
+                if (data == 111) {
+                    $('#info-msg').html(edit_parts_name + "を変更しました。");
+                    alert(edit_parts_name + "を変更しました。");
+                } else {
+                    alert("更新処理に失敗しました。");
+                }
+            }
+        });
+        jqXHR.fail(function() {
+            alert("更新処理に失敗しました。");
+        });
+    }
+
+    //パーツ削除
+    function deleteParts(id) {
+
+        //バリデーションエラーMSG初期化
+        validationErrMsgInit();
+ 
+        var delete_parts_name = $('#PARTS_NAME_' + id).val();
+        var delete_category_nx = $('#CATEGORY_NX_HID_' + id).val();
+        var jqXHR = $.ajax({
+            type: 'POST',
+            url: '/APP/PARTS_LIST/DELETE',
+            data: {
+                ACTION: 'COMPLETE',
+                REST: 'DELETE',
+                DELETE_CATEGORY_NM: $('#CATEGORY_NM_HID_' + id).val(),
+                DELETE_CATEGORY_NO: $('#CATEGORY_NO_HID_' + id).val(),
+                DELETE_CATEGORY_NX: $('#CATEGORY_NX_HID_' + id).val(),
+                DELETE_PARTS_NO: id,
+                DELETE_PARTS_NAME: $('#PARTS_NAME_' + id).val(),
+                DELETE_PARTS_PRICE:$('#PARTS_PRICE_' + id).val()
+            }
+       });
+        jqXHR.done(function(data) {
+            if (data == 2222) {
+                alert(delete_parts_name + "は、使用されていませんでした。");
+            } else if (data == 111) {
+                var sel = '#edit-row-' + id;
+                $(sel).remove();
+                $('#info-msg').html(delete_parts_name + "を削除しました。");
+                alert(delete_parts_name + "を削除しました。");
+            } else {
+                $('#info-msg').html(delete_parts_name + "を削除出来ませんでした。");
+                alert(delete_parts_name + "を削除出来ませんでした。");
+            }
+        });
+        jqXHR.fail(function() {
+            alert("削除処理に失敗しました。");
+        });
+ 
+    }
 
 </script>
 <!--</html>-->
