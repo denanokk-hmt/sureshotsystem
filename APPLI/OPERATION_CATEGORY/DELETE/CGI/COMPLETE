@@ -117,6 +117,7 @@ else
     cp -fp ${DATAD}/LV1/0_* ${DATAD}/LV2/
 
     #LV3
+    VALUE=''
     for file in $(ls ${DATAD}/LV2/0_* | sort -t$'_' -nk1);
     do
       VALUE=$(echo $VALUE `cat $file`)
