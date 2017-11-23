@@ -35,28 +35,58 @@ FIN
 
 #######################################
 #フォームの入力値を取得
-NUM=$(nameread SET_CATEGORY_ID $tmp-post)
-NAME=$(nameread SET_CATEGORY_NAME $tmp-post)
+nameread SET_CATEGORY_ID    $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-1
+NUM=$(cat $tmp-pk-1)
+nameread SET_CATEGORY_NM_EN $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-2
+nameread SET_CATEGORY_NM_JP $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-3
 
 ########################################
-#重複確認
-cat ${DATAD}/LV3/* | awk -v nm=${NAME} '$2==nm{print $1}' > $tmp-valid1
-if [ -n "$(cat $tmp-valid1)" ] ; then
-    echo 2222 > $tmp-ajax-html
+#バリデーションを設定
+
+#SET_CATEGORY_NM_EN
+cat $tmp-pk-2 | awk '{print sprintf("SET_CATEGORY_NM_EN|ISNULL|%s",$1)}'                                >> $tmp-validation  #必須入力
+cat $tmp-pk-2 | awk '{print sprintf("SET_CATEGORY_NM_EN|LENGTH|%s,3,0",$1)}'                            >> $tmp-validation  #3文字以上
+cat $tmp-pk-2 | awk '{print sprintf("SET_CATEGORY_NM_EN|ISEN_ISJP|EN,%s",$1)}'                          >> $tmp-validation  #英語のみ
+cat $tmp-pk-2 | awk -v gk=${NUM} '{print sprintf("SET_CATEGORY_NM_EN|DUPLICATE|SET_CATEGORY,LISTS,%s,2,%s",gk,$1)}'  >> $tmp-validation  #重複確認
+
+#SET_CATEGORY_NM_JP
+cat $tmp-pk-3 | awk '{print sprintf("SET_CATEGORY_NM_JP|ISNULL|%s",$1)}'                                >> $tmp-validation  #必須入力
+cat $tmp-pk-3 | awk '{print sprintf("SET_CATEGORY_NM_JP|LENGTH|%s,3,0",$1)}'                            >> $tmp-validation  #3文字以上
+cat $tmp-pk-3 | awk '{print sprintf("SET_CATEGORY_NM_JP|ISEN_ISJP|JP,%s",$1)}'                          >> $tmp-validation  #日本語
+cat $tmp-pk-3 | awk -v gk=${NUM} '{print sprintf("SET_CATEGORY_NM_JP|DUPLICATE|SET_CATEGORY,LISTS,%s,3,%s",gk,$1)}'  >> $tmp-validation  #重複確認
+
+########################################
+#バリデーションを実行
+result=`${SYSD}/CGI/VALID/VALIDATION $1`
+
+########################################
+#バリデーション結果
+if [ -n "$(grep "|NG" $tmp-valid-report)" ] ; then
+    #Validation NG
+    echo 'VALID_NG@' $(cat $tmp-valid-report) > $tmp-ajax-html
+    #echo 2222 > $tmp-ajax-html
     exit 0
 fi
 
 ########################################
-#既存データから作成日時取得、現在日時を更新日時とする
-ls ${DATAD}/LV1/${NUM}_set_category_* | cut -d'_' -f5 | sort -nk1,1 | head -n 1 > $tmp-create
-CREATE_DATE=$(cat $tmp-create)
+#作成日時、作成者、最終更新日時、更新者を取得
+result=`${SYSD}/CGI/DFS_INFO/CREATE_LASTUPDATE $1 ${DATAD}/LV1 ${NUM}`
+CREATE_DATE=$(cat $tmp-create-dt)
+CREATE_USER=$(cat $tmp-create-user)
+LASTUPDATE_DT=$(cat $tmp-lastupdate-dt)
+LASTUPDATE_USER=$(cat $tmp-lastupdate-user)
+
+########################################
+#更新日時を設定
 UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 
+########################################
+#更新者の取得
+UPDATE_USER=$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
 
 ########################################
-#　　セットカテゴリのデータ操作
+#　　作業カテゴリのデータ操作
 ########################################
-
 
 ########################################
 #該当のデータ操作をロック
@@ -65,70 +95,55 @@ LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
 [ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
 
 ########################################
-#入力値を一時ファイル化
-#1.セットカテゴリ番号 2.セットカテゴリ名 3.作成日時 4.更新日時 5.削除フラグ
-echo ${NUM}" "${NAME}" "${CREATE_DATE}" "${UPDATE_DATE}" "0 > $tmp-set-category
+#データ配置
+#LV1
+cat $tmp-pk-1 > ${DATAD}/LV1/${NUM}_1_${UPDATE_USER}_${UPDATE_DATE}
+cat $tmp-pk-2 > ${DATAD}/LV1/${NUM}_2_${UPDATE_USER}_${UPDATE_DATE}
+cat $tmp-pk-3 > ${DATAD}/LV1/${NUM}_3_${UPDATE_USER}_${UPDATE_DATE}
 
-########################################
-#データ格納
-#LV1:原始データとして、ファイル追加のみを行う
-$(mv $tmp-set-category ${DATAD}/LV1/${NUM}_set_category_${UPDATE_DATE})
+#LV2
+rm -f ${DATAD}/LV2/${NUM}_*
+cp -fp ${DATAD}/LV1/${NUM}_*_${UPDATE_DATE} ${DATAD}/LV2/
 
-#LV2:変更されたデータとファイルを入れ替える
-cp -ip ${DATAD}/LV1/${NUM}_set_category_${UPDATE_DATE} ${DATAD}/LV2/${NUM}_set_category_${UPDATE_DATE}
-ls ${DATAD}/LV2/${NUM}_* | sort -nk1 | head -n 1 > $tmp-delete
-rm -f $(cat $tmp-delete)
-
-#LV3:LV2のコピー
-cp -ip ${DATAD}/LV2/${NUM}_set_category_${UPDATE_DATE} ${DATAD}/LV3/${NUM}_set_category_${UPDATE_DATE}
-ls ${DATAD}/LV3/${NUM}_* | sort -nk1 | head -n 1 > $tmp-delete
-rm -f $(cat $tmp-delete)
+#LV3
+rm -f ${DATAD}/LV3/${NUM}_*
+for file in $(ls ${DATAD}/LV2/${NUM}_* | sort -t$'_' -nk1);
+do
+  VALUE=$(echo $VALUE `cat $file`)
+done
+echo ${VALUE} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} \
+> ${DATAD}/LV3/${NUM}_set-category_${UPDATE_DATE}
 
 ########################################
 #データ操作ロックを解除
 UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'SET_CATEGORY' ${NUM}`
 [ ${UNLOCK_STATUS} != 'UNLOCK' ] && exit 0 || :
 
-
 ########################################
-#　　セットのデータ操作
-########################################
+#LV3一覧3データ配置
+#なにがしかのカテゴリNoの下にあるLV3データをかき集め、
+#ファイルパスからカテゴリNoを、
+#ファイルデータからセット番号を
 
-#該当カテゴリで登録されているセットに対して、
-# 1.カテゴリ名を修正するための更新処理を行う
-SETD=${SYSD}/DATA/SET_LIST/LISTS/${NUM}
-for file in `find ${SETD}/LV3/*[^_d] -maxdepth 1 -type f`; do
+#紐付けたマップを作成
+ls ${SYSD}/DATA/SET_LIST/LISTS/*/LV3/*[^_d] | awk '{split($0,ary,"/"); print ary[7], ary[9]}' | cut -d'_' -f1 | LANG=C sort -k1 > $tmp-cate-list-map
 
-    #セット番号を取得
-    num=$(echo $file | cut -d'/' -f9 | cut -d'_' -f1) 
-    update=$(echo $file | cut -d'/' -f9 | cut -d'_' -f3) 
-    ARR+=($num)
+#セットカテゴリ一覧
+cat ${SYSD}/DATA/SET_CATEGORY/LISTS/LV3/*[^_d] | awk '{print $1,$2}' | LANG=C sort -k1 > $tmp-cate-all
 
-    #該当のデータ操作をロック
-    LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'SET_LIST' ${num}`
-    LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
-    [ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
+#セット一覧
+cat ${SYSD}/DATA/SET_LIST/LISTS/*/LV3/*[^_d] | LANG=C sort -k1 > $tmp-set-all
 
-    #LV1:原始データとして、ファイル追加のみを行う
-    destiny=${SETD}/LV1/${num}_set_${UPDATE_DATE}
-    cat ${SETD}/LV1/${num}_set_${update} | 
-    awk -v nm=${NAME} -v ud=${UPDATE_DATE} '{print $1, $2, nm, $4, $5, $6, $7, $8, ud, $10}' > $destiny
+#JOIN
+#マップとカテゴリ
+LANG=C join -1 1 -2 1 $tmp-cate-list-map $tmp-cate-all | LANG=C sort -k2 > $tmp-set-category
 
-    #LV2:変更されたデータとファイルを入れ替える
-    cp -fp ${SETD}/LV1/${num}_set_${UPDATE_DATE} ${SETD}/LV2/${num}_set_${UPDATE_DATE}
-    ls ${SETD}/LV2/${num}_* | sort -nk1 | head -n 1 > $tmp-delete
-    rm -f $(cat $tmp-delete)
+#カテゴリとセット一覧
+LANG=C join -1 2 -2 1 $tmp-set-category $tmp-set-all > $tmp-sets
 
-    #LV3:LV2のコピー
-    cp -fp ${SETD}/LV2/${num}_set_${UPDATE_DATE} ${SETD}/LV3/${num}_set_${UPDATE_DATE}
-    ls ${SETD}/LV3/${num}_* | sort -nk1 | head -n 1 > $tmp-delete
-    rm -f $(cat $tmp-delete)
-    
-    #データ操作ロックを解除
-    UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'SET_LIST' ${num}`
-    [ ${UNLOCK_STATUS} != 'UNLOCK' ] && exit 0 || :
-done
-
+#カテゴリ情報とマッピングしたセット一覧をLISTS/LV3へ配置
+rm -f ${SYSD}/DATA/SET_LIST/LISTS/LV3/sets_*
+mv $tmp-sets ${SYSD}/DATA/SET_LIST/LISTS/LV3/sets_${UPDATE_DATE}
 
 ########################################
 #

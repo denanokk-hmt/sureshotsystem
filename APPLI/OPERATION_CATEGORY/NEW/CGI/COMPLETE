@@ -86,11 +86,11 @@ UPDATE_USER=${CREATE_USER}
 result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${DATAD} ${DATAD}`
 
 ########################################
-#オペリストディレクトリを作成する
+#作業リストディレクトリを作成する
 result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/OPERATION_LIST/LISTS ${SYSD}/DATA/OPERATION_LIST/LISTS`
 
 ########################################
-#オペリスト格納用カテゴリDirを作成
+#作業リスト格納用カテゴリDirを作成
 result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/OPERATION_LIST/LISTS/${NEW_NUM} ${SYSD}/DATA/OPERATION_LIST/LISTS/${NEW_NUM}`
 
 ########################################

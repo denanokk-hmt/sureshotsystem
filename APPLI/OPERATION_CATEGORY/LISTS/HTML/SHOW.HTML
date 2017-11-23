@@ -149,15 +149,9 @@
         //バリデーションエラーMSG初期化
         validationErrMsgInit();
 
-        if (id == 999) {
-            alert("更新対象です。");
-            return false;
-        }
-
         //更新処理
         var edit_category_nm_en = $('#OPERATION_CATEGORY_NM_EN_' + id).val();
         var edit_category_nm_jp = $('#OPERATION_CATEGORY_NM_JP_' + id).val();
-        var params = $('form').serialize();
         var jqXHR = $.ajax({
             type: 'POST',
             url: '/APP/OPERATION_CATEGORY/EDIT',
@@ -200,15 +194,9 @@
         //バリデーションエラーMSG初期化
         validationErrMsgInit();
  
-        if (id == 999) {
-            alert("削除対象外です。");
-            return false;
-        }
-
         //削除処理
         var delete_category_nm_en = $('#OPERATION_CATEGORY_NM_EN_' + id).val();
         var delete_category_nm_jp = $('#OPERATION_CATEGORY_NM_JP_' + id).val();
-        var params = $('form').serialize();
         var jqXHR = $.ajax({
             type: 'POST',
             url: '/APP/OPERATION_CATEGORY/DELETE',

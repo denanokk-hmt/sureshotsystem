@@ -32,7 +32,7 @@ FIN
 	cat $tmp-result
 	exit 1
 }
-#
+
 ########################################
 #フォームの入力値を取得
 nameread OPERATION_CATEGORY_ID    $tmp-post > $tmp-pk-1
@@ -100,7 +100,7 @@ UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'OPERATION_CATEGORY' ${NUM}`
 #未登録カテゴリーが存在していなければ作成(0)
 # 0ディレクトリに移動
 
-#オペリストDir
+#作業リストDir
 OPERATIOND=${SYSD}/DATA/OPERATION_LIST/LISTS
 
 #############################
@@ -133,7 +133,7 @@ else
     result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${OPERATIOND}/0 ${OPERATIOND}/0`
 fi
 
-#削除されるカテゴリのディレクトリから、身寄りが無くなったので、0ディレクトリにオペリストをすべて移動
+#削除されるカテゴリのディレクトリから、身寄りが無くなったので、0ディレクトリに作業リストをすべて移動
 for file in `find ${OPERATIOND}/${NUM}/LV3/*[^_d] -maxdepth 1 -type f`; do
 
     #作業番号取得
@@ -164,25 +164,25 @@ mv ${OPERATIOND}/${NUM} ${OPERATIOND}/${NUM}_${UPDATE_DATE}_d
 #LV3一覧3データ配置
 #なにがしかのカテゴリNoの下にあるLV3データをかき集め、
 #ファイルパスからカテゴリNoを、
-#ファイルデータからオペ番号を
+#ファイルデータから作業番号を
 
 #紐付けたマップを作成
 ls ${SYSD}/DATA/OPERATION_LIST/LISTS/*/LV3/*[^_d] | awk '{split($0,ary,"/"); print ary[7], ary[9]}' | cut -d'_' -f1 | LANG=C sort -k1 > $tmp-cate-list-map
 
-#オペカテゴリ一覧
+#作業カテゴリ一覧
 cat ${SYSD}/DATA/OPERATION_CATEGORY/LISTS/LV3/*[^_d] | awk '{print $1,$2}' | LANG=C sort -k1 > $tmp-cate-all
 
-#オペ一覧
+#作業一覧
 cat ${SYSD}/DATA/OPERATION_LIST/LISTS/*/LV3/*[^_d] | LANG=C sort -k1 > $tmp-ope-all
 
 #JOIN
 #マップとカテゴリ
 LANG=C join -1 1 -2 1 $tmp-cate-list-map $tmp-cate-all | LANG=C sort -k2 > $tmp-ope-category
 
-#カテゴリとオペ一覧
+#カテゴリと作業一覧
 LANG=C join -1 2 -2 1 $tmp-ope-category $tmp-ope-all > $tmp-operations
 
-#カテゴリ情報とマッピングしたオペ一覧をLISTS/LV3へ配置
+#カテゴリ情報とマッピングした作業一覧をLISTS/LV3へ配置
 rm -f ${SYSD}/DATA/OPERATION_LIST/LISTS/LV3/operations_*
 mv $tmp-operations ${SYSD}/DATA/OPERATION_LIST/LISTS/LV3/operations_${UPDATE_DATE}
 

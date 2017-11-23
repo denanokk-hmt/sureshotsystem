@@ -32,21 +32,32 @@ FIN
 	cat $tmp-result
 	exit 1
 }
-#
+
 ########################################
 #フォームの入力値を取得
-NUM=$(nameread SET_CATEGORY_ID $tmp-post)
-NAME=$(nameread SET_CATEGORY_NAME $tmp-post)
-#
+nameread SET_CATEGORY_ID    $tmp-post > $tmp-pk-1
+NUM=$(cat $tmp-pk-1)
+nameread SET_CATEGORY_NM_EN $tmp-post > $tmp-pk-2
+nameread SET_CATEGORY_NM_JP $tmp-post > $tmp-pk-3
+
 ########################################
-#既存データから作成日時取得、現在日時を更新日時とする
-ls ${DATAD}/LV1/${NUM}_set_category_* | sort -nk1,1 | tail -n 1 | cut -d'/' -f8 | cut -d'_' -f4 > $tmp-create
-CREATE_DATE=$(cat $tmp-create)
+#作成日時、作成者、最終更新日時、更新者を取得
+result=`${SYSD}/CGI/DFS_INFO/CREATE_LASTUPDATE $1 ${DATAD}/LV1 ${NUM}`
+CREATE_DATE=$(cat $tmp-create-dt)
+CREATE_USER=$(cat $tmp-create-user)
+LASTUPDATE_DT=$(cat $tmp-lastupdate-dt)
+LASTUPDATE_USER=$(cat $tmp-lastupdate-user)
+
+########################################
+#更新日時を設定
 UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 
+########################################
+#更新者の取得
+UPDATE_USER=$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
 
 ########################################
-#　　セットカテゴリのデータ操作
+#　　作業カテゴリのデータ操作
 ########################################
 
 ########################################
@@ -56,75 +67,125 @@ LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
 [ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
 
 ########################################
-#入力値を一時ファイル化
-#1.セットカテゴリ番号 2.セットカテゴリ名 3.作成日時 4.更新日時 5.削除フラグ
-echo ${NUM}" "${NAME}" "${CREATE_DATE}" "${UPDATE_DATE}" "1 > $tmp-set-category
+#データ配置
+#LV1
+cat $tmp-pk-1 > ${DATAD}/LV1/${NUM}_1_${UPDATE_USER}_${UPDATE_DATE}_d
+cat $tmp-pk-2 > ${DATAD}/LV1/${NUM}_2_${UPDATE_USER}_${UPDATE_DATE}_d
+cat $tmp-pk-3 > ${DATAD}/LV1/${NUM}_3_${UPDATE_USER}_${UPDATE_DATE}_d
 
-########################################
-#データ格納
-#LV1:原始データとして、ファイル追加のみを行う
-$(mv $tmp-set-category ${DATAD}/LV1/${NUM}_set_category_${UPDATE_DATE})
+#LV2
+rm -f ${DATAD}/LV2/${NUM}_*
+cp -fp ${DATAD}/LV1/${NUM}_*_${UPDATE_DATE}_d ${DATAD}/LV2/
 
-#LV2:変更されたデータとファイルを入れ替える
-cp -ip ${DATAD}/LV1/${NUM}_set_category_${UPDATE_DATE} ${DATAD}/LV2/${NUM}_set_category_${UPDATE_DATE}_d
-ls ${DATAD}/LV2/${NUM}_* | sort -nk1 | head -n 1 > $tmp-delete
-rm -f $(cat $tmp-delete)
-
-#LV3:LV2のコピー
-cp -ip ${DATAD}/LV2/${NUM}_set_category_${UPDATE_DATE}_d ${DATAD}/LV3/${NUM}_set_category_${UPDATE_DATE}_d
-ls ${DATAD}/LV3/${NUM}_* | sort -nk1 | head -n 1 > $tmp-delete
-rm -f $(cat $tmp-delete)
+#LV3
+rm -f ${DATAD}/LV3/${NUM}_*
+for file in $(ls ${DATAD}/LV2/${NUM}_* | sort -t$'_' -nk1);
+do
+  VALUE=$(echo $VALUE `cat $file`)
+done
+echo ${VALUE} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} \
+> ${DATAD}/LV3/${NUM}_set-category_${UPDATE_DATE}_d
 
 ########################################
 #データ操作ロックを解除
 UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'SET_CATEGORY' ${NUM}`
 [ ${UNLOCK_STATUS} != 'UNLOCK' ] && exit 0 || :
 
+########################################
+#   作業のデータ操作
+#   削除する作業カテゴリに属している作業をすべて999に移動する操作
+########################################
 
-########################################
-#　　セットのデータ操作
-########################################
+#削除するカテゴリーで登録されている作業に対して、
+#未登録カテゴリーが存在していなければ作成(0)
+# 0ディレクトリに移動
+
+#セットリストDir
 SETD=${SYSD}/DATA/SET_LIST/LISTS
 
-########################################
-#待避用999Dirの作成
-if [ -e "${SETD}/999" ]; then
-  :
+#############################
+#0未登録カテゴリを作成
+if [ -e "${DATAD}/LV1/0_*" ]; then
+    :
 else
-  mkdir ${SETD}/999
-  chmod -R 770 ${SETD}/999
+    #LV1
+    echo 0              > ${DATAD}/LV1/0_1_${UPDATE_USER}_${UPDATE_DATE}
+    echo '未登録'       > ${DATAD}/LV1/0_2_${UPDATE_USER}_${UPDATE_DATE}
+    echo 'Unregistered' > ${DATAD}/LV1/0_3_${UPDATE_USER}_${UPDATE_DATE}
+
+    #LV2
+    cp -fp ${DATAD}/LV1/0_* ${DATAD}/LV2/
+
+    #LV3
+    VALUE=''
+    for file in $(ls ${DATAD}/LV2/0_* | sort -t$'_' -nk1);
+    do
+      VALUE=$(echo $VALUE `cat $file`)
+    done
+    echo ${VALUE} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} \
+    > ${DATAD}/LV3/0_set_category_${UPDATE_DATE}
 fi
 
-#削除するカテゴリーで登録されているセットに対して、
-# 1.カテゴリを999 未選択、更新日を現在にして999ディレクトリにコピー
+############################
+#SET_LISTにカテゴリ0ディレクトリを作成
+if [ -e "${SETD}/0" ]; then
+    :
+else
+    result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SETD}/0 ${SETD}/0`
+fi
+
+#削除されるカテゴリのディレクトリから、身寄りが無くなったので、0ディレクトリにセットリストをすべて移動
 for file in `find ${SETD}/${NUM}/LV3/*[^_d] -maxdepth 1 -type f`; do
 
     #セット番号取得
-    num=$(echo $file | cut -d'/' -f9 | cut -d'_' -f1) 
-    update=$(echo $file | cut -d'/' -f9 | cut -d'_' -f3) 
-    ARR+=($num)
+    SET_NO=$(echo $file | awk 'BEGIN{FS="/"}{print $NF}' | cut -d'_' -f1) 
+    #ARR+=($SET_NO)
 
     #該当のデータ操作をロック
-    LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'SET_LIST' ${num}`
+    LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'SET_LIST' ${SET_NO}`
     LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
     [ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
     
-    #LV1:原始データとして、ファイル追加のみを行う
-    destiny=${SETD}/999/LV1/${num}_set_${UPDATE_DATE}
-    cat ${SETD}/${NUM}/LV1/${num}_set_${update} | awk -v ud=${UPDATE_DATE} '{print $1, "999", "未選択", $4, $5, $6, $7, $8, ud, "0"}' > $destiny
-
-    #LV2:変更されたデータとファイルを入れ替える
-    cp -fp ${SETD}/999/LV1/${num}_set_${UPDATE_DATE} ${SETD}/999/LV2/${num}_set_${UPDATE_DATE}
-
-    #LV3:LV2のコピー
-    cp -fp ${SETD}/999/LV2/${num}_set_${UPDATE_DATE} ${SETD}/999/LV3/${num}_set_${UPDATE_DATE}
+    #LV1
+    mv ${SETD}/${NUM}/LV1/${SET_NO}_* ${SETD}/0/LV1/
+    #LV2
+    mv ${SETD}/${NUM}/LV2/${SET_NO}_* ${SETD}/0/LV2/
+    #LV3
+    mv ${SETD}/${NUM}/LV3/${SET_NO}_* ${SETD}/0/LV3/
 
     #データ操作ロックを解除
-    UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'SET_LIST' ${num}`
+    UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'SET_LIST' ${SET_NO}`
     [ ${UNLOCK_STATUS} != 'UNLOCK' ] && exit 0 || :
 done
+
 # 2.ディレクトリ名の末尾に_dをつける
 mv ${SETD}/${NUM} ${SETD}/${NUM}_${UPDATE_DATE}_d
+
+########################################
+#LV3一覧3データ配置
+#なにがしかのカテゴリNoの下にあるLV3データをかき集め、
+#ファイルパスからカテゴリNoを、
+#ファイルデータからセット番号を
+
+#紐付けたマップを作成
+ls ${SYSD}/DATA/SET_LIST/LISTS/*/LV3/*[^_d] | awk '{split($0,ary,"/"); print ary[7], ary[9]}' | cut -d'_' -f1 | LANG=C sort -k1 > $tmp-cate-list-map
+
+#セットカテゴリ一覧
+cat ${SYSD}/DATA/SET_CATEGORY/LISTS/LV3/*[^_d] | awk '{print $1,$2}' | LANG=C sort -k1 > $tmp-cate-all
+
+#セット一覧
+cat ${SYSD}/DATA/SET_LIST/LISTS/*/LV3/*[^_d] | LANG=C sort -k1 > $tmp-set-all
+
+#JOIN
+#マップとカテゴリ
+LANG=C join -1 1 -2 1 $tmp-cate-list-map $tmp-cate-all | LANG=C sort -k2 > $tmp-set-category
+
+#カテゴリとセット一覧
+LANG=C join -1 2 -2 1 $tmp-set-category $tmp-set-all > $tmp-sets
+
+#カテゴリ情報とマッピングしたセット一覧をLISTS/LV3へ配置
+rm -f ${SYSD}/DATA/SET_LIST/LISTS/LV3/sets_*
+mv $tmp-sets ${SYSD}/DATA/SET_LIST/LISTS/LV3/sets_${UPDATE_DATE}
 
 ########################################
 #
