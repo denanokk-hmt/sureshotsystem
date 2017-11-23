@@ -1,0 +1,146 @@
+#!/bin/bash -evx
+#
+
+########################################
+#	OPERATION_DETAIL/EDIT COMPLETE.CGI
+#
+#   引数
+#       $1:プロセスID
+#
+#	Written by hiramatsu
+
+
+########################################
+#基本設定
+SYSD=$(cd $(dirname $0) && pwd | awk '{print substr($0, 0, index($0, "sureshotsystem")+13)}')
+#exec 2> ${SYSD}/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
+tmp=/tmp/tmp_$1
+LANG=ja_JP.UTF-8
+#PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
+CATEGORY=`cat $tmp-category`
+FUNC=`cat $tmp-func`
+DATAD=${SYSD}/DATA/${CATEGORY}/LISTS
+
+########################################
+#Check error
+ERROR_CHECK(){
+	[ $(plus ${PIPESTATUS[@]}) -eq 0 ] && return
+cat <<- FIN
+	Context-type: text/html
+	NG input
+FIN
+	cat $tmp-result
+	exit 1
+}
+
+########################################
+#作業カテゴリ更新中は、処理をさせない
+#ls ${SYSD}/LOCK/OPERATION_CATEGORY/* > $tmp-checker
+#if [ -n cat $tmp-checker ] ; then
+#    echo "333" > $tmp-ajax-html
+#    exit 0
+#fi
+
+#######################################
+#フォームの入力値を取得
+OPERATION_NO=$(nameread OPERATION_NO  $tmp-post | awk '{gsub(/^\_$/,"",$1);print}')     #オペレーションNo
+PK=$(nameread DETAIL_NO  $tmp-post | awk '{gsub(/^\_$/,"",$1);print}')                  #詳細No(PK)
+nameread DETAIL_NAME  $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-name-org      #詳細名称
+nameread DETAIL_VALUE $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value-org     #詳細値
+
+#######################################
+#「&」エスケープ
+cat $tmp-name-org   | sed 's/\&/\\\\\\&/' > $tmp-name
+cat $tmp-value-org  | sed 's/\&/\\\\\\&/' > $tmp-value
+
+########################################
+#バリデーションを設定
+
+#DETAIL_NAME
+cat $tmp-name   | awk '{print sprintf("DETAIL_NAME|ISNULL|%s",$1)}'   >> $tmp-validation  #必須入力
+cat $tmp-name   | awk '{print sprintf("DETAIL_NAME|DUPLICATE|OPERATION_DETAIL,LISTS,"",1,%s",$1)}'  >> $tmp-validation  #重複確認
+
+#DETAIL_VALUE
+cat $tmp-value  | awk '{print sprintf("DETAIL_VALUE|ISNULL|%s",$1)}'  >> $tmp-validation  #必須入力
+
+########################################
+#バリデーションを実行
+result=`${SYSD}/CGI/VALID/VALIDATION $1`
+
+########################################
+#バリデーション結果
+if [ -n "$(grep "|NG" $tmp-valid-report)" ] ; then
+    #Validation NG
+    echo 'VALID_NG@' $(cat $tmp-valid-report) > $tmp-ajax-html
+    #echo 2222 > $tmp-ajax-html
+    exit 0
+fi
+
+########################################
+#作成日時、作成者、最終更新日時、更新者を取得
+result=`${SYSD}/CGI/DFS_INFO/CREATE_LASTUPDATE $1 ${DATAD}/LV1 ${OPERATION_NO}_${PK}`
+CREATE_DATE=$(cat $tmp-create-dt)
+CREATE_USER=$(cat $tmp-create-user)
+LASTUPDATE_DT=$(cat $tmp-lastupdate-dt)
+LASTUPDATE_USER=$(cat $tmp-lastupdate-user)
+
+########################################
+#更新日時を設定
+UPDATE_DATE=$(date +%Y%m%d%H%M%S)
+
+########################################
+#更新者の取得
+UPDATE_USER=$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
+
+########################################
+#オペリスト格納用カテゴリDirを作成
+result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/OPERATION_LIST/LISTS/${CATEGORY_NO} ${SYSD}/DATA/OPERATION_DETAIL/LISTS`
+
+########################################
+#該当のデータ操作をロック
+LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'OPERATION_DETAIL' ${OPERATION_NO}_${PK}`
+LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
+[ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
+
+########################################
+#データ配置
+#LV1
+echo $(cat $tmp-name):$(cat $tmp-value) > ${DATAD}/LV1/${OPERATION_NO}_${PK}_${UPDATE_USER}_${UPDATE_DATE}
+
+#LV2
+rm -f ${DATAD}/LV2/${OPERATION_NO}_${PK}_*
+cp -fp ${DATAD}/LV1/${OPERATION_NO}_${PK}_*${UPDATE_DATE} ${DATAD}/LV2/
+
+#LV3
+rm -f ${DATAD}/LV3/${OPERATION_NO}_*
+for file in $(ls ${DATAD}/LV2/${OPERATION_NO}_* | sort -t$'_' -nk1);
+do
+  PK=$(basename $file | cut -d'_' -f2)
+  VALUE=$(cat $file   | awk 'BEGIN{FS=":"}{print $1,$2}')
+  echo ${PK} ${VALUE} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} \
+  >> ${DATAD}/LV3/${OPERATION_NO}_details_${UPDATE_DATE}
+done
+
+########################################
+#データ操作ロックを解除
+UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'OPERATION_LIST' ${OPERATION_NO}_${PK}`
+[ ${UNLOCK_STATUS} != 'UNLOCK' ] && exit 0 || :
+
+########################################
+#詳細を取得
+cat ${DATAD}/LV3/${OPERATION_NO}_details_*  > $tmp-records
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/RECORDS.HTML $tmp-records > $tmp-table
+
+########################################
+# 改行文字を「\\n」という3文字の文字列に置換
+TABLE_RECORDS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table`
+
+########################################
+#tableにrecordsを嵌め込む
+cat ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/TABLE.HTML     |
+sed -e "s|###TABLE_RECORDS###|${TABLE_RECORDS}|g"       > $tmp-ajax-html
+
+########################################
+#ending
+echo "OK"
+exit 0

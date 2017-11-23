@@ -1,0 +1,266 @@
+<!--<!DOCTYPE html>-->
+<!--<html>-->
+
+<div id="whole" class="container fade-in" style="opacity:0">
+     
+    <!--Header Info-->
+    <div class="col-md-1 col-xs-1" >
+        <i class="glyphicon glyphicon-info-sign"></i>
+    </div>
+ 
+    <!--Header Info-->
+    <div class="col-md10 lbl-header-info">
+        <span id="info-msg" class="label label-lg label-###INFO_LV###">
+            ###INFO_MSG###
+        </span>
+    </div>
+    <!--ERROR MESSAGE-->
+    <div class="row">
+        <div class="col-md-10 lbl-header-info">
+            <div>
+                <span id="NAME_ISNULL_MSG" class="fade-in label label-danger ###NAME_ISNULL###">NAMEに、値がありません。</span>
+            </div>
+            <div>
+                <span id="VALUE_ISNULL_MSG" class="fade-in label label-danger ###VALUE_ISNULL###">VALUEに、値がありません。</span>
+            </div>
+        </div>
+    </div>
+    <br>
+
+    <!--Contents Records/Pagination-->
+    <div class="header-under-contents">
+
+	      <div class="row fix">
+            <!--作業番号-->
+            <div class="col-md-3 col-xs-3">
+                <span class=" ">作業No：</span>
+                <span class=" ">###OPERATION_NO###</span>
+                <input type="hidden" id="OPERATION_NO" name="OPERATION_NO" value="###OPERATION_NO###" />
+                
+            </div>
+            <!--カテゴリ-->
+            <div class="col-md-3 col-xs-3">
+                <span class=" ">カテゴリ：</span>
+                <span class=" ">###OPERATION_CATEGORY_NM###</span>
+            </div>
+            <!--作業名-->
+            <div class="col-md-3 col-xs-3">
+                <span class=" ">作業名：</span>
+                <span class=" ">###OPERATION_NM###</span>
+            </div>
+            <!--工賃-->
+            <div class="col-md-3 col-xs-3">
+                <span class=" ">作業工賃：</span>
+                <span class=" ">###OPERATION_PRICE###</span>
+            </div>
+        </div>
+	  
+        <!--Spacer-->
+        <div class="border15"></div> 
+        <div class="header-dummy" style="height:1.0em; background-color:piink;"></div>
+
+        <!--Details--> 
+        <form name="main" class="form-inline form-horizontal"  action="" method="">
+            <input type="hidden" id="ACTION" name="ACTION" value="COMPLETE" />
+            <input type="hidden" id="REST" name="REST" value="" />
+            <input type="hidden" id="PAGE" name="PAGE" value="###PAGE###" />
+            <input type="hidden" id="SEARCH" name="SEARH" value="0" />
+            <input type="hidden" id="CATEGORY_NM" name="CATEGORY_NM" value="###CATEGORY_NM###" />
+            <input type="hidden" id="CATEGORY_NO" name="CATEGORY_NO" value="###CATEGORY_NO###" />
+            <div class="contents-table">
+                ###TABLE###
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+
+    //Validation Err MSGのOpacityを初期化
+    $(document).ready(function(){
+        validationErrMsgInit();
+    });
+
+    //ロード時に全画面をフェードイン
+    $(window).on('load',function(){
+        $('#whole').css("opacity","1");
+    });
+
+    //バリデーションエラーMSGの初期化
+    function validationErrMsgInit() {
+
+        //バリデーションエラー表示をクリア
+        $('input[type=text]').removeClass("label-danger");
+        $('.lbl-header-info .label').removeClass("show");
+        $('.lbl-header-info .label').addClass("hidden");
+        $('#info-msg').html("");
+
+        //バリデーションエラーMSGをフェードアウト
+        fadeInOut(0);
+    }
+
+    /*バリデーションエラーMSGをフェードアウト
+    *   引数 inout
+    *   フェードイン:1
+    *   フェードアウト:0
+    */
+    function fadeInOut(inout) {
+        $('.fade-in').not('#whole').each(function(){
+            $(this).css("opacity",inout );
+        });
+    }
+
+    $(document).ready(function() {
+        $("#pager").sticky({topSpacing:0});
+    });
+
+    //一覧画面へ遷移
+    function goToList() {
+
+        //バリデーションエラーMSG初期化
+        validationErrMsgInit();
+
+        //GETパラメーターの順番は、action,page,serach,category-nm,category-no が前提
+        var action = '?action=SHOW';
+        var page = '&page=' + $('#page').val();
+        var search = '&search=' + $('#search').val();
+        var categoryNm = '&category-nm=' + $('#CATEGORY_NM_HID_PAGE').val();
+        var categoryNo = '&category-no=' + $('#CATEGORY_NO_HID_PAGE').val();
+
+        //一覧へ 
+        location.href='/APP/OPERATION_LIST/LISTS' + action + page + search + categoryNm + categoryNo;
+    }
+
+    //詳細追加
+    function newDetail() {
+
+        //バリデーションエラーMSG初期化
+        validationErrMsgInit();
+
+        $('#REST').val('POST');
+        var new_detail_name = $('#DETAIL_NAME_NEW').val();
+        //var params = $('form').serialize();
+        var jqXHR = $.ajax({
+            type: 'POST',
+            url: '/APP/OPERATION_DETAIL/NEW',
+            //data: params
+            data: {
+                ACTION: 'COMPLETE',
+                REST: 'POST',
+                OPERATION_NO:$('#OPERATION_NO').val(),
+                DETAIL_NAME: $('#DETAIL_NAME_NEW').val(),
+                DETAIL_VALUE:$('#DETAIL_VALUE_NEW').val()
+            }
+        });
+        jqXHR.done(function(data) {
+            //バリデーションエラーの場合、先頭にVALID=NG
+            //デリミタとして「@」を指定されてくる
+            var valid_result = data.split("@");
+            if (valid_result[0] == 'VALID_NG') {
+
+                //バリデーションエラー表示
+                var r = validationResultDisplay('NEW', valid_result[1], 'POST');
+
+                //バリデーションMSGをフワッと表示 
+                fadeInOut(1);
+
+                if (r != 'OK') {  
+                    alert("新規登録処理に失敗しました。");
+                }
+            } else {
+                $('table').html(data);
+                $('#info-msg').html(new_detail_name + "を追加しました。");
+                alert(new_detail_name + "を追加しました。");
+            }
+        });
+        jqXHR.fail(function(data) {
+            alert("新規登録処理に失敗しました。");
+        });
+    }
+
+    //詳細変更
+    function editDetail(id) {
+
+        //バリデーションエラーMSG初期化
+        validationErrMsgInit();
+
+        var edit_detail_name = $('#DETAIL_NAME_' + id).val();
+        var jqXHR = $.ajax({
+            type: 'POST',
+            url: '/APP/OPERATION_DETAIL/EDIT',
+            data: {
+                ACTION: 'COMPLETE',
+                REST: 'PUT',
+                OPERATION_NO:$('#OPERATION_NO').val(),
+                DETAIL_NO: id,
+                DETAIL_NAME: $('#DETAIL_NAME_' + id).val(),
+                DETAIL_VALUE:$('#DETAIL_VALUE_' + id).val()
+            }
+        });
+        jqXHR.done(function(data) {
+            //バリデーションエラーの場合、先頭にVALID=NG
+            //デリミタとして「@」を指定されてくる
+            var valid_result = data.split("@");
+            if (valid_result[0] == 'VALID_NG') {
+
+                //バリデーションエラー表示
+                var r = validationResultDisplay(id, valid_result[1], 'PUT');
+
+                //バリデーションMSGをフワッと表示 
+                fadeInOut(1);
+
+                if (r != 'OK') {  
+                    alert("更新処理に失敗しました。");
+                }
+            } else {
+                $('table').html(data);
+                $('#info-msg').html(edit_detail_name + "に変更しました。");
+                alert(edit_detail_name + "に変更しました。");
+            }
+        });
+        jqXHR.fail(function() {
+            alert("更新処理に失敗しました。");
+        });
+    }
+
+    //詳細削除
+    function deleteDetail(id) {
+
+        //バリデーションエラーMSG初期化
+        validationErrMsgInit();
+ 
+        //削除処理
+        var delete_detail_name = $('#DETAIL_NAME_' + id).val();
+        var jqXHR = $.ajax({
+            type: 'POST',
+            url: '/APP/OPERATION_DETAIL/DELETE',
+            data: {
+                ACTION: 'COMPLETE',
+                REST: 'DELETE',
+                OPERATION_NO:$('#OPERATION_NO').val(),
+                DETAIL_NO: id,
+                DETAIL_NAME: $('#DETAIL_NAME_' + id).val(),
+                DETAIL_VALUE:$('#DETAIL_VALUE_' + id).val()
+            }
+       });
+        jqXHR.done(function(data) {
+            if (data == 2222) {
+                alert(delete_detail_name + "は、使用されていませんでした。");
+            } else if (data == 111) {
+                var sel = '#edit-row-' + id;
+                $(sel).remove();
+                $('#info-msg').html(delete_detail_name + "を削除しました。");
+                alert(delete_detail_name + "を削除しました。");
+            } else {
+                $('#info-msg').html(delete_detail_name + "を削除出来ませんでした。");
+                alert(delete_detail_name + "を削除出来ませんでした。");
+            }
+        });
+        jqXHR.fail(function() {
+            alert("削除処理に失敗しました。");
+        });
+ 
+    }
+
+</script>
+<!--</html>-->

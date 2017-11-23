@@ -115,14 +115,6 @@ result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/OPERATION_LIST/LISTS ${SYSD}/DA
 result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/OPERATION_LIST/LISTS/${CATEGORY_NO} ${SYSD}/DATA/OPERATION_LIST/LISTS/${CATEGORY_NO}`
 
 ########################################
-#作業ディテールディレクトリを作成する
-result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/OPERATION_DETAIL/LISTS ${SYSD}/DATA/OPERATION_DETAIL/LISTS`
-
-########################################
-#作業ディテール格納用カテゴリDirを作成
-result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/OPERATION_DETAIL/LISTS/${CATEGORY_NO} ${SYSD}/DATA/OPERATION_DETAIL/LISTS/${CATEGORY_NO}`
-
-########################################
 #データ配置
 #LV1
 cat $tmp-pk-1 > ${DATAD}/${CATEGORY_NO}/LV1/${NEW_NUM}_1_${CREATE_USER}_${CREATE_DATE}
