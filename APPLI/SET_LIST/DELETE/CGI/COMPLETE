@@ -87,7 +87,7 @@ rm -f ${DATAD}/LV3/${NUM}_setlist_*
 ########################################
 #データ操作ロックを解除
 UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'SET_LIST' ${NUM}`
-[ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
+[ ${UNLOCK_STATUS} != 'UNLOCK' ] && exit 0 || :
 
 ########################################
 #

@@ -183,7 +183,7 @@ mv $tmp-parts-list ${SYSD}/DATA/PARTS_LIST/LISTS/LV3/parts_${CREATE_DATE}
 ########################################
 #データ操作ロックを解除
 UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'PARTS_LIST' ${NUM}`
-[ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
+[ ${UNLOCK_STATUS} != 'UNLOCK' ] && exit 0 || :
 
 ########################################
 #Ajax return

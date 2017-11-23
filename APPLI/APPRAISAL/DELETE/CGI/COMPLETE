@@ -83,7 +83,7 @@ rm -f $(cat $tmp-delete)
 ########################################
 #データ操作ロックを解除
 UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'PARTS_LIST' ${NUM}`
-[ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
+[ ${UNLOCK_STATUS} != 'UNLOCK' ] && exit 0 || :
 
 ########################################
 #パーツカテゴリを取得

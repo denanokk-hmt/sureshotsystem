@@ -189,7 +189,7 @@ mv $tmp-operations ${DATAD}/LV3/operations_${UPDATE_DATE}
 ########################################
 #データ操作ロックを解除
 UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'OPERATION_LIST' ${NUM}`
-[ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
+[ ${UNLOCK_STATUS} != 'UNLOCK' ] && exit 0 || :
 
 ########################################
 #

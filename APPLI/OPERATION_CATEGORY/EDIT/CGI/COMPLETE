@@ -117,7 +117,7 @@ echo ${VALUE} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} \
 ########################################
 #データ操作ロックを解除
 UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'OPERATION_CATEGORY' ${NUM}`
-[ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
+[ ${UNLOCK_STATUS} != 'UNLOCK' ] && exit 0 || :
 
 ########################################
 #LV3一覧3データ配置

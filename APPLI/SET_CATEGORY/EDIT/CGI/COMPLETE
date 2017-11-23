@@ -87,7 +87,7 @@ rm -f $(cat $tmp-delete)
 ########################################
 #データ操作ロックを解除
 UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'SET_CATEGORY' ${NUM}`
-[ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
+[ ${UNLOCK_STATUS} != 'UNLOCK' ] && exit 0 || :
 
 
 ########################################
@@ -126,7 +126,7 @@ for file in `find ${SETD}/LV3/*[^_d] -maxdepth 1 -type f`; do
     
     #データ操作ロックを解除
     UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'SET_LIST' ${num}`
-    [ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
+    [ ${UNLOCK_STATUS} != 'UNLOCK' ] && exit 0 || :
 done
 
 

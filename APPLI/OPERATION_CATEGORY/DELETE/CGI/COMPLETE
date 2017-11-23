@@ -89,7 +89,7 @@ echo ${VALUE} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} \
 ########################################
 #データ操作ロックを解除
 UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'OPERATION_CATEGORY' ${NUM}`
-[ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
+[ ${UNLOCK_STATUS} != 'UNLOCK' ] && exit 0 || :
 
 ########################################
 #   作業のデータ操作
@@ -154,7 +154,7 @@ for file in `find ${OPERATIOND}/${NUM}/LV3/*[^_d] -maxdepth 1 -type f`; do
 
     #データ操作ロックを解除
     UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'OPERATION_LIST' ${OPE_NO}`
-    [ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
+    [ ${UNLOCK_STATUS} != 'UNLOCK' ] && exit 0 || :
 done
 
 # 2.ディレクトリ名の末尾に_dをつける

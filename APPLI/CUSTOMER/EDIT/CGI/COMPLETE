@@ -102,7 +102,7 @@ rm -f $(cat $tmp-delete)
 ########################################
 #CUSTOMERのデータ操作ロックを解除
 UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 ${CATEGORY} ${CUSTOMER_NUM}`
-[ ${UNLOCK_STATUS} != 'UNLOCK'] && exit 0 || :
+[ ${UNLOCK_STATUS} != 'UNLOCK' ] && exit 0 || :
 
 ########################################
 #HTMLの設定
