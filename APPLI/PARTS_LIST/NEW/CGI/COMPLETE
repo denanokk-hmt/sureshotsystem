@@ -115,14 +115,6 @@ result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/PARTS_LIST/LISTS ${SYSD}/DATA/P
 result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/PARTS_LIST/LISTS/${CATEGORY_NO} ${SYSD}/DATA/PARTS_LIST/LISTS/${CATEGORY_NO}`
 
 ########################################
-#部品ディテールディレクトリを作成する
-result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/PARTS_DETAIL/LISTS ${SYSD}/DATA/PARTS_DETAIL/LISTS`
-
-########################################
-#部品ディテール格納用カテゴリDirを作成
-result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/PARTS_DETAIL/LISTS/${CATEGORY_NO} ${SYSD}/DATA/PARTS_DETAIL/LISTS/${CATEGORY_NO}`
-
-########################################
 #データ配置
 #LV1
 cat $tmp-pk-1 > ${DATAD}/${CATEGORY_NO}/LV1/${NEW_NUM}_1_${CREATE_USER}_${CREATE_DATE}

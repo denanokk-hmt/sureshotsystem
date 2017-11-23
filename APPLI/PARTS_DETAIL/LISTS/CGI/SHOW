@@ -2,7 +2,7 @@
 #
 
 ########################################
-# OPERATION_DETAIL/LIST SHOW.CGI
+# PARTS_DETAIL/LIST SHOW.CGI
 #
 #   $1:必須 $$
 #
@@ -49,12 +49,12 @@ CATEGORY_NO=$(cat $tmp-get | awk '{split($0,ary,"&"); print ary[5]}' | sed 's/ca
 NUM=$(cat $tmp-get | awk '{split($0,ary,"&"); print ary[6]}' | sed 's/id\=//')
 
 ########################################
-#作業リストを取得
-cat ${SYSD}/DATA/OPERATION_LIST/LISTS/LV3/operations_* |
-awk -v no=${NUM} '$1==no {print}' > $tmp-ope
-cat $tmp-ope | awk '{print $3}' > $tmp-category-nm
-cat $tmp-ope | awk '{print $4}' > $tmp-operation-nm
-cat $tmp-ope | awk '{print $5}' > $tmp-price
+#詳細リストを取得
+cat ${SYSD}/DATA/PARTS_LIST/LISTS/LV3/parts_* |
+awk -v no=${NUM} '$1==no {print}' > $tmp-parts
+cat $tmp-parts | awk '{print $3}' > $tmp-category-nm
+cat $tmp-parts | awk '{print $4}' > $tmp-parts-nm
+cat $tmp-parts | awk '{print $5}' > $tmp-price
 
 ########################################
 #詳細を取得
@@ -76,21 +76,21 @@ TABLE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-html`
 
 ########################################
 #tableをはめ込む
-cat ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/SHOW.HTML                |
-sed -e "s|###OPERATION_NO###|${NUM}|g"                            |
-sed -e "s|###OPERATION_CATEGORY_NM###|$(cat $tmp-category-nm)|g"  |
-sed -e "s|###OPERATION_NM###|$(cat $tmp-operation-nm)|g"          |
-sed -e "s|###OPERATION_PRICE###|$(cat $tmp-price)|g"              |
-sed -e "s|###CATEGORY_NM###|${CATEGORY_NM}|g"                     |
-sed -e "s|###CATEGORY_NO###|${CATEGORY_NO}|g"                     |
-sed -e "s|###PAGE###|${QRY_PAGE}|g"                               |
-sed -e "s|###SEARCH###|${SEARCH}|g"                               |
-sed -e "s|###TABLE###|${TABLE}|g"                                 |
-sed -e "s|###INFO_MSG###||g"                                      > $tmp-html
+cat ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/SHOW.HTML            |
+sed -e "s|###PARTS_NO###|${NUM}|g"                            |
+sed -e "s|###PARTS_CATEGORY_NM###|$(cat $tmp-category-nm)|g"  |
+sed -e "s|###PARTS_NM###|$(cat $tmp-parts-nm)|g"              |
+sed -e "s|###PARTS_PRICE###|$(cat $tmp-price)|g"              |
+sed -e "s|###CATEGORY_NM###|${CATEGORY_NM}|g"                 |
+sed -e "s|###CATEGORY_NO###|${CATEGORY_NO}|g"                 |
+sed -e "s|###PAGE###|${QRY_PAGE}|g"                           |
+sed -e "s|###SEARCH###|${SEARCH}|g"                           |
+sed -e "s|###TABLE###|${TABLE}|g"                             |
+sed -e "s|###INFO_MSG###||g"                                  > $tmp-html
 
 ########################################
 #page name
-echo "Operation detail" > $tmp-pagename
+echo "Parts detail" > $tmp-pagename
 
 ########################################
 echo "OK"

@@ -2,7 +2,7 @@
 #
 
 ########################################
-#	OPERATION_DETAIL/EDIT COMPLETE.CGI
+#	PARTS_DETAIL/EDIT COMPLETE.CGI
 #
 #   引数
 #       $1:プロセスID
@@ -35,7 +35,7 @@ FIN
 
 ########################################
 #作業カテゴリ更新中は、処理をさせない
-#ls ${SYSD}/LOCK/OPERATION_CATEGORY/* > $tmp-checker
+#ls ${SYSD}/LOCK/PARTS_CATEGORY/* > $tmp-checker
 #if [ -n cat $tmp-checker ] ; then
 #    echo "333" > $tmp-ajax-html
 #    exit 0
@@ -43,7 +43,7 @@ FIN
 
 #######################################
 #フォームの入力値を取得
-OPERATION_NO=$(nameread OPERATION_NO  $tmp-post | awk '{gsub(/^\_$/,"",$1);print}')     #オペレーションNo
+PARTS_NO=$(nameread PARTS_NO  $tmp-post | awk '{gsub(/^\_$/,"",$1);print}')             #パーツNo
 PK=$(nameread DETAIL_NO  $tmp-post | awk '{gsub(/^\_$/,"",$1);print}')                  #詳細No(PK)
 nameread DETAIL_NAME  $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-name-org      #詳細名称
 nameread DETAIL_VALUE $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value-org     #詳細値
@@ -58,7 +58,7 @@ cat $tmp-value-org  | sed 's/\&/\\\\\\&/' > $tmp-value
 
 #DETAIL_NAME
 cat $tmp-name   | awk '{print sprintf("DETAIL_NAME|ISNULL|%s",$1)}'   >> $tmp-validation  #必須入力
-cat $tmp-name   | awk '{print sprintf("DETAIL_NAME|DUPLICATE|OPERATION_DETAIL,LISTS,"",2,%s",$1)}'  >> $tmp-validation  #重複確認
+cat $tmp-name   | awk '{print sprintf("DETAIL_NAME|DUPLICATE|PARTS_DETAIL,LISTS,"",2,%s",$1)}'  >> $tmp-validation  #重複確認
 
 #DETAIL_VALUE
 cat $tmp-value  | awk '{print sprintf("DETAIL_VALUE|ISNULL|%s",$1)}'  >> $tmp-validation  #必須入力
@@ -78,7 +78,7 @@ fi
 
 ########################################
 #作成日時、作成者、最終更新日時、更新者を取得
-result=`${SYSD}/CGI/DFS_INFO/CREATE_LASTUPDATE $1 ${DATAD}/LV1 ${OPERATION_NO}_${PK}`
+result=`${SYSD}/CGI/DFS_INFO/CREATE_LASTUPDATE $1 ${DATAD}/LV1 ${PARTS_NO}_${PK}`
 CREATE_DATE=$(cat $tmp-create-dt)
 CREATE_USER=$(cat $tmp-create-user)
 LASTUPDATE_DT=$(cat $tmp-lastupdate-dt)
@@ -93,42 +93,42 @@ UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 UPDATE_USER=$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
 
 ########################################
-#オペリスト格納用カテゴリDirを作成
-result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/OPERATION_LIST/LISTS/${CATEGORY_NO} ${SYSD}/DATA/OPERATION_DETAIL/LISTS`
+#パーツリスト格納用カテゴリDirを作成
+result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/PARTS_LIST/LISTS/${CATEGORY_NO} ${SYSD}/DATA/PARTS_DETAIL/LISTS`
 
 ########################################
 #該当のデータ操作をロック
-LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'OPERATION_DETAIL' ${OPERATION_NO}_${PK}`
+LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'PARTS_DETAIL' ${PARTS_NO}_${PK}`
 LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
 [ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
 
 ########################################
 #データ配置
 #LV1
-echo $(cat $tmp-name):$(cat $tmp-value) > ${DATAD}/LV1/${OPERATION_NO}_${PK}_${UPDATE_USER}_${UPDATE_DATE}
+echo $(cat $tmp-name):$(cat $tmp-value) > ${DATAD}/LV1/${PARTS_NO}_${PK}_${UPDATE_USER}_${UPDATE_DATE}
 
 #LV2
-rm -f ${DATAD}/LV2/${OPERATION_NO}_${PK}_*
-cp -fp ${DATAD}/LV1/${OPERATION_NO}_${PK}_*${UPDATE_DATE} ${DATAD}/LV2/
+rm -f ${DATAD}/LV2/${PARTS_NO}_${PK}_*
+cp -fp ${DATAD}/LV1/${PARTS_NO}_${PK}_*${UPDATE_DATE} ${DATAD}/LV2/
 
 #LV3
-rm -f ${DATAD}/LV3/${OPERATION_NO}_*
-for file in $(ls ${DATAD}/LV2/${OPERATION_NO}_* | sort -t$'_' -nk1);
+rm -f ${DATAD}/LV3/${PARTS_NO}_*
+for file in $(ls ${DATAD}/LV2/${PARTS_NO}_* | sort -t$'_' -nk1);
 do
   PK=$(basename $file | cut -d'_' -f2)
   VALUE=$(cat $file   | awk 'BEGIN{FS=":"}{print $1,$2}')
   echo ${PK} ${VALUE} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} \
-  >> ${DATAD}/LV3/${OPERATION_NO}_details_${UPDATE_DATE}
+  >> ${DATAD}/LV3/${PARTS_NO}_details_${UPDATE_DATE}
 done
 
 ########################################
 #データ操作ロックを解除
-UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'OPERATION_LIST' ${OPERATION_NO}_${PK}`
+UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'PARTS_LIST' ${PARTS_NO}_${PK}`
 [ ${UNLOCK_STATUS} != 'UNLOCK' ] && exit 0 || :
 
 ########################################
 #詳細を取得
-cat ${DATAD}/LV3/${OPERATION_NO}_details_*  > $tmp-records
+cat ${DATAD}/LV3/${PARTS_NO}_details_*  > $tmp-records
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/RECORDS.HTML $tmp-records > $tmp-table
 
 ########################################

@@ -1,0 +1,33 @@
+<!--DETAIL LISTS Records-->
+<!--<html>-->
+<!--RECORDS-->
+<tr id="edit-row-%1">
+    <td>%1</td>
+    <td>
+        <!--Name-->
+        <input type="text" 
+                name="DETAIL_NAME_%1" 
+                id="DETAIL_NAME_%1" 
+                value="%2" 
+                class="form-control input-sm" 
+        />
+    </td>
+    <td>
+        <!--Value-->
+        <input type="text" 
+                name="DETAIL_VALUE_%1" 
+                id="DETAIL_VALUE_%1" 
+                value="%3" 
+                class="form-control input-sm" 
+        />
+    </td>
+    <td>
+        <!--更新ボタン-->
+        <a class="btn btn-warning btn-sm" id="DETAIL_EDIT_%1" onclick="editDetail(%1); return false;" >EDIT</a>
+        <!--削除ボタン-->
+        <a class="btn btn-danger btn-sm" id="DETAIL_DELETE_%1" onclick="deleteDetail(%1); return false;" >DEL</a>
+    </td>
+</tr>
+<!--RECORDS-->
+
+<!--</html>-->

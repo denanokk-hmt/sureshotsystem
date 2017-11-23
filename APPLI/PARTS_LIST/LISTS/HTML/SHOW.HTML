@@ -168,11 +168,25 @@
             $('#search').val(1);
             $('#SEARCH').val(1);
         }
-
-        //POST,PUT,DELETEパラメータようにhiddenに値を設定
-        //$('#CATEGORY_NM').val(choice);
-        //$('#CATEGORY_NO').val(cat_no);
     });
+
+    //詳細画面へ遷移
+    function goToDetail(id) {
+
+        //バリデーションエラーMSG初期化
+        validationErrMsgInit();
+
+        //GETパラメーターの順番は、action,page,serach,category-nm,category-no が前提
+        var action = '?action=SHOW';
+        var page = '&page=' + $('#page').val();
+        var search = '&search=' + $('#search').val();
+        var categoryNm = '&category-nm=' + $('#CATEGORY_NM_HID_PAGE').val();
+        var categoryNo = '&category-no=' + $('#CATEGORY_NO_HID_PAGE').val();
+        var operationId = '&id=' + id;
+
+        //詳細へ 
+        location.href='/APP/PARTS_DETAIL/LISTS' + action + page + search + categoryNm + categoryNo + operationId;
+    }
 
     //パーツ追加
     function newParts() {
@@ -223,28 +237,6 @@
         jqXHR.fail(function(data) {
             alert("新規登録処理に失敗しました。");
         });
-    }
-
-    //詳細画面へ遷移
-    function detailOperation(id) {
-
-        //バリデーションエラーMSG初期化
-        validationErrMsgInit();
-
-        //GETパラメーターの順番は、action,page,serach,category-nm,category-no が前提
-        var action = '?action=SHOW';
-        var page = '&page=' + $('#page').val();
-        var search = '&search=' + $('#search').val();
-        var categoryNm = $('#CATEGORY_NM_HID_PAGE').val();
-        var categoryNo = $('#CATEGORY_NO_HID_PAGE').val();
-        if (categoryNo != '') {
-            categoryNm = '&category-nm=' + categoryNm;
-            categoryNo = '&category-no=' + categoryNo;
-        }
-        var operationId = '&id=' + id;
-
-        //詳細へ 
-        location.href='/APP/PARTS_DETAIL/LISTS' + action + page + search + categoryNm + categoryNo + operationId;
     }
 
     //パーツ変更
