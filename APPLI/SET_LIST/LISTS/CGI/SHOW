@@ -2,7 +2,7 @@
 #
 
 ########################################
-#	PARTS_LIST/LIST SHOW.CGI
+#	SET_LIST/LIST SHOW.CGI
 #
 #   $1:必須 $$
 #
@@ -64,33 +64,33 @@ START=$(cat $tmp-rec-start)
 END=$(cat $tmp-rec-end)
 
 ########################################
-#パーツカテゴリを取得
-cat ${SYSD}/DATA/PARTS_CATEGORY/LISTS/LV3/*[^_d]    |
+#セットカテゴリを取得
+cat ${SYSD}/DATA/SET_CATEGORY/LISTS/LV3/*[^_d]    |
 LANG=C sort -nk1,1                                  > $tmp-category
 
 ########################################
-#Page絞り込み用のパーツカテゴリ
+#Page絞り込み用のセットカテゴリ
 # 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_PAGE.HTML $tmp-category > $tmp-parts-category-page
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_PAGE.HTML $tmp-category > $tmp-set-category-page
 
 ########################################
-#パーツリスト用のパーツカテゴリ
+#セットリスト用のセットカテゴリ
 # 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_LIST.HTML $tmp-category > $tmp-parts-category-list
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_LIST.HTML $tmp-category > $tmp-set-category-list
 
 ########################################
-#パーツ新規登録用のパーツカテゴリ
+#セット新規登録用のセットカテゴリ
 # 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_NEW.HTML $tmp-category > $tmp-parts-category-new
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_NEW.HTML $tmp-category > $tmp-set-category-new
 
 ########################################
 # 改行文字を「\\n」という3文字の文字列に置換
-CATEGORY_PAGE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-page`
-CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-list`
-CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-new`
+CATEGORY_PAGE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-set-category-page`
+CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-set-category-list`
+CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-set-category-new`
 
 ########################################
-#パーツリストを取得
+#セットリストを取得
 [ -z "${PAGE_CATEGORY_NO}" ] && ${PAGE_CATEGORY_NO}=0 || :
 if [ "${PAGE_CATEGORY_NO}" -gt 0 ] ; then
     #ページフィルターにALL以外(空欄を除く)が選択された場合
@@ -139,7 +139,7 @@ sed -e "s|###PAGER###|$(cat $tmp-pager-html)|g"             > $tmp-html
 
 ########################################
 #page name
-echo "Parts lists" > $tmp-pagename
+echo "Set lists" > $tmp-pagename
 
 ########################################
 echo "OK"

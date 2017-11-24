@@ -34,7 +34,7 @@ FIN
 }
 
 ########################################
-#パーツカテゴリ更新中は、処理をさせない
+#セットカテゴリ更新中は、処理をさせない
 #ls ${SYSD}/LOCK/SET_CATEGORY/* > $tmp-checker
 #if [ -n cat $tmp-checker ] ; then
 #    echo "333" > $tmp-ajax-html
@@ -56,7 +56,6 @@ CATEGORY_NX=$(cat $tmp-category-nx)
 #######################################
 #「&」エスケープ
 cat $tmp-pk-2-org | sed 's/\&/\\\\\\&/' > $tmp-pk-2
-
 
 ########################################
 #作成日時、作成者、最終更新日時、更新者を取得
@@ -100,31 +99,31 @@ do
   VALUE=$(echo $VALUE `cat $file`)
 done
 echo ${VALUE} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} \
-> ${DATAD}/${CATEGORY_NX}/LV3/${NUM}_operation-list_${UPDATE_DATE}_d
+> ${DATAD}/${CATEGORY_NX}/LV3/${NUM}_set-list_${UPDATE_DATE}_d
 
 
 ########################################
 #正規データ配置
-#なにがしかのカテゴリNoの下にあるLV3データをかき集め、ファイルパスからカテゴリNoを、ファイルデータからパーツ番号を
+#なにがしかのカテゴリNoの下にあるLV3データをかき集め、ファイルパスからカテゴリNoを、ファイルデータからセット番号を
 #紐付けたマップを作成
 ls ${SYSD}/DATA/SET_LIST/LISTS/*/LV3/*[^_d] | awk '{split($0,ary,"/"); print ary[7], ary[9]}' | cut -d'_' -f1 | LANG=C sort -k1 > $tmp-cate-list-map
 
-#パーツカテゴリ一覧
+#セットカテゴリ一覧
 cat ${SYSD}/DATA/SET_CATEGORY/LISTS/LV3/*[^_d] | awk '{print $1,$2}' | LANG=C sort -k1 > $tmp-cate-all
 
-#パーツ一覧
-cat ${SYSD}/DATA/SET_LIST/LISTS/*/LV3/*[^_d] | LANG=C sort -k1 > $tmp-parts-all
+#セット一覧
+cat ${SYSD}/DATA/SET_LIST/LISTS/*/LV3/*[^_d] | LANG=C sort -k1 > $tmp-set-all
 
 #JOIN
 #マップとカテゴリ
-LANG=C join -1 1 -2 1 $tmp-cate-list-map $tmp-cate-all | LANG=C sort -k2 > $tmp-parts-category
+LANG=C join -1 1 -2 1 $tmp-cate-list-map $tmp-cate-all | LANG=C sort -k2 > $tmp-set-category
 
-#カテゴリとパーツ一覧
-LANG=C join -1 2 -2 1 $tmp-parts-category $tmp-parts-all > $tmp-parts-list
+#カテゴリとセット一覧
+LANG=C join -1 2 -2 1 $tmp-set-category $tmp-set-all > $tmp-set-list
 
-#カテゴリ情報とマッピングしたパーツ一覧をLISTS/LV3へ配置
-rm -f ${SYSD}/DATA/SET_LIST/LISTS/LV3/parts_*
-mv $tmp-parts-list ${SYSD}/DATA/SET_LIST/LISTS/LV3/parts_${CREATE_DATE}
+#カテゴリ情報とマッピングしたセット一覧をLISTS/LV3へ配置
+rm -f ${SYSD}/DATA/SET_LIST/LISTS/LV3/set_*
+mv $tmp-set-list ${SYSD}/DATA/SET_LIST/LISTS/LV3/set_${CREATE_DATE}
 
 ########################################
 #データ操作ロックを解除

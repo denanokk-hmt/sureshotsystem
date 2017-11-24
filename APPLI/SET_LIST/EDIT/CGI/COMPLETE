@@ -2,7 +2,7 @@
 #
 
 ########################################
-#	PARTS_LIST/EDIT COMPLETE.CGI
+#	SET_LIST/EDIT COMPLETE.CGI
 #
 #   引数
 #       $1:プロセスID
@@ -34,8 +34,8 @@ FIN
 }
 
 ########################################
-#パーツカテゴリ更新中は、処理をさせない
-#ls ${SYSD}/LOCK/PARTS_CATEGORY/* > $tmp-checker
+#セットカテゴリ更新中は、処理をさせない
+#ls ${SYSD}/LOCK/SET_CATEGORY/* > $tmp-checker
 #if [ -n cat $tmp-checker ] ; then
 #    echo "333" > $tmp-ajax-html
 #    exit 0
@@ -46,9 +46,9 @@ FIN
 nameread EDIT_CATEGORY_NO     $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-category-no
 nameread EDIT_CATEGORY_NX     $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-category-nx
 nameread EDIT_CATEGORY_NM     $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-category-nm
-nameread EDIT_PARTS_NO    $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-1
-nameread EDIT_PARTS_NAME  $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-2-org
-nameread EDIT_PARTS_PRICE $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-3
+nameread EDIT_SET_NO    $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-1
+nameread EDIT_SET_NAME  $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-2-org
+nameread EDIT_SET_PRICE $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-3
 
 #######################################
 #変数化
@@ -66,13 +66,13 @@ cat $tmp-pk-2-org | sed 's/\&/\\\\\\&/' > $tmp-pk-2
 #CATEGORY_NM
 cat $tmp-category-no | awk '{print sprintf("CATEGORY_NM|ISNULL|%s",$1)}'                            >> $tmp-validation  #必須選択
 
-#PARTS_NAME_NEW
-cat $tmp-pk-2 | awk '{print sprintf("PARTS_NAME|ISNULL|%s",$1)}'                                >> $tmp-validation  #必須入力
-cat $tmp-pk-2 | awk '{print sprintf("PARTS_NAME|LENGTH|%s,3,0",$1)}'                            >> $tmp-validation  #3文字以上
-cat $tmp-pk-2 | awk -v gk=${NUM} '{print sprintf("PARTS_NAME|DUPLICATE|PARTS_LIST,LISTS/*,%s,2,%s",gk,$1)}'      >> $tmp-validation  #重複確認
+#SET_NAME_NEW
+cat $tmp-pk-2 | awk '{print sprintf("SET_NAME|ISNULL|%s",$1)}'                                >> $tmp-validation  #必須入力
+cat $tmp-pk-2 | awk '{print sprintf("SET_NAME|LENGTH|%s,3,0",$1)}'                            >> $tmp-validation  #3文字以上
+cat $tmp-pk-2 | awk -v gk=${NUM} '{print sprintf("SET_NAME|DUPLICATE|SET_LIST,LISTS/*,%s,2,%s",gk,$1)}'      >> $tmp-validation  #重複確認
 
 #PRICE
-cat $tmp-pk-3 | awk '{print sprintf("PARTS_PRICE|ISNULL|%s",$1)}'                               >> $tmp-validation  #必須入力
+cat $tmp-pk-3 | awk '{print sprintf("SET_PRICE|ISNULL|%s",$1)}'                               >> $tmp-validation  #必須入力
 
 ########################################
 #バリデーションを実行
@@ -106,12 +106,12 @@ UPDATE_DATE=$(date +%Y%m%d%H%M%S)
 UPDATE_USER=$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
 
 ########################################
-#パーツリスト格納用カテゴリDirを作成
-result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/PARTS_LIST/LISTS/${CATEGORY_NO} ${SYSD}/DATA/PARTS_LIST/LISTS/${CATEGORY_NO}`
+#セットリスト格納用カテゴリDirを作成
+result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/SET_LIST/LISTS/${CATEGORY_NO} ${SYSD}/DATA/SET_LIST/LISTS/${CATEGORY_NO}`
 
 ########################################
 #該当のデータ操作をロック
-LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'PARTS_LIST' ${NUM}`
+LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'SET_LIST' ${NUM}`
 LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
 [ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
 
@@ -136,7 +136,7 @@ if [ "${CATEGORY_NO}" != "${CATEGORY_NX}" ]; then
     VALUE=$(echo $VALUE `cat $file`)
   done
   echo ${VALUE} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} \
-  > ${DATAD}/${CATEGORY_NX}/LV3/${NUM}_parts-list_${UPDATE_DATE}_d
+  > ${DATAD}/${CATEGORY_NX}/LV3/${NUM}_set-list_${UPDATE_DATE}_d
 fi
 
 #LV1
@@ -155,34 +155,34 @@ do
   VALUE=$(echo $VALUE `cat $file`)
 done
 echo ${VALUE} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} \
-> ${DATAD}/${CATEGORY_NO}/LV3/${NUM}_parts-list_${UPDATE_DATE}
+> ${DATAD}/${CATEGORY_NO}/LV3/${NUM}_set-list_${UPDATE_DATE}
 
 ########################################
 #正規データ配置
-#なにがしかのカテゴリNoの下にあるLV3データをかき集め、ファイルパスからカテゴリNoを、ファイルデータからパーツ番号を
+#なにがしかのカテゴリNoの下にあるLV3データをかき集め、ファイルパスからカテゴリNoを、ファイルデータからセット番号を
 #紐付けたマップを作成
 ls ${DATAD}/*/LV3/*[^_d] | awk '{split($0,ary,"/"); print ary[7], ary[9]}' | cut -d'_' -f1 | LANG=C sort -k1 > $tmp-cate-list-map
 
-#パーツカテゴリ一覧
-cat ${SYSD}/DATA/PARTS_CATEGORY/LISTS/LV3/*[^_d] | awk '{print $1,$2}' | LANG=C sort -k1 > $tmp-cate-all
+#セットカテゴリ一覧
+cat ${SYSD}/DATA/SET_CATEGORY/LISTS/LV3/*[^_d] | awk '{print $1,$2}' | LANG=C sort -k1 > $tmp-cate-all
 
-#パーツ一覧
-cat ${SYSD}/DATA/PARTS_LIST/LISTS/*/LV3/*[^_d] | LANG=C sort -k1 > $tmp-parts-all
+#セット一覧
+cat ${SYSD}/DATA/SET_LIST/LISTS/*/LV3/*[^_d] | LANG=C sort -k1 > $tmp-set-all
 
 #JOIN
 #マップとカテゴリ
-LANG=C join -1 1 -2 1 $tmp-cate-list-map $tmp-cate-all | LANG=C sort -k2 > $tmp-parts-category
+LANG=C join -1 1 -2 1 $tmp-cate-list-map $tmp-cate-all | LANG=C sort -k2 > $tmp-set-category
 
-#カテゴリとパーツ一覧
-LANG=C join -1 2 -2 1 $tmp-parts-category $tmp-parts-all > $tmp-parts-list
+#カテゴリとセット一覧
+LANG=C join -1 2 -2 1 $tmp-set-category $tmp-set-all > $tmp-set-list
 
-#カテゴリ情報とマッピングしたパーツ一覧をLISTS/LV3へ配置
-rm -f ${SYSD}/DATA/PARTS_LIST/LISTS/LV3/parts_*
-mv $tmp-parts-list ${SYSD}/DATA/PARTS_LIST/LISTS/LV3/parts_${CREATE_DATE}
+#カテゴリ情報とマッピングしたセット一覧をLISTS/LV3へ配置
+rm -f ${SYSD}/DATA/SET_LIST/LISTS/LV3/set_*
+mv $tmp-set-list ${SYSD}/DATA/SET_LIST/LISTS/LV3/set_${CREATE_DATE}
 
 ########################################
 #データ操作ロックを解除
-UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'PARTS_LIST' ${NUM}`
+UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'SET_LIST' ${NUM}`
 [ ${UNLOCK_STATUS} != 'UNLOCK' ] && exit 0 || :
 
 ########################################

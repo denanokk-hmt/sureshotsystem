@@ -139,11 +139,11 @@ cat ${SYSD}/DATA/SET_LIST/LISTS/*/LV3/*[^_d] | LANG=C sort -k1 > $tmp-set-all
 LANG=C join -1 1 -2 1 $tmp-cate-list-map $tmp-cate-all | LANG=C sort -k2 > $tmp-set-category
 
 #カテゴリとセット一覧
-LANG=C join -1 2 -2 1 $tmp-set-category $tmp-set-all > $tmp-sets
+LANG=C join -1 2 -2 1 $tmp-set-category $tmp-set-all > $tmp-set
 
 #カテゴリ情報とマッピングしたセット一覧をLISTS/LV3へ配置
-rm -f ${SYSD}/DATA/SET_LIST/LISTS/LV3/sets_*
-mv $tmp-sets ${SYSD}/DATA/SET_LIST/LISTS/LV3/sets_${UPDATE_DATE}
+rm -f ${SYSD}/DATA/SET_LIST/LISTS/LV3/set_*
+mv $tmp-set ${SYSD}/DATA/SET_LIST/LISTS/LV3/set_${UPDATE_DATE}
 
 ########################################
 #

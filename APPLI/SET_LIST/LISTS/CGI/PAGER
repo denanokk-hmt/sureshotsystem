@@ -2,7 +2,7 @@
 #
 
 ########################################
-# PARTS_LIST/LISTS PAGER.CGI
+# SET_LIST/LISTS PAGER.CGI
 #
 #   $1:必須 $$
 #   $2:必須 QRY_PAGE(num)

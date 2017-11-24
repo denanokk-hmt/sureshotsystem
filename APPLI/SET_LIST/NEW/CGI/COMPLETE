@@ -2,7 +2,7 @@
 #
 
 ########################################
-#	PARTS_LIST/NEW COMPLETE.CGI
+#	SET_LIST/NEW COMPLETE.CGI
 #
 #   引数
 #       $1:プロセスID
@@ -34,8 +34,8 @@ FIN
 }
 
 ########################################
-#部品カテゴリ更新中は、処理をさせない
-#ls ${SYSD}/LOCK/PARTS_CATEGORY/* > $tmp-checker 2> /dev/null
+#セットカテゴリ更新中は、処理をさせない
+#ls ${SYSD}/LOCK/SET_CATEGORY/* > $tmp-checker 2> /dev/null
 #if [ -n cat $tmp-checker ] ; then
 #    echo "333" > $tmp-ajax-html
 #    exit 0
@@ -45,8 +45,8 @@ FIN
 #フォームの入力値を取得
 nameread NEW_CATEGORY_NO      $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-category-no
 CATEGORY_NO=$(cat $tmp-category-no)
-nameread NEW_PARTS_NAME   $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-2-org
-nameread NEW_PARTS_PRICE  $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-3
+nameread NEW_SET_NAME   $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-2-org
+nameread NEW_SET_PRICE  $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-3
 nameread PAGE_CATEGORY_NO     $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-page-category-no
 nameread PAGE_CATEGORY_NM     $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-page-category-nm
 nameread PAGE                 $tmp-post > $tmp-page #表示ページ
@@ -70,13 +70,13 @@ cat $tmp-pk-2-org | sed 's/\&/\\\\\\&/' > $tmp-pk-2
 #CATEGORY_NM
 cat $tmp-category | awk '{print sprintf("CATEGORY_NM|ISNULL|%s",$1)}'                                >> $tmp-validation  #必須選択
 
-#PARTS_NAME_NEW
-cat $tmp-pk-2 | awk '{print sprintf("PARTS_NAME|ISNULL|%s",$1)}'                                >> $tmp-validation  #必須入力
-cat $tmp-pk-2 | awk '{print sprintf("PARTS_NAME|LENGTH|%s,3,0",$1)}'                            >> $tmp-validation  #3文字以上
-cat $tmp-pk-2 | awk '{print sprintf("PARTS_NAME|DUPLICATE|PARTS_LIST,LISTS,"",2,%s",$1)}'   >> $tmp-validation  #重複確認
+#SET_NAME_NEW
+cat $tmp-pk-2 | awk '{print sprintf("SET_NAME|ISNULL|%s",$1)}'                                >> $tmp-validation  #必須入力
+cat $tmp-pk-2 | awk '{print sprintf("SET_NAME|LENGTH|%s,3,0",$1)}'                            >> $tmp-validation  #3文字以上
+cat $tmp-pk-2 | awk '{print sprintf("SET_NAME|DUPLICATE|SET_LIST,LISTS,"",2,%s",$1)}'   >> $tmp-validation  #重複確認
 
 #PRICE
-cat $tmp-pk-3 | awk '{print sprintf("PARTS_PRICE|ISNULL|%s",$1)}'                                >> $tmp-validation  #必須入力
+cat $tmp-pk-3 | awk '{print sprintf("SET_PRICE|ISNULL|%s",$1)}'                                >> $tmp-validation  #必須入力
 
 ########################################
 #バリデーションを実行
@@ -107,12 +107,12 @@ CREATE_USER=$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
 UPDATE_USER=${CREATE_USER}
 
 ########################################
-#部品リストディレクトリを作成する
-result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/PARTS_LIST/LISTS ${SYSD}/DATA/PARTS_LIST/LISTS`
+#セットリストディレクトリを作成する
+result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/SET_LIST/LISTS ${SYSD}/DATA/SET_LIST/LISTS`
 
 ########################################
-#部品リスト格納用カテゴリDirを作成
-result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/PARTS_LIST/LISTS/${CATEGORY_NO} ${SYSD}/DATA/PARTS_LIST/LISTS/${CATEGORY_NO}`
+#セットリスト格納用カテゴリDirを作成
+result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/SET_LIST/LISTS/${CATEGORY_NO} ${SYSD}/DATA/SET_LIST/LISTS/${CATEGORY_NO}`
 
 ########################################
 #データ配置
@@ -130,56 +130,56 @@ do
   VALUE=$(echo $VALUE `cat $file`)
 done
 echo ${VALUE} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} \
-> ${DATAD}/${CATEGORY_NO}/LV3/${NEW_NUM}_parts-list_${CREATE_DATE}
+> ${DATAD}/${CATEGORY_NO}/LV3/${NEW_NUM}_set-list_${CREATE_DATE}
 
 ########################################
 #正規データ配置
-#なにがしかのカテゴリNoの下にあるLV3データをかき集め、ファイルパスからカテゴリNoを、ファイルデータから部品番号を
+#なにがしかのカテゴリNoの下にあるLV3データをかき集め、ファイルパスからカテゴリNoを、ファイルデータからセット番号を
 #紐付けたマップを作成
-ls ${SYSD}/DATA/PARTS_LIST/LISTS/*/LV3/*[^_d] | awk '{split($0,ary,"/"); print ary[7], ary[9]}' | cut -d'_' -f1 | LANG=C sort -k1 > $tmp-cate-list-map
+ls ${SYSD}/DATA/SET_LIST/LISTS/*/LV3/*[^_d] | awk '{split($0,ary,"/"); print ary[7], ary[9]}' | cut -d'_' -f1 | LANG=C sort -k1 > $tmp-cate-list-map
 
-#部品カテゴリ一覧
-cat ${SYSD}/DATA/PARTS_CATEGORY/LISTS/LV3/*[^_d] | awk '{print $1,$2}' | LANG=C sort -k1 > $tmp-cate-all
+#セットカテゴリ一覧
+cat ${SYSD}/DATA/SET_CATEGORY/LISTS/LV3/*[^_d] | awk '{print $1,$2}' | LANG=C sort -k1 > $tmp-cate-all
 
-#部品一覧
-cat ${SYSD}/DATA/PARTS_LIST/LISTS/*/LV3/*[^_d] | LANG=C sort -k1 > $tmp-parts-all
+#セット一覧
+cat ${SYSD}/DATA/SET_LIST/LISTS/*/LV3/*[^_d] | LANG=C sort -k1 > $tmp-set-all
 
 #JOIN
 #マップとカテゴリ
-LANG=C join -1 1 -2 1 $tmp-cate-list-map $tmp-cate-all | LANG=C sort -k2 > $tmp-parts-category
+LANG=C join -1 1 -2 1 $tmp-cate-list-map $tmp-cate-all | LANG=C sort -k2 > $tmp-set-category
 
-#カテゴリと部品一覧
-LANG=C join -1 2 -2 1 $tmp-parts-category $tmp-parts-all > $tmp-parts-list
+#カテゴリとセット一覧
+LANG=C join -1 2 -2 1 $tmp-set-category $tmp-set-all > $tmp-set-list
 
-#カテゴリ情報とマッピングした部品一覧をLISTS/LV3へ配置
-rm -f ${SYSD}/DATA/PARTS_LIST/LISTS/LV3/parts_*
-mv $tmp-parts-list ${SYSD}/DATA/PARTS_LIST/LISTS/LV3/parts_${CREATE_DATE}
+#カテゴリ情報とマッピングしたセット一覧をLISTS/LV3へ配置
+rm -f ${SYSD}/DATA/SET_LIST/LISTS/LV3/set_*
+mv $tmp-set-list ${SYSD}/DATA/SET_LIST/LISTS/LV3/set_${CREATE_DATE}
 
-
-########################################
-#部品カテゴリを取得
-cat ${SYSD}/DATA/PARTS_CATEGORY/LISTS/LV3/*[^_d]    |
-LANG=C sort -nk1,1                                  > $tmp-parts-category
 
 ########################################
-#Page絞り込み用の部品カテゴリ
+#セットカテゴリを取得
+cat ${SYSD}/DATA/SET_CATEGORY/LISTS/LV3/*[^_d]    |
+LANG=C sort -nk1,1                                  > $tmp-set-category
+
+########################################
+#Page絞り込み用のセットカテゴリ
 # 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_PAGE.HTML $tmp-parts-category > $tmp-parts-category-page
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_PAGE.HTML $tmp-set-category > $tmp-set-category-page
 
 ########################################
-#登録済部品用の部品カテゴリ
+#登録済セット用のセットカテゴリ
 # 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_LIST.HTML $tmp-parts-category > $tmp-parts-category-list
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_LIST.HTML $tmp-set-category > $tmp-set-category-list
 
 ########################################
-#新規登録部品用の部品カテゴリ
+#新規登録セット用のセットカテゴリ
 # 1;カテゴリ番号 2;カテゴリ名
-mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_NEW.HTML $tmp-parts-category > $tmp-parts-category-new
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/CATEGORY_NEW.HTML $tmp-set-category > $tmp-set-category-new
 
 ########################################
 # 改行文字を「\\n」という3文字の文字列に置換
-CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-list`
-CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-parts-category-new`
+CATEGORY_LIST=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-set-category-list`
+CATEGORY_NEW=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-set-category-new`
 
 #######################################
 #ページャーを設定
@@ -191,7 +191,7 @@ START=$(cat $tmp-rec-start)
 END=$(cat $tmp-rec-end)
 
 ########################################
-#部品リストを取得
+#セットリストを取得
 [ -z "${PAGE_CATEGORY_NO}" ] && ${PAGE_CATEGORY_NO}=0 || :
 if [ "${PAGE_CATEGORY_NO}" -gt 0 ] ; then
     cat ${DATAD}/LV3/*[^_d]                                 |
@@ -210,7 +210,7 @@ fi
 mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/RECORDS.HTML $tmp-records > $tmp-table-records
 
 ########################################
-#登録済レコードに部品カテゴリリストを嵌め込む
+#登録済レコードにセットカテゴリリストを嵌め込む
 cat $tmp-table-records                                      |
 sed -e "s|###CATEGORY###|${CATEGORY_LIST}|g"                > $tmp-table
 

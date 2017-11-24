@@ -21,29 +21,29 @@
                 <span id="CATEGORY_NM_ISNULL_MSG" class="fade-in label label-danger ###CATEGORY_NM_ISNULL###">カテゴリ名が、選択されていません。</span>
             </div>
             <div>
-                <span id="PARTS_NAME_ISNULL_MSG" class="fade-in label label-danger ###PARTS_NAME_ISNULL###">パーツ名に、値がありません。</span>
+                <span id="SET_NAME_ISNULL_MSG" class="fade-in label label-danger ###SET_NAME_ISNULL###">セット名に、値がありません。</span>
             </div>
             <div>
-                <span id="PARTS_NAME_LENGTH_MSG" class="fade-in label label-danger ###PARTS_NAME_LENGTH###">パーツ名は、3文字以上必要です。</span>
+                <span id="SET_NAME_LENGTH_MSG" class="fade-in label label-danger ###SET_NAME_LENGTH###">セット名は、3文字以上必要です。</span>
             </div>
             <div>
-                <span id="PARTS_NAME_DUPLICATE_MSG" class="fade-in label label-danger ###PARTS_NAME_DUPLICATE###">カテゴリ名(日本語)は、既に使用されています。</span>
+                <span id="SET_NAME_DUPLICATE_MSG" class="fade-in label label-danger ###SET_NAME_DUPLICATE###">カテゴリ名(日本語)は、既に使用されています。</span>
             </div>
             <div>
-                <span id="PARTS_PRICE_ISNULL_MSG" class="fade-in label label-danger ###PARTS_PRICE_ISNULL###">パーツ代金に、値がありません。</span>
+                <span id="SET_PRICE_ISNULL_MSG" class="fade-in label label-danger ###SET_PRICE_ISNULL###">セット代金に、値がありません。</span>
             </div>
         </div>
     </div>
     <br>
 
-    <!--Parts Category Filter-->
+    <!--Set Category Filter-->
     <div class="row">
-        <form action="/APP/PARTS_LIST/LISTS" method="GET">    
+        <form action="/APP/SET_LIST/LISTS" method="GET">    
             <div class="form-group">
                 <div class="btn-group">
-                    <!--Parts Category Dropdown list-->
+                    <!--Set Category Dropdown list-->
                     <div class="btn-group">
-                        <button type="submit" class="btn btn-info dropdown-toggle" data-toggle="dropdown" id="parts_category" aria-expended="false">
+                        <button type="submit" class="btn btn-info dropdown-toggle" data-toggle="dropdown" id="set_category" aria-expended="false">
                             &nbsp<span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" role="menu" name="PAGE">
@@ -185,21 +185,21 @@
         var operationId = '&id=' + id;
 
         //詳細へ 
-        location.href='/APP/PARTS_DETAIL/LISTS' + action + page + search + categoryNm + categoryNo + operationId;
+        location.href='/APP/SET_DETAIL/LISTS' + action + page + search + categoryNm + categoryNo + operationId;
     }
 
-    //パーツ追加
-    function newParts() {
+    //セット追加
+    function newSet() {
 
         //バリデーションエラーMSG初期化
         validationErrMsgInit();
 
         $('#REST').val('POST');
-        var new_parts_name = $('#PARTS_NAME_NEW').val();
+        var new_set_name = $('#SET_NAME_NEW').val();
         //var params = $('form').serialize();
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/PARTS_LIST/NEW',
+            url: '/APP/SET_LIST/NEW',
             //data: params
             data: {
                 ACTION: 'COMPLETE',
@@ -209,8 +209,8 @@
                 PAGE_CATEGORY_NM: $('#CATEGORY_NM_HID_PAGE').val(),
                 PAGE_CATEGORY_NO: $('#CATEGORY_NO_HID_PAGE').val(),
                 NEW_CATEGORY_NO: $('#CATEGORY_NO_HID_NEW').val(),
-                NEW_PARTS_NAME: $('#PARTS_NAME_NEW').val(),
-                NEW_PARTS_PRICE:$('#PARTS_PRICE_NEW').val()
+                NEW_SET_NAME: $('#SET_NAME_NEW').val(),
+                NEW_SET_PRICE:$('#SET_PRICE_NEW').val()
             }
         });
         jqXHR.done(function(data) {
@@ -230,8 +230,8 @@
                 }
             } else {
                 $('table').html(data);
-                $('#info-msg').html(new_parts_name + "を追加しました。");
-                alert(new_parts_name + "を追加しました。");
+                $('#info-msg').html(new_set_name + "を追加しました。");
+                alert(new_set_name + "を追加しました。");
             }
         });
         jqXHR.fail(function(data) {
@@ -239,27 +239,27 @@
         });
     }
 
-    //パーツ変更
-    function editParts(id) {
+    //セット変更
+    function editSet(id) {
 
         //バリデーションエラーMSG初期化
         validationErrMsgInit();
  
-        var edit_parts_name = $('#PARTS_NAME_' + id).val();
+        var edit_set_name = $('#SET_NAME_' + id).val();
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/PARTS_LIST/EDIT',
+            url: '/APP/SET_LIST/EDIT',
             data: {
                 ACTION: 'COMPLETE',
                 REST: 'PUT',
                 PAGE_CATEGORY_NM: $('#CATEGORY_NM').val(),
                 PAGE_CATEGORY_NO: $('#CATEGORY_NO').val(),
-                EDIT_PARTS_NO: id,
+                EDIT_SET_NO: id,
                 EDIT_CATEGORY_NO: $('#CATEGORY_NO_HID_' + id).val(),
                 EDIT_CATEGORY_NX: $('#CATEGORY_NX_HID_' + id).val(),
                 EDIT_CATEGORY_NM: $('#CATEGORY_NM_HID_' + id).val(),
-                EDIT_PARTS_NAME: $('#PARTS_NAME_' + id).val(),
-                EDIT_PARTS_PRICE:$('#PARTS_PRICE_' + id).val() ,
+                EDIT_SET_NAME: $('#SET_NAME_' + id).val(),
+                EDIT_SET_PRICE:$('#SET_PRICE_' + id).val() ,
             }
         });
         jqXHR.done(function(data) {
@@ -279,8 +279,8 @@
                 }
             } else {
                 if (data == 111) {
-                    $('#info-msg').html(edit_parts_name + "を変更しました。");
-                    alert(edit_parts_name + "を変更しました。");
+                    $('#info-msg').html(edit_set_name + "を変更しました。");
+                    alert(edit_set_name + "を変更しました。");
                 } else {
                     alert("更新処理に失敗しました。");
                 }
@@ -291,39 +291,39 @@
         });
     }
 
-    //パーツ削除
-    function deleteParts(id) {
+    //セット削除
+    function deleteSet(id) {
 
         //バリデーションエラーMSG初期化
         validationErrMsgInit();
  
-        var delete_parts_name = $('#PARTS_NAME_' + id).val();
+        var delete_set_name = $('#SET_NAME_' + id).val();
         var delete_category_nx = $('#CATEGORY_NX_HID_' + id).val();
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/PARTS_LIST/DELETE',
+            url: '/APP/SET_LIST/DELETE',
             data: {
                 ACTION: 'COMPLETE',
                 REST: 'DELETE',
                 DELETE_CATEGORY_NM: $('#CATEGORY_NM_HID_' + id).val(),
                 DELETE_CATEGORY_NO: $('#CATEGORY_NO_HID_' + id).val(),
                 DELETE_CATEGORY_NX: $('#CATEGORY_NX_HID_' + id).val(),
-                DELETE_PARTS_NO: id,
-                DELETE_PARTS_NAME: $('#PARTS_NAME_' + id).val(),
-                DELETE_PARTS_PRICE:$('#PARTS_PRICE_' + id).val()
+                DELETE_SET_NO: id,
+                DELETE_SET_NAME: $('#SET_NAME_' + id).val(),
+                DELETE_SET_PRICE:$('#SET_PRICE_' + id).val()
             }
        });
         jqXHR.done(function(data) {
             if (data == 2222) {
-                alert(delete_parts_name + "は、使用されていませんでした。");
+                alert(delete_set_name + "は、使用されていませんでした。");
             } else if (data == 111) {
                 var sel = '#edit-row-' + id;
                 $(sel).remove();
-                $('#info-msg').html(delete_parts_name + "を削除しました。");
-                alert(delete_parts_name + "を削除しました。");
+                $('#info-msg').html(delete_set_name + "を削除しました。");
+                alert(delete_set_name + "を削除しました。");
             } else {
-                $('#info-msg').html(delete_parts_name + "を削除出来ませんでした。");
-                alert(delete_parts_name + "を削除出来ませんでした。");
+                $('#info-msg').html(delete_set_name + "を削除出来ませんでした。");
+                alert(delete_set_name + "を削除出来ませんでした。");
             }
         });
         jqXHR.fail(function() {
