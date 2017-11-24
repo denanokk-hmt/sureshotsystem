@@ -1,0 +1,97 @@
+#!/bin/bash -vx
+#
+
+########################################
+# SET_DETAIL/LIST SHOW.CGI
+#
+#   $1:必須 $$
+#
+#	Written by hiramatsu
+
+
+########################################
+#基本設定
+export LANG=ja_JP.utf8
+echo $LANG
+SYSD=$(cd $(dirname $0) && pwd | awk '{print substr($0, 0, index($0, "sureshotsystem")+13)}')
+#exec 2> $SYSD/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
+tmp=/tmp/tmp_$1
+LANG=ja_JP.UTF-8
+#PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
+CATEGORY=`cat $tmp-category`
+FUNC=`cat $tmp-func`
+SUBFUNC=`cat $tmp-sub-func`
+DATAD=${SYSD}/DATA/${CATEGORY}/LISTS
+
+#######################################
+#Check error
+ERROR_CHECK(){
+	[ $(plus ${PIPESTATUS[@]}) -eq 0 ] && return
+cat <<- FIN
+	Context-type: text/html
+	NG input
+FIN
+	cat $tmp-result
+	exit 1
+}
+
+########################################
+#GETパラメーターを取得
+#GETパラメーターの順番は、action,page,serach,category-nm,category-no, id が前提
+[ -n "$(cat $tmp-get | grep 'page=')" ] && \
+QRY_PAGE=$(cat $tmp-get | awk '{split($0,ary,"&"); print ary[2]}' | sed 's/page\=//') || \
+QRY_PAGE=1
+[ -n "$(cat $tmp-get | grep 'search=')" ] && \
+SEARCH=$(cat $tmp-get | awk '{split($0,ary,"&"); print ary[3]}') || \
+SEARCH='search=0'
+CATEGORY_NM=$(cat $tmp-get | awk '{split($0,ary,"&"); print ary[4]}' | sed 's/category-nm\=//')
+CATEGORY_NO=$(cat $tmp-get | awk '{split($0,ary,"&"); print ary[5]}' | sed 's/category-no\=//')
+NUM=$(cat $tmp-get | awk '{split($0,ary,"&"); print ary[6]}' | sed 's/id\=//')
+
+########################################
+#セットリストを取得
+cat ${SYSD}/DATA/SET_LIST/LISTS/LV3/set_* |
+awk -v no=${NUM} '$1==no {print}' > $tmp-ope
+cat $tmp-ope | awk '{print $3}' > $tmp-category-nm
+cat $tmp-ope | awk '{print $4}' > $tmp-set-nm
+cat $tmp-ope | awk '{print $5}' > $tmp-price
+
+########################################
+#詳細を取得
+cat ${DATAD}/LV3/${NUM}_details_* > $tmp-records
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/RECORDS.HTML $tmp-records > $tmp-table
+
+########################################
+# 改行文字を「\\n」という3文字の文字列に置換
+TABLE_RECORDS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table`
+
+########################################
+#tableにrecordsを嵌め込む
+cat ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/TABLE.HTML |
+sed -e "s|###TABLE_RECORDS###|${TABLE_RECORDS}|g"     > $tmp-table-html
+
+########################################
+# 改行文字を「\\n」という3文字の文字列に置換
+TABLE=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table-html`   
+
+########################################
+#tableをはめ込む
+cat ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/SHOW.HTML          |
+sed -e "s|###SET_NO###|${NUM}|g"                            |
+sed -e "s|###SET_CATEGORY_NM###|$(cat $tmp-category-nm)|g"  |
+sed -e "s|###SET_NM###|$(cat $tmp-set-nm)|g"                |
+sed -e "s|###SET_PRICE###|$(cat $tmp-price)|g"              |
+sed -e "s|###CATEGORY_NM###|${CATEGORY_NM}|g"               |
+sed -e "s|###CATEGORY_NO###|${CATEGORY_NO}|g"               |
+sed -e "s|###PAGE###|${QRY_PAGE}|g"                         |
+sed -e "s|###SEARCH###|${SEARCH}|g"                         |
+sed -e "s|###TABLE###|${TABLE}|g"                           |
+sed -e "s|###INFO_MSG###||g"                                > $tmp-html
+
+########################################
+#page name
+echo "Set detail" > $tmp-pagename
+
+########################################
+echo "OK"
+exit 0

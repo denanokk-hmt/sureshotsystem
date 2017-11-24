@@ -1,0 +1,108 @@
+#!/bin/bash -evx
+#
+
+########################################
+#	SET_LIST DELETE COMPLETE.CGI
+#
+#   引数
+#       $1:プロセスID
+#
+#	Written by hiramatsu
+
+
+########################################
+#基本設定
+SYSD=$(cd $(dirname $0) && pwd | awk '{print substr($0, 0, index($0, "sureshotsystem")+13)}')
+#exec 2> ${SYSD}/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
+tmp=/tmp/tmp_$1
+LANG=ja_JP.UTF-8
+#PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
+CATEGORY=`cat $tmp-category`
+FUNC=`cat $tmp-func`
+DATAD=${SYSD}/DATA/${CATEGORY}/LISTS
+
+########################################
+#Check error
+ERROR_CHECK(){
+	[ $(plus ${PIPESTATUS[@]}) -eq 0 ] && return
+cat <<- FIN
+	Context-type: text/html
+	NG input
+FIN
+	cat $tmp-result
+	exit 1
+}
+
+########################################
+#セットカテゴリ更新中は、処理をさせない
+#ls ${SYSD}/LOCK/SET_CATEGORY/* > $tmp-checker
+#if [ -n cat $tmp-checker ] ; then
+#    echo "333" > $tmp-ajax-html
+#    exit 0
+#fi
+
+#######################################
+#フォームの入力値を取得
+SET_NO=$(nameread SET_NO  $tmp-post | awk '{gsub(/^\_$/,"",$1);print}')     #オペレーションNo
+PK=$(nameread DETAIL_NO  $tmp-post | awk '{gsub(/^\_$/,"",$1);print}')                  #詳細No(PK)
+nameread DETAIL_NAME  $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-name-org      #詳細名称
+nameread DETAIL_VALUE $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-value-org     #詳細値
+
+#######################################
+#「&」エスケープ
+cat $tmp-name-org   | sed 's/\&/\\\\\\&/' > $tmp-name
+cat $tmp-value-org  | sed 's/\&/\\\\\\&/' > $tmp-value
+
+########################################
+#作成日時、作成者、最終更新日時、更新者を取得
+result=`${SYSD}/CGI/DFS_INFO/CREATE_LASTUPDATE $1 ${DATAD}/LV1 ${SET_NO}_${PK}`
+CREATE_DATE=$(cat $tmp-create-dt)
+CREATE_USER=$(cat $tmp-create-user)
+LASTUPDATE_DT=$(cat $tmp-lastupdate-dt)
+LASTUPDATE_USER=$(cat $tmp-lastupdate-user)
+
+########################################
+#更新日時を設定
+UPDATE_DATE=$(date +%Y%m%d%H%M%S)
+
+########################################
+#更新者の取得
+UPDATE_USER=$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
+
+########################################
+#該当のデータ操作をロック
+LOCK=`${SYSD}/CGI/LOCK/LOCK $1 'SET_DETAIL' ${SET_NO}_${PK}`
+LOCK_STATUS=$(echo $LOCK | cut -d'.' -f4)
+[ ${LOCK_STATUS} != 'LOCKED' ] && exit 0 || :
+
+########################################
+#データ配置
+#LV1
+echo $(cat $tmp-name):$(cat $tmp-value) > ${DATAD}/LV1/${SET_NO}_${PK}_${UPDATE_USER}_${UPDATE_DATE}_d
+
+#LV2
+rm -f ${DATAD}/LV2/${SET_NO}_${PK}_*
+cp -fp ${DATAD}/LV1/${SET_NO}_${PK}_*${UPDATE_DATE}_d ${DATAD}/LV2/
+
+#LV3
+rm -f ${DATAD}/LV3/${SET_NO}_*
+for file in $(ls ${DATAD}/LV2/${SET_NO}_*[^_d] | sort -t$'_' -nk1);
+do
+  PK=$(basename $file | cut -d'_' -f2)
+  VALUE=$(cat $file   | awk 'BEGIN{FS=":"}{print $1,$2}')
+  echo ${PK} ${VALUE} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} \
+  >> ${DATAD}/LV3/${SET_NO}_details_${UPDATE_DATE}
+done
+
+########################################
+#データ操作ロックを解除
+UNLOCK_STATUS=`${SYSD}/CGI/LOCK/UNLOCK $1 'SET_LIST' ${SET_NO}_${PK}`
+[ ${UNLOCK_STATUS} != 'UNLOCK' ] && exit 0 || :
+
+echo 111 > $tmp-ajax-html
+
+########################################
+#ending
+echo "OK"
+exit 0
+
