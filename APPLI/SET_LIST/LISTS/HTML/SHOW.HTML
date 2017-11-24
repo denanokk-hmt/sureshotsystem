@@ -1,7 +1,6 @@
 <!--<!DOCTYPE html>-->
 <!--<html>-->
-
-<div id="whole" class="container fade-in" style="opacity:0">
+<div id="whole" class="container opa0 fade-in tbl-x-scroll-min768"> 
       
     <!--Header Info-->
     <div class="col-md-1 col-xs-1" >
@@ -38,43 +37,45 @@
 
     <!--Set Category Filter-->
     <div class="row">
-        <form action="/APP/SET_LIST/LISTS" method="GET">    
-            <div class="form-group">
-                <div class="btn-group">
-                    <!--Set Category Dropdown list-->
+        <div class="col-md-8">
+            <form action="/APP/SET_LIST/LISTS" method="GET">    
+                <div class="form-group">
                     <div class="btn-group">
-                        <button type="submit" class="btn btn-info dropdown-toggle" data-toggle="dropdown" id="set_category" aria-expended="false">
-                            &nbsp<span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu" role="menu" name="PAGE">
-                            <li name="CATEGORY_PAGE">
-                                <a class="category-list" id="cat_list_0" >ALL</a>
-                            </li>
-                            ###CATEGORY###
-                        </ul>
-                    </div>
-                    <div class="btn-group">
-                        <input type="text" name="CATEGORY_NM_PAGE" id="CATEGORY_NM_PAGE" value="###CATEGORY_NM_PAGE###" class="form-control" disabled />
-                    </div>
+                        <!--Set Category Dropdown list-->
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-info dropdown-toggle btn-xs hgt29" data-toggle="dropdown" id="set_category" aria-expended="false">
+                                &nbsp<span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu" name="PAGE">
+                                <li name="CATEGORY_PAGE">
+                                    <a class="category-list" id="cat_list_0" >ALL</a>
+                                </li>
+                                ###CATEGORY###
+                            </ul>
+                        </div>
+                        <div class="btn-group">
+                            <input type="text" name="CATEGORY_NM_PAGE" id="CATEGORY_NM_PAGE" value="###CATEGORY_NM_PAGE###" class="form-control input-sm" disabled />
+                        </div>
 
-                    <!--Search Submit button-->
-                    <div class="btn-group">
-                        <button type="submit" class="btn btn-info" />
-                            <span class="glyphicon glyphicon-eye-open"></span>
-                        </button>
+                        <!--Search Submit button-->
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-info btn-xs hgt29" />
+                                <span class="glyphicon glyphicon-eye-open"></span>
+                            </button>
+                        </div>
                     </div>
+                    <!--カテゴリ検索値、表示ページ、検索有無-->
+                    <input type="hidden" id="action" name="action" value="SHOW" />
+                    <input type="hidden" id="page" name="page" value="###PAGE###" />
+                    <input type="hidden" id="search" name="search" value="0" />
+                    <input type="hidden" name="category-nm" id="CATEGORY_NM_HID_PAGE" value="###CATEGORY_NM_PAGE###" />
+                    <input type="hidden" name="category-no" id="CATEGORY_NO_HID_PAGE" value="###CATEGORY_NO_PAGE###" />
                 </div>
-                <!--カテゴリ検索値、表示ページ、検索有無-->
-                <input type="hidden" id="action" name="action" value="SHOW" />
-                <input type="hidden" id="page" name="page" value="###PAGE###" />
-                <input type="hidden" id="search" name="search" value="0" />
-                <input type="hidden" name="category-nm" id="CATEGORY_NM_HID_PAGE" value="###CATEGORY_NM_PAGE###" />
-                <input type="hidden" name="category-no" id="CATEGORY_NO_HID_PAGE" value="###CATEGORY_NO_PAGE###" />
-            </div>
 
-            <!--Spacer-->
-            <div class="col-sm-1 hidden-xs"></div>
-        </form>
+                <!--Spacer-->
+                <div class="col-sm-1 hidden-xs"></div>
+            </form>
+        </div>
     </div>
 
     <!--Spacer
@@ -100,6 +101,8 @@
         <div id="pager" class="pagination-foot">
             ###PAGER###
         </div>
+        <!--Spacer-->
+        <div class="header-dummy" style="height:10.0em; background-color:piink;"></div>
     </div>
 </div>
 

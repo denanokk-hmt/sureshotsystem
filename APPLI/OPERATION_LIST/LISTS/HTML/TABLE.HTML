@@ -1,33 +1,31 @@
 <!--<!DOCTYPE html>-->
 <!--<html>-->
 
-
 <table class="table" style="font-size:12px;">
     <thead>
         <tr>
-            <th>#</th>
             <th>NO</th>
             <th>OPERATION CATEGORY</th>
             <th>OPERATION NAME</th>
             <th>PRICE</th>
+            <th></th>
+            <th></th>
             <th></th>
         </tr>
     </thead>
     <tbody>
         <!--作業新規追加-->
         <tr>
-            <!--順-->
-            <td>-</td>
             <!--ID-->
             <td>
-                <span class="label label-default">NEW</span>
+                <span class="label label-info">NEW</span>
             </td>
             <!--カテゴリ-->
             <td>
                 <div class="form-group">
                     <div class="btn-group">
                         <div class="btn-group">
-                            <button type="button" class="btn btn-info dropdown-toggle input-sm" id="new_operation_categogy" data-toggle="dropdown" aria-expended="false">
+                            <button type="button" class="btn btn-info dropdown-toggle btn-xs hgt29" id="new_operation_categogy" data-toggle="dropdown" aria-expended="false">
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" role="menu" name="NEW">
@@ -52,12 +50,11 @@
             </td>
             <!--ボタン-->
             <td>
-                <a class="btn btn-primary btn-sm" onclick="newOperation(); return false;">NEW</a>
+                <a class="btn btn-primary btn-xs hgt29" onclick="newOperation(); return false;">NEW</a>
             </td>
        </tr>
        <!--登録済作業の表示-->
        ###TABLE_RECORDS###
    </tbody>
 </table>
-
 <!--</html>-->

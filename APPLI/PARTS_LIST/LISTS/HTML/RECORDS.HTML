@@ -3,11 +3,9 @@
 
 <!--RECORDS-->
 <tr id="edit-row-%2">
-    <!--順番-->
-    <td>%1</td>
     <!--ID-->
     <td>
-        <span class="label label-default">%2</span>
+        <span class="label label-info">%2</span>
     </td>
     <!--カテゴリ-->
     <td>
@@ -15,7 +13,7 @@
             <div class="form-group">
                 <div class="btn-group">
                     <div class="btn-group">
-                        <button type="button" class="btn btn-info dropdown-toggle input-sm" data-toggle="dropdown" id="category" aria-expended="false">
+                        <button type="button" class="btn btn-info dropdown-toggle btn-xs hgt29" data-toggle="dropdown" id="category" aria-expended="false">
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" role="menu" name="%2">
@@ -40,14 +38,18 @@
     <td>
         <input type="number" name="PARTS_PRICE_%2" id="PARTS_PRICE_%2" value="%6" class="form-control input-sm" />
     </td>
-    <!--詳細ボタン-->
+    <!--ボタン-->
     <td>
         <!--詳細ボタン-->
-        <a class="btn btn-success btn-sm" id="PARTS_DETAIL_%2" onclick="goToDetail(%2); return false;" >DETAIL</a>
+        <a class="btn btn-success btn-xs hgt29" id="PARTS_DETAIL_%2" onclick="goToDetail(%2); return false;" >DETAIL</a>
+    </td>
+    <td>
         <!--更新ボタン-->
-        <a class="btn btn-warning btn-sm" id="PARTS_EDIT_%2" onclick="editParts(%2); return false;" >EDIT</a>
+        <a class="btn btn-warning btn-xs hgt29" id="PARTS_EDIT_%2" onclick="editParts(%2); return false;" >EDIT</a>
+    </td>
+    <td>
         <!--削除ボタン-->
-        <a class="btn btn-danger btn-sm" id="PARTS_DELETE_%2" onclick="deleteParts(%2); return false;" >DEL</a>
+        <a class="btn btn-danger btn-xs hgt29" id="PARTS_DELETE_%2" onclick="deleteParts(%2); return false;" >DELETE</a>
     </td>
 </tr>
 <!--RECORDS-->

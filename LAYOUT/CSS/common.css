@@ -12,9 +12,12 @@
 html,body {
     height: 100%;
 }
-.container {
-    /*margin-bottom:  15px;*/
+
+/* テーブル画面幅768以下は、横スクロース*/
+.tbl-x-scroll-min768 {
+    min-width: 768px !important; overflow-x:scroll;
 }
+
 .row {
     position:    relative;
 }
@@ -224,6 +227,11 @@ body {
 /****************/
 /*ふわっと*/
 /****************/
+/*初期の透明度 */
+.opa0 {
+    opacity:0;
+}
+/*フェイド・インタイム*/
 .fade-in {
   transition: opacity 1.5s;
   -moz-transition: opacity 1.5s;
@@ -264,6 +272,53 @@ table-layout: auto;
     margin-top:5px;
     margin-bottom:5px;
 }
+
+
+/* 高さ
+————————————————– */
+.hgt29 {
+    height:29px;
+    text-align:center;
+    line-height:29px;
+}
+
+
+/* コンテナの大きさ
+————————————————– */
+@media only screen and (min-width : 768px) {
+    /* デスクトップ表示ではホバー操作でドロップダウンを表示 */
+    .ddl:hover .dropdown-menu {
+        display: block;
+    }
+}
+@media (min-width: 768px) {
+    .container-small {
+        width: 300px;
+    }
+    .container-large {
+        width: 970px;
+    }
+}
+@media (min-width: 992px) {
+    .container-small {
+        width: 500px;
+    }
+    .container-large {
+        width: 1170px;
+    }
+}
+@media (min-width: 1200px) {
+    .container-small {
+        width: 700px;
+    }
+    .container-large {
+        width: 1500px;
+    }
+}
+.container-small, .container-large {
+    max-width: 100%;
+}
+
 
 
 /* end

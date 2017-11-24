@@ -2,30 +2,32 @@
 
 <!--RECORDS-->
     <tr id="edit-row-%2">
-        <td>%1</td>
+        <!--ID-->
         <td>
-            <span class="label label-default">%2</span>
+            <span class="label label-info">%2</span>
         </td>
+        <!--カテゴリEN-->
         <td>
             <input type="text" 
                     name="PARTS_CATEGORY_NM_EN_%2" 
                     id="PARTS_CATEGORY_NM_EN_%2" value="%3" 
-                    class="form-control"
+                    class="form-control input-sm"
                     placeholder="部品カテゴリ名(英語)" />
         </td>
+        <!--カテゴリJP-->
         <td>
             <input type="text" 
                     name="PARTS_CATEGORY_NM_JP_%2" 
                     id="PARTS_CATEGORY_NM_JP_%2" value="%4" 
-                    class="form-control" 
+                    class="form-control input-sm" 
                     placeholder="部品カテゴリ名(日本語)" />
         </td>
  
         <td>
-            <a class="btn btn-warning" id="PARTS_CATEGORY_EDIT_%2" onclick="editPartsCategory(%2); return false;" >EDIT</a>
+            <a class="btn btn-warning btn-xs hgt29" id="PARTS_CATEGORY_EDIT_%2" onclick="editPartsCategory(%2); return false;" >EDIT</a>
         </td>
         <td>
-            <a class="btn btn-danger" id="PARTS_CATEGORY_DELETE_%2" onclick="deletePartsCategory(%2);" >DELETE</a>
+            <a class="btn btn-danger btn-xs hgt29" id="PARTS_CATEGORY_DELETE_%2" onclick="deletePartsCategory(%2);" >DELETE</a>
         </td>
     </tr>
 <!--RECORDS-->

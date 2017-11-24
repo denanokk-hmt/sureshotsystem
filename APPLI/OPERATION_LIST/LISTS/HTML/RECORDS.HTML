@@ -1,13 +1,10 @@
 <!--OPERATION LISTS Records-->
-<!--<html>-->
 
 <!--RECORDS-->
 <tr id="edit-row-%2">
-    <!--順番-->
-    <td>%1</td>
     <!--ID-->
     <td>
-        <span class="label label-default">%2</span>
+        <span class="label label-info">%2</span>
     </td>
     <!--カテゴリ-->
     <td>
@@ -15,7 +12,7 @@
             <div class="form-group">
                 <div class="btn-group">
                     <div class="btn-group">
-                        <button type="button" class="btn btn-info dropdown-toggle input-sm" data-toggle="dropdown" id="category" aria-expended="false">
+                        <button type="button" class="btn btn-info dropdown-toggle btn-xs hgt29" data-toggle="dropdown" id="category" aria-expended="false">
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" role="menu" name="%2">
@@ -23,7 +20,7 @@
                         </ul>
                     </div>
                     <div class="btn-group">
-                        <input type="text" name="CATEGORY_NM_%2" id="CATEGORY_NM_%2" value="%4" class="form-control input-sm" disabled />
+                        <input type="text" name="CATEGORY_NM_%2" id="CATEGORY_NM_%2" value="%4" class="form-control input-sm ddl" disabled />
                     </div>
                     <input type="hidden" name="CATEGORY_NM_HID_%2" id="CATEGORY_NM_HID_%2" value="%4" class="form-control" />
                     <input type="hidden" name="CATEGORY_NO_HID_%2" id="CATEGORY_NO_HID_%2" value="%3" class="form-control" />
@@ -43,13 +40,15 @@
     <!--ボタン-->
     <td>
         <!--詳細ボタン-->
-        <a class="btn btn-success btn-sm" id="OPERATION_DETAIL_%2" onclick="goToDetail(%2); return false;" >DETAIL</a>
+        <a class="btn btn-success btn-xs hgt29" id="OPERATION_DETAIL_%2" onclick="goToDetail(%2); return false;" >DETAIL</a>
+    </td>
+    <td>
         <!--更新ボタン-->
-        <a class="btn btn-warning btn-sm" id="OPERATION_EDIT_%2" onclick="editOperation(%2); return false;" >EDIT</a>
+        <a class="btn btn-warning btn-xs hgt29" id="OPERATION_EDIT_%2" onclick="editOperation(%2); return false;" >EDIT</a>
+    </td>
+    <td>
         <!--削除ボタン-->
-        <a class="btn btn-danger btn-sm" id="OPERATION_DELETE_%2" onclick="deleteOperation(%2); return false;" >DELETE</a>
+        <a class="btn btn-danger btn-xs hgt29" id="OPERATION_DELETE_%2" onclick="deleteOperation(%2); return false;" >DELETE</a>
     </td>
 </tr>
 <!--RECORDS-->
-
-<!--</html>-->
