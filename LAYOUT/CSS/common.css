@@ -13,10 +13,20 @@ html,body {
     height: 100%;
 }
 
+/****************/
+/* テーブル*/
+/****************/
 /* テーブル画面幅768以下は、横スクロース*/
 .tbl-x-scroll-min768 {
     min-width: 768px !important; overflow-x:scroll;
 }
+
+/* テーブルの中身縦を中央に配置*/
+/*
+.table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
+vertical-align: middle;
+}
+*/
 
 .row {
     position:    relative;
@@ -51,9 +61,6 @@ html,body {
     */ 
 }
 
-.scrollable-menu .glyphicon {
-    font-size:  15px;
-}
 
 /****************/
 /* navbar       */
@@ -94,11 +101,30 @@ html,body {
 /****************/
 /* slide in menu */
 /****************/
+body .navbar-header {
+    position: relative;
+}
+body .scrollable-menu {
+    position: absolute;
+    top:50px;
+    left:0px;
+}
+body .cbp-spmenu-vertical {
+    width:155px;
+}
+body .cbp-spmenu h3 {
+    width:155px;
+    font-size:1em;
+}
+body .cbp-spmenu a {
+    width:155px;
+    font-size:0.9em;
+}
 .scrollable-menu {
-                height: auto;
-                max-height: 100%;
-                /*max-height: 500px;*/
-                overflow-x: hidden;
+    height: auto;
+    max-height: 100%;
+    /*max-height: 500px;*/
+    overflow-x: visible;
 }
 /* サイドメニューの子メニュー*/
 .scrollable-menu .dropdown {
@@ -183,7 +209,7 @@ body {
     margin-left:0px;
     margin-right:0px;
     margin-bottom:0px;
-    padding:0px;
+    padding:1px;
   }
 .row-10{
     margin-left:-5px;
@@ -242,14 +268,14 @@ body {
 /* Table
 ————————————————– */
 .table-responsive > table {
-width: 100%;
-table-layout: fixed;
-word-wrap: break-word;
+    width: 100%;
+    table-layout: fixed;
+    word-wrap: break-word;
 }
 @media (max-width: 767px) {
-.table-responsive > table {
-table-layout: auto;
-}
+    .table-responsive > table {
+        table-layout: auto;
+    }
 }
 
 /* 基本フォント
@@ -282,10 +308,24 @@ table-layout: auto;
     line-height:29px;
 }
 
+/* font-size
+————————————————– */
+.font-size-8 {
+    font-size:8px;
+}
+.font-size-10 {
+    font-size:10px;
+}
+
+/* input box
+————————————————– */
+.width-80pct {
+    width:80%;
+}
 
 /* コンテナの大きさ
 ————————————————– */
-@media only screen and (min-width : 768px) {
+@media only screen and (min-width : 992px) {
     /* デスクトップ表示ではホバー操作でドロップダウンを表示 */
     .ddl:hover .dropdown-menu {
         display: block;
@@ -318,6 +358,71 @@ table-layout: auto;
 .container-small, .container-large {
     max-width: 100%;
 }
+
+
+/* inputの大きさ
+————————————————– */
+/* col-xs */
+@media screen and (max-width: 767px) {
+   .input-text {
+        width:100px;
+        font-size:8px;
+    }
+   .input-qty {
+        width:30px;
+        font-size:8px;
+    }
+   .button-qty {
+        width:15px;
+        font-size:8px;
+    }
+}
+/* col-sm */
+@media screen and (min-width: 768px) and (max-width: 991px) {
+   .input-text {
+        width:100px;
+        font-size:8px;
+    }
+   .input-qty {
+        width:30px;
+        font-size:8px;
+    }
+   .button-qty {
+        width:15px;
+        font-size:8px;
+    }
+}
+/* col-md */
+@media screen and (min-width: 992px) {
+   .input-text {
+        width:120px;
+        font-size:12px;
+    }
+   .input-qty {
+        width:30px;
+        font-size:8px;
+    }
+   .button-qty {
+        width:20px;
+        font-size:8px;
+    }
+    
+    /* デスクトップ表示ではホバー操作でドロップダウンを表示 */
+    .dropdown:hover > .dropdown-menu{
+      display: block;
+      text-align: center;
+   }
+}
+/* col-lg
+@media screen and (min-width: 1119px) {
+    input[type="text"] {
+        width:100%;
+    }
+}
+*/
+
+
+
 
 
 

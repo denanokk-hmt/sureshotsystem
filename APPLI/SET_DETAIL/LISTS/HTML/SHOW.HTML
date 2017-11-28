@@ -26,7 +26,7 @@
     </div>
     <br>
 
-    <!--Contents Records/Pagination-->
+    <!--Contents Records-->
     <div class="header-under-contents">
 
 	      <div class="row fix">
@@ -59,13 +59,48 @@
         <div class="header-dummy" style="height:1.0em; background-color:piink;"></div>
 
         <!--Details--> 
-        <form name="main" class="form-inline form-horizontal"  action="" method="">
+        <form name="main" class=""  action="" method="">
             <input type="hidden" id="ACTION" name="ACTION" value="COMPLETE" />
             <input type="hidden" id="REST" name="REST" value="" />
             <input type="hidden" id="PAGE" name="PAGE" value="###PAGE###" />
             <input type="hidden" id="SEARCH" name="SEARH" value="0" />
             <input type="hidden" id="CATEGORY_NM" name="CATEGORY_NM" value="###CATEGORY_NM###" />
             <input type="hidden" id="CATEGORY_NO" name="CATEGORY_NO" value="###CATEGORY_NO###" />
+
+            <ul class="nav nav-pills">
+                <li class="active">
+                    <a data-toggle="tab" href="#home">ホーム</a>
+                </li>
+                <li>
+                    <a data-toggle="tab" href="#menu2">メニュー 2</a>
+                </li>
+                <li>
+                    <a data-toggle="tab" href="#menu2">メニュー 2</a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div id="home" class="tab-pane fade in active">
+                    <h3>ホーム</h3>
+                    <p>ホームのコンテンツが入ります。</p>
+                </div>
+                <div id="menu1-1" class="tab-pane fade">
+                    <h3>メニュー 1-1</h3>
+                    <p>メニュー 1-1のコンテンツが入ります。</p>
+                </div>
+                <div id="menu1-2" class="tab-pane fade">
+                    <h3>メニュー 1-2</h3>
+                    <p>メニュー 1-2のコンテンツが入ります。</p>
+                </div>
+                <div id="menu1-3" class="tab-pane fade">
+                    <h3>メニュー 1-3</h3>
+                    <p>メニュー 1-3のコンテンツが入ります。</p>
+                </div>
+                <div id="menu2" class="tab-pane fade">
+                    <h3>メニュー 2</h3>
+                    <p>メニュー 2のコンテンツが入ります。</p>
+                </div>
+            </div>
+
             <div class="contents-table">
                 ###TABLE###
             </div>
