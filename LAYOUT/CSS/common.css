@@ -110,30 +110,44 @@ body .scrollable-menu {
     left:0px;
 }
 body .cbp-spmenu-vertical {
-    width:155px;
+    width:200px;
 }
 body .cbp-spmenu h3 {
-    width:155px;
+    width:200px;
     font-size:1em;
 }
 body .cbp-spmenu a {
-    width:155px;
+    width:200px;
     font-size:0.9em;
+        background: #47a3da;
+}
+body .nav-tabs>li>a {
+    font-family: 'Lato', Calibri, Arial, sans-serif;
+    color: #47a3da;
+    font-size:12px;
+}
+body .nav-tabs>li.active>a {
+    font-family: 'Lato', Calibri, Arial, sans-serif;
+    color: #47a3da;
+    font-weight:bold;
+    font-size:15px;
 }
 .scrollable-menu {
     height: auto;
     max-height: 100%;
-    /*max-height: 500px;*/
-    overflow-x: visible;
+    overflow-x: auto;
 }
+.dropdown {
+}
+
 /* サイドメニューの子メニュー*/
 .scrollable-menu .dropdown {
-    position:   relative;
+    position:relative;
 }
 .scrollable-menu .dropdown ul {
-    position:   absolute;
-    top:    60%;
-    left:   35%;
+    position:absolute;
+    top:-25px;
+    left:30px;
     background-color:   #47b3e1; 
 }
 /*
@@ -366,28 +380,36 @@ body {
 @media screen and (max-width: 767px) {
    .input-text {
         width:100px;
-        font-size:8px;
+        font-size:10px;
     }
    .input-qty {
+        text-align:center;
         width:30px;
         font-size:8px;
+        padding-right:5px;
+        padding-left:5px;
     }
    .button-qty {
+        text-align:center;
         width:15px;
-        font-size:8px;
+        font-size8px;
     }
 }
 /* col-sm */
 @media screen and (min-width: 768px) and (max-width: 991px) {
    .input-text {
         width:100px;
-        font-size:8px;
+        font-size:10px;
     }
    .input-qty {
+        text-align:center;
         width:30px;
         font-size:8px;
+        padding-right:5px;
+        padding-left:5px;
     }
    .button-qty {
+        text-align:center;
         width:15px;
         font-size:8px;
     }
@@ -399,12 +421,14 @@ body {
         font-size:12px;
     }
    .input-qty {
+        text-align:center;
         width:30px;
-        font-size:8px;
+        font-size:10px;
     }
    .button-qty {
+        text-align:center;
         width:20px;
-        font-size:8px;
+        font-size:10px;
     }
     
     /* デスクトップ表示ではホバー操作でドロップダウンを表示 */
