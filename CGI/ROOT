@@ -124,6 +124,7 @@ case ${CATEGORY}/${FUNC} in
         RETURN_URL=$REQUEST_URI
         CATEGORY='STUFF'
         FUNC='SIGNIN'
+        SUBFUNC=''
         ACTION='INPUT'
         echo ${RETURN_URL} > $tmp-return-url
         echo ${CATEGORY} > $tmp-category
