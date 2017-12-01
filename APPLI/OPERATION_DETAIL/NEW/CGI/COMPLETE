@@ -105,7 +105,7 @@ cp -fp ${DATAD}/LV1/${OPERATION_NO}_${PK}_* ${DATAD}/LV2/
 
 #LV3
 rm -f ${DATAD}/LV3/${OPERATION_NO}_*
-for file in $(ls ${DATAD}/LV2/${OPERATION_NO}_* | sort -t$'_' -nk1);
+for file in $(ls ${DATAD}/LV2/${OPERATION_NO}_*[^_d] | sort -t$'_' -nk1);
 do
   PK=$(basename $file | cut -d'_' -f2)
   VALUE=$(cat $file   | awk 'BEGIN{FS=":"}{print $1,$2}')
