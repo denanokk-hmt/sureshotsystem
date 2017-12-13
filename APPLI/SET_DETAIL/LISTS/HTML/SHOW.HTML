@@ -17,10 +17,16 @@
     <div class="row">
         <div class="col-md-10 lbl-header-info">
             <div>
-                <span id="NAME_ISNULL_MSG" class="fade-in label label-danger ###NAME_ISNULL###">NAMEに、値がありません。</span>
+                <span id="CATEGORY_NO_ISNULL_MSG" class="fade-in label label-danger ###CATEGORY_NO_ISNULL###">カテゴリ名が選択されていません。</span>
             </div>
             <div>
-                <span id="VALUE_ISNULL_MSG" class="fade-in label label-danger ###VALUE_ISNULL###">VALUEに、値がありません。</span>
+                <span id="OPERATION_NO_ISNULL_MSG" class="fade-in label label-danger ###OPERATION_NO_ISNULL###">作業が選択されていません。</span>
+            </div>
+            <div>
+                <span id="OPERATION_NO_EXIST_MSG" class="fade-in label label-danger ###OPERATION_NO_EXIST###">選択した作業は存在していません。</span>
+            </div>
+            <div>
+                <span id="OPERATION_QTY_ISNULL_MSG" class="fade-in label label-danger ###OPERATION_QTY_ISNULL###">作業工数が選択されていません。</span>
             </div>
         </div>
     </div>
@@ -67,48 +73,53 @@
             <input type="hidden" id="CATEGORY_NM" name="CATEGORY_NM" value="###CATEGORY_NM###" />
             <input type="hidden" id="CATEGORY_NO" name="CATEGORY_NO" value="###CATEGORY_NO###" />
 
-            <ul class="nav nav-pills">
+            <ul class="nav nav-tabs">
                 <li class="active">
-                    <a data-toggle="tab" href="#home">ホーム</a>
+                    <a class="tab bg-success" data-toggle="tab" href="#tab-set" value="tab-set">Set</a>
                 </li>
                 <li>
-                    <a data-toggle="tab" href="#menu2">メニュー 2</a>
+                    <a class="tab bg-success" data-toggle="tab" href="#tab-operation" value="tab-operation">Add Operation</a>
                 </li>
                 <li>
-                    <a data-toggle="tab" href="#menu2">メニュー 2</a>
+                    <a class="tab bg-success" data-toggle="tab" href="#tab-parts" value="tab-parts">Add Parts</a>
                 </li>
             </ul>
             <div class="tab-content">
-                <div id="home" class="tab-pane fade in active">
-                    <h3>ホーム</h3>
-                    <p>ホームのコンテンツが入ります。</p>
+                <div id="tab-set" class="tab-pane fade active in">
+                    <div class="header-dummy" style="height:1.0em; background-color:piink;"></div>
+                    <div class="contents-table">
+                        ###SET_LIST###
+                    </div>
                 </div>
-                <div id="menu1-1" class="tab-pane fade">
-                    <h3>メニュー 1-1</h3>
-                    <p>メニュー 1-1のコンテンツが入ります。</p>
+                <div id="tab-operation" class="tab-pane fade">
+                    <div class="header-dummy" style="height:1.0em; background-color:piink;"></div>
+                    <div class="contents-table">
+                        ###OPERATION_LIST###
+                    </div>
                 </div>
-                <div id="menu1-2" class="tab-pane fade">
-                    <h3>メニュー 1-2</h3>
-                    <p>メニュー 1-2のコンテンツが入ります。</p>
-                </div>
-                <div id="menu1-3" class="tab-pane fade">
-                    <h3>メニュー 1-3</h3>
-                    <p>メニュー 1-3のコンテンツが入ります。</p>
-                </div>
-                <div id="menu2" class="tab-pane fade">
-                    <h3>メニュー 2</h3>
-                    <p>メニュー 2のコンテンツが入ります。</p>
+                <div id="tab-parts" class="tab-pane fade">
+                    <div class="header-dummy" style="height:1.0em; background-color:piink;"></div>
+                    <div class="contents-table">
+                        ###PARTS_LIST###
+                    </div>
                 </div>
             </div>
 
-            <div class="contents-table">
-                ###TABLE###
-            </div>
         </form>
+        <div class="header-dummy" style="height:10.0em; background-color:piink;"></div>
     </div>
 </div>
 
 <script>
+
+    //Tab1の切り替え
+    $('.tab').on('click', function() {
+        var id = $(this).attr('value');
+        $('.tab-pane').removeClass('active');
+        $('.tab-pane').removeClass('in');
+        $('#' + id).addClass('active');
+        $('#' + id).addClass('in');
+    });
 
     //Validation Err MSGのOpacityを初期化
     $(document).ready(function(){
@@ -165,25 +176,124 @@
         location.href='/APP/SET_LIST/LISTS' + action + page + search + categoryNm + categoryNo;
     }
 
-    //詳細追加
-    function newDetail() {
+    // 作業・部品のカテゴリを選択
+    $(document).on('click', 'a.category-list', function() {
+
+        //選択した作業のidから行を取得する
+        var idname = $(this).attr("id"); 
+        var kind = $(this).attr("name"); 
+        var list_id = idname.split("_");
+        var row = $(this).parent().parent().attr("name");
+        var cat_no = list_id[2];
+        var choice = $(this).text();
+
+        //該当のレコードに選択したカテゴリ名を設定
+        $('#' + kind + '_CATEGORY_NM_' + row).val(choice);
+        $('#' + kind + '_CATEGORY_NM_HID_' + row).val(choice);
+
+        //該当のレコードに選択したカテゴリ番号を設定
+        $('#' + kind + '_CATEGORY_NO_HID_' + row).val(cat_no);
+
+        //作業リストを選択したカテゴリで抽出
+        var jqXHR = $.ajax({
+            type: 'POST',
+            url: '/APP/SET_DETAIL/SEARCH/' + kind,
+            data: {
+                ACTION: 'INPUT',
+                CATEGORY_NO: cat_no,
+                ROW: row
+            }
+        });
+        jqXHR.done(function(data) {
+            search_result = data;
+            var kindL = kind.toLowerCase();
+            $('#dropdown-' + kindL + '-' + row).addClass('open');
+            $('#dropdown-' + kindL + '-list-' + row).html(data);
+            
+            //初期化
+            $('#' + kind + '_NM_' + row).val('');
+            $('#' + kind + '_NO_HID_' + row).val('');
+            $('#' + kind + '_PRICE_' + row).val('');
+            $('#' + kind + '_QTY_' + row).val('0');
+            $('#' + kind + '_SUM_' + row).val('0');
+        });
+        jqXHR.fail(function() {
+            search_result = '一致する' + kind + 'がありません。';
+        });
+    });
+
+    //作業、部品リストの選択
+    $(document).on('click', 'li.list-operation','li.list-parts', function() {
+        //選択したリストのidから行を取得する:list-行-番号
+        var idname = $(this).attr("id"); 
+        var kind = $(this).attr("name"); 
+        var list_id = idname.split("-");
+        var row = list_id[1];
+        var no = $(this).val();
+        var nm = $(this).text();
+        var price = $('#' + kind + '_PRICE_' + row + '_' + no).val();
+        $('#' + kind + '_NM_' + row).val(nm);
+        $('#' + kind + '_PRICE_' + row).val(price);
+        $('#' + kind + '_QTY_' + row).val('1');
+        $('#' + kind + '_SUM_' + row).val(price);
+        $('#' + kind + '_NO_HID_' + row).val(no);
+    });
+
+    //作業・部品 数量PLUS
+    $(document).on('click', ':button.btn-plus', function() {
+        var kind = $(this).attr("name");
+        var idname = $(this).attr("id"); 
+        var list_id = idname.split("_");
+        var row = list_id[2];
+        var each = $('#' + kind + '_PRICE_' + row).val();
+        if (!each) return;
+        var qty = $('#' + kind + '_QTY_' + row).val();
+        $('#' + kind + '_QTY_' + row).val(parseInt(qty) + parseInt(1));
+        qty = $('#' + kind + '_QTY_' + row).val();
+        $('#' + kind + '_SUM_' + row).val(parseInt(each) * parseInt(qty));
+    });
+
+    //作業・部品 数量MINUS
+    $(document).on('click', ':button.btn-minus', function() {
+        var kind = $(this).attr("name");
+        var idname = $(this).attr("id"); 
+        var list_id = idname.split("_");
+        var row = list_id[2];
+        var each = $('#' + kind + '_PRICE_' + row).val();  
+        if (!each) return;
+        var qty = $('#' + kind + '_QTY_' + row).val();
+        if (parseInt(qty) > 1) {
+            $('#' + kind + '_QTY_' + row).val(parseInt(qty) - parseInt(1));
+            qty = $('#' + kind + '_QTY_' + row).val();
+        }
+        $('#' + kind + '_SUM_' + row).val(parseInt(each) * parseInt(qty));
+    });
+
+
+    //作業・部品の追加
+    $(document).on('click', 'a.add', function() {
 
         //バリデーションエラーMSG初期化
         validationErrMsgInit();
 
-        $('#REST').val('POST');
-        var new_detail_name = $('#DETAIL_NAME_NEW').val();
-        //var params = $('form').serialize();
+        var idname = $(this).attr("id").split("_"); 
+        var id = idname[2];
+        var kind = $(this).attr("name");
+        var add_name = $('#' + kind + '_NM_' + id).val();
         var jqXHR = $.ajax({
             type: 'POST',
-            url: '/APP/SET_DETAIL/NEW',
-            //data: params
+            url: '/APP/SET_DETAIL/NEW/OPERATION',
             data: {
                 ACTION: 'COMPLETE',
                 REST: 'POST',
                 SET_NO:$('#SET_NO').val(),
-                DETAIL_NAME: $('#DETAIL_NAME_NEW').val(),
-                DETAIL_VALUE:$('#DETAIL_VALUE_NEW').val()
+                CATEGORY_NO:$('#' + kind + '_CATEGORY_NO_HID_' + id).val(),
+                CATEGORY_NM:$('#' + kind + '_CATEGORY_NM_HID_' + id).val(),
+                OPERATION_NO:$('#' + kind + '_NO_HID_' + id).val(),
+                OPERATION_NM:$('#' + kind + '_NM_' + id).val(),
+                OPERATION_PRICE: $('#' + kind + '_PRICE_' + id).val(),
+                OPERATION_QTY: $('#' + kind + '_QTY_' + id).val(),
+                OPERATION_SUM: $('#' + kind + '_SUM_' + id).val()
             }
         });
         jqXHR.done(function(data) {
@@ -203,14 +313,14 @@
                 }
             } else {
                 $('table').html(data);
-                $('#info-msg').html(new_detail_name + "を追加しました。");
-                alert(new_detail_name + "を追加しました。");
+                $('#info-msg').html(add_name + "を追加しました。");
+                alert(add_name + "を追加しました。");
             }
         });
         jqXHR.fail(function(data) {
             alert("新規登録処理に失敗しました。");
         });
-    }
+    });
 
     //詳細変更
     function editDetail(id) {
@@ -218,7 +328,7 @@
         //バリデーションエラーMSG初期化
         validationErrMsgInit();
 
-        var edit_detail_name = $('#DETAIL_NAME_' + id).val();
+        var edit_name = $('#DETAIL_NAME_' + id).val();
         var jqXHR = $.ajax({
             type: 'POST',
             url: '/APP/SET_DETAIL/EDIT',
@@ -248,7 +358,7 @@
                 }
             } else {
                 $('table').html(data);
-                $('#info-msg').html(edit_detail_name + "に変更しました。");
+                $('#info-msg').html(edit_name + "に変更しました。");
                 alert(edit_detail_name + "に変更しました。");
             }
         });
@@ -264,7 +374,7 @@
         validationErrMsgInit();
  
         //削除処理
-        var delete_detail_name = $('#DETAIL_NAME_' + id).val();
+        var delete_name = $('#DETAIL_NAME_' + id).val();
         var jqXHR = $.ajax({
             type: 'POST',
             url: '/APP/SET_DETAIL/DELETE',
@@ -283,10 +393,10 @@
             } else if (data == 111) {
                 var sel = '#edit-row-' + id;
                 $(sel).remove();
-                $('#info-msg').html(delete_detail_name + "を削除しました。");
+                $('#info-msg').html(delete_name + "を削除しました。");
                 alert(delete_detail_name + "を削除しました。");
             } else {
-                $('#info-msg').html(delete_detail_name + "を削除出来ませんでした。");
+                $('#info-msg').html(delete_name + "を削除出来ませんでした。");
                 alert(delete_detail_name + "を削除出来ませんでした。");
             }
         });

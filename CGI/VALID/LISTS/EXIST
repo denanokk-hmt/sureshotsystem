@@ -1,0 +1,38 @@
+#!/bin/bash -vx
+#
+
+########################################
+#	EXIST.CGI
+#
+#       $1:必須　検索するDFSのCATEGORYディレクト名
+#       $2:必須　検索するDFSのFUNCディレクト名
+#       $3:必須　検索するDFSのGK番号
+#       $4:任意　検索するDFSのSUBFUNCディレクト名
+#       
+#	Written by hiramatsu
+
+
+########################################
+#基本設定
+SYSD=$(cd $(dirname $0) && pwd | awk '{print substr($0, 0, index($0, "sureshotsystem")+13)}')
+LANG=ja_JP.UTF-8
+
+#######################################
+#Validation
+#OKの場合、OK|OKメッセージ、
+#NGの場合、NG|NGメッセージを返す
+CATEGORY=$1
+FUNC=$2
+GK=${3:-0}
+[ -n "$4" ] && SUBFUNC=/$4 || SUBFUNC=''
+DATAD=${SYSD}/DATA/${CATEGORY}/${FUNC}${SUBFUNC}
+
+#######################################
+#Validation
+VALID=$(ls ${DATAD}/LV2/${GK}_*[^_d] )
+[ -n "${VALID}" ] && echo "OK|Exist." || echo "NG|Not_Exist."
+
+#######################################
+#Return cookie words
+exit 0
+

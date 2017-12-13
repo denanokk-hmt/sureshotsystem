@@ -1,0 +1,153 @@
+#!/bin/bash -evx
+#
+
+########################################
+#	SET_DETAIL/NEW/OPERATION COMPLETE.CGI
+#
+#   引数
+#       $1:プロセスID
+#
+#	Written by hiramatsu
+
+
+########################################
+#基本設定
+SYSD=$(cd $(dirname $0) && pwd | awk '{print substr($0, 0, index($0, "sureshotsystem")+13)}')
+#exec 2> ${SYSD}/LOG/LOG.$(basename $0).$(date +%Y%m%d).$(date +%H%M%S).$$
+tmp=/tmp/tmp_$1
+LANG=ja_JP.UTF-8
+#PATH=/home/:/home/UTL:/home/TOOL/open-usp-tukubai-2014061402/COMMANDS:$PATH
+CATEGORY=`cat $tmp-category`
+FUNC=`cat $tmp-func`
+SUBFUNC=`cat $tmp-sub-func`
+DATAD=${SYSD}/DATA/${CATEGORY}/LISTS/OPERATION
+
+########################################
+#Check error
+ERROR_CHECK(){
+	[ $(plus ${PIPESTATUS[@]}) -eq 0 ] && return
+cat <<- FIN
+	Context-type: text/html
+	NG input
+FIN
+	cat $tmp-result
+	exit 1
+}
+
+#######################################
+#フォームの入力値を取得
+nameread SET_NO           $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-set-no          #セットNo
+nameread CATEGORY_NO      $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-2            #カテゴリNo
+nameread CATEGORY_NM      $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-category-nm     #カテゴリNm
+nameread OPERATION_NO     $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-3            #オペレーションNo
+nameread OPERATION_NM     $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-operation-nm    #オペレーションNm
+nameread OPERATION_PRICE  $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-operation-price #オペレーション金額
+nameread OPERATION_QTY    $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-pk-4            #オペレーション数量
+nameread OPERATION_SUM    $tmp-post | awk '{gsub(/^\_$/,"",$1);print}' > $tmp-operation-sum   #オペレーション金額合計
+
+########################################
+#バリデーションを設定
+
+#CATEGORY_NO
+cat $tmp-pk-2   | awk '{print sprintf("CATEGORY_NO|ISNULL|%s",$1)}'   >> $tmp-validation  #必須入力
+
+#OPERATION_NO
+cat $tmp-pk-3   | awk '{print sprintf("OPERATION_NO|ISNULL|%s",$1)}'   >> $tmp-validation  #必須入力
+cat $tmp-pk-3   | awk -v cat=$(cat $tmp-pk-2) '{print sprintf("OPERATION_NO|EXIST|OPERATION_LIST,LISTS,%s,%s",$1,cat)}'  >> $tmp-validation  #存在確認
+
+#QTY
+cat $tmp-pk-4   | awk '{print sprintf("OPERATION_QTY|ISNULL|%s",$1)}'   >> $tmp-validation  #必須入力
+
+########################################
+#バリデーションを実行
+result=`${SYSD}/CGI/VALID/VALIDATION $1`
+
+########################################
+#バリデーション結果
+if [ -n "$(grep "|NG" $tmp-valid-report)" ] ; then
+    #Validation NG
+    echo 'VALID_NG@' $(cat $tmp-valid-report) > $tmp-ajax-html
+    #echo 2222 > $tmp-ajax-html
+    exit 0
+fi
+
+#########################################
+##新規作業番号を確定する
+NEW_NUM=$(${SYSD}/CGI/NUMBER/NUMBER $1)
+echo ${NEW_NUM} > $tmp-pk-1
+
+#######################################
+#変数化
+SET_NO=$(cat $tmp-set-no)
+
+########################################
+#日付を設定
+CREATE_DATE=$(date +%Y%m%d%H%M%S)
+UPDATE_DATE=$CREATE_DATE
+
+########################################
+#更新者の取得
+CREATE_USER=$(cat ${SYSD}/SESSION/$(session_get 'sureshot_stuff_session_id'))
+UPDATE_USER=${CREATE_USER}
+
+########################################
+#リストディレクトリを作成する
+result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/SET_DETAIL/LISTS ${SYSD}/DATA/SET_DETAIL/LISTS`
+
+########################################
+#詳細作業ディレクトリを作成する
+result=`${SYSD}/CGI/DATA/DFS_NEW $$ ${SYSD}/DATA/SET_DETAIL/LISTS/OPERATION ${SYSD}/DATA/SET_DETAIL/LISTS/OPERATION`
+
+########################################
+#データ配置
+#LV1
+echo ${NEW_NUM} > ${DATAD}/LV1/${SET_NO}_${NEW_NUM}_1_${CREATE_USER}_${CREATE_DATE}
+cat $tmp-pk-2   > ${DATAD}/LV1/${SET_NO}_${NEW_NUM}_2_${CREATE_USER}_${CREATE_DATE}
+cat $tmp-pk-3   > ${DATAD}/LV1/${SET_NO}_${NEW_NUM}_3_${CREATE_USER}_${CREATE_DATE}
+cat $tmp-pk-4   > ${DATAD}/LV1/${SET_NO}_${NEW_NUM}_4_${CREATE_USER}_${CREATE_DATE}
+
+#LV2
+rm -f ${DATAD}/LV2/${SET_NO}_${NEW_NUM}_*
+cp -fp ${DATAD}/LV1/${SET_NO}_${NEW_NUM}_*${CREATE_DATE} ${DATAD}/LV2/
+
+#LV3
+for file in $(ls ${DATAD}/LV2/${SET_NO}_${NEW_NUM}_* | sort -t$'_' -nk1);
+do
+  VALUE=$(echo $VALUE `cat $file`)
+done
+echo ${VALUE} ${CREATE_DATE} ${UPDATE_DATE} ${CREATE_USER} ${UPDATE_USER} \
+> ${DATAD}/LV3/${SET_NO}_${NEW_NUM}_set-detail_${CREATE_DATE}
+
+########################################
+#正規データ配置
+#セットNoに紐付け作業一覧をLISTS/LV3へ配置
+
+#該当セットに追加したOPERATIONのカテゴリと作業リストを作業番号で紐付ける
+cat ${SYSD}/DATA/OPERATION_LIST/LISTS/LV3/operations_* > $tmp-operations
+cat ${DATAD}/LV3/${SET_NO}_*[^_d] | sort -nk3 > $tmp-set-operation
+#15 1 1 3 20171213210845 20171213210845 86 86 engine エンジン１ 100000
+join -1 1 -2 3 -o2.{1..8} -o1.{3..5} $tmp-operations $tmp-set-operation > $tmp-pre-details
+
+#項目の位置交換と金額サマリーを算出して正規に配置
+rm -f ${SYSD}/DATA/${CATEGORY}/LISTS/LV3/${SET_NO}_set-operation_*
+#17 4 light 3 ライト１ 10000 5 50000 20171213213617 20171213213617 86 86
+cat $tmp-pre-details | awk '{print $1,$2,$9,$3,$10,$11,$4,$4*$11,$5,$6,$7,$8}' > ${SYSD}/DATA/${CATEGORY}/LISTS/LV3/${SET_NO}_set-operation_${CREATE_DATE}
+
+########################################
+#詳細を取得
+cat ${SYSD}/DATA/${CATEGORY}/LISTS/LV3/${SET_NO}_set-operation_*  > $tmp-records
+mojihame -lRECORDS ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/OPERATION/RECORDS.HTML $tmp-records > $tmp-table
+
+########################################
+# 改行文字を「\\n」という3文字の文字列に置換
+TABLE_RECORDS=`awk -F\n -v ORS='\\\\n' '{print}' $tmp-table`
+
+########################################
+#tableにrecordsを嵌め込む
+cat ${SYSD}/APPLI/${CATEGORY}/LISTS/HTML/OPERATION/TABLE.HTML |
+sed -e "s|###TABLE_RECORDS###|${TABLE_RECORDS}|g"             > $tmp-ajax-html
+
+########################################
+#ending
+echo "OK"
+exit 0

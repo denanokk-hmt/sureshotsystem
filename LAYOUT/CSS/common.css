@@ -135,7 +135,7 @@ body .nav-tabs>li.active>a {
 .scrollable-menu {
     height: auto;
     max-height: 100%;
-    overflow-x: auto;
+    overflow-x: hidden;
 }
 .dropdown {
 }
@@ -146,9 +146,10 @@ body .nav-tabs>li.active>a {
 }
 .scrollable-menu .dropdown ul {
     position:absolute;
-    top:-25px;
+    top:50%;
     left:30px;
     background-color:   #47b3e1; 
+    z-index:99
 }
 /*
 .scrollable-menu .dropdown ul a{
